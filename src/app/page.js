@@ -15,7 +15,6 @@ export default async function Page() {
   } catch (e) {
     error = String(e?.message || e);
   }
-
   const heroPost = Array.isArray(posts) && posts.length > 0 ? posts[0] : null;
 
   return (
@@ -23,22 +22,22 @@ export default async function Page() {
       <Aurora />
 
       {/* HERO */}
-      <section className="relative mx-auto max-w-6xl px-4 pt-10 pb-10 sm:px-6 sm:pt-14 lg:px-8 lg:pt-20">
+      <section className="relative mx-auto max-w-6xl px-4 pt-8 pb-6 sm:px-6 sm:pt-12 lg:px-8 lg:pt-16">
         <HomeHero heroPost={heroPost} totalCount={posts?.length || 0} />
       </section>
 
       {/* METRICS */}
-      <section className="relative mx-auto max-w-6xl px-4 pb-6 sm:px-6 lg:px-8">
+      <section className="relative mx-auto max-w-6xl px-4 pb-4 sm:px-6 lg:px-8">
         <MetricsCounters posts={posts} />
       </section>
 
       {/* TOPICS */}
-      <section className="relative mx-auto max-w-6xl px-4 pb-6 sm:px-6 lg:px-8">
+      <section className="relative mx-auto max-w-6xl px-4 pb-4 sm:px-6 lg:px-8">
         <TopicsStrip />
       </section>
 
       {/* RECOMMENDED */}
-      <section className="relative mx-auto max-w-6xl px-4 pb-6 sm:px-6 lg:px-8">
+      <section className="relative mx-auto max-w-6xl px-4 pb-4 sm:px-6 lg:px-8">
         <RecommendedCarousel posts={posts} />
       </section>
 
@@ -53,7 +52,7 @@ export default async function Page() {
       <PostsSection posts={posts} />
 
       {/* NEWSLETTER */}
-      <section className="relative mx-auto max-w-6xl px-4 pb-16 sm:px-6 lg:px-8">
+      <section className="relative mx-auto max-w-6xl px-4 pb-12 sm:px-6 lg:px-8">
         <NewsletterCTA />
       </section>
     </div>

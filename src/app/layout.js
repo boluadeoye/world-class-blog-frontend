@@ -1,30 +1,30 @@
 import "./globals.css";
-import { Plus_Jakarta_Sans, Space_Grotesk } from "next/font/google";
+import { Inter, Sora } from "next/font/google";
 import LayoutShell from "../components/LayoutShell";
 
-const jakarta = Plus_Jakarta_Sans({
+const inter = Inter({
   subsets: ["latin"],
-  variable: "--font-jakarta",
-  weight: ["400", "500", "600", "700"],
+  variable: "--font-sans",
   display: "swap",
 });
-const grotesk = Space_Grotesk({
+
+const sora = Sora({
   subsets: ["latin"],
-  variable: "--font-grotesk",
+  variable: "--font-display",
   weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
 export const metadata = {
-  title: "World-Class Blog",
+  title: "World‑Class Blog",
   description:
     "Essays by Adeoye Boluwatife — health, finance, technology, education, and the systems that connect them.",
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${jakarta.variable} ${grotesk.variable}`}>
-      <body className="font-sans">
+    <html lang="en" className={`${inter.variable} ${sora.variable}`}>
+      <body className="font-sans antialiased text-slate-100 bg-slate-950">
         <LayoutShell>{children}</LayoutShell>
       </body>
     </html>

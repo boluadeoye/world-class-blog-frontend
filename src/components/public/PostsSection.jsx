@@ -19,7 +19,6 @@ export default function PostsSection({ posts, initialSelectedTopic }) {
     }
   }, [initialSelectedTopic]);
 
-  // Extract plain text from markdown or Editor.js JSON
   const extractText = (content) => {
     if (!content) return "";
     if (typeof content === "object" && content.blocks) {
@@ -38,7 +37,6 @@ export default function PostsSection({ posts, initialSelectedTopic }) {
         }
       } catch {}
     }
-    // strip markdown
     s = s.replace(/```[\s\S]*?```/g, " ");
     s = s.replace(/`([^`]+)`/g, "$1");
     s = s.replace(/!\[([^\]]*)\]\([^)]*\)/g, "$1");
@@ -50,7 +48,6 @@ export default function PostsSection({ posts, initialSelectedTopic }) {
     return s.trim();
   };
 
-  // Derive tags: use post.tags if present; else parse #hashtags in markdown
   const deriveTags = (post) => {
     if (Array.isArray(post?.tags) && post.tags.length) {
       return post.tags.map((t) => String(t).toLowerCase());
@@ -59,9 +56,7 @@ export default function PostsSection({ posts, initialSelectedTopic }) {
     const tags = [];
     const re = /(^|\s)#([a-z0-9-]{2,})\b/gi;
     let m;
-    while ((m = re.exec(txt))) {
-      tags.push(m[2].toLowerCase());
-    }
+    while ((m = re.exec(txt))) tags.push(m[2].toLowerCase());
     return tags;
   };
 
@@ -69,7 +64,6 @@ export default function PostsSection({ posts, initialSelectedTopic }) {
     if (loading) return [];
     let list = posts;
 
-    // topic filter
     if (selected !== "All") {
       list = list.filter((post) => {
         const v = String(post.category || "").trim().toLowerCase();
@@ -87,7 +81,6 @@ export default function PostsSection({ posts, initialSelectedTopic }) {
       });
     }
 
-    // search across title, slug, tags, and plain text content
     if (query.trim()) {
       const q = query.trim().toLowerCase();
       list = list.filter((post) => {
@@ -104,9 +97,11 @@ export default function PostsSection({ posts, initialSelectedTopic }) {
   }, [loading, posts, selected, query]);
 
   return (
-    <section className="relative mx-auto max-w-6xl px-4 pb-16 sm:px-6 lg:px-8">
-      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="font-display text-lg font-semibold text-slate-50 sm:text-xl">Latest posts</h2>
+    <section className="relative mx-auto max-w-6xl px-4 pb-12 sm:px-6 lg:px-8">
+      <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <h2 className="font-display text-[18px] font-semibold text-slate-50 sm:text-[20px]">
+          Latest posts
+        </h2>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           <div className="flex gap-2 overflow-x-auto pb-1 text-[11px]">
             {TOPICS.map((topic) => (
@@ -130,7 +125,7 @@ export default function PostsSection({ posts, initialSelectedTopic }) {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search title, slug, tags…"
-              className="w-full rounded-full border border-slate-700 bg-slate-950 pl-9 pr-3 py-1.5 text-[12px] text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-full border border-slate-700 bg-slate-950 pl-9 pr-3 py-1.5 text-[13px] text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500" />
           </div>
@@ -139,16 +134,16 @@ export default function PostsSection({ posts, initialSelectedTopic }) {
 
       {/* Grid */}
       {loading ? (
-        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
             <PostCardSkeleton key={i} />
           ))}
         </div>
       ) : filtered.length > 0 ? (
-        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filtered.map((post) => (
             <Reveal key={post.id ?? post.slug}>
-              <PostCard post={post} highlight={query} />
+              <PostCard post={post} />
             </Reveal>
           ))}
         </div>

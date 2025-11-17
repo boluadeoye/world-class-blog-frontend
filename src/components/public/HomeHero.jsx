@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { PenSquare, Sparkles, ArrowRight } from "lucide-react";
+import { PenSquare, ArrowRight } from "lucide-react";
 import Reveal from "./Reveal";
 import adeoyePic from "../../../public/adeoye.jpg";
 
@@ -9,15 +9,10 @@ export default function HomeHero({ heroPost, totalCount }) {
   const latestHref = heroPost ? `/post/${heroPost.slug}` : "/articles";
 
   return (
-    <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1.45fr),minmax(0,1fr)]">
-      {/* Left */}
-      <Reveal className="space-y-6">
-        <div className="inline-flex items-center gap-2 rounded-full border border-sky-500/40 bg-slate-900/60 px-3 py-1 text-[11px] text-slate-200 shadow-sm shadow-sky-500/40">
-          <Sparkles className="h-3.5 w-3.5 text-sky-400" />
-          <span>Essays by Adeoye Boluwatife</span>
-        </div>
-
-        <h1 className="font-display max-w-2xl text-4xl font-semibold leading-[1.08] tracking-[-0.02em] text-slate-50 sm:text-5xl lg:text-[54px]">
+    <div className="grid gap-8 md:gap-10 lg:grid-cols-[minmax(0,1.4fr),minmax(0,1fr)] items-start">
+      {/* Left: headline */}
+      <Reveal className="space-y-4">
+        <h1 className="font-display text-[30px] leading-[1.15] tracking-[-0.01em] sm:text-[38px] lg:text-[46px]">
           Build a{" "}
           <span className="bg-gradient-to-r from-sky-400 via-cyan-300 to-emerald-300 bg-clip-text text-transparent">
             world‑class
@@ -25,7 +20,7 @@ export default function HomeHero({ heroPost, totalCount }) {
           reading experience.
         </h1>
 
-        <p className="max-w-2xl text-sm text-slate-300/90 sm:text-base">
+        <p className="max-w-[48ch] text-[15px] text-slate-300/90 sm:text-[16px]">
           Full‑stack developer & writer — exploring health, finance, technology
           and education. I turn complex ideas into useful systems you can apply
           in your work and life.
@@ -53,34 +48,33 @@ export default function HomeHero({ heroPost, totalCount }) {
         </p>
       </Reveal>
 
-      {/* Right */}
+      {/* Right: profile / preview */}
       <Reveal className="relative">
-        <div className="relative mx-auto w-full max-w-sm rounded-3xl border border-slate-800 bg-slate-900/80 p-5 shadow-xl shadow-slate-950/80">
-          <div className="mb-4 flex items-center gap-3">
-            <div className="relative h-12 w-12 overflow-hidden rounded-2xl border border-sky-500/60 bg-slate-900 shadow-lg shadow-sky-500/40">
+        <div className="mx-auto w-full max-w-sm rounded-2xl border border-slate-800 bg-slate-900/80 p-4 shadow-lg shadow-slate-950/60">
+          <div className="mb-3 flex items-center gap-3">
+            <div className="relative h-11 w-11 overflow-hidden rounded-2xl border border-sky-500/60 bg-slate-900 shadow-lg shadow-sky-500/40">
               <Image
                 src={adeoyePic}
                 alt="Adeoye Boluwatife"
-                className="h-12 w-12 object-cover"
-                width={48}
-                height={48}
+                className="h-11 w-11 object-cover"
+                width={44}
+                height={44}
                 priority
               />
             </div>
             <div className="leading-tight">
-              <p className="text-sm font-semibold text-slate-100">
+              <p className="text-[15px] font-semibold text-slate-100">
                 Adeoye Boluwatife
               </p>
               <p className="text-[11px] text-slate-400">Full‑stack developer & writer</p>
             </div>
           </div>
 
-          <div className="rounded-2xl border border-slate-800 bg-slate-950/80 p-4 text-xs text-slate-300 space-y-1">
-            <p className="font-medium text-slate-100 mb-1">Live preview</p>
-            <p>✓ Server‑rendered blog frontend</p>
-            <p>✓ Headless Node.js backend</p>
-            <p>✓ Markdown + YouTube embeds</p>
-            <p>✓ Google sign‑in, likes & comments</p>
+          <div className="rounded-xl border border-slate-800 bg-slate-950/80 p-3 text-[12px] text-slate-300 space-y-1">
+            <p className="font-medium text-slate-100 mb-1">What’s inside</p>
+            <p>• Practical systems and mental models</p>
+            <p>• Tech, money, health & learning done right</p>
+            <p>• Clean reading, fast search, smart embeds</p>
           </div>
         </div>
       </Reveal>
