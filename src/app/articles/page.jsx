@@ -1,8 +1,13 @@
+import { Suspense } from "react";
 import ArticlesClient from "../../components/public/ArticlesClient";
+import ArticlesSkeleton from "../../components/public/ArticlesSkeleton";
 
 export const metadata = {
   title: "Articles | Adeoye Boluwatife",
 };
+
+// Ensure this page is not statically prerendered
+export const dynamic = "force-dynamic";
 
 export default function ArticlesPage() {
   return (
@@ -18,7 +23,10 @@ export default function ArticlesPage() {
         </p>
       </header>
 
-      <ArticlesClient />
+      {/* Suspense wrapper is required when a client component uses useSearchParams */}
+      <Suspense fallback={<ArticlesSkeleton />}>
+        <ArticlesClient />
+      </Suspense>
     </div>
   );
 }
