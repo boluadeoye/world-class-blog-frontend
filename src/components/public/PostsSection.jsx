@@ -19,6 +19,7 @@ export default function PostsSection({ posts, initialSelectedTopic }) {
     }
   }, [initialSelectedTopic]);
 
+  // Plain text (markdown/Editor.js JSON)
   const extractText = (content) => {
     if (!content) return "";
     if (typeof content === "object" && content.blocks) {
@@ -48,6 +49,7 @@ export default function PostsSection({ posts, initialSelectedTopic }) {
     return s.trim();
   };
 
+  // Tags from post.tags or #hashtags
   const deriveTags = (post) => {
     if (Array.isArray(post?.tags) && post.tags.length) {
       return post.tags.map((t) => String(t).toLowerCase());
@@ -97,38 +99,48 @@ export default function PostsSection({ posts, initialSelectedTopic }) {
   }, [loading, posts, selected, query]);
 
   return (
-    <section className="relative mx-auto max-w-6xl px-4 pb-12 sm:px-6 lg:px-8">
-      <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+    <section className="relative mx-auto max-w-6xl px-4 pb-10 sm:px-6 lg:px-8">
+      {/* Header */}
+      <div className="mb-3">
         <h2 className="font-display text-[18px] font-semibold text-slate-50 sm:text-[20px]">
           Latest posts
         </h2>
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-          <div className="flex gap-2 overflow-x-auto pb-1 text-[11px]">
-            {TOPICS.map((topic) => (
-              <button
-                key={topic}
-                type="button"
-                onClick={() => setSelected(topic)}
-                className={`whitespace-nowrap rounded-full border px-3 py-1 transition ${
-                  selected === topic
-                    ? "border-sky-500/80 bg-sky-500 text-sky-950 shadow-sm shadow-sky-500/50"
-                    : "border-slate-700/80 bg-slate-900/80 text-slate-200 hover:border-sky-500/70 hover:text-sky-100"
-                }`}
-              >
-                {topic}
-              </button>
-            ))}
+      </div>
+
+      {/* Filters + Search (scrollable chips, no scrollbar) */}
+      <div className="mb-4 space-y-3">
+        {/* Full-bleed scroll area on mobile */}
+        <div className="-mx-4 sm:mx-0">
+          <div className="px-4 sm:px-0">
+            <div className="flex flex-nowrap gap-2 overflow-x-auto no-scrollbar py-1">
+              {TOPICS.map((topic) => (
+                <button
+                  key={topic}
+                  type="button"
+                  onClick={() => setSelected(topic)}
+                  className={`shrink-0 rounded-full border px-3 py-1 text-[12px] transition ${
+                    selected === topic
+                      ? "border-sky-500/80 bg-sky-500 text-sky-950 shadow-sm shadow-sky-500/50"
+                      : "border-slate-700/80 bg-slate-900/80 text-slate-200 hover:border-sky-500/70 hover:text-sky-100"
+                  }`}
+                >
+                  {topic}
+                </button>
+              ))}
+            </div>
           </div>
-          <div className="relative">
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search title, slug, tags…"
-              className="w-full rounded-full border border-slate-700 bg-slate-950 pl-9 pr-3 py-1.5 text-[13px] text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500" />
-          </div>
+        </div>
+
+        {/* Search field — compact and subtle */}
+        <div className="relative mt-1">
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search title, slug, tags…"
+            className="w-full rounded-full border border-slate-700 bg-slate-950 pl-9 pr-3 py-2 text-[14px] text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <Search className="pointer-events-none absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
         </div>
       </div>
 

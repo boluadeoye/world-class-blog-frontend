@@ -16,9 +16,9 @@
 html, body { height: 100%; }
 body { margin: 0; }
 
-/* Smarter default type rhythm on small screens */
+/* Ensure readable base on small screens */
 @media (max-width: 640px) {
-  body { font-size: 16px; }  /* ensures readable base on mobile */
+  body { font-size: 16px; }
 }
 
 /* Prose tweaks */
@@ -37,3 +37,7 @@ body { margin: 0; }
   animation: shimmer 1.4s infinite;
 }
 @keyframes shimmer { 100% { transform: translateX(100%); } }
+
+/* Hide scrollbar (for horizontal chip scroller) */
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
