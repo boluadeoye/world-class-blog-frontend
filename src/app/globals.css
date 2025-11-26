@@ -385,3 +385,89 @@ body { margin: 0; }
 @media (prefers-reduced-motion: reduce){
   .cta-hint .btn-beam,.hand-cursor{animation:none}
 }
+
+/* ------- Nonzi theme ------- */
+.nz-texture{
+  background:
+    radial-gradient(1200px 600px at 50% -10%, rgba(32,94,153,.35), rgba(2,6,23,0) 60%),
+    radial-gradient(800px 400px at -10% 10%, rgba(14,76,117,.35), rgba(2,6,23,0) 60%),
+    linear-gradient(180deg, #0b1220, #0a1222 60%, #0a1326);
+  position:relative;
+}
+.nz-texture::after{
+  content:""; position:absolute; inset:0; pointer-events:none;
+  opacity:.05; mix-blend-mode:overlay;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(255,255,255,.25) 0 1px, rgba(0,0,0,0) 1px 2px),
+    repeating-linear-gradient(90deg, rgba(0,0,0,.25) 0 1px, rgba(0,0,0,0) 1px 2px);
+}
+
+/* Hero type */
+.nz-hero-h2{
+  font-weight:800; letter-spacing:-.015em; color:#eaeef7;
+  font-size:clamp(2.2rem,6.8vw,4.8rem);
+  text-shadow:0 2px 14px rgba(0,0,0,.45);
+}
+.nz-hero-sub{
+  margin-top:.6rem; color:#c6d4ea; font-weight:600;
+  font-size:clamp(1.05rem,3.2vw,1.35rem); letter-spacing:.01em;
+}
+
+/* CTA */
+.nz-cta{
+  display:inline-block; margin-top:1.1rem;
+  padding:.6rem 1.2rem; border-radius:9999px;
+  color:#08131e; font-weight:800; letter-spacing:.01em;
+  background:linear-gradient(180deg,#f6fbff,#d6ecff 45%,#9cd9ff);
+  box-shadow:0 14px 28px rgba(52,152,219,.35), inset 0 0 0 1px rgba(255,255,255,.75);
+  position:relative; overflow:hidden;
+}
+.nz-cta::after{
+  content:""; position:absolute; inset:-2px; background:conic-gradient(from 180deg, rgba(255,255,255,.0), rgba(255,255,255,.6), rgba(255,255,255,0));
+  mix-blend-mode:overlay; filter:blur(10px); animation:nzSpin 3s linear infinite;
+}
+@keyframes nzSpin{to{transform:rotate(1turn)}}
+
+/* Photo frame (premium) */
+.nz-frame{
+  border-radius:1.5rem; overflow:hidden; position:relative; aspect-ratio:4/5;
+  background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,0));
+  box-shadow:0 20px 48px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.06);
+}
+.nz-frame::before{
+  content:""; position:absolute; inset:-1px; border-radius:inherit; pointer-events:none;
+  background:
+    linear-gradient(140deg, rgba(71,145,220,.65), rgba(255,255,255,0) 50%),
+    conic-gradient(from 210deg at 50% 0%, rgba(255,255,255,.18), rgba(255,255,255,0) 25%, rgba(255,255,255,.18) 50%, rgba(255,255,255,0) 75%, rgba(255,255,255,.18) 100%);
+  mix-blend-mode:screen; opacity:.6;
+}
+
+/* Paper panel */
+.nz-paper{
+  position:relative; border-radius:16px; padding:18px; background:#0f1a2b;
+  box-shadow:0 24px 60px rgba(0,0,0,.45), inset 0 0 0 1px rgba(52,152,219,.35);
+}
+.nz-paper::before{
+  content:""; position:absolute; top:-10px; left:50%; transform:translateX(-50%);
+  width:22px; height:10px; background:linear-gradient(180deg,#2b4c74,#0f1a2b);
+  clip-path:polygon(0 0,100% 0,50% 100%);
+  box-shadow:0 8px 12px rgba(0,0,0,.35);
+}
+
+/* Post list */
+.nz-post{position:relative; display:flex; gap:14px; padding:14px; background:rgba(10,18,34,.6); border:1px solid rgba(61,127,191,.35); border-radius:14px; margin-bottom:12px}
+.nz-day{position:absolute; left:-18px; top:14px; width:42px; height:42px; border-radius:20px; background:linear-gradient(180deg,#3aa0ff,#2d6bb8); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; box-shadow:0 10px 22px rgba(25,118,210,.45)}
+.nz-post-title{font-weight:800; letter-spacing:-.01em; color:#eaf2ff}
+.nz-post-title a{color:inherit}
+.nz-post-meta{font-size:.75rem; color:#a9bed9; margin-top:2px}
+.nz-post-excerpt{color:#c8daef; margin-top:.35rem; line-height:1.5}
+.nz-readmore{display:inline-block; margin-top:.5rem; color:#8ec8ff; font-weight:700; font-size:.8rem}
+
+/* Widgets */
+.nz-widget{background:rgba(10,18,34,.6); border:1px solid rgba(61,127,191,.35); border-radius:14px; padding:14px; margin-bottom:12px}
+.nz-widget-title{font-weight:800; color:#eaf2ff; margin-bottom:.5rem}
+.nz-links{display:grid; gap:.35rem}
+.nz-links a{color:#bcd6f5}
+.nz-links a:hover{color:#d7ecff}
+.nz-thumb{overflow:hidden; border-radius:10px; border:1px solid rgba(61,127,191,.35)}
+.nz-thumb img{display:block; width:100%; height:auto}
