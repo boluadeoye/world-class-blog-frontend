@@ -1,60 +1,36 @@
-import { getPublicPosts } from "../lib/api";
-import Aurora from "../components/public/Aurora";
-import HomeHero from "../components/public/HomeHero";
-import TopicsStrip from "../components/public/TopicsStrip";
-import RecommendedCarousel from "../components/public/RecommendedCarousel";
-import MetricsCounters from "../components/public/MetricsCounters";
-import PostsSection from "../components/public/PostsSection";
-import NewsletterCTA from "../components/public/NewsletterCTA";
+import HeroPaynext from "../components/paynext/HeroPaynext";
+import FeaturedTwo from "../components/paynext/FeaturedTwo";
+import ArticlesChips from "../components/paynext/ArticlesChips";
+import ArticlesGrid from "../components/paynext/ArticlesGrid";
+import VideosSection from "../components/paynext/VideosSection";
+import CTABanner from "../components/paynext/CTABanner";
+import { fetchLatestPosts, pickFeatured, fetchRecentVideos } from "../lib/homeData";
 
-export default async function Page() {
-  let posts = [];
-  let error = "";
-  try {
-    posts = await getPublicPosts();
-  } catch (e) {
-    error = String(e?.message || e);
-  }
-  const heroPost = Array.isArray(posts) && posts.length > 0 ? posts[0] : null;
+export default async function Page({ searchParams }) {
+  const tag = typeof searchParams?.tag === "string" ? searchParams.tag : "";
+  const latest = await fetchLatestPosts(12, tag);
+  const allForTags = tag ? await fetchLatestPosts(24, "") : latest;
+  const tags = (allForTags || []).flatMap(p => Array.isArray(p?.tags) ? p.tags : []).slice(0, 24);
+  const featuredPosts = pickFeatured(await fetchLatestPosts(2, ""));
+  const videos = await fetchRecentVideos(3);
+  const featuredVideo = videos[0] || null;
+  const moreVideos = videos.slice(1);
 
   return (
     <div className="relative">
-      <Aurora />
-
-      {/* HERO */}
-      <section className="relative mx-auto max-w-6xl px-4 pt-8 pb-6 sm:px-6 sm:pt-12 lg:px-8 lg:pt-16">
-        <HomeHero heroPost={heroPost} totalCount={posts?.length || 0} />
-      </section>
-
-      {/* METRICS */}
-      <section className="relative mx-auto max-w-6xl px-4 pb-4 sm:px-6 lg:px-8">
-        <MetricsCounters posts={posts} />
-      </section>
-
-      {/* TOPICS */}
-      <section className="relative mx-auto max-w-6xl px-4 pb-4 sm:px-6 lg:px-8">
-        <TopicsStrip />
-      </section>
-
-      {/* RECOMMENDED */}
-      <section className="relative mx-auto max-w-6xl px-4 pb-4 sm:px-6 lg:px-8">
-        <RecommendedCarousel posts={posts} />
-      </section>
-
-      {/* LATEST POSTS */}
-      {error && (
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pb-2">
-          <div className="mb-4 rounded-lg border border-red-500/40 bg-red-950/40 px-4 py-3 text-xs text-red-200">
-            Failed to fetch public posts ({error})
+      <HeroPaynext />
+      <FeaturedTwo posts={featuredPosts} />
+      <section className="px-4 sm:px-6 lg:px-8 py-4">
+        <div className="mx-auto max-w-6xl text-center">
+          <h2 className="h2-compact">All Articles</h2>
+          <div className="mt-3">
+            <ArticlesChips tags={tags} current={tag} />
           </div>
         </div>
-      )}
-      <PostsSection posts={posts} />
-
-      {/* NEWSLETTER */}
-      <section className="relative mx-auto max-w-6xl px-4 pb-12 sm:px-6 lg:px-8">
-        <NewsletterCTA />
       </section>
+      <ArticlesGrid posts={latest} />
+      <VideosSection featured={featuredVideo} items={moreVideos} />
+      <CTABanner />
     </div>
   );
 }
