@@ -1,9 +1,12 @@
-import HeroPaynext from "../components/paynext/HeroPaynext";
+import HeroShowcase from "../components/home/HeroShowcase";
+import PartnersStrip from "../components/home/PartnersStrip";
+
 import FeaturedTwo from "../components/paynext/FeaturedTwo";
 import ArticlesChips from "../components/paynext/ArticlesChips";
 import ArticlesGrid from "../components/paynext/ArticlesGrid";
 import VideosSection from "../components/paynext/VideosSection";
 import CTABanner from "../components/paynext/CTABanner";
+
 import { fetchLatestPosts, fetchFeaturedPosts, fetchRecentVideos, fetchFeaturedVideo } from "../lib/homeData";
 
 export default async function Page({ searchParams }) {
@@ -22,7 +25,9 @@ export default async function Page({ searchParams }) {
 
   return (
     <div className="relative">
-      <HeroPaynext />
+      <HeroShowcase />
+      <PartnersStrip />
+
       <FeaturedTwo posts={featuredPosts} />
 
       <section className="px-4 sm:px-6 lg:px-8 py-4">
