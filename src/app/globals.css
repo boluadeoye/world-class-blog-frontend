@@ -201,3 +201,46 @@ body { margin: 0; }
 @media (prefers-reduced-motion: reduce){
   .gold-title .char,.hero-img{animation:none;transform:none;opacity:1;filter:none}
 }
+
+/* Beaming CTA button */
+.btn-beam{
+  background: radial-gradient(120% 180% at 10% 10%, #fff 0%, #e5f2ff 35%, #b3e1ff 60%, #7dd3fc 100%);
+  box-shadow: 0 8px 20px rgba(56,189,248,.35), inset 0 0 0 1px rgba(255,255,255,.6);
+  position:relative; overflow:hidden;
+  transition: transform .15s ease, box-shadow .2s ease;
+}
+.btn-beam::before{
+  content:""; position:absolute; inset:-2px;
+  background: conic-gradient(from 180deg at 50% 50%, rgba(255,255,255,.0), rgba(255,255,255,.55), rgba(255,255,255,0));
+  mix-blend-mode:overlay; opacity:.7; filter: blur(10px);
+  animation: beam-spin 3.2s linear infinite;
+}
+.btn-beam::after{
+  content:""; position:absolute; top:0; bottom:0; left:-40%;
+  width:40%; background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.65), rgba(255,255,255,0));
+  transform: skewX(-20deg);
+  animation: beam-sweep 2.4s ease-in-out infinite;
+}
+.btn-beam:hover{ transform: translateY(-1px); box-shadow: 0 10px 26px rgba(56,189,248,.45), inset 0 0 0 1px rgba(255,255,255,.75) }
+@keyframes beam-spin { to { transform: rotate(360deg) } }
+@keyframes beam-sweep { 0%,100%{ left:-40% } 50%{ left:110% } }
+
+/* Dangling finger pointer anchored to CTA */
+.hand-dangle{
+  position:absolute; right:-16px; top:-14px;
+  width:22px; height:22px; color:#fde68a; /* warm gold */
+  text-shadow:0 2px 8px rgba(0,0,0,.45);
+  transform-origin: top center;
+  animation: dangle 1.6s ease-in-out infinite alternate;
+  pointer-events:none;
+}
+@keyframes dangle{
+  0%{ transform: rotate(-15deg) translateY(-2px) }
+  100%{ transform: rotate(12deg) translateY(2px) }
+}
+
+/* Reduce-motion safety */
+@media (prefers-reduced-motion: reduce){
+  .btn-beam::before,.btn-beam::after,.hand-dangle{ animation:none }
+  .btn-beam{ transition:none }
+}
