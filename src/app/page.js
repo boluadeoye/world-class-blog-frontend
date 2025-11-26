@@ -1,9 +1,8 @@
 import HeroShowcase from "../components/home/HeroShowcase";
 import PartnersStrip from "../components/home/PartnersStrip";
 
-import FeaturedTwo from "../components/paynext/FeaturedTwo";
-import ArticlesChips from "../components/paynext/ArticlesChips";
-import ArticlesGrid from "../components/paynext/ArticlesGrid";
+import FeaturedRail from "../components/paynext/FeaturedRail";
+import ArticlesRailTwoCols from "../components/paynext/ArticlesRailTwoCols";
 import VideosSection from "../components/paynext/VideosSection";
 import CTABanner from "../components/paynext/CTABanner";
 
@@ -14,13 +13,11 @@ export default async function Page({ searchParams }) {
 
   const [latest, featuredPosts, recentVideos, featuredVideo] = await Promise.all([
     fetchLatestPosts(12, tag),
-    fetchFeaturedPosts(2),
+    fetchFeaturedPosts(6),           // give the rail more items
     fetchRecentVideos(3),
     fetchFeaturedVideo(),
   ]);
 
-  const allForTags = tag ? await fetchLatestPosts(24, "") : latest;
-  const tags = (allForTags || []).flatMap(p => Array.isArray(p?.tags) ? p.tags : []).slice(0, 24);
   const moreVideos = (recentVideos || []).filter(v => !featuredVideo || v.id !== featuredVideo.id);
 
   return (
@@ -28,18 +25,13 @@ export default async function Page({ searchParams }) {
       <HeroShowcase />
       <PartnersStrip />
 
-      <FeaturedTwo posts={featuredPosts} />
+      {/* Featured — animated horizontal rail */}
+      <FeaturedRail posts={featuredPosts} />
 
-      <section className="px-4 sm:px-6 lg:px-8 py-4">
-        <div className="mx-auto max-w-6xl text-center">
-          <h2 className="h2-compact">All Articles</h2>
-          <div className="mt-3">
-            <ArticlesChips tags={tags} current={tag} />
-          </div>
-        </div>
-      </section>
+      {/* All Articles — two-row horizontal scroller */}
+      <ArticlesRailTwoCols posts={latest} />
 
-      <ArticlesGrid posts={latest} />
+      {/* Videos + CTA unchanged */}
       <VideosSection featured={featuredVideo} items={moreVideos} />
       <CTABanner />
     </div>

@@ -1,4 +1,4 @@
-// src/components/paynext/ArticlesGrid.jsx (server component)
+// src/components/paynext/ArticlesGrid.jsx (no auto fallback images)
 function whenOf(p) {
   const d = new Date(p?.created_at || p?.createdAt || Date.now());
   return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "2-digit" });
@@ -20,18 +20,17 @@ export default function ArticlesGrid({ posts = [] }) {
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {posts.map((p, i) => {
           const href = p?.slug ? `/post/${p.slug}` : "#";
-          const thumb = p?.meta?.cover || p?.meta?.image || null;
+          const cover = p?.meta?.cover || p?.meta?.image || null;
           return (
             <a key={i} href={href} className="group block">
               <div className="overflow-hidden rounded-[18px] border border-slate-800 bg-slate-900/40">
                 <div className="relative aspect-[16/9]">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    alt=""
-                    src={thumb || "https://images.unsplash.com/photo-1504384764586-bb4cdc1707b0?q=80&w=1200&auto=format&fit=crop"}
-                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-                    loading="lazy"
-                  />
+                  {cover ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img alt="" src={cover} className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" loading="lazy" />
+                  ) : (
+                    <div className="card-grad absolute inset-0" />
+                  )}
                 </div>
                 <div className="p-3">
                   {Array.isArray(p?.tags) && p.tags[0] ? (
