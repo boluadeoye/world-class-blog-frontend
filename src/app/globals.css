@@ -41,3 +41,11 @@ body { margin: 0; }
 /* Hide scrollbar (for horizontal chip scroller) */
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
+/* Lite YouTube */
+.lite-yt-embed{position:relative;width:100%;aspect-ratio:16/9;background:#0b0b0b}
+.lite-yt-embed iframe{border:0}
+.lite-yt-poster{position:absolute;inset:0;background-size:cover;background-position:center;transform:scale(1.02);transition:transform .35s,opacity .35s}
+.lite-yt-gradient{position:absolute;inset:0;pointer-events:none;background:linear-gradient(to top,rgba(0,0,0,.35),rgba(0,0,0,0))}
+.lite-yt-playbtn{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);color:rgba(255,255,255,.72);transition:transform .2s,color .2s;filter:drop-shadow(0 6px 18px rgba(0,0,0,.45))}
+.lite-yt-embed:hover .lite-yt-poster{transform:scale(1.05)}
+.lite-yt-embed:focus-within .lite-yt-playbtn,.lite-yt-embed:hover .lite-yt-playbtn{transform:translate(-50%,-50%) scale(1.06);color:rgba(255,255,255,.92)}

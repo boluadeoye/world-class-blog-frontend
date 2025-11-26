@@ -1,18 +1,11 @@
 // src/lib/api.js
-// Minimal, safe API helpers. Uses NEXT_PUBLIC_API_URL if present,
-// otherwise falls back to the known live backend URL.
+// Minimal, safe API helpers.
 
 const DEFAULT_API = "https://project-blog-backend-beta.vercel.app/api";
-
-// If an env var is set, use it; otherwise fall back.
-// Trim trailing slash to avoid double // or bad concatenations.
 const API_BASE = (typeof process.env.NEXT_PUBLIC_API_URL === "string" && process.env.NEXT_PUBLIC_API_URL.trim())
   ? process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, "")
   : DEFAULT_API;
 
-/**
- * Fetch featured posts for the homepage (server-side).
- */
 export async function getPublicPosts() {
   const url = `${API_BASE}/posts/featured`;
   const res = await fetch(url, { cache: "no-store" });
@@ -22,9 +15,6 @@ export async function getPublicPosts() {
   return res.json();
 }
 
-/**
- * Fetch a single post by slug (server-side).
- */
 export async function getPostBySlug(slug) {
   const url = `${API_BASE}/posts/slug/${encodeURIComponent(slug)}`;
   const res = await fetch(url, { cache: "no-store" });
@@ -33,4 +23,65 @@ export async function getPostBySlug(slug) {
     throw new Error(`Failed to fetch post by slug (${res.status})`);
   }
   return res.json();
+}
+
+// Helpers
+function parseStart(value) {
+  if (!value) return 0;
+  if (/^\d+$/.test(String(value))) return parseInt(value, 10);
+  const m = /(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?/i.exec(String(value));
+  if (!m) return 0;
+  return (parseInt(m[1]||"0",10)*3600)+(parseInt(m[2]||"0",10)*60)+(parseInt(m[3]||"0",10));
+}
+function extractFromUrl(url) {
+  try {
+    const u = new URL(url);
+    const host = u.hostname.replace(/^www\./,"").toLowerCase();
+    let id = null;
+    if (host === "youtu.be") id = u.pathname.split("/")[1] || null;
+    else if (host.endsWith("youtube.com")) {
+      const parts = u.pathname.split("/").filter(Boolean);
+      if (u.pathname === "/watch") id = u.searchParams.get("v");
+      else if (parts.length >= 2 && ["shorts","embed","live"].includes(parts[0])) id = parts[1] || null;
+    }
+    const start = parseStart(u.searchParams.get("t") || u.searchParams.get("start"));
+    return id ? { id, start } : null;
+  } catch { return null; }
+}
+
+// Returns { id, url, title, caption, start } or null
+export async function getHomeFeaturedVideo() {
+  // Preferred: type+tag filter
+  try {
+    const u1 = `${API_BASE}/posts?type=video&tag=home-featured&limit=1`;
+    const r1 = await fetch(u1, { cache: "no-store" });
+    if (r1.ok) {
+      const a1 = await r1.json();
+      if (Array.isArray(a1) && a1.length) {
+        const p = a1[0] || {};
+        const meta = p.meta || {};
+        const url = meta.youtubeUrl || null;
+        const parsed = meta.youtubeId ? { id: meta.youtubeId, start: Number(meta.start||0) || 0 }
+          : (url ? extractFromUrl(url) : null);
+        return parsed ? { id: parsed.id, url, title: p.title || meta.title || "", caption: meta.caption || "", start: parsed.start } : null;
+      }
+    }
+  } catch {}
+  // Fallback: /posts/featured choose first with video-like meta
+  try {
+    const u2 = `${API_BASE}/posts/featured?limit=5`;
+    const r2 = await fetch(u2, { cache: "no-store" });
+    if (r2.ok) {
+      const a2 = await r2.json();
+      const p = (Array.isArray(a2) ? a2 : []).find(x => x?.type === "video" || x?.meta?.youtubeUrl || x?.meta?.youtubeId);
+      if (p) {
+        const meta = p.meta || {};
+        const url = meta.youtubeUrl || null;
+        const parsed = meta.youtubeId ? { id: meta.youtubeId, start: Number(meta.start||0) || 0 }
+          : (url ? extractFromUrl(url) : null);
+        return parsed ? { id: parsed.id, url, title: p.title || meta.title || "", caption: meta.caption || "", start: parsed.start } : null;
+      }
+    }
+  } catch {}
+  return null;
 }

@@ -1,4 +1,4 @@
-import { getPublicPosts } from "../lib/api";
+import { getPublicPosts, getHomeFeaturedVideo } from "../lib/api";
 import Aurora from "../components/public/Aurora";
 import HomeHero from "../components/public/HomeHero";
 import TopicsStrip from "../components/public/TopicsStrip";
@@ -6,6 +6,7 @@ import RecommendedCarousel from "../components/public/RecommendedCarousel";
 import MetricsCounters from "../components/public/MetricsCounters";
 import PostsSection from "../components/public/PostsSection";
 import NewsletterCTA from "../components/public/NewsletterCTA";
+import FeaturedVideo from "../components/public/FeaturedVideo";
 
 export default async function Page() {
   let posts = [];
@@ -16,6 +17,9 @@ export default async function Page() {
     error = String(e?.message || e);
   }
   const heroPost = Array.isArray(posts) && posts.length > 0 ? posts[0] : null;
+
+  // Featured video (server-side). Component has env fallback if null.
+  const featuredVideo = await getHomeFeaturedVideo();
 
   return (
     <div className="relative">
@@ -40,6 +44,9 @@ export default async function Page() {
       <section className="relative mx-auto max-w-6xl px-4 pb-4 sm:px-6 lg:px-8">
         <RecommendedCarousel posts={posts} />
       </section>
+
+      {/* FEATURED VIDEO */}
+      <FeaturedVideo video={featuredVideo} />
 
       {/* LATEST POSTS */}
       {error && (
