@@ -1,4 +1,4 @@
-// src/components/home/HeroShowcase.jsx — overlay hero (portrait bigger, face visible)
+// src/components/home/HeroShowcase.jsx — overlay hero (taller portrait, overlay nudged down)
 export default function HeroShowcase() {
   const raw = process.env.NEXT_PUBLIC_OWNER_NAME || "Adeoye Boluwatife";
   const display =
@@ -17,20 +17,18 @@ export default function HeroShowcase() {
   return (
     <section className="px-4 sm:px-6 lg:px-8 pt-6">
       <div className="mx-auto max-w-6xl hs-card rounded-[28px] overflow-hidden border border-white/10">
-        {/* Taller aspect so the portrait shows fully; same overlay */}
-        <div className="relative aspect-[16/9] sm:aspect-[16/8] lg:aspect-[16/7]">
-          {/* Background image with warm overlay */}
+        {/* Taller aspect so portrait shows more; overlay kept */}
+        <div className="relative aspect-[16/9] sm:aspect-[16/8] lg:aspect-[16/6]">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={image}
             alt=""
             className="hs-media absolute inset-0 h-full w-full object-cover"
-            style={{ objectPosition: "center 12%" }}
+            style={{ objectPosition: "center 22%" }}
           />
           <div className="hs-warm" aria-hidden />
           <div className="hs-gradient" aria-hidden />
 
-          {/* Content */}
           <div className="relative z-10 h-full">
             <div className="grid grid-cols-12 gap-4 items-center h-full px-6 sm:px-10 py-8">
               <div className="col-span-12 md:col-span-7">
