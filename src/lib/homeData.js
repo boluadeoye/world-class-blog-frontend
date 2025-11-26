@@ -1,18 +1,15 @@
 // src/lib/homeData.js
 const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "https://project-blog-backend-beta.vercel.app/api").replace(/\/$/, "");
 
-// --- Generic fetch helper ---
 async function getJSON(url) {
   try {
     const res = await fetch(url, { cache: "no-store" });
     if (!res.ok) return null;
     return await res.json();
-  } catch {
-    return null;
-  }
+  } catch { return null; }
 }
 
-// --- Posts ---
+// Posts
 export async function fetchLatestPosts(limit = 12, tag = "") {
   const u = new URL(`${API_BASE}/posts`);
   u.searchParams.set("limit", String(limit));
@@ -20,14 +17,13 @@ export async function fetchLatestPosts(limit = 12, tag = "") {
   const arr = await getJSON(u.toString());
   return Array.isArray(arr) ? arr : [];
 }
-
 export async function fetchFeaturedPosts(limit = 2) {
   const u = `${API_BASE}/posts/featured?limit=${encodeURIComponent(limit)}`;
   const arr = await getJSON(u);
   return Array.isArray(arr) ? arr.slice(0, limit) : [];
 }
 
-// --- Videos (type=video or meta.youtubeUrl) ---
+// Video helpers
 function parseStart(v) {
   if (!v) return 0;
   if (/^\d+$/.test(String(v))) return parseInt(v, 10);
@@ -62,13 +58,14 @@ export async function fetchRecentVideos(limit = 3) {
     const meta = p?.meta || {};
     const pick = meta.youtubeId ? { id: meta.youtubeId, start: Number(meta.start||0)||0 } : (meta.youtubeUrl ? extractId(meta.youtubeUrl) : null);
     if (!pick) return null;
-    return { id: pick.id, start: pick.start||0, title: p?.title || meta.title || "Video", caption: meta.caption || "", slug: p?.slug || "" };
+    return { id: pick.id, start: pick.start||0, title: p?.title || meta.title || "Video", caption: meta.caption || (p?.content || ""), slug: p?.slug || "" };
   }).filter(Boolean);
   return vids.slice(0, limit);
 }
-
+export async function fetchVideoPosts(limit = 10) {
+  return await fetchRecentVideos(limit);
+}
 export async function fetchFeaturedVideo() {
-  // Preferred: type=video + tag=home-featured
   const u = new URL(`${API_BASE}/posts`);
   u.searchParams.set("type", "video");
   u.searchParams.set("tag", "home-featured");
@@ -78,9 +75,8 @@ export async function fetchFeaturedVideo() {
   if (first) {
     const meta = first.meta || {};
     const pick = meta.youtubeId ? { id: meta.youtubeId, start: Number(meta.start||0)||0 } : (meta.youtubeUrl ? extractId(meta.youtubeUrl) : null);
-    if (pick) return { id: pick.id, start: pick.start||0, title: first.title || meta.title || "Featured video", caption: meta.caption || "" };
+    if (pick) return { id: pick.id, start: pick.start||0, title: first.title || meta.title || "Featured video", caption: meta.caption || (first.content || "") };
   }
-  // Fallback: first recent video
   const backup = await fetchRecentVideos(1);
   return backup[0] || null;
 }
