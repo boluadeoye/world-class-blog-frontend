@@ -2,7 +2,6 @@ import { getPublicPosts, getHomeFeaturedVideo, getRecentVideos } from "../lib/ap
 import Aurora from "../components/public/Aurora";
 import PersonaHero from "../components/public/PersonaHero";
 import ServicesSection from "../components/public/ServicesSection";
-import StatsBar from "../components/public/StatsBar";
 import VideosSection from "../components/public/VideosSection";
 import TopicsStrip from "../components/public/TopicsStrip";
 import RecommendedCarousel from "../components/public/RecommendedCarousel";
@@ -18,8 +17,6 @@ export default async function Page() {
   } catch (e) {
     error = String(e?.message || e);
   }
-  const heroPost = Array.isArray(posts) && posts.length > 0 ? posts[0] : null;
-
   const featuredVideo = await getHomeFeaturedVideo();
   const recentVideos = await getRecentVideos(3);
 
@@ -28,10 +25,9 @@ export default async function Page() {
       <Aurora />
       <PersonaHero />
       <ServicesSection />
-      <StatsBar />
       <VideosSection featured={featuredVideo} items={recentVideos} />
 
-      {/* Keep dynamic rails from current website */}
+      {/* Dynamic rails already on the site */}
       <section className="relative mx-auto max-w-6xl px-4 pb-4 sm:px-6 lg:px-8">
         <TopicsStrip />
       </section>
@@ -39,7 +35,6 @@ export default async function Page() {
         <RecommendedCarousel posts={posts} />
       </section>
 
-      {/* LATEST POSTS */}
       {error && (
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pb-2">
           <div className="mb-4 rounded-lg border border-red-500/40 bg-red-950/40 px-4 py-3 text-xs text-red-200">
@@ -49,7 +44,6 @@ export default async function Page() {
       )}
       <PostsSection posts={posts} />
 
-      {/* Metrics + Newsletter (existing features) */}
       <section className="relative mx-auto max-w-6xl px-4 pb-4 sm:px-6 lg:px-8">
         <MetricsCounters posts={posts} />
       </section>

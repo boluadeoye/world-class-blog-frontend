@@ -70,3 +70,11 @@ body { margin: 0; }
 @media (prefers-reduced-motion: reduce){
   .lite-yt-poster{transition:none}
 }
+
+/* Persona helpers (safe if duplicated) */
+.section-eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:rgb(148 163 184/.9)}
+.section-title{font-weight:800;color:#fff;line-height:1.05;font-size:clamp(2rem,5vw,4.25rem)}
+.section-h2{font-weight:800;color:#fff;line-height:1.1;font-size:clamp(1.6rem,3.6vw,2.2rem)}
+.ghost-title{position:absolute;left:-6px;top:-12px;pointer-events:none;font-weight:800;letter-spacing:-.02em;font-size:clamp(3rem,12vw,9rem);color:rgba(148,163,184,.05);user-select:none}
+.btn-ghost{display:inline-flex;align-items:center;gap:.5rem;border:1px solid rgb(71 85 105);background:rgba(2,6,23,.6);color:#cbd5e1;border-radius:.75rem;padding:.5rem .8rem;font-size:.8rem;font-weight:600}
+.btn-ghost:hover{border-color:rgb(100 116 139);color:#fff}

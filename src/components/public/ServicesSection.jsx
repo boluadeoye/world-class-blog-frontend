@@ -1,18 +1,18 @@
 "use client";
 
-import { Camera, Rocket, Sparkles } from "lucide-react";
+import { Code2, PenTool, Camera } from "lucide-react";
 
 const cards = [
   {
-    title: "Engineering Services",
-    desc: "From idea to production—fast, reliable, and maintainable.",
-    Icon: Rocket,
+    title: "Full‑stack Development",
+    desc: "Design, build and ship web apps that are fast and reliable.",
+    Icon: Code2,
     highlight: true,
   },
   {
-    title: "Writing & Documentation",
-    desc: "Clear docs and public notes that scale your impact.",
-    Icon: Sparkles,
+    title: "Technical Writing",
+    desc: "Clear docs, tutorials and notes that teach and scale your work.",
+    Icon: PenTool,
     highlight: false,
   },
   {
@@ -32,12 +32,7 @@ export default function ServicesSection() {
           <h2 className="section-h2">Services</h2>
           <div aria-hidden className="ghost-title">Services</div>
         </div>
-        <a
-          href="/projects"
-          className="btn-ghost"
-        >
-          View all services
-        </a>
+        <a href="/projects" className="btn-ghost">View all services</a>
       </div>
 
       <div className="mt-6 grid gap-4 md:grid-cols-3">

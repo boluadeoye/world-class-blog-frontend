@@ -3,23 +3,24 @@
 import { Twitter, Github, Youtube, Instagram } from "lucide-react";
 
 export default function PersonaHero() {
-  const name = process.env.NEXT_PUBLIC_OWNER_NAME || "Bolu Adeoye";
-  const tagline = process.env.NEXT_PUBLIC_OWNER_TAGLINE || "Engineer • Writer • Builder";
-  const heroImage = process.env.NEXT_PUBLIC_HERO_IMAGE || "";
+  const name = process.env.NEXT_PUBLIC_OWNER_NAME || "Adeoye Boluwatife";
+  const tagline = process.env.NEXT_PUBLIC_OWNER_TAGLINE || "Full-stack developer & writer";
+  const heroImage = process.env.NEXT_PUBLIC_HERO_IMAGE || ""; // set URL in .env.local
   const contactUrl = process.env.NEXT_PUBLIC_CONTACT_URL || "/about";
 
   const socials = [
-    { href: process.env.NEXT_PUBLIC_TWITTER_URL || "#", Icon: Twitter, label: "Twitter" },
-    { href: process.env.NEXT_PUBLIC_GITHUB_URL || "#", Icon: Github, label: "GitHub" },
-    { href: process.env.NEXT_PUBLIC_INSTAGRAM_URL || "#", Icon: Instagram, label: "Instagram" },
-    { href: process.env.NEXT_PUBLIC_YOUTUBE_URL || "#", Icon: Youtube, label: "YouTube" },
-  ].filter(s => s.href && s.href !== "#");
+    { href: process.env.NEXT_PUBLIC_TWITTER_URL || "", Icon: Twitter, label: "Twitter" },
+    { href: process.env.NEXT_PUBLIC_GITHUB_URL || "", Icon: Github, label: "GitHub" },
+    { href: process.env.NEXT_PUBLIC_INSTAGRAM_URL || "", Icon: Instagram, label: "Instagram" },
+    { href: process.env.NEXT_PUBLIC_YOUTUBE_URL || "", Icon: Youtube, label: "YouTube" },
+  ].filter(s => s.href);
 
   return (
     <section className="relative overflow-hidden">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-10 sm:py-14 lg:py-18">
-        <div className="grid gap-8 md:grid-cols-2 md:items-center">
-          <div>
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
+        <div className="grid gap-8 md:grid-cols-12 md:items-center">
+          {/* Left: text */}
+          <div className="md:col-span-7">
             <p className="section-eyebrow">Hello, my name is</p>
             <h1 className="section-title">{name}</h1>
             <p className="mt-3 text-slate-300/95 text-lg">{tagline}</p>
@@ -44,19 +45,22 @@ export default function PersonaHero() {
               </a>
             </div>
           </div>
-          <div className="relative hidden md:block">
-            <div className="aspect-[4/5] w-full overflow-hidden rounded-2xl border border-slate-800 bg-gradient-to-b from-slate-800/50 to-slate-900">
+
+          {/* Right: portrait */}
+          <div className="md:col-span-5">
+            <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl border border-slate-800 bg-gradient-to-b from-slate-800/50 to-slate-900">
               {heroImage ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
-                  alt="Hero"
+                  alt="Portrait"
                   src={heroImage}
-                  className="h-full w-full object-cover opacity-90"
+                  className="h-full w-full object-cover opacity-95"
                   loading="eager"
                 />
               ) : (
                 <div className="h-full w-full" />
               )}
+              <div className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/5" />
             </div>
           </div>
         </div>
