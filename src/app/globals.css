@@ -78,3 +78,16 @@ body { margin: 0; }
 .ghost-title{position:absolute;left:-6px;top:-12px;pointer-events:none;font-weight:800;letter-spacing:-.02em;font-size:clamp(3rem,12vw,9rem);color:rgba(148,163,184,.05);user-select:none}
 .btn-ghost{display:inline-flex;align-items:center;gap:.5rem;border:1px solid rgb(71 85 105);background:rgba(2,6,23,.6);color:#cbd5e1;border-radius:.75rem;padding:.5rem .8rem;font-size:.8rem;font-weight:600}
 .btn-ghost:hover{border-color:rgb(100 116 139);color:#fff}
+
+/* --- Premium hero (desktop feel even on mobile) --- */
+.pro-hero { background: radial-gradient(1200px 600px at 10% -10%, rgba(56,189,248,.12), transparent 60%); }
+.pro-eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:rgb(148 163 184/.9)}
+.pro-title{font-weight:800;color:#fff;line-height:1.05;font-size:clamp(2.2rem,9vw,4.6rem);letter-spacing:-.01em}
+.pro-aurora{position:absolute;width:140%;height:140%;filter:blur(60px);opacity:.55;transform:translate(-20%,-20%);animation:proFloat 16s ease-in-out infinite alternate;will-change:transform}
+.pro-a{background:radial-gradient(600px 400px at 15% 20%, rgba(56,189,248,.32), transparent 60%),radial-gradient(500px 350px at 70% 30%, rgba(99,102,241,.3), transparent 60%)}
+.pro-b{background:radial-gradient(600px 400px at 30% 70%, rgba(16,185,129,.25), transparent 60%),radial-gradient(500px 350px at 70% 80%, rgba(59,130,246,.25), transparent 60%);animation-delay:.8s}
+.pro-c{background:radial-gradient(600px 400px at 55% 40%, rgba(244,63,94,.2), transparent 60%);animation-delay:1.4s}
+@keyframes proFloat{0%{transform:translate(-18%,-22%) rotate(0)}50%{transform:translate(-12%,-18%) rotate(2deg)}100%{transform:translate(-20%,-15%) rotate(-2deg)}}
+.pro-vignette{position:absolute;inset:-8%;pointer-events:none;background:radial-gradient(120% 80% at 50% 0%, rgba(0,0,0,0) 0%, rgba(0,0,0,.22) 70%),radial-gradient(100% 100% at 50% 50%, rgba(0,0,0,0) 55%, rgba(0,0,0,.32) 100%)}
+.pro-grain{position:absolute;inset:0;pointer-events:none;mix-blend-mode:overlay;opacity:.06;background-image:repeating-linear-gradient(0deg, rgba(255,255,255,.2) 0 1px, rgba(0,0,0,0) 1px 2px),repeating-linear-gradient(90deg, rgba(0,0,0,.2) 0 1px, rgba(0,0,0,0) 1px 2px)}
+@media (prefers-reduced-motion: reduce){.pro-aurora{animation:none}}

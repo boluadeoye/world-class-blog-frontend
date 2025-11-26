@@ -1,6 +1,6 @@
 import { getPublicPosts, getHomeFeaturedVideo, getRecentVideos } from "../lib/api";
 import Aurora from "../components/public/Aurora";
-import PersonaHero from "../components/public/PersonaHero";
+import PremiumHero from "../components/public/PremiumHero";
 import ServicesSection from "../components/public/ServicesSection";
 import VideosSection from "../components/public/VideosSection";
 import TopicsStrip from "../components/public/TopicsStrip";
@@ -23,11 +23,11 @@ export default async function Page() {
   return (
     <div className="relative">
       <Aurora />
-      <PersonaHero />
+      <PremiumHero />
       <ServicesSection />
       <VideosSection featured={featuredVideo} items={recentVideos} />
 
-      {/* Dynamic rails already on the site */}
+      {/* Dynamic rails */}
       <section className="relative mx-auto max-w-6xl px-4 pb-4 sm:px-6 lg:px-8">
         <TopicsStrip />
       </section>
