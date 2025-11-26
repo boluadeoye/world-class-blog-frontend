@@ -1,34 +1,37 @@
-import HeroPaynext from "../components/paynext/HeroPaynext";
-import FeaturedTwo from "../components/paynext/FeaturedTwo";
-import ArticlesChips from "../components/paynext/ArticlesChips";
-import ArticlesGrid from "../components/paynext/ArticlesGrid";
+import HeroShowcase from "../components/home/HeroShowcase";
+import PartnersStrip from "../components/home/PartnersStrip";
+
+import FeaturedRail from "../components/paynext/FeaturedRail";
+import LatestGrid from "../components/paynext/LatestGrid";
 import VideosSection from "../components/paynext/VideosSection";
 import CTABanner from "../components/paynext/CTABanner";
-import { fetchLatestPosts, pickFeatured, fetchRecentVideos } from "../lib/homeData";
+
+import { fetchLatestPosts, fetchFeaturedPosts, fetchRecentVideos, fetchFeaturedVideo } from "../lib/homeData";
 
 export default async function Page({ searchParams }) {
   const tag = typeof searchParams?.tag === "string" ? searchParams.tag : "";
-  const latest = await fetchLatestPosts(12, tag);
-  const allForTags = tag ? await fetchLatestPosts(24, "") : latest;
-  const tags = (allForTags || []).flatMap(p => Array.isArray(p?.tags) ? p.tags : []).slice(0, 24);
-  const featuredPosts = pickFeatured(await fetchLatestPosts(2, ""));
-  const videos = await fetchRecentVideos(3);
-  const featuredVideo = videos[0] || null;
-  const moreVideos = videos.slice(1);
+
+  const [latest, featuredPosts, recentVideos, featuredVideo] = await Promise.all([
+    fetchLatestPosts(6, tag),   // cap to 6
+    fetchFeaturedPosts(6),      // enough items for the horizontal rail
+    fetchRecentVideos(3),
+    fetchFeaturedVideo(),
+  ]);
+
+  const moreVideos = (recentVideos || []).filter(v => !featuredVideo || v.id !== featuredVideo.id);
 
   return (
     <div className="relative">
-      <HeroPaynext />
-      <FeaturedTwo posts={featuredPosts} />
-      <section className="px-4 sm:px-6 lg:px-8 py-4">
-        <div className="mx-auto max-w-6xl text-center">
-          <h2 className="h2-compact">All Articles</h2>
-          <div className="mt-3">
-            <ArticlesChips tags={tags} current={tag} />
-          </div>
-        </div>
-      </section>
-      <ArticlesGrid posts={latest} />
+      <HeroShowcase />
+      <PartnersStrip />
+
+      {/* Featured — animated horizontal rail */}
+      <FeaturedRail posts={featuredPosts} />
+
+      {/* Latest Posts — compact 2-column grid (no side scroll) */}
+      <LatestGrid posts={latest} />
+
+      {/* Videos + CTA */}
       <VideosSection featured={featuredVideo} items={moreVideos} />
       <CTABanner />
     </div>
