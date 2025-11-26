@@ -6,14 +6,14 @@ import LatestGrid from "../components/paynext/LatestGrid";
 import VideosShowcase from "../components/paynext/VideosShowcase";
 import CTABanner from "../components/paynext/CTABanner";
 
-import { fetchLatestPosts, fetchFeaturedPosts, fetchVideoPosts, fetchFeaturedVideo } from "../lib/homeData";
+import { fetchLatestArticles, fetchFeaturedPosts, fetchVideoPosts, fetchFeaturedVideo } from "../lib/homeData";
 
 export default async function Page({ searchParams }) {
   const tag = typeof searchParams?.tag === "string" ? searchParams.tag : "";
 
   const [latest, featuredPosts, videos, featuredVideo] = await Promise.all([
-    fetchLatestPosts(6, tag),
-    fetchFeaturedPosts(6),
+    fetchLatestArticles(6, tag),   // articles only
+    fetchFeaturedPosts(6),         // already filters out videos
     fetchVideoPosts(10),
     fetchFeaturedVideo(),
   ]);
@@ -26,9 +26,7 @@ export default async function Page({ searchParams }) {
       <FeaturedRail posts={featuredPosts} />
       <LatestGrid posts={latest} />
 
-      {/* New video section: featured post + clickable rail */}
       <VideosShowcase featured={featuredVideo} items={videos} />
-
       <CTABanner />
     </div>
   );

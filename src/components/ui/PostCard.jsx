@@ -5,8 +5,13 @@ function whenOf(p) {
 }
 function categoryOf(p) {
   const metaCat = p?.meta?.category;
-  const tag = Array.isArray(p?.tags) && p.tags[0] ? p.tags[0] : null;
-  return metaCat || tag || "General";
+  if (metaCat) return metaCat;
+  const tags = Array.isArray(p?.tags) ? p.tags : [];
+  const t = tags.find(x => {
+    const k = String(x || "").toLowerCase();
+    return k !== "home-featured" && k !== "featured" && k !== "video";
+  });
+  return t || "General";
 }
 
 export default function PostCard({ post }) {
@@ -19,12 +24,7 @@ export default function PostCard({ post }) {
         <div className="relative aspect-[16/10] rounded-t-[16px] overflow-hidden">
           {cover ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img
-              alt=""
-              src={cover}
-              className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-              loading="lazy"
-            />
+            <img alt="" src={cover} className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" loading="lazy" />
           ) : (
             <div className="post-placeholder absolute inset-0" aria-hidden />
           )}

@@ -1,9 +1,8 @@
-// src/app/articles/page.jsx
-import { fetchLatestPosts } from "../../lib/homeData";
+import { fetchLatestArticles } from "../../lib/homeData";
 import PostCard from "../../components/ui/PostCard";
 
 export default async function Page() {
-  const posts = await fetchLatestPosts(200, "");
+  const posts = await fetchLatestArticles(200, "");
 
   return (
     <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8">

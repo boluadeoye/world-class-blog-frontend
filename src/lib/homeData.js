@@ -9,7 +9,7 @@ async function getJSON(url) {
   } catch { return null; }
 }
 
-// Posts
+// All published posts (unfiltered)
 export async function fetchLatestPosts(limit = 12, tag = "") {
   const u = new URL(`${API_BASE}/posts`);
   u.searchParams.set("limit", String(limit));
@@ -18,7 +18,19 @@ export async function fetchLatestPosts(limit = 12, tag = "") {
   return Array.isArray(arr) ? arr : [];
 }
 
-// Featured posts (articles only; exclude video posts)
+// ARTICLES ONLY (excludes videos)
+export async function fetchLatestArticles(limit = 12, tag = "") {
+  const u = new URL(`${API_BASE}/posts`);
+  u.searchParams.set("limit", String(limit));
+  u.searchParams.set("type", "article");
+  if (tag) u.searchParams.set("tag", tag);
+  const arr = await getJSON(u.toString());
+  const list = Array.isArray(arr) ? arr : [];
+  // Defensive filter in case backend returns mixed types
+  return list.filter(p => (p?.type || "article") === "article");
+}
+
+// Featured posts (articles only)
 export async function fetchFeaturedPosts(limit = 2) {
   const u = `${API_BASE}/posts/featured?limit=${encodeURIComponent(Math.max(limit, 12))}`;
   const arr = await getJSON(u);
@@ -27,7 +39,7 @@ export async function fetchFeaturedPosts(limit = 2) {
   return onlyArticles.slice(0, limit);
 }
 
-// Video helpers
+// --- Video helpers ---
 function parseStart(v) {
   if (!v) return 0;
   if (/^\d+$/.test(String(v))) return parseInt(v, 10);
