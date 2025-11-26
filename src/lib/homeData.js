@@ -17,10 +17,14 @@ export async function fetchLatestPosts(limit = 12, tag = "") {
   const arr = await getJSON(u.toString());
   return Array.isArray(arr) ? arr : [];
 }
+
+// Featured posts (articles only; exclude video posts)
 export async function fetchFeaturedPosts(limit = 2) {
-  const u = `${API_BASE}/posts/featured?limit=${encodeURIComponent(limit)}`;
+  const u = `${API_BASE}/posts/featured?limit=${encodeURIComponent(Math.max(limit, 12))}`;
   const arr = await getJSON(u);
-  return Array.isArray(arr) ? arr.slice(0, limit) : [];
+  if (!Array.isArray(arr)) return [];
+  const onlyArticles = arr.filter(p => (p?.type || "article") !== "video");
+  return onlyArticles.slice(0, limit);
 }
 
 // Video helpers
@@ -37,11 +41,12 @@ function extractId(url) {
     const u = new URL(url);
     const host = u.hostname.replace(/^www\./,"").toLowerCase();
     let id = null;
-    if (host === "youtu.be") id = u.pathname.split("/")[1] || null;
-    else if (host.endsWith("youtube.com")) {
+    if (host === "youtube.com" || host.endsWith("youtube.com")) {
       const parts = u.pathname.split("/").filter(Boolean);
       if (u.pathname === "/watch") id = u.searchParams.get("v");
       else if (parts.length >= 2 && ["shorts","embed","live"].includes(parts[0])) id = parts[1] || null;
+    } else if (host === "youtu.be") {
+      id = u.pathname.split("/")[1] || null;
     }
     const start = parseStart(u.searchParams.get("t") || u.searchParams.get("start"));
     return id ? { id, start } : null;
