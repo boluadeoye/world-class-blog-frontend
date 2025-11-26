@@ -244,3 +244,84 @@ body { margin: 0; }
   .btn-beam::before,.btn-beam::after,.hand-dangle{ animation:none }
   .btn-beam{ transition:none }
 }
+
+/* Keep the name on one line and tune sizes for small screens */
+.pro-title{font-weight:800;color:#fff;line-height:1.03;font-size:clamp(2rem,6.6vw,4.8rem)}
+.gold-title{display:inline-block;white-space:nowrap}
+.gold-title .char{display:inline-block;background-image:linear-gradient(90deg,var(--gold-1),var(--gold-2));-webkit-background-clip:text;background-clip:text;color:transparent;transform:translateY(18px);opacity:0;filter:blur(6px);animation:charIn .7s cubic-bezier(.2,.8,.2,1) forwards}
+.gold-title .char.sp{min-width:.35em}
+@keyframes charIn{0%{transform:translateY(18px);opacity:0;filter:blur(6px)}60%{opacity:1}100%{transform:none;opacity:1;filter:none}}
+
+/* Premium tagline typography */
+.pro-tagline{
+  margin-top:.4rem;
+  font-family: var(--font-display);
+  font-weight:600;
+  letter-spacing:.01em;
+  font-size:clamp(1rem,3.2vw,1.35rem);
+  color:rgba(226,232,240,.98);
+  text-shadow:0 1px 1px rgba(0,0,0,.25);
+  animation: tagIn .6s .2s cubic-bezier(.2,.8,.2,1) both;
+}
+@keyframes tagIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* Stronger beaming button and emoji hand click */
+.btn-beam.btn-strong{
+  background: radial-gradient(130% 220% at 10% 10%, #ffffff 0%, #f3f8ff 28%, #d2ecff 50%, #9bdcff 80%, #7dd3fc 100%);
+  box-shadow: 0 10px 26px rgba(56,189,248,.45), inset 0 0 0 1px rgba(255,255,255,.75);
+}
+.btn-beam.btn-strong::before{animation: beam-spin 2.6s linear infinite}
+.btn-beam.btn-strong::after{animation: beam-sweep 2s ease-in-out infinite}
+
+/* Emoji hand cursor that "clicks" */
+.hand-cursor{
+  position:absolute; right:-22px; top:-22px; font-size:24px; line-height:1;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,.45));
+  transform-origin: 60% 0%;
+  animation: handClick 1.4s ease-in-out infinite;
+  pointer-events:none;
+}
+@keyframes handClick{
+  0%{ transform: rotate(-18deg) translateY(-2px) scale(1)}
+  40%{ transform: rotate(6deg) translateY(2px) scale(.96)}
+  60%{ transform: rotate(4deg) translateY(0) scale(1)}
+  100%{ transform: rotate(-14deg) translateY(-2px) scale(1)}
+}
+
+/* Reduced motion safety */
+@media (prefers-reduced-motion: reduce){
+  .gold-title .char,.pro-tagline,.hand-cursor{animation:none}
+}
+
+/* Force single-line name, never wrap */
+.gold-title{white-space:nowrap;word-break:keep-all;overflow-wrap:normal;text-wrap:nowrap}
+
+/* Fit grand single line on phones (overrides prior rule by being later) */
+.pro-title{font-weight:800;color:#fff;line-height:1.02;font-size:clamp(1.9rem,5.6vw,4.6rem);letter-spacing:-.012em}
+
+/* Premium tagline type */
+.pro-tagline{
+  margin-top:.45rem;
+  font-family: var(--font-display);
+  font-weight:600;
+  letter-spacing:.005em;
+  font-size:clamp(1.05rem,3.2vw,1.4rem);
+  color:rgba(230,236,244,.98);
+  text-shadow:0 1px 1px rgba(0,0,0,.25);
+  animation: tagIn .6s .2s cubic-bezier(.2,.8,.2,1) both;
+}
+@keyframes tagIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* Stronger beam + emoji hand clicking */
+.btn-beam.btn-strong{background:radial-gradient(130% 220% at 10% 10%,#fff 0%,#f3f8ff 28%,#d2ecff 50%,#9bdcff 80%,#7dd3fc 100%);box-shadow:0 10px 26px rgba(56,189,248,.45), inset 0 0 0 1px rgba(255,255,255,.75)}
+.btn-beam.btn-strong::before{animation:beam-spin 2.6s linear infinite}
+.btn-beam.btn-strong::after{animation:beam-sweep 2s ease-in-out infinite}
+@keyframes beam-spin{to{transform:rotate(360deg)}}
+@keyframes beam-sweep{0%,100%{left:-40%}50%{left:110%}}
+
+.hand-cursor{position:absolute;right:-22px;top:-22px;font-size:24px;line-height:1;filter:drop-shadow(0 2px 8px rgba(0,0,0,.45));transform-origin:60% 0%;animation:handClick 1.4s ease-in-out infinite;pointer-events:none}
+@keyframes handClick{0%{transform:rotate(-18deg) translateY(-2px) scale(1)}40%{transform:rotate(6deg) translateY(2px) scale(.96)}60%{transform:rotate(4deg) translateY(0) scale(1)}100%{transform:rotate(-14deg) translateY(-2px) scale(1)}}
+
+@media (prefers-reduced-motion: reduce){
+  .gold-title .char,.pro-tagline,.hand-cursor{animation:none}
+}

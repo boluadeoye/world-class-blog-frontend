@@ -22,12 +22,10 @@ function SplitGoldName({ name }) {
 
 export default function PremiumHero() {
   const rawName = process.env.NEXT_PUBLIC_OWNER_NAME || "Adeoye Boluwatife";
-  // Show only the last word (e.g., "Boluwatife")
   const displayName =
     (process.env.NEXT_PUBLIC_DISPLAY_NAME || rawName.split(/\s+/).slice(-1)[0]).trim();
 
-  const tagline =
-    process.env.NEXT_PUBLIC_OWNER_TAGLINE || "Full-stack developer & writer";
+  const tagline = process.env.NEXT_PUBLIC_OWNER_TAGLINE || "Full‑stack developer & writer";
   const heroImage =
     process.env.NEXT_PUBLIC_HERO_IMAGE ||
     "https://w5e7svgknmetlu9j.public.blob.vercel-storage.com/adeoye.jpg";
@@ -52,12 +50,14 @@ export default function PremiumHero() {
 
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         <div className="grid grid-cols-12 items-center gap-6">
-          <div className="col-span-6">
+          {/* Wider left on mobile so the name fits one line */}
+          <div className="col-span-8 md:col-span-6">
             <p className="pro-eyebrow">Hello, my name is</p>
             <h1 className="pro-title">
               <SplitGoldName name={displayName} />
             </h1>
-            <p className="mt-3 text-slate-300/95 text-[1.05rem] leading-7">{tagline}</p>
+
+            <p className="pro-tagline">{tagline}</p>
 
             <div className="mt-6 flex flex-wrap items-center gap-3">
               {socials.map(({ href, Icon, label }) => (
@@ -73,24 +73,19 @@ export default function PremiumHero() {
                 </a>
               ))}
 
-              {/* CTA with beam + dangling finger */}
               <span className="relative inline-block">
                 <a
                   href={contactUrl}
-                  className="btn-beam inline-flex items-center rounded-full px-5 py-2 text-sm font-semibold text-slate-950"
+                  className="btn-beam btn-strong inline-flex items-center rounded-full px-5 py-2 text-sm font-bold text-slate-950 tracking-tight"
                 >
-                  Let’s talk
+                  Let’s Talk!
                 </a>
-                <span className="hand-dangle" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
-                    <path d="M11 2c.6 0 1 .4 1 1v7l1-1c.4-.4 1-.4 1.4 0l.6.6c.4.4.4 1 0 1.4l-3.1 3.1c-.4.4-1 .4-1.4 0L8 12.4c-.4-.4-.4-1 0-1.4l.6-.6c.4-.4 1-.4 1.4 0l1 1V3c0-.6.4-1 1-1z"/>
-                  </svg>
-                </span>
+                <span className="hand-cursor" aria-hidden="true">👇</span>
               </span>
             </div>
           </div>
 
-          <div className="col-span-6">
+          <div className="col-span-4 md:col-span-6">
             <div className="gold-frame relative aspect-[4/5] w-full overflow-hidden rounded-3xl border border-slate-800 bg-gradient-to-b from-slate-800/50 to-slate-900">
               {heroImage ? (
                 // eslint-disable-next-line @next/next/no-img-element
