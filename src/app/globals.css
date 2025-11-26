@@ -575,3 +575,16 @@ body { margin: 0; }
   scroll-snap-type: x mandatory;
 }
 .two-item{scroll-snap-align:start}
+
+/* Shiny animated borders */
+.shine-card{position:relative}
+.shine-card::before{
+  content:""; position:absolute; inset:-1px; border-radius:18px; padding:1px;
+  background: conic-gradient(from 0deg,
+    rgba(255,255,255,.2), rgba(56,189,248,.35), rgba(255,255,255,.2), rgba(99,102,241,.35), rgba(255,255,255,.2));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude;
+  animation: shine-rotate 6s linear infinite; pointer-events:none;
+}
+@keyframes shine-rotate{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion: reduce){ .shine-card::before{animation:none} }

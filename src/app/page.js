@@ -2,7 +2,7 @@ import HeroShowcase from "../components/home/HeroShowcase";
 import PartnersStrip from "../components/home/PartnersStrip";
 
 import FeaturedRail from "../components/paynext/FeaturedRail";
-import ArticlesRailTwoCols from "../components/paynext/ArticlesRailTwoCols";
+import LatestGrid from "../components/paynext/LatestGrid";
 import VideosSection from "../components/paynext/VideosSection";
 import CTABanner from "../components/paynext/CTABanner";
 
@@ -12,8 +12,8 @@ export default async function Page({ searchParams }) {
   const tag = typeof searchParams?.tag === "string" ? searchParams.tag : "";
 
   const [latest, featuredPosts, recentVideos, featuredVideo] = await Promise.all([
-    fetchLatestPosts(12, tag),
-    fetchFeaturedPosts(6),           // give the rail more items
+    fetchLatestPosts(6, tag),   // cap to 6
+    fetchFeaturedPosts(6),      // enough items for the horizontal rail
     fetchRecentVideos(3),
     fetchFeaturedVideo(),
   ]);
@@ -28,10 +28,10 @@ export default async function Page({ searchParams }) {
       {/* Featured — animated horizontal rail */}
       <FeaturedRail posts={featuredPosts} />
 
-      {/* All Articles — two-row horizontal scroller */}
-      <ArticlesRailTwoCols posts={latest} />
+      {/* Latest Posts — compact 2-column grid (no side scroll) */}
+      <LatestGrid posts={latest} />
 
-      {/* Videos + CTA unchanged */}
+      {/* Videos + CTA */}
       <VideosSection featured={featuredVideo} items={moreVideos} />
       <CTABanner />
     </div>
