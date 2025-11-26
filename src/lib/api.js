@@ -101,3 +101,16 @@ export async function getRecentVideos(limit = 3) {
     return [];
   }
 }
+
+// Return latest published posts (fallback-safe)
+export async function getLatestPosts(limit = 10) {
+  const url = `${(typeof process.env.NEXT_PUBLIC_API_URL === "string" && process.env.NEXT_PUBLIC_API_URL.trim() ? process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, "") : "https://project-blog-backend-beta.vercel.app/api")}/posts?limit=${encodeURIComponent(limit)}`;
+  try {
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) return [];
+    const arr = await res.json();
+    return Array.isArray(arr) ? arr : [];
+  } catch {
+    return [];
+  }
+}

@@ -1,11 +1,9 @@
-import { getPublicPosts } from "../lib/api";
+import { getLatestPosts } from "../lib/api";
 import NonziHero from "../components/nonzi/NonziHero";
 import NonziPanel from "../components/nonzi/NonziPanel";
 
 export default async function Page() {
-  let posts = [];
-  try { posts = await getPublicPosts(); } catch {}
-
+  const posts = await getLatestPosts(8);
   return (
     <div className="relative">
       <NonziHero />
