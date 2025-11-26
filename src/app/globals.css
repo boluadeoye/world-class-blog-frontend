@@ -508,3 +508,8 @@ body { margin: 0; }
 .adm-label{display:block;color:#cbd5e1;font-size:.8rem;margin-bottom:.25rem}
 .adm-check{color:#cbd5e1;font-size:.85rem;display:inline-flex;align-items:center;gap:.4rem}
 .adm-error{background:rgba(127,29,29,.3);border:1px solid rgba(248,113,113,.5);color:#fecaca;border-radius:10px;padding:.5rem .7rem}
+
+/* Chips (active + hover on dark) */
+.pay-chip{display:inline-flex;align-items:center;height:28px;padding:0 .75rem;border-radius:9999px;background:rgba(255,255,255,.14);color:#fff;font-weight:600;font-size:.8rem;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
+.pay-chip:hover{background:rgba(255,255,255,.2)}
+.pay-chip--active{background:#fff;color:#111827}
