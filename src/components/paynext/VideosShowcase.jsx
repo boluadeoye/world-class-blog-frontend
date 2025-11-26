@@ -30,38 +30,26 @@ function LiteYT({ id, title = "Video", start = 0, className = "" }) {
   );
 }
 
-export default function VideosShowcase({ featured = null, items = [] }) {
-  // Normalize inputs: items should be [{id,start,title,caption,slug}]
-  const initial = useMemo(() => {
-    if (featured?.id) return featured;
-    if (Array.isArray(items) && items[0]?.id) return items[0];
-    return null;
-  }, [featured, items]);
-
+export default function VideosShowcase({ featured = null, items = [], id }) {
+  const initial = useMemo(() => featured?.id ? featured : (items?.[0] || null), [featured, items]);
   const [current, setCurrent] = useState(initial);
   const topRef = useRef(null);
-
   useEffect(() => { setCurrent(initial); }, [initial]);
 
   if ((!featured || !featured.id) && (!items || items.length === 0)) return null;
 
-  const handlePick = (v) => {
-    setCurrent(v);
-    // Smooth scroll to player
-    try { topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }); } catch {}
-  };
+  const pick = (v) => { setCurrent(v); try { topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }); } catch {} };
 
   return (
-    <section className="px-4 sm:px-6 lg:px-8 py-8">
+    <section id={id} className="px-4 sm:px-6 lg:px-8 py-8">
       <div className="mx-auto max-w-6xl">
         <div className="text-center mb-4">
           <div className="text-[11px] uppercase tracking-[.18em] text-slate-400">Videos</div>
           <h2 className="h2-compact">Watch Recent Videos</h2>
         </div>
 
-        {/* Featured video as a post */}
         {current?.id && (
-          <div ref={topRef} className="rounded-[18px] border border-slate-800 bg-slate-900/40 p-3 sm:p-4 mb-4 shine-card">
+          <div ref={topRef} className="rounded-[18px] border border-slate-800 bg-slate-900/40 p-3 sm:p-4 mb-4">
             <h3 className="text-slate-50 font-semibold text-lg sm:text-xl">{current.title || "Video"}</h3>
             {current.caption ? <p className="mt-1 text-sm text-slate-300/90">{current.caption}</p> : null}
             <div className="mt-3">
@@ -70,7 +58,6 @@ export default function VideosShowcase({ featured = null, items = [] }) {
           </div>
         )}
 
-        {/* Horizontal rail of video posts (title thumbnails) */}
         {Array.isArray(items) && items.length > 0 && (
           <div className="relative -mx-4 px-4">
             <div className="no-scrollbar overflow-x-auto flex gap-3 py-1 snap-x snap-mandatory">
@@ -78,21 +65,12 @@ export default function VideosShowcase({ featured = null, items = [] }) {
                 <button
                   key={`${v.id}-${i}`}
                   type="button"
-                  onClick={() => handlePick(v)}
-                  className={[
-                    "group snap-start min-w-[72%] sm:min-w-[360px] md:min-w-[320px] lg:min-w-[360px]",
-                    "rounded-[16px] overflow-hidden border border-slate-800 bg-slate-900/40 text-left shine-card",
-                    current?.id === v.id ? "ring-1 ring-sky-400/50" : ""
-                  ].join(" ")}
+                  onClick={() => pick(v)}
+                  className="group snap-start min-w-[72%] sm:min-w-[360px] md:min-w-[320px] lg:min-w-[360px] rounded-[16px] overflow-hidden border border-slate-800 bg-slate-900/40 text-left"
                 >
                   <div className="relative aspect-[16/9]">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      alt=""
-                      src={`https://i.ytimg.com/vi/${v.id}/hqdefault.jpg`}
-                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-                      loading="lazy"
-                    />
+                    <img alt="" src={`https://i.ytimg.com/vi/${v.id}/hqdefault.jpg`} className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" loading="lazy" />
                     <div className="card-topfade" />
                   </div>
                   <div className="p-3">
@@ -103,8 +81,6 @@ export default function VideosShowcase({ featured = null, items = [] }) {
                 </button>
               ))}
             </div>
-            <div className="fade-l" aria-hidden />
-            <div className="fade-r" aria-hidden />
           </div>
         )}
       </div>

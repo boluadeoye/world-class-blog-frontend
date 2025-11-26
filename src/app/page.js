@@ -1,4 +1,4 @@
-import HeroEditorial from "../components/home/HeroEditorial";
+import HeroDeck from "../components/home/HeroDeck";
 
 import FeaturedRail from "../components/paynext/FeaturedRail";
 import LatestGrid from "../components/paynext/LatestGrid";
@@ -19,10 +19,10 @@ export default async function Page({ searchParams }) {
 
   return (
     <div className="relative">
-      <HeroEditorial />
+      <HeroDeck />
       <FeaturedRail posts={featuredPosts} />
       <LatestGrid posts={latest} />
-      <VideosShowcase featured={featuredVideo} items={videos} />
+      <VideosShowcase id="videos" featured={featuredVideo} items={videos} />
       <CTABanner />
     </div>
   );
