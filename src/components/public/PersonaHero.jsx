@@ -5,7 +5,9 @@ import { Twitter, Github, Youtube, Instagram } from "lucide-react";
 export default function PersonaHero() {
   const name = process.env.NEXT_PUBLIC_OWNER_NAME || "Adeoye Boluwatife";
   const tagline = process.env.NEXT_PUBLIC_OWNER_TAGLINE || "Full-stack developer & writer";
-  const heroImage = process.env.NEXT_PUBLIC_HERO_IMAGE || ""; // set URL in .env.local
+  const heroImage =
+    process.env.NEXT_PUBLIC_HERO_IMAGE ||
+    "https://w5e7svgknmetlu9j.public.blob.vercel-storage.com/adeoye.jpg";
   const contactUrl = process.env.NEXT_PUBLIC_CONTACT_URL || "/about";
 
   const socials = [
