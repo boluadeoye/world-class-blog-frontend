@@ -1,12 +1,14 @@
-import { getPublicPosts, getHomeFeaturedVideo } from "../lib/api";
+import { getPublicPosts, getHomeFeaturedVideo, getRecentVideos } from "../lib/api";
 import Aurora from "../components/public/Aurora";
-import HomeHero from "../components/public/HomeHero";
+import PersonaHero from "../components/public/PersonaHero";
+import ServicesSection from "../components/public/ServicesSection";
+import StatsBar from "../components/public/StatsBar";
+import VideosSection from "../components/public/VideosSection";
 import TopicsStrip from "../components/public/TopicsStrip";
 import RecommendedCarousel from "../components/public/RecommendedCarousel";
 import MetricsCounters from "../components/public/MetricsCounters";
 import PostsSection from "../components/public/PostsSection";
 import NewsletterCTA from "../components/public/NewsletterCTA";
-import FeaturedVideo from "../components/public/FeaturedVideo";
 
 export default async function Page() {
   let posts = [];
@@ -18,35 +20,24 @@ export default async function Page() {
   }
   const heroPost = Array.isArray(posts) && posts.length > 0 ? posts[0] : null;
 
-  // Featured video (server-side). Component has env fallback if null.
   const featuredVideo = await getHomeFeaturedVideo();
+  const recentVideos = await getRecentVideos(3);
 
   return (
     <div className="relative">
       <Aurora />
+      <PersonaHero />
+      <ServicesSection />
+      <StatsBar />
+      <VideosSection featured={featuredVideo} items={recentVideos} />
 
-      {/* HERO */}
-      <section className="relative mx-auto max-w-6xl px-4 pt-8 pb-6 sm:px-6 sm:pt-12 lg:px-8 lg:pt-16">
-        <HomeHero heroPost={heroPost} totalCount={posts?.length || 0} />
-      </section>
-
-      {/* METRICS */}
-      <section className="relative mx-auto max-w-6xl px-4 pb-4 sm:px-6 lg:px-8">
-        <MetricsCounters posts={posts} />
-      </section>
-
-      {/* TOPICS */}
+      {/* Keep dynamic rails from current website */}
       <section className="relative mx-auto max-w-6xl px-4 pb-4 sm:px-6 lg:px-8">
         <TopicsStrip />
       </section>
-
-      {/* RECOMMENDED */}
       <section className="relative mx-auto max-w-6xl px-4 pb-4 sm:px-6 lg:px-8">
         <RecommendedCarousel posts={posts} />
       </section>
-
-      {/* FEATURED VIDEO */}
-      <FeaturedVideo video={featuredVideo} />
 
       {/* LATEST POSTS */}
       {error && (
@@ -58,7 +49,10 @@ export default async function Page() {
       )}
       <PostsSection posts={posts} />
 
-      {/* NEWSLETTER */}
+      {/* Metrics + Newsletter (existing features) */}
+      <section className="relative mx-auto max-w-6xl px-4 pb-4 sm:px-6 lg:px-8">
+        <MetricsCounters posts={posts} />
+      </section>
       <section className="relative mx-auto max-w-6xl px-4 pb-12 sm:px-6 lg:px-8">
         <NewsletterCTA />
       </section>

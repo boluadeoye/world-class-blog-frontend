@@ -1,6 +1,4 @@
 // src/lib/api.js
-// Minimal, safe API helpers.
-
 const DEFAULT_API = "https://project-blog-backend-beta.vercel.app/api";
 const API_BASE = (typeof process.env.NEXT_PUBLIC_API_URL === "string" && process.env.NEXT_PUBLIC_API_URL.trim())
   ? process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, "")
@@ -9,9 +7,7 @@ const API_BASE = (typeof process.env.NEXT_PUBLIC_API_URL === "string" && process
 export async function getPublicPosts() {
   const url = `${API_BASE}/posts/featured`;
   const res = await fetch(url, { cache: "no-store" });
-  if (!res.ok) {
-    throw new Error(`Failed to fetch public posts (${res.status})`);
-  }
+  if (!res.ok) throw new Error(`Failed to fetch public posts (${res.status})`);
   return res.json();
 }
 
@@ -19,13 +15,11 @@ export async function getPostBySlug(slug) {
   const url = `${API_BASE}/posts/slug/${encodeURIComponent(slug)}`;
   const res = await fetch(url, { cache: "no-store" });
   if (res.status === 404) return null;
-  if (!res.ok) {
-    throw new Error(`Failed to fetch post by slug (${res.status})`);
-  }
+  if (!res.ok) throw new Error(`Failed to fetch post by slug (${res.status})`);
   return res.json();
 }
 
-// Helpers
+// Helpers for YouTube parsing
 function parseStart(value) {
   if (!value) return 0;
   if (/^\d+$/.test(String(value))) return parseInt(value, 10);
@@ -49,9 +43,7 @@ function extractFromUrl(url) {
   } catch { return null; }
 }
 
-// Returns { id, url, title, caption, start } or null
 export async function getHomeFeaturedVideo() {
-  // Preferred: type+tag filter
   try {
     const u1 = `${API_BASE}/posts?type=video&tag=home-featured&limit=1`;
     const r1 = await fetch(u1, { cache: "no-store" });
@@ -67,7 +59,6 @@ export async function getHomeFeaturedVideo() {
       }
     }
   } catch {}
-  // Fallback: /posts/featured choose first with video-like meta
   try {
     const u2 = `${API_BASE}/posts/featured?limit=5`;
     const r2 = await fetch(u2, { cache: "no-store" });
@@ -84,4 +75,29 @@ export async function getHomeFeaturedVideo() {
     }
   } catch {}
   return null;
+}
+
+// Recent video posts -> simplified list for grid
+export async function getRecentVideos(limit = 3) {
+  try {
+    const url = `${API_BASE}/posts?type=video&limit=${encodeURIComponent(limit)}`;
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) return [];
+    const arr = await res.json();
+    if (!Array.isArray(arr)) return [];
+    return arr.map(p => {
+      const meta = p?.meta || {};
+      const parsed = meta.youtubeId ? { id: meta.youtubeId, start: Number(meta.start||0) || 0 } :
+        (meta.youtubeUrl ? extractFromUrl(meta.youtubeUrl) : null);
+      return {
+        slug: p?.slug || "",
+        title: p?.title || "",
+        url: meta.youtubeUrl || "",
+        videoId: parsed?.id || null,
+        start: parsed?.start || 0,
+      };
+    }).filter(x => x.videoId);
+  } catch {
+    return [];
+  }
 }
