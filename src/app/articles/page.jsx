@@ -1,32 +1,26 @@
-import { Suspense } from "react";
-import ArticlesClient from "../../components/public/ArticlesClient";
-import ArticlesSkeleton from "../../components/public/ArticlesSkeleton";
+// src/app/articles/page.jsx
+import { fetchLatestPosts } from "../../lib/homeData";
+import PostCard from "../../components/ui/PostCard";
 
-export const metadata = {
-  title: "Articles | Adeoye Boluwatife",
-};
+export default async function Page() {
+  const posts = await fetchLatestPosts(200, "");
 
-// Ensure this page is not statically prerendered
-export const dynamic = "force-dynamic";
-
-export default function ArticlesPage() {
   return (
-    <div className="relative mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
-      <header className="mb-6 space-y-3">
-        <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">Articles</p>
-        <h1 className="font-display text-2xl font-semibold tracking-tight text-slate-50 sm:text-3xl">
-          All essays by Adeoye Boluwatife
-        </h1>
-        <p className="max-w-2xl text-sm text-slate-300/90">
-          Explore everything I write on health, finance, technology and education.
-          Use the topic filters and search to find what matters most to you.
-        </p>
-      </header>
+    <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8">
+      <div className="mb-4 text-center">
+        <div className="text-[11px] uppercase tracking-[.18em] text-slate-400">Browse Everything</div>
+        <h1 className="h2-compact">All Posts</h1>
+      </div>
 
-      {/* Suspense wrapper is required when a client component uses useSearchParams */}
-      <Suspense fallback={<ArticlesSkeleton />}>
-        <ArticlesClient />
-      </Suspense>
+      {(!posts || posts.length === 0) ? (
+        <div className="rounded-2xl border border-slate-800 bg-slate-900/40 px-4 py-6 text-slate-200">
+          No posts yet.
+        </div>
+      ) : (
+        <div className="grid gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {posts.map((p) => <PostCard key={p.id} post={p} />)}
+        </div>
+      )}
     </div>
   );
 }
