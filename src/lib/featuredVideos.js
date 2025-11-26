@@ -38,11 +38,12 @@ export async function listVideos(limit = 24, includeDrafts = true) {
 }
 
 export async function createVideo({ title, url, caption = "", start = "", featured = false, published = true }) {
+  const safeContent = String(caption ?? "").trim(); // NEVER null
   const meta = { youtubeUrl: url, caption, start };
   const body = {
     title: String(title || "Video"),
-    slug: toSlug(title || "video-" + Date.now()),
-    content: caption || null,
+    slug: toSlug(title || `video-${Date.now()}`),
+    content: safeContent,                // <= empty string instead of null
     type: "video",
     tags: featured ? ["home-featured"] : [],
     meta,
@@ -52,7 +53,7 @@ export async function createVideo({ title, url, caption = "", start = "", featur
 }
 
 export async function updateVideo(id, fields = {}) {
-  // fields: title, slug, caption, url, start, featured, published
+  // Ensure content never null
   const current = await adminFetch(`/posts/${id}`);
   const tags = Array.isArray(current?.tags) ? [...current.tags] : [];
   if (typeof fields.featured === "boolean") {
@@ -65,10 +66,14 @@ export async function updateVideo(id, fields = {}) {
   if (fields.caption != null) meta.caption = fields.caption;
   if (fields.start != null) meta.start = fields.start;
 
+  const safeContent = fields.caption != null
+    ? String(fields.caption ?? "").trim()
+    : String(current?.content ?? "").trim();
+
   const body = {
     title: fields.title != null ? fields.title : current.title,
     slug: fields.slug != null ? fields.slug : current.slug,
-    content: fields.caption != null ? fields.caption : current.content,
+    content: safeContent,                // <= never null
     type: "video",
     tags,
     meta,
