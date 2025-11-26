@@ -50,13 +50,12 @@ export default function PremiumHero() {
 
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         <div className="grid grid-cols-12 items-center gap-6">
-          {/* Wider left on mobile so the name fits one line */}
+          {/* Left: give more width so name stays single line */}
           <div className="col-span-8 md:col-span-6">
             <p className="pro-eyebrow">Hello, my name is</p>
             <h1 className="pro-title">
               <SplitGoldName name={displayName} />
             </h1>
-
             <p className="pro-tagline">{tagline}</p>
 
             <div className="mt-6 flex flex-wrap items-center gap-3">
@@ -73,7 +72,8 @@ export default function PremiumHero() {
                 </a>
               ))}
 
-              <span className="relative inline-block">
+              {/* CTA with beam and close-by hand cursor */}
+              <span className="relative inline-block cta-hint">
                 <a
                   href={contactUrl}
                   className="btn-beam btn-strong inline-flex items-center rounded-full px-5 py-2 text-sm font-bold text-slate-950 tracking-tight"
@@ -85,13 +85,13 @@ export default function PremiumHero() {
             </div>
           </div>
 
+          {/* Right: smaller portrait with premium photo frame */}
           <div className="col-span-4 md:col-span-6">
-            <div className="gold-frame relative aspect-[4/5] w-full overflow-hidden rounded-3xl border border-slate-800 bg-gradient-to-b from-slate-800/50 to-slate-900">
+            <div className="photo-frame relative aspect-[4/5] w-full overflow-hidden rounded-3xl">
               {heroImage ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img alt="Portrait" src={heroImage} className="hero-img h-full w-full object-cover" loading="eager" />
               ) : <div className="h-full w-full" />}
-              <div className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/5" />
             </div>
           </div>
         </div>
