@@ -1,4 +1,4 @@
-import HeroShowcase from "../components/home/HeroShowcase";
+import HeroEditorial from "../components/home/HeroEditorial";
 
 import FeaturedRail from "../components/paynext/FeaturedRail";
 import LatestGrid from "../components/paynext/LatestGrid";
@@ -11,7 +11,7 @@ export default async function Page({ searchParams }) {
   const tag = typeof searchParams?.tag === "string" ? searchParams.tag : "";
 
   const [latest, featuredPosts, videos, featuredVideo] = await Promise.all([
-    fetchLatestArticles(6, tag),   // articles only
+    fetchLatestArticles(6, tag),
     fetchFeaturedPosts(6),
     fetchVideoPosts(10),
     fetchFeaturedVideo(),
@@ -19,11 +19,9 @@ export default async function Page({ searchParams }) {
 
   return (
     <div className="relative">
-      <HeroShowcase />
-
+      <HeroEditorial />
       <FeaturedRail posts={featuredPosts} />
       <LatestGrid posts={latest} />
-
       <VideosShowcase featured={featuredVideo} items={videos} />
       <CTABanner />
     </div>

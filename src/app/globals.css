@@ -760,3 +760,19 @@ body { margin: 0; }
   background: radial-gradient(120% 90% at 60% 0%, rgba(36,99,235,.18), rgba(0,0,0,0) 60%), linear-gradient(180deg,#0f172a,#0b1220 80%);
   box-shadow: 0 26px 54px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.08);
 }
+
+/* Editorial noise overlay */
+.noise-mask{
+  background-image:
+    url("data:image/svg+xml;utf8,\
+    <svg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'>\
+      <filter id='n'>\
+        <feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/>\
+        <feColorMatrix type='saturate' values='0'/>\
+        <feComponentTransfer><feFuncA type='table' tableValues='0 0.6'/></feComponentTransfer>\
+      </filter>\
+      <rect width='100%' height='100%' filter='url(%23n)' />\
+    </svg>");
+  background-size: 320px 320px;
+  mix-blend-mode: overlay;
+}
