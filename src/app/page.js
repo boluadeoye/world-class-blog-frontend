@@ -1,5 +1,4 @@
-import HeroShowcase from "../components/home/HeroShowcase";
-import PartnersStrip from "../components/home/PartnersStrip";
+import MainHero from "../components/home/MainHero";
 
 import FeaturedRail from "../components/paynext/FeaturedRail";
 import LatestGrid from "../components/paynext/LatestGrid";
@@ -13,15 +12,14 @@ export default async function Page({ searchParams }) {
 
   const [latest, featuredPosts, videos, featuredVideo] = await Promise.all([
     fetchLatestArticles(6, tag),   // articles only
-    fetchFeaturedPosts(6),         // already filters out videos
+    fetchFeaturedPosts(6),
     fetchVideoPosts(10),
     fetchFeaturedVideo(),
   ]);
 
   return (
     <div className="relative">
-      <HeroShowcase />
-      <PartnersStrip />
+      <MainHero />
 
       <FeaturedRail posts={featuredPosts} />
       <LatestGrid posts={latest} />
