@@ -1,67 +1,230 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import PostForm from "../../../components/admin/PostForm";
+import { useState, useMemo, useRef } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
-export default function NewPostPage() {
-  const router = useRouter();
+const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "https://project-blog-backend-beta.vercel.app/api").replace(/\/$/, "");
+
+function toSlug(s) {
+  return String(s || "")
+    .toLowerCase()
+    .trim()
+    .replace(/['"]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+export default function Page() {
+  const [title, setTitle] = useState("");
+  const [slug, setSlug] = useState("");
+  const [slugEdited, setSlugEdited] = useState(false);
+  const [category, setCategory] = useState("Other");
+  const [tagsStr, setTagsStr] = useState("");
+  const [content, setContent] = useState("");
+  const [cover, setCover] = useState(""); // cover image URL
+  const [featured, setFeatured] = useState(false);
+  const [published, setPublished] = useState(true);
+
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [okMsg, setOk] = useState("");
+  const fileRef = useRef(null);
 
-  const API_BASE = "https://project-blog-backend-beta.vercel.app/api";
+  // auto-generate slug until user edits it
+  useMemo(() => {
+    if (!slugEdited) setSlug(toSlug(title));
+  }, [title]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleSave = async (post) => {
-    setSaving(true);
-    setError("");
+  const allTags = useMemo(() => {
+    const base = tagsStr
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    if (featured && !base.includes("home-featured")) base.push("home-featured");
+    return Array.from(new Set(base));
+  }, [tagsStr, featured]);
 
+  async function uploadCover(file) {
+    if (!file) return;
     try {
+      setError("");
+      setOk("");
+      const fname = `covers/${slug || toSlug(title) || Date.now()}.${(file.name.split(".").pop() || "jpg").toLowerCase()}`;
+      const res = await fetch(`${API_BASE}/upload?filename=${encodeURIComponent(fname)}`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": file.type || "image/jpeg" },
+        body: file,
+      });
+      if (!res.ok) throw new Error(`Upload failed (${res.status})`);
+      const data = await res.json();
+      if (!data?.url) throw new Error("No URL returned");
+      setCover(data.url);
+      setOk("Cover uploaded.");
+    } catch (e) {
+      setError(e.message || "Upload failed");
+    }
+  }
+
+  async function save() {
+    try {
+      setSaving(true);
+      setError("");
+      setOk("");
+
+      if (!title.trim()) throw new Error("Title is required.");
+      if (!slug.trim()) throw new Error("Slug is required.");
+
+      const body = {
+        title: title.trim(),
+        slug: slug.trim(),
+        content: String(content ?? ""), // never null
+        type: "article",
+        tags: allTags,
+        meta: { ...(category ? { category } : {}), ...(cover ? { cover } : {}) },
+        published: Boolean(published),
+      };
+
       const res = await fetch(`${API_BASE}/posts`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: post.title,
-          slug: post.slug,
-          content: post.content
-        })
+        body: JSON.stringify(body),
       });
 
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        const text = await res.text();
-        let msg = text;
-        try {
-          msg =
-            JSON.parse(text)?.error || JSON.parse(text)?.message || text;
-        } catch {}
-        throw new Error(msg || `Failed to create post (${res.status})`);
+        const msg = data?.error || data?.message || `Save failed (${res.status})`;
+        throw new Error(msg);
       }
-
-      router.push("/admin/dashboard");
-    } catch (err) {
-      setError(String(err?.message || err));
+      setOk("Post saved. View it on the site.");
+    } catch (e) {
+      setError(e.message || "Failed to save");
     } finally {
       setSaving(false);
     }
-  };
+  }
 
   return (
-    <div className="space-y-4">
-      <header>
-        <h1 className="text-2xl font-semibold text-slate-50">New Post</h1>
-        <p className="text-xs text-slate-400 mt-1">
-          Create a new article for your world‑class blog.
-        </p>
-      </header>
+    <div className="mx-auto max-w-5xl px-4 py-6">
+      <h1 className="text-2xl font-semibold text-slate-50">New Post</h1>
+      <p className="mt-1 text-slate-400">Create a new article for your world‑class blog.</p>
 
-      <div className="bg-slate-900/70 border border-slate-800 rounded-xl p-4 sm:p-6">
-        <PostForm
-          initialPost={null}
-          onSave={handleSave}
-          saving={saving}
-          error={error}
-        />
+      <div className="mt-4 grid gap-3 md:grid-cols-2">
+        <div>
+          <label className="adm-label">Title</label>
+          <input
+            className="adm-input"
+            placeholder="Post title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+        </div>
+        <div>
+          <label className="adm-label">Slug</label>
+          <input
+            className="adm-input"
+            placeholder="post-title-slug"
+            value={slug}
+            onChange={(e) => {
+              setSlug(e.target.value);
+              setSlugEdited(true);
+            }}
+          />
+        </div>
+
+        <div>
+          <label className="adm-label">Category</label>
+          <select className="adm-input" value={category} onChange={(e) => setCategory(e.target.value)}>
+            <option>Other</option>
+            <option>Technology</option>
+            <option>Health</option>
+            <option>Finance</option>
+            <option>Education</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="adm-label">Tags (comma‑separated)</label>
+          <input
+            className="adm-input"
+            placeholder="health, productivity, web, devops"
+            value={tagsStr}
+            onChange={(e) => setTagsStr(e.target.value)}
+          />
+          <div className="mt-1 text-xs text-slate-400">
+            {featured ? "home-featured will be added automatically" : "Toggle “Feature on Home” to add home-featured"}
+          </div>
+        </div>
+
+        <div className="md:col-span-2">
+          <label className="adm-label">Cover image URL</label>
+          <div className="flex gap-2">
+            <input
+              className="adm-input flex-1"
+              placeholder="https://…/cover.jpg"
+              value={cover}
+              onChange={(e) => setCover(e.target.value)}
+            />
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => uploadCover(e.target.files?.[0])}
+            />
+            <button className="adm-btn" onClick={() => fileRef.current?.click()}>
+              Upload
+            </button>
+          </div>
+          {cover ? (
+            <div className="mt-2 overflow-hidden rounded-lg border border-slate-700/70">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={cover} alt="Cover preview" className="w-full max-h-64 object-cover" />
+            </div>
+          ) : (
+            <div className="mt-2 text-xs text-slate-400">No cover set — the card will show a gradient.</div>
+          )}
+        </div>
       </div>
+
+      <div className="mt-2 flex flex-wrap gap-3">
+        <label className="adm-check">
+          <input type="checkbox" checked={featured} onChange={(e) => setFeatured(e.target.checked)} /> Feature on Home
+        </label>
+        <label className="adm-check">
+          <input type="checkbox" checked={published} onChange={(e) => setPublished(e.target.checked)} /> Published
+        </label>
+      </div>
+
+      <div className="mt-4">
+        <label className="adm-label">Content (Markdown supported)</label>
+        <div className="grid gap-3 md:grid-cols-2">
+          <textarea
+            className="adm-input min-h-[260px] font-mono"
+            placeholder="Write your post in Markdown…"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+          />
+          <div className="rounded-lg border border-slate-700/70 bg-slate-900/60 p-3 prose prose-invert max-w-none">
+            {content ? (
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+            ) : (
+              <div className="text-slate-400 text-sm">Live preview will appear here as you type.</div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-4 flex gap-2">
+        <button className="adm-btn" onClick={save} disabled={saving}>
+          {saving ? "Saving…" : "Save Post"}
+        </button>
+      </div>
+
+      {error ? <div className="adm-error mt-3">Error: {error}</div> : null}
+      {okMsg ? <div className="mt-3 rounded-lg border border-emerald-700/50 bg-emerald-900/40 px-3 py-2 text-emerald-100">{okMsg}</div> : null}
     </div>
   );
 }
