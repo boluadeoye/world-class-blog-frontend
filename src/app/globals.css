@@ -675,3 +675,7 @@ body { margin: 0; }
 @media (prefers-reduced-motion: reduce){
   .mh-title{text-shadow:none}
 }
+
+/* Keep hero overlay look, ensure portrait face is visible */
+.hs-media{opacity:.58; filter:saturate(1.06) contrast(1.05); object-position:center 12% !important;}
+/* existing hs-warm/hs-gradient/hs-card already defined earlier */

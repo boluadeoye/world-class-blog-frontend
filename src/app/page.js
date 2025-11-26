@@ -1,4 +1,4 @@
-import MainHero from "../components/home/MainHero";
+import HeroShowcase from "../components/home/HeroShowcase";
 
 import FeaturedRail from "../components/paynext/FeaturedRail";
 import LatestGrid from "../components/paynext/LatestGrid";
@@ -19,7 +19,7 @@ export default async function Page({ searchParams }) {
 
   return (
     <div className="relative">
-      <MainHero />
+      <HeroShowcase />
 
       <FeaturedRail posts={featuredPosts} />
       <LatestGrid posts={latest} />
