@@ -1041,3 +1041,35 @@ body { margin: 0; }
 @media (prefers-reduced-motion: reduce){
   .hc-pulse,.hc-spin-slow,.hc-spin-fast,.hc-spark{ animation: none }
 }
+
+/* ---- Premium video frames + skeletons ---- */
+.video-frame{
+  box-shadow: 0 22px 48px rgba(0,0,0,.45);
+  background:
+    radial-gradient(120% 90% at 60% 0%, rgba(36,99,235,.14), transparent 60%),
+    linear-gradient(180deg, #0f172a, #0b1220 80%);
+}
+.video-card{
+  background:
+    radial-gradient(140% 100% at 80% 0%, rgba(99,102,241,.12), transparent 60%),
+    linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,0));
+}
+
+/* edge fades for rails */
+.fade-l,.fade-r{ position:absolute; top:0; bottom:0; width:36px; pointer-events:none }
+.fade-l{ left:0; background:linear-gradient(to right, #0b1220, rgba(11,18,32,0)) }
+.fade-r{ right:0; background:linear-gradient(to left, #0b1220, rgba(11,18,32,0)) }
+
+/* Skeleton shimmer */
+.skel{
+  position:relative; overflow:hidden;
+  background: rgba(255,255,255,.06);
+}
+.skel::after{
+  content:""; position:absolute; inset:0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.10), rgba(255,255,255,0));
+  animation: shimmer 1.6s infinite;
+}
+@keyframes shimmer { 100% { transform: translateX(100%); } }
+@media (prefers-reduced-motion: reduce){ .skel::after{ animation:none } }
