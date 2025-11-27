@@ -8,7 +8,7 @@ import HeroCrest from "./HeroCrest";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
-  weight: ["700","800","900"],
+  weight: ["700", "800", "900"],
 });
 
 function AnimatedLetters({ text, className }) {
@@ -16,7 +16,11 @@ function AnimatedLetters({ text, className }) {
   return (
     <span className={className} aria-label={text}>
       {letters.map((ch, i) => (
-        <span key={i} className="hero-char" style={{ animationDelay: `${i * 38}ms` }}>
+        <span
+          key={i}
+          className="hero-char"
+          style={{ animationDelay: `${Math.min(i * 36, 1400)}ms` }}
+        >
           {ch === " " ? "\u00A0" : ch}
         </span>
       ))}
@@ -26,26 +30,28 @@ function AnimatedLetters({ text, className }) {
 
 export default function HeroDeck() {
   const hello = "Hi, my name is";
-  const name  = "Boluwatife";
-  const role  = "Full‑stack Developer & Writer";
-  const bio   = "I share fast, practical notes on building products, clean engineering, and writing in public.";
+  const name = "Boluwatife";
+  const role = "Full‑stack Developer & Writer";
+  const bio =
+    "I share fast, practical notes on building products, clean engineering, and writing in public.";
 
   return (
     <section className="px-4 sm:px-6 lg:px-8 pt-6">
       <div
         className={[
-          "relative mx-auto max-w-6xl rounded-3xl hero-glass border border-white/10",
-          "px-6 sm:px-10 py-7 sm:py-9",
+          "relative mx-auto max-w-6xl rounded-3xl hero-glass pro-hero studio-card",
+          "px-6 sm:px-10 py-8 sm:py-10",
         ].join(" ")}
       >
-        {/* neon rim + subtle noise */}
-        <div className="hero-neon pointer-events-none" aria-hidden />
-        <div className="noise-mask pointer-events-none absolute inset-0 rounded-3xl opacity-[0.05]" aria-hidden />
-        {/* decorative crest, kept subtle */}
+        {/* ambient studio layers */}
+        <div className="studio-aurora studio-a" aria-hidden />
+        <div className="studio-aurora studio-b" aria-hidden />
+        <div className="studio-vignette" aria-hidden />
+        <div className="studio-grain" aria-hidden />
         <HeroCrest />
 
-        <div className="grid grid-cols-12 items-center gap-6">
-          {/* TEXT LEFT (more air between blocks) */}
+        <div className="grid grid-cols-12 items-center gap-6 relative z-[1]">
+          {/* TEXT LEFT */}
           <div className="col-span-12 md:col-span-7 pr-1 sm:pr-4">
             <div className="hero-hello">{hello}</div>
 
@@ -53,36 +59,32 @@ export default function HeroDeck() {
               text={name}
               className={[
                 playfair.className,
-                "mt-1.5 block text-white font-extrabold leading-[1.06]",
-                "text-[40px] sm:text-[54px] md:text-[64px]",
+                "hero-name mt-2 block font-extrabold leading-[1.04]",
+                "text-[44px] sm:text-[58px] md:text-[68px]",
               ].join(" ")}
             />
 
-            <div className="mt-3.5 flex items-center gap-2">
+            <div className="mt-3 flex items-center gap-2">
               <Code2 size={20} className="shrink-0 text-amber-400 translate-y-[1px]" aria-hidden="true" />
-              <div className="hero-role">{role}</div>
+              <div className="hero-role">FULL‑STACK DEVELOPER &amp; WRITER</div>
             </div>
 
-            <p className="mt-3.5 max-w-[46ch] text-[15.5px] leading-[1.65] text-slate-300 hero-fade-in">
+            <p className="hero-copy mt-4 max-w-[48ch]">
               {bio}
             </p>
 
-            {/* CTA with breathing room */}
-            <span className="relative inline-block cta-hand hero-fade-in-delayed mt-5 sm:mt-6">
-              <a
-                href="/chat"
-                className={[
-                  "inline-flex items-center justify-center rounded-full px-5 py-2.5",
-                  "border border-white/80 text-white/90",
-                  "hover:bg-white hover:text-black transition-all duration-200",
-                  "backdrop-blur-sm btn-tap",
-                ].join(" ")}
-              >
-                Open Chat
-                <MessageSquare size={18} className="ml-2" />
+            {/* welcome badge */}
+            <div className="mt-4">
+              <span className="welcome-badge">Welcome to my blog!</span>
+            </div>
+
+            {/* CTA as modern chip */}
+            <div className="mt-5 sm:mt-6">
+              <a href="/chat" className="btn-chip">
+                <span>Open Chat</span>
+                <MessageSquare size={18} className="ico ml-2" aria-hidden="true" />
               </a>
-              <span className="hand-cursor">👈</span>
-            </span>
+            </div>
           </div>
 
           {/* FEATURE DECK RIGHT (unchanged) */}
