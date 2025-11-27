@@ -1,6 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Playfair_Display } from "next/font/google";
+
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["700","800","900"],
+});
 
 /* Lite player: no iframe until click */
 function LiteYT({ id, title = "Video", start = 0 }) {
@@ -91,16 +97,18 @@ export default function VideosShowcase({ featured = null, items = [], id }) {
   if (!have) return null;
 
   return (
-    <section id={id} className="px-4 sm:px-6 lg:px-8 py-8">
+    <section id={id} className="px-4 sm:px-6 lg:px-8 py-7">
       <div className="mx-auto max-w-6xl">
-        {/* Header */}
-        <div className="text-center mb-5">
-          <div className="text-[11px] uppercase tracking-[.18em] text-slate-400">Videos</div>
-          <h2 className="h2-compact">Watch Recent Videos</h2>
-          <p className="mx-auto -mt-1.5 max-w-2xl text-[12.5px] text-slate-400">
-            Videos are embedded from YouTube to aid learning; credit to their creators.
-          </p>
+        {/* Studio header */}
+        <div className="videos-cap mb-2">
+          <span className="cap-line" />
+          <span className="cap-pill">Videos</span>
+          <span className="cap-line" />
         </div>
+        <h2 className={`${playfair.className} videos-title`}>Watch Recent Videos</h2>
+        <p className="videos-sub">
+          Videos are embedded from YouTube to aid learning; credit to their creators.
+        </p>
 
         {/* Featured: Studio panel */}
         <div ref={topRef} className="studio-panel rounded-2xl border border-white/10 p-4 sm:p-5 mb-5">
@@ -115,7 +123,6 @@ export default function VideosShowcase({ featured = null, items = [], id }) {
             <div className="relative">
               {!posterLoaded && <div className="studio-skel absolute inset-0 rounded-xl" />}
               {current?.id && <LiteYT id={current.id} start={current.start || 0} title={current.title || "Video"} />}
-              {/* hidden loader to turn off skeleton on poster load */}
               {current?.id && (
                 <img
                   src={`https://i.ytimg.com/vi/${current.id}/hqdefault.jpg`}
