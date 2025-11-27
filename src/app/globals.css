@@ -978,3 +978,45 @@ body { margin: 0; }
 @media (prefers-reduced-motion: reduce){
   .cta-hand > .hand-cursor, .cta-hand .btn-tap{ animation:none }
 }
+
+/* ---- CTA finger: side tap (right edge, pointing left) ---- */
+.cta-hand{ position:relative; display:inline-flex; align-items:center; }
+
+/* place it exactly at the pill's right edge, pointing left */
+.cta-hand > .hand-cursor{
+  position:absolute;
+  right:-6px;              /* snug to the border */
+  top:50%;                 /* center vertically on the button */
+  transform: translate(32%,-50%) rotate(-2deg);
+  transform-origin: 60% 0%;
+  font-size:22px; line-height:1;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,.45));
+  animation: handTapSide 1.35s ease-in-out infinite;
+  pointer-events:none;
+}
+
+/* small horizontal tap inward, then relax */
+@keyframes handTapSide{
+  0%   { transform: translate(32%,-50%) rotate(-2deg) }
+  40%  { transform: translate(32%,-50%) rotate(6deg) }
+  48%  { transform: translate(14%,-50%) rotate(3deg) }  /* brief press into the pill */
+  70%  { transform: translate(32%,-50%) rotate(5deg) }
+  100% { transform: translate(32%,-50%) rotate(-1deg) }
+}
+
+/* sync tiny button micro‑press */
+.cta-hand .btn-tap{ animation: btnPulseSide 1.35s ease-in-out infinite; }
+@keyframes btnPulseSide{
+  0%,100% { transform: translateY(0) }
+  48%     { transform: translateY(-1px) }
+}
+
+/* reduce motion */
+@media (prefers-reduced-motion: reduce){
+  .cta-hand > .hand-cursor, .cta-hand .btn-tap{ animation:none }
+}
+
+/* optional extra snugness on very small screens */
+@media (max-width: 360px){
+  .cta-hand > .hand-cursor{ right:-4px; transform: translate(28%,-50%) rotate(-2deg); }
+}

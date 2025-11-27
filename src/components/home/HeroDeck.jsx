@@ -82,7 +82,7 @@ export default function HeroDeck() {
               Open Chat
               <MessageSquare size={18} className="ml-2" />
             </a>
-            <span className="hand-cursor" aria-hidden="true">👇</span>
+            <span className="hand-cursor" aria-hidden="true">👈</span>
           </span>
         </div>
 
