@@ -4,6 +4,7 @@
 import { useMemo } from "react";
 import { Code2, NotebookPen, Clapperboard, Rocket, MessageSquare } from "lucide-react";
 import { Playfair_Display } from "next/font/google";
+import HeroCrest from "./HeroCrest";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -41,7 +42,8 @@ export default function HeroDeck() {
       {/* inner glow + noise */}
       <div className="pointer-events-none absolute inset-0 rounded-3xl ring-1 ring-white/10" />
       <div className="noise-mask pointer-events-none absolute inset-0 rounded-3xl opacity-[0.06]" />
-      <div className="pointer-events-none absolute -left-24 top-10 h-64 w-64 rounded-full bg-cyan-400/10 blur-3xl" />
+      {/* dynamic crest top-right */}
+      <HeroCrest />
 
       <div className="grid grid-cols-12 items-center gap-6">
         {/* TEXT (left) */}
@@ -68,7 +70,6 @@ export default function HeroDeck() {
 
           <p className="mt-3 max-w-md text-slate-300 hero-fade-in">{bio}</p>
 
-          {/* Chat CTA with dangling/tapping finger */}
           <span className="relative inline-block cta-hand hero-fade-in-delayed">
             <a
               href="/chat"
@@ -82,7 +83,7 @@ export default function HeroDeck() {
               Open Chat
               <MessageSquare size={18} className="ml-2" />
             </a>
-            <span className="hand-cursor" aria-hidden="true">👈</span>
+            <span className="hand-cursor">👈</span>
           </span>
         </div>
 

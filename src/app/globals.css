@@ -1020,3 +1020,24 @@ body { margin: 0; }
 @media (max-width: 360px){
   .cta-hand > .hand-cursor{ right:-4px; transform: translate(28%,-50%) rotate(-2deg); }
 }
+
+/* --- Hero crest (top-right dynamic icon) --- */
+.hero-crest{
+  position:absolute; right:16px; top:14px;
+  width:92px; height:92px; opacity:.92; pointer-events:none;
+}
+@media (min-width:640px){
+  .hero-crest{ right:18px; top:16px; width:116px; height:116px; }
+}
+.hc-pulse{ animation: hcPulse 2.6s ease-in-out infinite; transform-origin: 52px 48px }
+.hc-spin-slow{ animation: hcSpin 22s linear infinite; transform-origin: 50px 50px }
+.hc-spin-fast{ animation: hcSpin 12s linear infinite reverse; transform-origin: 50px 50px }
+.hc-spark{ animation: hcSpark 2.8s ease-in-out infinite }
+
+@keyframes hcPulse { 0%,100%{ opacity:.35; transform:scale(1)} 50%{opacity:.85; transform:scale(1.06)} }
+@keyframes hcSpin  { to { transform: rotate(360deg) } }
+@keyframes hcSpark { 0%,65%{opacity:0; transform: scale(.7)} 70%{opacity:1; transform: scale(1)} 100%{opacity:0; transform: scale(1.2)} }
+
+@media (prefers-reduced-motion: reduce){
+  .hc-pulse,.hc-spin-slow,.hc-spin-fast,.hc-spark{ animation: none }
+}
