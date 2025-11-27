@@ -15,6 +15,7 @@ import { useState } from "react";
 const API_BASE =
   (process.env.NEXT_PUBLIC_API_URL || "https://project-blog-backend-beta.vercel.app/api").replace(/\/$/, "");
 
+console.log("Newsletter endpoint:", process.env.NEXT_PUBLIC_NEWSLETTER_ENDPOINT || "(none)");
 const FALLBACK_ENDPOINTS = [
   process.env.NEXT_PUBLIC_NEWSLETTER_ENDPOINT || "",
   "/newsletter/subscribe",
