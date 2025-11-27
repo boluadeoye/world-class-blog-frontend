@@ -1153,3 +1153,7 @@ body { margin: 0; }
 }
 
 /* Studio panel / card / skeleton from earlier (left unchanged) */
+
+/* Subtle extra space between the Videos title block and the featured frame */
+.videos-sub{ margin-bottom: 1.1rem; }              /* ~18px */
+@media (min-width: 640px){ .videos-sub{ margin-bottom: 1.25rem; } }  /* ~20px on sm+ */
