@@ -1205,3 +1205,6 @@ body { margin: 0; }
   mix-blend-mode: overlay;
   opacity:.05;
 }
+
+/* newsletter crop: optional tighter spacing */
+@media (max-width: 640px){ .studio-banner{ padding-top:1.1rem; padding-bottom:1.1rem; } }
