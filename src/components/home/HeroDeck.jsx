@@ -32,14 +32,14 @@ export default function HeroDeck() {
   const name = "Boluwatife";
   const role = "FULL‑STACK DEVELOPER & WRITER";
   const bio =
-    "I share fast, practical notes on building products, clean engineering, and writing in public.";
+    "I build fast, clear web experiences and share practical notes on engineering, product, and writing.";
 
   return (
     <section className="px-4 sm:px-6 lg:px-8 pt-6">
       <div
         className={[
           "relative mx-auto max-w-6xl rounded-3xl hero-glass pro-hero studio-card",
-          "px-6 sm:px-10 py-8 sm:py-10",
+          "px-7 sm:px-12 py-8 sm:py-10",
         ].join(" ")}
       >
         {/* ambient studio layers */}
@@ -50,9 +50,8 @@ export default function HeroDeck() {
         <HeroCrest />
 
         <div className="grid grid-cols-12 items-center gap-6 relative z-[1]">
-          {/* TEXT LEFT */}
-          <div className="col-span-12 md:col-span-7 pr-1 sm:pr-4">
-            {/* Name at the very top */}
+          {/* TEXT LEFT — nudged right for breathing room */}
+          <div className="col-span-12 md:col-span-7 pr-1 sm:pr-4 pl-3 sm:pl-5 md:pl-10">
             <AnimatedLetters
               text={name}
               className={[
@@ -67,11 +66,11 @@ export default function HeroDeck() {
               <div className="hero-role">{role}</div>
             </div>
 
-            <p className="hero-copy mt-4 max-w-[48ch]">
+            <p className="hero-copy mt-4 sm:mt-5 max-w-[50ch] text-[16px] sm:text-[17px] md:text-[18px] leading-[1.65] text-slate-300">
               {bio}
             </p>
 
-            {/* CTA with finger pointer retained */}
+            {/* CTA with finger pointer */}
             <span className="relative inline-block cta-hand hero-fade-in-delayed mt-5 sm:mt-6">
               <a href="/chat" className="btn-chip">
                 <span>Open Chat</span>
