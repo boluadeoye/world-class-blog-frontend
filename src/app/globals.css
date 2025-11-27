@@ -867,3 +867,31 @@ body { margin: 0; }
 .hero-fade-in{ opacity:0; animation: heroFade .6s .24s ease forwards }
 .hero-fade-in-delayed{ opacity:0; animation: heroFade .6s .42s ease forwards }
 @keyframes heroFade { to { opacity:1 } }
+
+/* --- CTA finger: dangling + tap --- */
+.cta-hand{ position: relative; display:inline-block; }
+.hand-cursor{
+  position:absolute; right:-18px; top:-16px; font-size:22px; line-height:1;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,.45));
+  transform-origin: 60% 0%;
+  animation: handDangle 1.35s ease-in-out infinite;
+  pointer-events:none;
+}
+@keyframes handDangle{
+  0%{ transform: rotate(-12deg) translateY(-2px) }
+  40%{ transform: rotate(6deg) translateY(2px) }
+  60%{ transform: rotate(3deg) translateY(0) }
+  100%{ transform: rotate(-10deg) translateY(-2px) }
+}
+
+/* gentle button tap pulse synced with the hand */
+.btn-tap{ animation: btnPulse 1.35s ease-in-out infinite; }
+@keyframes btnPulse{
+  0%,100%{ transform: translateY(0) }
+  40%{ transform: translateY(-1px) }
+}
+
+/* respect reduced motion */
+@media (prefers-reduced-motion: reduce){
+  .hand-cursor,.btn-tap{ animation: none }
+}

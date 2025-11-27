@@ -26,7 +26,8 @@ function AnimatedLetters({ text, className }) {
 export default function HeroDeck() {
   const name = "Boluwatife";
   const role = "Full‑stack Developer & Writer";
-  const bio = "I share fast, practical notes on building products, clean engineering, and writing in public.";
+  const bio =
+    "I share fast, practical notes on building products, clean engineering, and writing in public.";
 
   return (
     <section
@@ -40,13 +41,11 @@ export default function HeroDeck() {
       {/* inner glow + noise */}
       <div className="pointer-events-none absolute inset-0 rounded-3xl ring-1 ring-white/10" />
       <div className="noise-mask pointer-events-none absolute inset-0 rounded-3xl opacity-[0.06]" />
-      {/* faint blob behind text */}
       <div className="pointer-events-none absolute -left-24 top-10 h-64 w-64 rounded-full bg-cyan-400/10 blur-3xl" />
 
       <div className="grid grid-cols-12 items-center gap-6">
         {/* TEXT (left) */}
         <div className="col-span-12 md:col-span-7">
-          {/* Eyebrow with accent line */}
           <div className="flex items-center gap-2">
             <span className="hero-accent" aria-hidden="true" />
             <span className="text-amber-400 text-[12px] tracking-[.18em] uppercase select-none">
@@ -54,7 +53,6 @@ export default function HeroDeck() {
             </span>
           </div>
 
-          {/* Animated serif headline */}
           <AnimatedLetters
             text={name}
             className={[
@@ -63,30 +61,29 @@ export default function HeroDeck() {
             ].join(" ")}
           />
 
-          {/* Role with gold icon and electric-green gradient text */}
           <div className="mt-3 flex items-center gap-2">
             <Code2 size={20} className="shrink-0 text-amber-400 translate-y-[1px]" aria-hidden="true" />
-            <div className="hero-role">
-              {role}
-            </div>
+            <div className="hero-role">{role}</div>
           </div>
 
-          {/* Bio */}
           <p className="mt-3 max-w-md text-slate-300 hero-fade-in">{bio}</p>
 
-          {/* Single CTA to chat */}
-          <a
-            href="/chat"
-            className={[
-              "mt-5 inline-flex items-center justify-center rounded-full px-5 py-2",
-              "border border-white/80 text-white/90",
-              "hover:bg-white hover:text-black transition-all duration-200",
-              "backdrop-blur-sm hero-fade-in-delayed",
-            ].join(" ")}
-          >
-            Open Chat
-            <MessageSquare size={18} className="ml-2" />
-          </a>
+          {/* Chat CTA with dangling/tapping finger */}
+          <span className="relative inline-block cta-hand hero-fade-in-delayed">
+            <a
+              href="/chat"
+              className={[
+                "inline-flex items-center justify-center rounded-full px-5 py-2",
+                "border border-white/80 text-white/90",
+                "hover:bg-white hover:text-black transition-all duration-200",
+                "backdrop-blur-sm btn-tap",
+              ].join(" ")}
+            >
+              Open Chat
+              <MessageSquare size={18} className="ml-2" />
+            </a>
+            <span className="hand-cursor" aria-hidden="true">👇</span>
+          </span>
         </div>
 
         {/* FEATURE DECK (right) */}
