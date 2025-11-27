@@ -1,3 +1,4 @@
+import StartHereNewsletter from "../components/home/StartHereNewsletter";
 import HeroDeck from "../components/home/HeroDeck";
 
 import FeaturedRail from "../components/paynext/FeaturedRail";
@@ -22,6 +23,7 @@ export default async function Page({ searchParams }) {
       <FeaturedRail posts={featuredPosts} />
       <LatestGrid posts={latest} />
       <VideosShowcase id="videos" featured={featuredVideo} items={videos} />
+      <StartHereNewsletter />
     </div>
   );
 }
