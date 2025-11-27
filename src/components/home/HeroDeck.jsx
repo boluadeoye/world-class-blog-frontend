@@ -19,7 +19,7 @@ function AnimatedLetters({ text, className }) {
         <span
           key={i}
           className="hero-char"
-          style={{ animationDelay: `${Math.min(i * 36, 1400)}ms` }}
+          style={{ animationDelay: `${Math.min(i * 36, 1200)}ms` }}
         >
           {ch === " " ? "\u00A0" : ch}
         </span>
@@ -53,13 +53,18 @@ export default function HeroDeck() {
         <div className="grid grid-cols-12 items-center gap-6 relative z-[1]">
           {/* TEXT LEFT */}
           <div className="col-span-12 md:col-span-7 pr-1 sm:pr-4">
+            {/* Welcome badge must be first */}
+            <div className="mb-3">
+              <span className="welcome-badge">Welcome to my blog!</span>
+            </div>
+
             <div className="hero-hello">{hello}</div>
 
             <AnimatedLetters
               text={name}
               className={[
                 playfair.className,
-                "hero-name mt-2 block font-extrabold leading-[1.04]",
+                "hero-name whitespace-nowrap mt-2 block font-extrabold leading-[1.04]",
                 "text-[44px] sm:text-[58px] md:text-[68px]",
               ].join(" ")}
             />
@@ -73,18 +78,14 @@ export default function HeroDeck() {
               {bio}
             </p>
 
-            {/* welcome badge */}
-            <div className="mt-4">
-              <span className="welcome-badge">Welcome to my blog!</span>
-            </div>
-
-            {/* CTA as modern chip */}
-            <div className="mt-5 sm:mt-6">
+            {/* CTA with restored finger pointer */}
+            <span className="relative inline-block cta-hand hero-fade-in-delayed mt-5 sm:mt-6">
               <a href="/chat" className="btn-chip">
                 <span>Open Chat</span>
                 <MessageSquare size={18} className="ico ml-2" aria-hidden="true" />
               </a>
-            </div>
+              <span className="hand-cursor" aria-hidden="true">👈</span>
+            </span>
           </div>
 
           {/* FEATURE DECK RIGHT (unchanged) */}

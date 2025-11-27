@@ -1398,3 +1398,24 @@ body { margin: 0; }
   .btn-chip::after{ animation:none }
   .hero-name .hero-char{ animation:none; transform:none; opacity:1; filter:none }
 }
+
+/* Keep the display name on one line; prevent per-char wrapping */
+.hero-name{ white-space: nowrap; word-break: keep-all; overflow-wrap: normal; }
+
+/* Restore the pointing finger, anchored to CTA */
+.cta-hand{ position: relative; }
+.hand-cursor{
+  position:absolute; right:-16px; top:-12px;
+  display:block; width:22px; height:22px;
+  text-shadow:0 2px 8px rgba(0,0,0,.45);
+  transform-origin: center left;
+  animation: handPoint 1.5s ease-in-out infinite alternate;
+  pointer-events:none;
+}
+@keyframes handPoint{
+  0%{ transform: rotate(-12deg) translateY(-2px) }
+  100%{ transform: rotate(10deg) translateY(2px) }
+}
+@media (prefers-reduced-motion: reduce){
+  .hand-cursor{ animation:none }
+}
