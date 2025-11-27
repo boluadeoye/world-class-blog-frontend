@@ -29,9 +29,8 @@ function AnimatedLetters({ text, className }) {
 }
 
 export default function HeroDeck() {
-  const hello = "Hi, my name is";
   const name = "Boluwatife";
-  const role = "Full‑stack Developer & Writer";
+  const role = "FULL‑STACK DEVELOPER & WRITER";
   const bio =
     "I share fast, practical notes on building products, clean engineering, and writing in public.";
 
@@ -53,32 +52,26 @@ export default function HeroDeck() {
         <div className="grid grid-cols-12 items-center gap-6 relative z-[1]">
           {/* TEXT LEFT */}
           <div className="col-span-12 md:col-span-7 pr-1 sm:pr-4">
-            {/* Welcome badge must be first */}
-            <div className="mb-3">
-              <span className="welcome-badge">Welcome to my blog!</span>
-            </div>
-
-            <div className="hero-hello">{hello}</div>
-
+            {/* Name at the very top */}
             <AnimatedLetters
               text={name}
               className={[
                 playfair.className,
-                "hero-name whitespace-nowrap mt-2 block font-extrabold leading-[1.04]",
+                "hero-name whitespace-nowrap mt-0 block font-extrabold leading-[1.04]",
                 "text-[44px] sm:text-[58px] md:text-[68px]",
               ].join(" ")}
             />
 
             <div className="mt-3 flex items-center gap-2">
               <Code2 size={20} className="shrink-0 text-amber-400 translate-y-[1px]" aria-hidden="true" />
-              <div className="hero-role">FULL‑STACK DEVELOPER &amp; WRITER</div>
+              <div className="hero-role">{role}</div>
             </div>
 
             <p className="hero-copy mt-4 max-w-[48ch]">
               {bio}
             </p>
 
-            {/* CTA with restored finger pointer */}
+            {/* CTA with finger pointer retained */}
             <span className="relative inline-block cta-hand hero-fade-in-delayed mt-5 sm:mt-6">
               <a href="/chat" className="btn-chip">
                 <span>Open Chat</span>
