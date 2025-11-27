@@ -1,4 +1,7 @@
 // src/components/home/HeroDeck.jsx
+"use client";
+
+import { useMemo } from "react";
 import { Code2, NotebookPen, Clapperboard, Rocket, MessageSquare } from "lucide-react";
 import { Playfair_Display } from "next/font/google";
 
@@ -6,6 +9,19 @@ const playfair = Playfair_Display({
   subsets: ["latin"],
   weight: ["700","800","900"],
 });
+
+function AnimatedLetters({ text, className }) {
+  const letters = useMemo(() => Array.from(text), [text]);
+  return (
+    <span className={className} aria-label={text}>
+      {letters.map((ch, i) => (
+        <span key={i} className="hero-char" style={{ animationDelay: `${i * 38}ms` }}>
+          {ch === " " ? "\u00A0" : ch}
+        </span>
+      ))}
+    </span>
+  );
+}
 
 export default function HeroDeck() {
   const name = "Boluwatife";
@@ -21,29 +37,42 @@ export default function HeroDeck() {
         "bg-[radial-gradient(120%_90%_at_10%_-10%,rgba(99,102,241,.12),transparent_60%),radial-gradient(110%_80%_at_95%_10%,rgba(14,165,233,.1),transparent_60%)]",
       ].join(" ")}
     >
+      {/* inner glow + noise */}
       <div className="pointer-events-none absolute inset-0 rounded-3xl ring-1 ring-white/10" />
       <div className="noise-mask pointer-events-none absolute inset-0 rounded-3xl opacity-[0.06]" />
+      {/* faint blob behind text */}
       <div className="pointer-events-none absolute -left-24 top-10 h-64 w-64 rounded-full bg-cyan-400/10 blur-3xl" />
 
       <div className="grid grid-cols-12 items-center gap-6">
         {/* TEXT (left) */}
         <div className="col-span-12 md:col-span-7">
-          <div className="text-amber-400 text-[12px] tracking-[.18em] uppercase select-none">
-            Welcome to my blog
+          {/* Eyebrow with accent line */}
+          <div className="flex items-center gap-2">
+            <span className="hero-accent" aria-hidden="true" />
+            <span className="text-amber-400 text-[12px] tracking-[.18em] uppercase select-none">
+              Welcome to my blog
+            </span>
           </div>
 
-          <h1 className={[playfair.className, "mt-2 text-white font-extrabold leading-[1.03] text-5xl sm:text-6xl"].join(" ")}>
-            {name}
-          </h1>
+          {/* Animated serif headline */}
+          <AnimatedLetters
+            text={name}
+            className={[
+              playfair.className,
+              "mt-2 block text-white font-extrabold leading-[1.03] text-5xl sm:text-6xl",
+            ].join(" ")}
+          />
 
+          {/* Role with gold icon and electric-green gradient text */}
           <div className="mt-3 flex items-center gap-2">
             <Code2 size={20} className="shrink-0 text-amber-400 translate-y-[1px]" aria-hidden="true" />
-            <div className="font-semibold tracking-wide uppercase text-emerald-300">
+            <div className="hero-role">
               {role}
             </div>
           </div>
 
-          <p className="mt-3 max-w-md text-slate-300">{bio}</p>
+          {/* Bio */}
+          <p className="mt-3 max-w-md text-slate-300 hero-fade-in">{bio}</p>
 
           {/* Single CTA to chat */}
           <a
@@ -52,7 +81,7 @@ export default function HeroDeck() {
               "mt-5 inline-flex items-center justify-center rounded-full px-5 py-2",
               "border border-white/80 text-white/90",
               "hover:bg-white hover:text-black transition-all duration-200",
-              "backdrop-blur-sm",
+              "backdrop-blur-sm hero-fade-in-delayed",
             ].join(" ")}
           >
             Open Chat

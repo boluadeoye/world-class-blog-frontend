@@ -842,3 +842,28 @@ body { margin: 0; }
 .deck-blob-violet{ left:-70px; bottom:-50px; background: radial-gradient(closest-side, rgba(139,92,246,.9), transparent) }
 .deck-blob-emerald{ right:-60px; bottom:-50px; background: radial-gradient(closest-side, rgba(16,185,129,.9), transparent) }
 .deck-blob-amber{ left:-50px; top:-40px; background: radial-gradient(closest-side, rgba(245,158,11,.9), transparent) }
+
+/* --- Hero editorial animations and accents --- */
+.hero-accent{
+  display:inline-block; width:18px; height:2px; border-radius:9999px;
+  background: linear-gradient(90deg,#fbbf24,rgba(251,191,36,.2));
+  box-shadow: 0 0 0 1px rgba(251,191,36,.35);
+}
+
+.hero-char{
+  display:inline-block; opacity:0; transform: translateY(8px);
+  animation: heroUp .62s cubic-bezier(.2,.8,.2,1) forwards;
+}
+@keyframes heroUp { to { opacity:1; transform:none } }
+
+.hero-role{
+  font-weight:800; letter-spacing:.06em; text-transform:uppercase;
+  background: linear-gradient(90deg,#22d3ee,#34d399);
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 2px 14px rgba(34,211,238,.16));
+}
+
+.hero-fade-in{ opacity:0; animation: heroFade .6s .24s ease forwards }
+.hero-fade-in-delayed{ opacity:0; animation: heroFade .6s .42s ease forwards }
+@keyframes heroFade { to { opacity:1 } }
