@@ -1478,3 +1478,13 @@ body { margin: 0; }
   text-shadow: none !important;
   filter: none !important;
 }
+
+/* Nudge the decorative crest a bit further right to avoid the name */
+.hero-crest-wrap{
+  position:absolute;
+  top: clamp(6px, 2.6vw, 28px);
+  right: clamp(8px, 3.0vw, 34px);
+  transform: translateX(6px);
+  z-index: 0;
+  pointer-events:none;
+}

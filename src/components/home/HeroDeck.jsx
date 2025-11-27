@@ -39,7 +39,7 @@ export default function HeroDeck() {
       <div
         className={[
           "relative mx-auto max-w-6xl rounded-3xl hero-glass pro-hero studio-card",
-          "px-7 sm:px-12 py-8 sm:py-10",
+          "px-6 sm:px-10 py-8 sm:py-10",
         ].join(" ")}
       >
         {/* ambient studio layers */}
@@ -47,17 +47,23 @@ export default function HeroDeck() {
         <div className="studio-aurora studio-b" aria-hidden />
         <div className="studio-vignette" aria-hidden />
         <div className="studio-grain" aria-hidden />
-        <HeroCrest />
+
+        {/* nudge the decorative crest to the right via wrapper */}
+        <div className="hero-crest-wrap pointer-events-none" aria-hidden>
+          <HeroCrest />
+        </div>
 
         <div className="grid grid-cols-12 items-center gap-6 relative z-[1]">
-          {/* TEXT LEFT — nudged right for breathing room */}
-          <div className="col-span-12 md:col-span-7 pr-1 sm:pr-4 pl-3 sm:pl-5 md:pl-10">
+          {/* TEXT LEFT — nudge block slightly right for breathing room,
+              but pull the NAME itself left+up for balance */}
+          <div className="col-span-12 md:col-span-7 pr-1 sm:pr-4 pl-0 sm:pl-1 md:pl-2">
             <AnimatedLetters
               text={name}
               className={[
                 playfair.className,
                 "hero-name whitespace-nowrap mt-0 block font-extrabold leading-[1.04]",
                 "text-[44px] sm:text-[58px] md:text-[68px]",
+                "relative transform -translate-x-1 md:-translate-x-2 -translate-y-0.5",
               ].join(" ")}
             />
 
