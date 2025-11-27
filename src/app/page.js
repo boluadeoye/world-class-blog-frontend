@@ -3,7 +3,7 @@ import HeroDeck from "../components/home/HeroDeck";
 import FeaturedRail from "../components/paynext/FeaturedRail";
 import LatestGrid from "../components/paynext/LatestGrid";
 import VideosShowcase from "../components/paynext/VideosShowcase";
-import CTABanner from "../components/paynext/CTABanner";
+import StartHereBanner from "../components/home/StartHereBanner";
 
 import { fetchLatestArticles, fetchFeaturedPosts, fetchVideoPosts, fetchFeaturedVideo } from "../lib/homeData";
 
@@ -23,7 +23,7 @@ export default async function Page({ searchParams }) {
       <FeaturedRail posts={featuredPosts} />
       <LatestGrid posts={latest} />
       <VideosShowcase id="videos" featured={featuredVideo} items={videos} />
-      <CTABanner />
+      <StartHereBanner />
     </div>
   );
 }
