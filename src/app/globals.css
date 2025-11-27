@@ -895,3 +895,43 @@ body { margin: 0; }
 @media (prefers-reduced-motion: reduce){
   .hand-cursor,.btn-tap{ animation: none }
 }
+
+/* --- Move CTA finger to the right edge, touching the button --- */
+.cta-hand{ position:relative; display:inline-flex; }
+
+/* right: keep it hugging the button, vertically centered */
+.hand-cursor{
+  position:absolute;
+  left:auto;               /* ensure we don't inherit any left */
+  right:-10px;             /* just outside the pill border */
+  top:50%;                 /* vertically centered */
+  transform: translate(40%,-50%) rotate(-12deg);
+  transform-origin: 60% 0%;
+  font-size:22px; line-height:1;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,.45));
+  animation: handTapRight 1.35s ease-in-out infinite;
+  pointer-events:none;
+}
+
+/* subtle tap into the button, then dangle back */
+@keyframes handTapRight{
+  0%   { transform: translate(40%,-50%) rotate(-12deg) }
+  35%  { transform: translate(40%,-50%) rotate(6deg) }
+  45%  { transform: translate(20%,-50%) rotate(3deg) }   /* quick tap inward */
+  60%  { transform: translate(40%,-50%) rotate(6deg) }
+  100% { transform: translate(40%,-50%) rotate(-10deg) }
+}
+
+/* sync a gentle button pulse */
+.btn-tap{
+  animation: btnPulseRight 1.35s ease-in-out infinite;
+}
+@keyframes btnPulseRight{
+  0%,100% { transform: translateY(0) }
+  40%     { transform: translateY(-1px) }
+}
+
+/* reduced motion */
+@media (prefers-reduced-motion: reduce){
+  .hand-cursor,.btn-tap{ animation:none }
+}
