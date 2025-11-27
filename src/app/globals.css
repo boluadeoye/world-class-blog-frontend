@@ -935,3 +935,46 @@ body { margin: 0; }
 @media (prefers-reduced-motion: reduce){
   .hand-cursor,.btn-tap{ animation:none }
 }
+
+/* --- CTA finger: align to the button right edge, touching it --- */
+/* Make wrapper a solid anchor */
+.cta-hand{ position: relative; display:inline-flex; align-items:center; }
+
+/* Override previous .hand-cursor with a tighter right-edge anchor */
+.cta-hand > .hand-cursor{
+  position:absolute;
+  right:-10px;            /* sits just outside the pill border */
+  top:50%;                /* vertically center on the button */
+  transform: translate(58%,-50%) rotate(-16deg); /* press into border */
+  transform-origin: 60% 0%;
+  font-size:22px; line-height:1;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,.45));
+  animation: handTapTight 1.35s ease-in-out infinite;
+  pointer-events:none;
+}
+
+/* Subtle tap inward then dangle back (horizontal nudge) */
+@keyframes handTapTight{
+  0%   { transform: translate(58%,-50%) rotate(-16deg) }
+  35%  { transform: translate(58%,-50%) rotate(4deg) }
+  46%  { transform: translate(42%,-50%) rotate(2deg) }  /* quick tap slightly into the pill */
+  70%  { transform: translate(58%,-50%) rotate(4deg) }
+  100% { transform: translate(58%,-50%) rotate(-14deg) }
+}
+
+/* Sync a very gentle button micro‑press */
+.cta-hand .btn-tap{ animation: btnPulseTight 1.35s ease-in-out infinite; }
+@keyframes btnPulseTight{
+  0%,100% { transform: translateY(0) }
+  46%     { transform: translateY(-1px) }
+}
+
+/* Tiny tweak on very small screens */
+@media (max-width: 360px){
+  .cta-hand > .hand-cursor{ right:-8px; font-size:20px; transform: translate(58%,-50%) rotate(-16deg); }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce){
+  .cta-hand > .hand-cursor, .cta-hand .btn-tap{ animation:none }
+}
