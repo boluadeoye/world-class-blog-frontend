@@ -2880,3 +2880,16 @@ header a[href="/projects"], nav a[href="/projects"]{ display:none !important; }
   background: linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,.45) 100%);
 }
 .lux-meta{ position:absolute; z-index:2; left:14px; right:14px; bottom:12px; display:flex; align-items:center; justify-content:space-between; gap:.6rem; }
+
+/* LuxLatest header: only the eyebrow + small browse on the right */
+.section-eyebrow{ font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:rgb(148 163 184 / .9) }
+
+/* Ensure image actually sits below overlay, above card background */
+.lux-media{ position:relative; aspect-ratio:16/9; overflow:hidden; z-index:0 }
+.lux-img{ position:relative; z-index:0; width:100%; height:100%; object-fit:cover; display:block }
+.lux-media-overlay{ position:absolute; inset:0; z-index:1; pointer-events:none;
+  background: linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,.45) 100%);
+}
+.lux-meta{ position:absolute; z-index:2; left:14px; right:14px; bottom:12px;
+  display:flex; align-items:center; justify-content:space-between; gap:.6rem;
+}

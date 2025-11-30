@@ -1,25 +1,18 @@
 // src/components/home/LuxLatest.jsx
 "use client";
 
-// helper
 const first = (...vals) => vals.find(v => typeof v === "string" && v.trim().length > 0) || "";
 
-function ytIdFromUrl(u) {
-  try {
-    const url = new URL(u);
-    if (url.hostname === "youtu.be") return url.pathname.slice(1);
-    if (url.searchParams.get("v")) return url.searchParams.get("v");
-    const parts = url.pathname.split("/").filter(Boolean);
-    const i = parts.findIndex(p => ["embed", "shorts", "v", "watch"].includes(p));
-    if (i >= 0 && parts[i + 1]) return parts[i + 1];
-    return parts[parts.length - 1] || null;
-  } catch { return null; }
-}
-
-// Find a usable cover image from many shapes (API/editor/SEO)
+/* Robust cover extraction:
+   - meta.cover
+   - hero/og/cover fields
+   - first Markdown image inside `content`
+   - first <img src> inside `content_html`
+   - EditorJS image in `content` or `content_editorjs`
+*/
 function coverOf(p) {
-  // common direct fields
   const direct = first(
+    p?.meta?.cover,
     p?.hero_image?.url,
     p?.heroImage?.url,
     p?.og_image,
@@ -39,47 +32,34 @@ function coverOf(p) {
   );
   if (direct) return direct;
 
-  // images_inline like our post generator
-  try {
-    const inl = Array.isArray(p?.images_inline) ? p.images_inline : [];
-    const firstInl = first(inl?.[0]?.url, inl?.[1]?.url);
-    if (firstInl) return firstInl;
-  } catch {}
-
-  // EditorJS blocks in content or content_editorjs
-  try {
-    const c = typeof p?.content === "string" ? JSON.parse(p.content) : p?.content;
-    const blocks = Array.isArray(c?.blocks) ? c.blocks : [];
-    const imgBlock = blocks.find(b => b?.type === "image" && (b?.data?.file?.url || b?.data?.url));
-    const url = imgBlock?.data?.file?.url || imgBlock?.data?.url;
-    if (url) return url;
-  } catch {}
-
-  try {
-    const c2 = typeof p?.content_editorjs === "string"
-      ? JSON.parse(p.content_editorjs)
-      : p?.content_editorjs;
-    const blocks2 = Array.isArray(c2?.blocks) ? c2.blocks : [];
-    const imgBlock2 = blocks2.find(b => b?.type === "image" && (b?.data?.file?.url || b?.data?.url));
-    const url2 = imgBlock2?.data?.file?.url || imgBlock2?.data?.url;
-    if (url2) return url2;
-  } catch {}
-
-  // scrape first <img src="..."> from HTML
-  if (typeof p?.content_html === "string") {
-    const m = p.content_html.match(/<img[^>]+src=["']([^"']+)["']/i);
+  // Markdown content: ![alt](url)
+  if (typeof p?.content === "string") {
+    const m = p.content.match(/!\[[^\]]*\]\((https?:\/\/[^\s)]+)\)/i);
     if (m?.[1]) return m[1];
   }
 
-  // YouTube thumbnail from first reference/link if present
+  // HTML: <img src="...">
+  if (typeof p?.content_html === "string") {
+    const m2 = p.content_html.match(/<img[^>]+src=["']([^"']+)["']/i);
+    if (m2?.[1]) return m2[1];
+  }
+
+  // EditorJS inside content/content_editorjs
   try {
-    const yts = Array.isArray(p?.youtube_references) ? p.youtube_references : [];
-    const yurl = first(yts?.[0]?.url, yts?.[1]?.url, yts?.[2]?.url);
-    const id = ytIdFromUrl(yurl || "");
-    if (id) return `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
+    const ej = typeof p?.content === "string" ? JSON.parse(p.content) : p?.content;
+    const blocks = Array.isArray(ej?.blocks) ? ej.blocks : [];
+    const img = blocks.find(b => b?.type === "image" && (b?.data?.file?.url || b?.data?.url));
+    const u = img?.data?.file?.url || img?.data?.url;
+    if (u) return u;
+  } catch {}
+  try {
+    const ej2 = typeof p?.content_editorjs === "string" ? JSON.parse(p.content_editorjs) : p?.content_editorjs;
+    const blocks2 = Array.isArray(ej2?.blocks) ? ej2.blocks : [];
+    const img2 = blocks2.find(b => b?.type === "image" && (b?.data?.file?.url || b?.data?.url));
+    const u2 = img2?.data?.file?.url || img2?.data?.url;
+    if (u2) return u2;
   } catch {}
 
-  // last resort: empty → gradient fallback will show
   return "";
 }
 
@@ -88,26 +68,30 @@ function toTitle(s) {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
+/* Category extraction:
+   - meta.category
+   - category (object or string)
+   - categories[0]
+   - tags fallback
+*/
 function catOf(p) {
   const known = ["health","finance","technology","education","others"];
-  const raw =
-    (p?.category && (typeof p.category === "string" ? p.category : (p.category?.name || p.category?.title || p.category?.slug))) ||
-    p?.category_name ||
-    p?.categoryName ||
-    p?.categoryTitle ||
+  const primary =
+    p?.meta?.category ||
+    (typeof p?.category === "string" ? p.category : (p?.category?.name || p?.category?.title || p?.category?.slug)) ||
     (Array.isArray(p?.categories) && (p.categories[0]?.name || p.categories[0]?.title || p.categories[0]?.slug)) ||
     "";
 
-  let c = String(raw || "").trim().toLowerCase();
-  if (c && known.includes(c)) return toTitle(c);
+  let c = String(primary || "").trim();
+  if (c) {
+    const low = c.toLowerCase();
+    if (known.includes(low)) return toTitle(low);
+    return toTitle(c); // show provided category even if custom
+  }
 
-  // try tags
-  const tags = Array.isArray(p?.tags) ? p.tags.map(x => String(x).toLowerCase()) : [];
+  const tags = Array.isArray(p?.tags) ? p.tags.map(t => String(t).toLowerCase()) : [];
   const hit = tags.find(t => known.includes(t));
   if (hit) return toTitle(hit);
-
-  // if we still have raw category, show it as Title Case (don’t force “Other”)
-  if (raw) return toTitle(String(raw));
 
   return "Other";
 }
@@ -128,13 +112,10 @@ export default function LuxLatest({ posts = [] }) {
 
   return (
     <section className="mt-8 sm:mt-10">
-      {/* Beautiful premium headline kept, with a small browse pill nudged left */}
-      <div className="lux-header">
+      {/* Keep only 'Latest Posts' + small Browse on the right */}
+      <div className="flex items-center justify-between mb-3 sm:mb-4">
         <div className="section-eyebrow tracking-[.22em] text-slate-400">Latest Posts</div>
-        <div className="flex items-center gap-2 flex-wrap">
-          <h2 className="lux-h2">Fresh from the blog</h2>
-          <a href="/articles" className="btn-beam-gold btn-xs ml-1">Browse →</a>
-        </div>
+        <a href="/articles" className="btn-beam-gold btn-xs mr-1">Browse →</a>
       </div>
 
       <div className="space-y-5">
