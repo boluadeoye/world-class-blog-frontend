@@ -2164,3 +2164,29 @@ html, body { overflow-x: clip; }
     opacity:.6;
   }
 }
+
+/* Crest pinned to far-left, well spaced from edges, above aurora and below content */
+.studio-min-card .hero-crest-layer{
+  left: clamp(8px, 2vw, 24px) !important;   /* near the left edge */
+  right: auto !important;
+  top: clamp(6px, 2vw, 20px);
+  z-index: 1;
+  pointer-events: none;
+  opacity: .56;
+  mix-blend-mode: screen;
+  filter: drop-shadow(0 6px 18px rgba(246,198,91,.16)) saturate(112%);
+  transform: translateZ(0) scale(.96);
+}
+
+/* keep main content above crest */
+.studio-min-card .grid{ position: relative; z-index: 2; }
+
+/* small phones: tuck a touch more into the corner */
+@media (max-width: 420px){
+  .studio-min-card .hero-crest-layer{
+    left: 6px !important;
+    top: 8px;
+    transform: translateZ(0) scale(.95);
+    opacity:.6;
+  }
+}
