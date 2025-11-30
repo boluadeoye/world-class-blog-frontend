@@ -13,10 +13,10 @@ export default function HeroDeck() {
   const role = "FULL‑STACK DEVELOPER & WRITER";
   const bio  = "I build fast, clear web experiences and share practical notes on engineering, product, and writing.";
 
-  // Premium, straight timing
-  const step  = 36;
-  const dur   = 560;
-  const gap   = 160;
+  // Faster, straight timing
+  const step  = 28;   // was 36
+  const dur   = 480;  // was 560
+  const gap   = 140;  // was 160
 
   const nameTotal = (name.length - 1) * step + dur + gap;
   const roleTotal = (role.length - 1) * step + dur + gap;
@@ -27,15 +27,13 @@ export default function HeroDeck() {
   return (
     <section className="px-4 sm:px-6 lg:px-8 pt-6">
       <div className="relative mx-auto max-w-6xl studio-min-card px-6 sm:px-10 py-8 sm:py-10">
-        {/* ambient + crest (under text) */}
         <div className="studio-min-aurora a" aria-hidden />
         <div className="studio-min-aurora b" aria-hidden />
         <div className="hero-crest-layer" aria-hidden><HeroCrest /></div>
 
         <div className="relative z-[2] grid grid-cols-12 items-center gap-6">
-          {/* Left: text */}
           <div className="col-span-12 md:col-span-7 pr-1 sm:pr-4">
-            {/* Name: gradient texture + 2-line mask shine */}
+            {/* Name with premium gradient + shine */}
             <TypeShow
               text={name}
               startAt={0}
@@ -48,21 +46,23 @@ export default function HeroDeck() {
               ].join(" ")}
             />
 
-            {/* Role: gold gradient + 2-line mask shine */}
+            {/* Role: force single-line, premium gold gradient */}
             <div className="mt-3 flex items-center gap-2">
               <Code2
                 size={14}
                 className="shrink-0 text-[color:var(--acc-gold)] translate-y-[1px] seq-fade"
-                style={{ '--delay': `${Math.max(0, roleStart - 120)}ms` }}
+                style={{ '--delay': `${Math.max(0, roleStart - 100)}ms` }}
                 aria-hidden="true"
               />
-              <TypeShow
-                text={role}
-                startAt={roleStart}
-                step={step}
-                dur={dur}
-                className="hero-role-gradient font-extrabold tracking-wide"
-              />
+              <span className="hero-role-line">
+                <TypeShow
+                  text={role}
+                  startAt={roleStart}
+                  step={step}
+                  dur={dur}
+                  className="hero-role-gradient"
+                />
+              </span>
             </div>
 
             {/* Tagline */}
@@ -80,7 +80,7 @@ export default function HeroDeck() {
                 <a
                   href="/chat"
                   className="cta-chip-min seq-fade"
-                  style={{ '--delay': `${bioStart + 260}ms` }}
+                  style={{ '--delay': `${bioStart + 220}ms` }}
                 >
                   <span>Open Chat</span>
                   <MessageSquare className="ico" aria-hidden="true" />
@@ -90,7 +90,7 @@ export default function HeroDeck() {
             </div>
           </div>
 
-          {/* Right: feature deck (unchanged) */}
+          {/* Right: deck (unchanged) */}
           <div className="col-span-12 md:col-span-5">
             <div className="grid grid-cols-2 gap-3 sm:gap-4">
               <a href="/articles" className="deck-card group">
@@ -100,7 +100,6 @@ export default function HeroDeck() {
                 <div className="deck-title">Latest Notes</div>
                 <div className="deck-sub">Concise ideas & deep dives</div>
               </a>
-
               <a href="/#videos" className="deck-card group">
                 <div className="deck-ring" />
                 <div className="deck-blob deck-blob-violet" />
@@ -108,7 +107,6 @@ export default function HeroDeck() {
                 <div className="deck-title">Videos</div>
                 <div className="deck-sub">Demos & walkthroughs</div>
               </a>
-
               <a href="/projects" className="deck-card group">
                 <div className="deck-ring" />
                 <div className="deck-blob deck-blob-emerald" />
@@ -116,7 +114,6 @@ export default function HeroDeck() {
                 <div className="deck-title">Projects</div>
                 <div className="deck-sub">What I’m building</div>
               </a>
-
               <a href="/about" className="deck-card group">
                 <div className="deck-ring" />
                 <div className="deck-blob deck-blob-amber" />

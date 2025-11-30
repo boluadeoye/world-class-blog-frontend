@@ -2367,3 +2367,21 @@ html, body { overflow-x: clip; }
 @keyframes seqIn{ to{ transform:none; opacity:1 } }
 /* the 2-line gradient mask sweeps across the text; no blur involved */
 @keyframes shine{ to{ background-position: 0 0, 120% 0 } }
+
+/* Premium single-line role */
+.hero-role-line{
+  display:inline-block;
+  white-space:nowrap;
+  word-break:keep-all;
+  letter-spacing:.02em;
+  font-weight:800;
+  /* responsive size tuned to keep in one line on small phones */
+  font-size: clamp(11.5px, 2.6vw, 18px);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: clip;
+}
+/* Ensure the gradient shine applies to the text itself */
+.hero-role-line .hero-role-gradient{
+  display:inline;
+}
