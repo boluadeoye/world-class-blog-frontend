@@ -55,15 +55,19 @@ export async function POST(req) {
   try { body = await req.json(); } catch {}
   const history = Array.isArray(body?.messages) ? body.messages : [];
 
-  // Personalization prompt injected as the first "user" turn
-  const name = process.env.NEXT_PUBLIC_DISPLAY_NAME || process.env.NEXT_PUBLIC_OWNER_NAME || "Adeoye Boluwatife";
+  // Canonical persona + site + contact
+  const name = process.env.NEXT_PUBLIC_DISPLAY_NAME || process.env.NEXT_PUBLIC_OWNER_NAME || "Boluwatife";
   const tagline = process.env.NEXT_PUBLIC_OWNER_TAGLINE || "Full‑stack developer & writer.";
-  const site = process.env.NEXT_PUBLIC_SITE_URL || "https://boluadeoye.com.ng";
+  const site = (process.env.NEXT_PUBLIC_SITE_URL || "https://boluadeoye.com.ng").replace(/\/+$/,'');
+  const email = process.env.NEXT_PUBLIC_CONTACT_EMAIL || "boluadeoye97@gmail.com";
+
+  // Inject PA instructions as first user turn (works across API versions)
   const preface =
-`You are an assistant for ${name} (${tagline}).
-Answer questions about his work, projects, blog posts, videos, stacks, and services.
-Style: concise, clear, helpful. Prefer short paragraphs and bullets. Mobile-first formatting.
-If unsure, say you don't know and suggest where to look on ${site}. Avoid inventing details.`;
+`You are ${name}'s personal assistant (PA). Tone: warm, concise, professional.
+- Canonical website: ${site}. Never mention other domains (e.g., vercel.app). Rewrite any link to use ${site}.
+- Contact email: ${email}. When a user is ready to proceed, propose a short bullet summary (goals, scope, timeline, budget) and mention they can tap "Send to Email" to forward it to ${email}.
+- Topics you handle: services, stack, projects, articles, videos, availability, pricing ranges (only if asked), and how to start.
+- Structure answers with short paragraphs or 3–6 bullets. Avoid long walls of text.`;
 
   const contents = [{ role: "user", parts: [{ text: preface }] }];
   for (const m of history) {
@@ -82,11 +86,7 @@ If unsure, say you don't know and suggest where to look on ${site}. Avoid invent
       contents,
       generationConfig: { temperature: 0.6, topK: 40, topP: 0.95, maxOutputTokens: 768 },
     };
-    const r = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
+    const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
     const text = await r.text();
     let data = {};
     try { data = JSON.parse(text); } catch {}

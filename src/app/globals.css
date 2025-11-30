@@ -1890,3 +1890,16 @@ html, body { overflow-x: clip; }
   background: linear-gradient(180deg, rgba(15,23,42,.7), rgba(15,23,42,.85));
   border:1px solid rgba(255,255,255,.1);
 }
+
+/* Chat avatar + email button */
+.ai-avatar{
+  width: 28px; height: 28px; border-radius: 9999px; object-fit: cover;
+  border: 1px solid rgba(255,255,255,.18);
+  box-shadow: 0 6px 14px rgba(2,6,23,.6);
+}
+.btn-send-email{
+  border-radius: 9999px; padding: .5rem .8rem; font-weight: 700; color:#0b1220;
+  background: linear-gradient(90deg, #a7f3d0, #93c5fd);
+  box-shadow: 0 8px 20px rgba(56,189,248,.2), inset 0 1px 0 rgba(255,255,255,.7);
+}
+.btn-send-email:hover{ filter: brightness(1.05) }
