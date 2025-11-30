@@ -2707,3 +2707,26 @@ header a[href="/projects"], nav a[href="/projects"]{ display:none !important; }
 @media (prefers-reduced-motion: reduce){
   .rail-nav{ display:none }
 }
+
+/* Ensure manual scrolling always works */
+.lux-rail-track{
+  position: relative;
+  z-index: 2;
+  display:flex; gap:12px;
+  overflow-x:auto; overflow-y:hidden;
+  padding: 4px 2px 10px 2px;
+  scroll-snap-type: x mandatory;
+  scroll-padding-left: 12px;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x; /* allow horizontal swipes */
+}
+
+/* Duplicate sets to allow seamless looping */
+.lux-rail .rail-set{ display:flex; gap:12px }
+
+/* Side navs above fades but not blocking the track */
+.rail-nav{ position:absolute; top:50%; transform: translateY(-50%); z-index: 3; }
+.lux-rail-fade-left, .lux-rail-fade-right{ z-index: 1; pointer-events:none; }
+
+/* Tiles sized for rail */
+.lux-tile{ min-width: clamp(200px, 58vw, 260px); min-height: 120px; }
