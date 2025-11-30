@@ -5,29 +5,22 @@ import remarkGfm from "remark-gfm";
 import { Mail, Trash2, ChevronDown } from "lucide-react";
 
 const PROMPTS = [
-  "What does Boluwatife build?",
-  "Show recent projects.",
+  "What do you build?",
+  "Show your recent projects.",
   "How do we start a website project?",
   "What’s your mobile performance approach?",
-  "Where can I read his best articles?",
+  "Where can I read your best articles?",
 ];
 
 function useDurableHistory(key){
   const [value, setValue] = useState(() => {
     if (typeof window === "undefined") return [];
-    try {
-      const raw = localStorage.getItem(key);
-      const v = raw ? JSON.parse(raw) : [];
-      return Array.isArray(v) ? v : [];
-    } catch { return []; }
+    try { const raw = localStorage.getItem(key); const v = raw ? JSON.parse(raw) : []; return Array.isArray(v) ? v : []; }
+    catch { return []; }
   });
   useEffect(() => { try { localStorage.setItem(key, JSON.stringify(value)); } catch {} }, [key, value]);
   useEffect(() => {
-    const onStorage = (e) => {
-      if (e.key === key && e.newValue) {
-        try { setValue(JSON.parse(e.newValue)); } catch {}
-      }
-    };
+    const onStorage = (e) => { if (e.key === key && e.newValue) { try { setValue(JSON.parse(e.newValue)); } catch {} } };
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
   }, [key]);
@@ -35,7 +28,7 @@ function useDurableHistory(key){
 }
 
 function transcript(messages){
-  return messages.map(m => `${m.role === 'user' ? 'Visitor' : 'Assistant'}: ${m.content}`).join('\n\n');
+  return messages.map(m => `${m.role === 'user' ? 'Visitor' : 'Me'}: ${m.content}`).join('\n\n');
 }
 
 export default function ClientChat(){
@@ -46,14 +39,15 @@ export default function ClientChat(){
 
   const site = (process.env.NEXT_PUBLIC_SITE_URL || "https://boluadeoye.com.ng").replace(/\/+$/,'');
   const email = process.env.NEXT_PUBLIC_CONTACT_EMAIL || "boluadeoye97@gmail.com";
+  const who = (process.env.NEXT_PUBLIC_DISPLAY_NAME || process.env.NEXT_PUBLIC_OWNER_NAME || "Boluwatife");
 
-  // Generated avatar (not your photo)
+  // Generated avatar (not personal photo)
   const avatar = useMemo(() => {
-    const seed = encodeURIComponent((process.env.NEXT_PUBLIC_DISPLAY_NAME || "boluwatife") + "-pa");
+    const seed = encodeURIComponent(who + "-pa");
     return `https://api.dicebear.com/9.x/bottts-neutral/svg?seed=${seed}&size=64&radius=50&backgroundType=gradientLinear`;
-  }, []);
+  }, [who]);
 
-  const greeting = `Hi, I'm Boluwatife's personal assistant. How may we help you today?`;
+  const greeting = `Hi, I'm ${who}. How may I help you today?`;
 
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, busy]);
 
@@ -65,11 +59,7 @@ export default function ClientChat(){
     setMessages(history);
     setInput(""); setBusy(true);
     try{
-      const r = await fetch("/api/chat", {
-        method:"POST",
-        headers:{ "Content-Type":"application/json" },
-        body: JSON.stringify({ messages: history })
-      });
+      const r = await fetch("/api/chat", { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify({ messages: history }) });
       const data = await r.json();
       const ai = data?.reply || "Sorry, I couldn't answer that.";
       setMessages(prev => [...prev, { role:"assistant", content: ai }]);
@@ -98,12 +88,10 @@ ${transcript(messages)}
     setMessages([]);
   }
 
-  // Quick prompts as "collapsible drop-ins": summary row with chevron.
-  // We trigger ask() when summary is tapped; we briefly open/close for the drop effect.
   function promptClick(e, p){
     e.preventDefault();
     const details = e.currentTarget.closest("details");
-    if (details) { details.open = true; setTimeout(()=>{ details.open = false; }, 220); }
+    if (details) { details.open = true; setTimeout(()=>{ details.open = false; }, 180); }
     ask(p);
   }
 
@@ -113,19 +101,19 @@ ${transcript(messages)}
         <section className="chat-card space-y-6">
           <header className="flex items-start justify-between gap-3">
             <div className="flex items-start gap-3">
-              <img src={avatar} alt="Assistant avatar" className="ai-avatar" />
+              <img src={avatar} alt="Avatar" className="ai-avatar" />
               <div>
                 <h1 className="text-xl font-extrabold leading-tight">Open Chat</h1>
                 <p className="text-sm text-slate-400 mt-1">
-                  I’m Boluwatife’s personal assistant. Ask about his work, projects, or how to start.
+                  I’m {who}. Ask me about my work, projects, or how to start.
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-2 pt-1">
-              <button onClick={sendToEmail} className="icon-btn" type="button" title="Send to Email" aria-label="Send to Email">
+              <button onClick={sendToEmail} className="icon-btn" type="button" aria-label="Send to Email" title="Send to Email">
                 <Mail size={16} />
               </button>
-              <button onClick={clearSession} className="icon-btn ghost" type="button" title="Clear conversation" aria-label="Clear conversation">
+              <button onClick={clearSession} className="icon-btn ghost" type="button" aria-label="Clear conversation" title="Clear conversation">
                 <Trash2 size={16} />
               </button>
             </div>
@@ -138,7 +126,6 @@ ${transcript(messages)}
                   {greeting}
                 </ReactMarkdown>
               </div>
-
               <ul className="qp-list">
                 {PROMPTS.map((p,i)=>(
                   <li key={i}>
@@ -190,9 +177,7 @@ ${transcript(messages)}
               onChange={e=>setInput(e.target.value)}
               placeholder="Type your question…"
             />
-            <button disabled={busy || !input.trim()} className="btn-send" type="submit">
-              Send
-            </button>
+            <button disabled={busy || !input.trim()} className="btn-send" type="submit">Send</button>
           </form>
         </section>
       </div>
