@@ -2141,3 +2141,26 @@ html, body { overflow-x: clip; }
 }
 @keyframes handDangle{ 0%{ transform: rotate(-8deg) translateY(-1px) } 100%{ transform: rotate(6deg) translateY(1px) } }
 @media (prefers-reduced-motion: reduce){ .hand-cursor{ animation:none } }
+
+/* Crest pinned to far right with breathing space from the title */
+.studio-min-card .hero-crest-layer{
+  top: clamp(4px, 1.2vw, 16px);
+  right: clamp(2px, 0.9vw, 12px); /* near the edge = 'far right' */
+  z-index: 1;
+  pointer-events: none;
+  opacity: .58;
+  mix-blend-mode: screen;
+  filter: drop-shadow(0 6px 18px rgba(246,198,91,.18)) saturate(115%);
+  transform: translateZ(0) scale(.98);
+  color: var(--acc-gold); /* if crest uses currentColor */
+}
+
+/* On very small screens ensure it stays tucked in the corner and out of the name */
+@media (max-width: 420px){
+  .studio-min-card .hero-crest-layer{
+    top: 8px;
+    right: 6px;
+    transform: translateZ(0) scale(.96);
+    opacity:.6;
+  }
+}
