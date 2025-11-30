@@ -13,10 +13,10 @@ export default function HeroDeck() {
   const role = "FULL‑STACK DEVELOPER & WRITER";
   const bio  = "I build fast, clear web experiences and share practical notes on engineering, product, and writing.";
 
-  // Direct, premium timing
-  const step  = 36;   // ms between characters (fast, not jumpy)
-  const dur   = 560;  // per-character, straight fade/slide
-  const gap   = 160;  // gap between sections
+  // Premium, straight timing
+  const step  = 36;
+  const dur   = 560;
+  const gap   = 160;
 
   const nameTotal = (name.length - 1) * step + dur + gap;
   const roleTotal = (role.length - 1) * step + dur + gap;
@@ -53,7 +53,7 @@ export default function HeroDeck() {
               <Code2
                 size={14}
                 className="shrink-0 text-[color:var(--acc-gold)] translate-y-[1px] seq-fade"
-                style={{ ['--delay' as any]: `${Math.max(0, roleStart - 120)}ms` }}
+                style={{ '--delay': `${Math.max(0, roleStart - 120)}ms` }}
                 aria-hidden="true"
               />
               <TypeShow
@@ -65,7 +65,7 @@ export default function HeroDeck() {
               />
             </div>
 
-            {/* Tagline: direct sequence (no mask), beautiful display font */}
+            {/* Tagline */}
             <TypeShow
               text={bio}
               startAt={bioStart}
@@ -74,13 +74,13 @@ export default function HeroDeck() {
               className="hero-copy-min hero-copy-beauty mt-4 max-w-[50ch] block"
             />
 
-            {/* CTA: appears after tagline begins */}
+            {/* CTA */}
             <div className="mt-5 sm:mt-6">
               <span className="relative inline-block cta-hand">
                 <a
                   href="/chat"
                   className="cta-chip-min seq-fade"
-                  style={{ ['--delay' as any]: `${bioStart + 260}ms` }}
+                  style={{ '--delay': `${bioStart + 260}ms` }}
                 >
                   <span>Open Chat</span>
                   <MessageSquare className="ico" aria-hidden="true" />
@@ -90,7 +90,7 @@ export default function HeroDeck() {
             </div>
           </div>
 
-          {/* Right deck (unchanged) */}
+          {/* Right: feature deck (unchanged) */}
           <div className="col-span-12 md:col-span-5">
             <div className="grid grid-cols-2 gap-3 sm:gap-4">
               <a href="/articles" className="deck-card group">
