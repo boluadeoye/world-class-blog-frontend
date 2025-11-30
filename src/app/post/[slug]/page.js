@@ -7,9 +7,7 @@ import LikeButton from "../../../components/public/LikeButton";
 import ShareBar from "../../../components/public/ShareBar";
 import Comments from "../../../components/public/Comments";
 import ReadNext from "../../../components/public/ReadNext";
-import dynamic from "next/dynamic";
-
-const ReadTimer = dynamic(() => import("../../../components/post/ReadTimer"), { ssr: false });
+import TimerIsland from "../../../components/post/TimerIsland";
 
 export default async function PostPage({ params }) {
   const { slug } = await params;
@@ -35,7 +33,7 @@ export default async function PostPage({ params }) {
 
   return (
     <div className="post-shell mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-      <ReadTimer containerSelector="#post-body" />
+      <TimerIsland containerSelector="#post-body" />
       <Link href="/" className="mb-6 inline-flex items-center gap-2 text-xs text-slate-300 hover:text-sky-300">
         <ArrowLeft className="h-3 w-3" />
         <span>Back to home</span>
