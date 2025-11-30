@@ -1,7 +1,7 @@
 // src/components/home/HeroDeck.jsx
 "use client";
 
-import { Code2, NotebookPen, Clapperboard, Rocket, MessageSquare } from "lucide-react";
+import { Code2, NotebookPen, Clapperboard, MessageSquare } from "lucide-react";
 import { Playfair_Display } from "next/font/google";
 import HeroCrest from "./HeroCrest";
 import TypeShow from "../motion/TypeShow";
@@ -13,14 +13,12 @@ export default function HeroDeck() {
   const role = "FULL‑STACK DEVELOPER & WRITER";
   const bio  = "I build fast, clear web experiences and share practical notes on engineering, product, and writing.";
 
-  // Faster, straight timing
-  const step  = 28;   // was 36
-  const dur   = 480;  // was 560
-  const gap   = 140;  // was 160
-
+  // Sequenced timing (crisp, premium)
+  const step  = 28;
+  const dur   = 480;
+  const gap   = 140;
   const nameTotal = (name.length - 1) * step + dur + gap;
   const roleTotal = (role.length - 1) * step + dur + gap;
-
   const roleStart = nameTotal;
   const bioStart  = nameTotal + roleTotal;
 
@@ -32,8 +30,8 @@ export default function HeroDeck() {
         <div className="hero-crest-layer" aria-hidden><HeroCrest /></div>
 
         <div className="relative z-[2] grid grid-cols-12 items-center gap-6">
+          {/* Left: text */}
           <div className="col-span-12 md:col-span-7 pr-1 sm:pr-4">
-            {/* Name with premium gradient + shine */}
             <TypeShow
               text={name}
               startAt={0}
@@ -46,7 +44,6 @@ export default function HeroDeck() {
               ].join(" ")}
             />
 
-            {/* Role: force single-line, premium gold gradient */}
             <div className="mt-3 flex items-center gap-2">
               <Code2
                 size={14}
@@ -65,7 +62,6 @@ export default function HeroDeck() {
               </span>
             </div>
 
-            {/* Tagline */}
             <TypeShow
               text={bio}
               startAt={bioStart}
@@ -74,14 +70,9 @@ export default function HeroDeck() {
               className="hero-copy-min hero-copy-beauty mt-4 max-w-[50ch] block"
             />
 
-            {/* CTA */}
             <div className="mt-5 sm:mt-6">
               <span className="relative inline-block cta-hand">
-                <a
-                  href="/chat"
-                  className="cta-chip-min seq-fade"
-                  style={{ '--delay': `${bioStart + 220}ms` }}
-                >
+                <a href="/chat" className="cta-chip-min seq-fade" style={{ '--delay': `${bioStart + 220}ms` }}>
                   <span>Open Chat</span>
                   <MessageSquare className="ico" aria-hidden="true" />
                 </a>
@@ -90,36 +81,30 @@ export default function HeroDeck() {
             </div>
           </div>
 
-          {/* Right: deck (unchanged) */}
+          {/* Right: premium tiles (Projects removed) */}
           <div className="col-span-12 md:col-span-5">
-            <div className="grid grid-cols-2 gap-3 sm:gap-4">
-              <a href="/articles" className="deck-card group">
-                <div className="deck-ring" />
-                <div className="deck-blob deck-blob-cyan" />
+            <div className="grid grid-cols-2 md:grid-cols-2 gap-3 sm:gap-4">
+              <a href="/articles" className="lux-tile group">
+                <div className="lux-tile-overlay" />
                 <NotebookPen className="text-white/90" />
-                <div className="deck-title">Latest Notes</div>
-                <div className="deck-sub">Concise ideas & deep dives</div>
+                <div className="lux-tile-title">Latest Notes</div>
+                <div className="lux-tile-sub">Concise ideas & deep dives</div>
               </a>
-              <a href="/#videos" className="deck-card group">
-                <div className="deck-ring" />
-                <div className="deck-blob deck-blob-violet" />
+
+              <a href="/#videos" className="lux-tile group">
+                <div className="lux-tile-overlay" />
                 <Clapperboard className="text-white/90" />
-                <div className="deck-title">Videos</div>
-                <div className="deck-sub">Demos & walkthroughs</div>
+                <div className="lux-tile-title">Videos</div>
+                <div className="lux-tile-sub">Demos & walkthroughs</div>
               </a>
-              <a href="/projects" className="deck-card group">
-                <div className="deck-ring" />
-                <div className="deck-blob deck-blob-emerald" />
-                <Rocket className="text-white/90" />
-                <div className="deck-title">Projects</div>
-                <div className="deck-sub">What I’m building</div>
-              </a>
-              <a href="/about" className="deck-card group">
-                <div className="deck-ring" />
-                <div className="deck-blob deck-blob-amber" />
+
+              {/* Projects tile removed */}
+
+              <a href="/about" className="lux-tile group">
+                <div className="lux-tile-overlay" />
                 <MessageSquare className="text-white/90" />
-                <div className="deck-title">About</div>
-                <div className="deck-sub">How I work</div>
+                <div className="lux-tile-title">About</div>
+                <div className="lux-tile-sub">How I work</div>
               </a>
             </div>
           </div>
