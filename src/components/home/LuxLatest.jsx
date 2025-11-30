@@ -18,8 +18,9 @@ function catOf(p) {
 }
 function dateOf(p) {
   const d = p?.created_at || p?.createdAt || p?.date;
-  try { return d ? new Date(d).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'}) : ""; }
-  catch { return ""; }
+  try {
+    return d ? new Date(d).toLocaleDateString(undefined, {year:'numeric',month:'short',day:'numeric'}) : "";
+  } catch { return ""; }
 }
 function hrefOf(p) {
   const slug = p?.slug || p?.id || "";
@@ -31,16 +32,16 @@ export default function LuxLatest({ posts = [] }) {
   if (!items.length) return null;
 
   return (
-    <section className="mt-10 sm:mt-12">
-      <div className="flex items-end justify-between mb-4 sm:mb-5">
+    <section className="mt-8 sm:mt-10">
+      <div className="flex items-end justify-between mb-3 sm:mb-4">
         <div>
-          <div className="section-eyebrow tracking-[.25em] text-slate-400">Latest Posts</div>
+          <div className="section-eyebrow tracking-[.22em] text-slate-400">Latest Posts</div>
           <h2 className="lux-h2">Fresh from the blog</h2>
         </div>
-        <a href="/articles" className="btn-outline-lux">Browse Everything →</a>
+        <a href="/articles" className="btn-beam-gold btn-sm">Browse Everything →</a>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-5">
         {items.map((p, i) => {
           const href = hrefOf(p);
           const title = p?.title || "Untitled";
