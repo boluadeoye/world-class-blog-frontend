@@ -2785,3 +2785,58 @@ header a[href="/projects"], nav a[href="/projects"]{ display:none !important; }
 
 /* Tiles sized for rail; water‑drop + beam effects already defined */
 .lux-tile{ min-width: clamp(200px, 58vw, 260px); min-height: 120px; }
+
+/* Faster sequence (keeps straight motion, no blur) */
+.seq-char{
+  filter: none !important;
+  opacity: 0;
+  transform: translateY(6px);
+  animation:
+    seqIn var(--dur,360ms) cubic-bezier(.28,.9,.2,1) var(--delay,0ms) forwards,
+    shine var(--shine-time,1000ms) ease-out var(--delay,0ms) forwards;
+}
+@keyframes seqIn{ to{ transform:none; opacity:1 } }
+@keyframes shine{ to{ background-position: 0 0, 120% 0 } }
+
+/* Luxurious name gradient + twin sheen lines */
+.hero-title-gradient{ --shine-time: 900ms; }
+.hero-title-gradient .seq-char{
+  background-image:
+    /* rich pearl → snow → soft steel */
+    linear-gradient(180deg, #ffffff 0%, #fbfcff 30%, #eef2ff 60%, #e6ebff 100%),
+    /* twin dynamic sheen lines */
+    linear-gradient(90deg,
+      rgba(255,255,255,0) 0%,
+      rgba(255,255,255,.35) 8%,
+      rgba(255,255,255,0) 14%,
+      rgba(255,255,255,0) 52%,
+      rgba(246,198,91,.28) 58%,
+      rgba(255,255,255,0) 66%);
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+  background-size: 100% 100%, 220% 100%;
+  background-position: 0 0, -130% 0;
+}
+
+/* Warm gold gradient for role (faster sheen as well) */
+.hero-role-gradient{ --shine-time: 900ms; }
+.hero-role-gradient .seq-char{
+  background-image:
+    linear-gradient(180deg, var(--acc-gold) 0%, #ffd889 100%),
+    linear-gradient(90deg,
+      rgba(255,255,255,0) 0%,
+      rgba(255,255,255,.28) 10%,
+      rgba(255,255,255,0) 16%,
+      rgba(255,255,255,0) 56%,
+      rgba(255,255,255,.18) 62%,
+      rgba(255,255,255,0) 70%);
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+  background-size: 100% 100%, 220% 100%;
+  background-position: 0 0, -130% 0;
+}
+
+/* Single-line role sizing kept modest so it never wraps */
+.hero-role-line{
+  display:inline-block; white-space:nowrap; word-break:keep-all;
+  letter-spacing:.02em; font-weight:800;
+  font-size: clamp(11.5px, 2.4vw, 18px);
+}

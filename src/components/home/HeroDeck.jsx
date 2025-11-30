@@ -13,8 +13,11 @@ export default function HeroDeck() {
   const role = "FULL‑STACK DEVELOPER & WRITER";
   const bio  = "I build fast, clear web experiences and share practical notes on engineering, product, and writing.";
 
-  // crisp sequence
-  const step  = 28, dur = 480, gap = 140;
+  // Faster, crisp sequencing
+  const step  = 18;   // was 28
+  const dur   = 360;  // was 480
+  const gap   = 90;   // was 140
+
   const nameTotal = (name.length - 1) * step + dur + gap;
   const roleTotal = (role.length - 1) * step + dur + gap;
   const roleStart = nameTotal;
@@ -30,6 +33,7 @@ export default function HeroDeck() {
 
         <div className="relative z-[2] grid grid-cols-12 items-start gap-6">
           <div className="col-span-12">
+            {/* Name with luxurious gradient */}
             <TypeShow
               text={name}
               startAt={0}
@@ -41,16 +45,43 @@ export default function HeroDeck() {
                 "text-[44px] sm:text-[58px] md:text-[68px]"
               ].join(" ")}
             />
+
+            {/* Role (single line) */}
             <div className="mt-3 flex items-center gap-2">
-              <Code2 size={14} className="shrink-0 text-[color:var(--acc-gold)] translate-y-[1px] seq-fade" style={{ '--delay': `${Math.max(0, roleStart - 100)}ms` }} aria-hidden="true" />
+              <Code2
+                size={14}
+                className="shrink-0 text-[color:var(--acc-gold)] translate-y-[1px] seq-fade"
+                style={{ '--delay': `${Math.max(0, roleStart - 80)}ms` }}
+                aria-hidden="true"
+              />
               <span className="hero-role-line">
-                <TypeShow text={role} startAt={roleStart} step={step} dur={dur} className="hero-role-gradient" />
+                <TypeShow
+                  text={role}
+                  startAt={roleStart}
+                  step={step}
+                  dur={dur}
+                  className="hero-role-gradient"
+                />
               </span>
             </div>
-            <TypeShow text={bio} startAt={bioStart} step={step} dur={dur} className="hero-copy-min hero-copy-beauty mt-4 max-w-[50ch] block" />
+
+            {/* Intro line */}
+            <TypeShow
+              text={bio}
+              startAt={bioStart}
+              step={step}
+              dur={dur}
+              className="hero-copy-min hero-copy-beauty mt-4 max-w-[50ch] block"
+            />
+
+            {/* CTA */}
             <div className="mt-5 sm:mt-6">
               <span className="relative inline-block cta-hand">
-                <a href="/chat" className="cta-chip-min seq-fade" style={{ '--delay': `${bioStart + 220}ms` }}>
+                <a
+                  href="/chat"
+                  className="cta-chip-min seq-fade"
+                  style={{ '--delay': `${bioStart + 160}ms` }}
+                >
                   <span>Open Chat</span>
                   <MessageSquare className="ico" aria-hidden="true" />
                 </a>
@@ -59,7 +90,7 @@ export default function HeroDeck() {
             </div>
           </div>
 
-          {/* Simple horizontal rail — manual scroll only (Projects removed) */}
+          {/* Horizontal rail (manual scroll) */}
           <div className="col-span-12">
             <div className="lux-rail">
               <div className="lux-rail-track no-scrollbar" tabIndex={0} aria-label="Quick sections">
