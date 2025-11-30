@@ -2074,3 +2074,26 @@ html, body { overflow-x: clip; }
 
 /* Markdown tuning */
 .md-prose strong{ font-weight:800; color:#e9eef8 }
+
+/* Beautiful tagline (use display font for character) */
+.hero-copy-beauty{
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(1rem, 2.8vw, 1.125rem);
+  line-height: 1.75;
+  letter-spacing: .005em;
+  color: #dbe7f5;
+}
+
+/* Subtle finger pointer on CTA (smaller, softer motion) */
+.cta-hand{ position: relative; }
+.hand-cursor{
+  position:absolute; right:-12px; top:-10px;
+  width:20px; height:20px; display:block; opacity:.55;
+  transform-origin: center left;
+  text-shadow:0 2px 8px rgba(0,0,0,.35);
+  animation: handDangle 1.6s ease-in-out infinite alternate;
+  pointer-events:none;
+}
+@keyframes handDangle{ 0%{ transform: rotate(-10deg) translateY(-1px) } 100%{ transform: rotate(8deg) translateY(1px) } }
+@media (prefers-reduced-motion: reduce){ .hand-cursor{ animation:none } }
