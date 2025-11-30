@@ -1,26 +1,73 @@
 // src/components/home/LuxLatest.jsx
 "use client";
 
+// Try very hard to find a usable cover image
 function coverOf(p) {
-  return (
-    p?.cover ||
-    p?.image ||
-    p?.hero ||
-    p?.hero_image?.url ||
-    p?.thumbnail ||
-    p?.images?.[0] ||
-    ""
-  );
+  const tryKeys = [
+    p?.hero_image?.url,
+    p?.heroImage?.url,
+    p?.og_image,
+    p?.ogImage,
+    p?.cover,
+    p?.cover_url,
+    p?.coverUrl,
+    p?.image,
+    p?.image_url,
+    p?.imageUrl,
+    p?.thumbnail,
+    p?.banner,
+    p?.banner_image?.url,
+  ].filter(Boolean);
+  if (tryKeys.length) return tryKeys[0];
+
+  // EditorJS content (string or object)
+  try {
+    const c = typeof p?.content === "string" ? JSON.parse(p.content) : p?.content;
+    const blocks = Array.isArray(c?.blocks) ? c.blocks : [];
+    const imgBlock = blocks.find(b => b?.type === "image" && (b?.data?.file?.url || b?.data?.url));
+    const url = imgBlock?.data?.file?.url || imgBlock?.data?.url;
+    if (url) return url;
+  } catch {}
+
+  // Any alternate fields people use
+  try {
+    const c2 = typeof p?.content_editorjs === "string"
+      ? JSON.parse(p.content_editorjs)
+      : p?.content_editorjs;
+    const blocks = Array.isArray(c2?.blocks) ? c2.blocks : [];
+    const imgBlock = blocks.find(b => b?.type === "image" && (b?.data?.file?.url || b?.data?.url));
+    const url = imgBlock?.data?.file?.url || imgBlock?.data?.url;
+    if (url) return url;
+  } catch {}
+
+  // Fallback: scrape a src from HTML if present
+  if (typeof p?.content_html === "string") {
+    const m = p.content_html.match(/<img[^>]+src=["']([^"']+)["']/i);
+    if (m?.[1]) return m[1];
+  }
+
+  return ""; // let the component fall back to gradient
 }
+
 function catOf(p) {
-  const c = (p?.category || "").toString().trim();
-  return c ? c[0].toUpperCase() + c.slice(1) : "Other";
+  const known = ["health","finance","technology","education","others"];
+  const c = String(p?.category || "").trim().toLowerCase();
+  if (c && known.includes(c)) return c[0].toUpperCase() + c.slice(1);
+
+  // Try tags
+  const tags = Array.isArray(p?.tags) ? p.tags : [];
+  const hit = tags
+    .map(t => String(t).toLowerCase())
+    .find(t => known.includes(t));
+  if (hit) return hit[0].toUpperCase() + hit.slice(1);
+
+  return "Other";
 }
+
 function dateOf(p) {
   const d = p?.created_at || p?.createdAt || p?.date;
-  try {
-    return d ? new Date(d).toLocaleDateString(undefined, {year:'numeric',month:'short',day:'numeric'}) : "";
-  } catch { return ""; }
+  try { return d ? new Date(d).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'}) : ""; }
+  catch { return ""; }
 }
 function hrefOf(p) {
   const slug = p?.slug || p?.id || "";
@@ -33,12 +80,9 @@ export default function LuxLatest({ posts = [] }) {
 
   return (
     <section className="mt-8 sm:mt-10">
-      <div className="flex items-end justify-between mb-3 sm:mb-4">
-        <div>
-          <div className="section-eyebrow tracking-[.22em] text-slate-400">Latest Posts</div>
-          <h2 className="lux-h2">Fresh from the blog</h2>
-        </div>
-        <a href="/articles" className="btn-beam-gold btn-sm">Browse Everything →</a>
+      {/* No big heading — just a tiny browse button on the right */}
+      <div className="flex items-center justify-end mb-3">
+        <a href="/articles" className="btn-beam-gold btn-xs">Browse →</a>
       </div>
 
       <div className="space-y-5">
@@ -71,7 +115,7 @@ export default function LuxLatest({ posts = [] }) {
               </div>
 
               <div className="lux-body">
-                <h3 className="lux-title">{title}</h3>
+                <h3 className="lux-title sm">{title}</h3>
                 <div className="lux-underline" />
               </div>
             </a>
