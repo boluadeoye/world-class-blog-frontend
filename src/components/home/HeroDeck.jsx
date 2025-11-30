@@ -1,19 +1,102 @@
 // src/components/home/HeroDeck.jsx
 "use client";
 
-import { Code2, NotebookPen, Clapperboard, MessageSquare } from "lucide-react";
+import { useEffect, useMemo, useRef } from "react";
+import { Code2, NotebookPen, Clapperboard, MessageSquare, ChevronLeft, ChevronRight } from "lucide-react";
 import { Playfair_Display } from "next/font/google";
 import HeroCrest from "./HeroCrest";
 import TypeShow from "../motion/TypeShow";
 
 const playfair = Playfair_Display({ subsets: ["latin"], weight: ["700","800","900"] });
 
+function AutoRail({ children }) {
+  const trackRef = useRef(null);
+  const pausedRef = useRef(false);
+  const rafRef = useRef(0);
+  const firstWidthRef = useRef(0);
+  const prefersReduced = typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // continuous scroll
+  useEffect(() => {
+    const el = trackRef.current;
+    if (!el) return;
+    const setFirstWidth = () => (firstWidthRef.current = el.scrollWidth / 2);
+    setFirstWidth();
+    const onResize = () => setFirstWidth();
+    window.addEventListener("resize", onResize);
+
+    if (!prefersReduced) {
+      const step = () => {
+        const el = trackRef.current;
+        if (!el) return;
+        if (!pausedRef.current) {
+          el.scrollLeft += 0.6; // speed
+          if (el.scrollLeft >= firstWidthRef.current) {
+            el.scrollLeft -= firstWidthRef.current;
+          }
+        }
+        rafRef.current = requestAnimationFrame(step);
+      };
+      rafRef.current = requestAnimationFrame(step);
+    }
+
+    const vis = () => {
+      pausedRef.current = document.hidden || pausedRef.current;
+    };
+    document.addEventListener("visibilitychange", vis);
+
+    return () => {
+      window.removeEventListener("resize", onResize);
+      document.removeEventListener("visibilitychange", vis);
+      cancelAnimationFrame(rafRef.current);
+    };
+  }, [prefersReduced]);
+
+  const pause = (v) => { pausedRef.current = v; };
+
+  const scrollByTiles = (dir = 1) => {
+    const el = trackRef.current;
+    if (!el) return;
+    const tile = el.querySelector(".lux-tile");
+    const gap = 12;
+    const dist = (tile ? tile.offsetWidth : 240) + gap;
+    el.scrollBy({ left: dir * dist, behavior: "smooth" });
+  };
+
+  return (
+    <div className="lux-rail">
+      <button className="rail-nav rail-left" aria-label="Scroll left" onClick={() => scrollByTiles(-1)}>
+        <span className="btn-rail"><ChevronLeft size={16} /></span>
+      </button>
+      <div
+        className="lux-rail-track no-scrollbar"
+        ref={trackRef}
+        onMouseEnter={() => pause(true)}
+        onMouseLeave={() => pause(false)}
+        onTouchStart={() => pause(true)}
+        onTouchEnd={() => pause(false)}
+        tabIndex={0}
+        aria-label="Quick sections"
+      >
+        {/* duplicate content for seamless loop */}
+        <div className="rail-set">{children}</div>
+        <div className="rail-set" aria-hidden="true">{children}</div>
+      </div>
+      <button className="rail-nav rail-right" aria-label="Scroll right" onClick={() => scrollByTiles(1)}>
+        <span className="btn-rail"><ChevronRight size={16} /></span>
+      </button>
+      <div className="lux-rail-fade-left" aria-hidden="true" />
+      <div className="lux-rail-fade-right" aria-hidden="true" />
+    </div>
+  );
+}
+
 export default function HeroDeck() {
   const name = "Boluwatife";
   const role = "FULL‑STACK DEVELOPER & WRITER";
   const bio  = "I build fast, clear web experiences and share practical notes on engineering, product, and writing.";
 
-  // Premium, crisp timing
+  // Crisp timing
   const step  = 28;
   const dur   = 480;
   const gap   = 140;
@@ -31,8 +114,8 @@ export default function HeroDeck() {
         <div className="hero-crest-layer" aria-hidden><HeroCrest /></div>
 
         <div className="relative z-[2] grid grid-cols-12 items-start gap-6">
-          {/* Text block */}
-          <div className="col-span-12 md:col-span-12 pr-1 sm:pr-4">
+          {/* Text */}
+          <div className="col-span-12">
             <TypeShow
               text={name}
               startAt={0}
@@ -82,38 +165,30 @@ export default function HeroDeck() {
             </div>
           </div>
 
-          {/* Horizontal rail (single row, scrollable) */}
+          {/* Horizontal auto-scrolling rail (Projects removed) */}
           <div className="col-span-12">
-            <div className="lux-rail">
-              <div className="lux-rail-track no-scrollbar" tabIndex={0} aria-label="Quick sections">
-                <a href="/articles" className="lux-tile rail-snap">
-                  <div className="lux-tile-overlay" />
-                  <NotebookPen className="text-white/90" />
-                  <div className="lux-tile-title">Latest Notes</div>
-                  <div className="lux-tile-sub">Concise ideas & deep dives</div>
-                </a>
+            <AutoRail>
+              <a href="/articles" className="lux-tile rail-snap">
+                <div className="lux-tile-overlay" />
+                <NotebookPen className="text-white/90" />
+                <div className="lux-tile-title">Latest Notes</div>
+                <div className="lux-tile-sub">Concise ideas & deep dives</div>
+              </a>
 
-                <a href="/#videos" className="lux-tile rail-snap">
-                  <div className="lux-tile-overlay" />
-                  <Clapperboard className="text-white/90" />
-                  <div className="lux-tile-title">Videos</div>
-                  <div className="lux-tile-sub">Demos & walkthroughs</div>
-                </a>
+              <a href="/#videos" className="lux-tile rail-snap">
+                <div className="lux-tile-overlay" />
+                <Clapperboard className="text-white/90" />
+                <div className="lux-tile-title">Videos</div>
+                <div className="lux-tile-sub">Demos & walkthroughs</div>
+              </a>
 
-                {/* Projects removed */}
-
-                <a href="/about" className="lux-tile rail-snap">
-                  <div className="lux-tile-overlay" />
-                  <MessageSquare className="text-white/90" />
-                  <div className="lux-tile-title">About</div>
-                  <div className="lux-tile-sub">How I work</div>
-                </a>
-              </div>
-
-              {/* edge fades */}
-              <div className="lux-rail-fade-left" aria-hidden="true" />
-              <div className="lux-rail-fade-right" aria-hidden="true" />
-            </div>
+              <a href="/about" className="lux-tile rail-snap">
+                <div className="lux-tile-overlay" />
+                <MessageSquare className="text-white/90" />
+                <div className="lux-tile-title">About</div>
+                <div className="lux-tile-sub">How I work</div>
+              </a>
+            </AutoRail>
           </div>
         </div>
       </div>
