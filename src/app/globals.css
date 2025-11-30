@@ -2385,3 +2385,84 @@ html, body { overflow-x: clip; }
 .hero-role-line .hero-role-gradient{
   display:inline;
 }
+
+/* ===== Lux Latest (single column, premium) ===== */
+.lux-h2{
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -.012em;
+  color:#fff;
+  line-height:1.08;
+  font-size: clamp(1.6rem, 4.6vw, 2.4rem);
+}
+
+.btn-outline-lux{
+  display:inline-flex; align-items:center; gap:.5rem;
+  padding:.5rem .9rem; border-radius:9999px;
+  color:#e2e8f0; font-weight:700;
+  border:1px solid rgba(255,255,255,.18);
+  background: linear-gradient(180deg, rgba(15,23,42,.55), rgba(15,23,42,.8));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+}
+.btn-outline-lux:hover{ border-color: rgba(255,255,255,.28) }
+
+/* Card shell */
+.lux-card{
+  display:block; overflow:hidden; border-radius: 20px;
+  border:2px solid transparent;
+  background:
+    linear-gradient(180deg, rgba(2,6,23,.80), rgba(2,6,23,.90)) padding-box,
+    conic-gradient(from 110deg at 90% 0%,
+      rgba(246,198,91,.35),
+      rgba(99,102,241,.25),
+      rgba(16,185,129,.22),
+      rgba(246,198,91,.35)) border-box;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 18px 56px rgba(2,6,23,.78);
+  transform: translateZ(0);
+}
+.lux-card:hover .lux-underline{ transform: scaleX(1) }
+
+/* Media */
+.lux-media{ position:relative; aspect-ratio: 16/9; overflow:hidden }
+.lux-img{ width:100%; height:100%; object-fit:cover; display:block; filter: saturate(110%) contrast(102%); }
+.lux-img-fallback{ background: radial-gradient(120% 120% at 50% 30%, rgba(59,130,246,.18), rgba(2,6,23,1)) }
+.lux-media-overlay{
+  position:absolute; inset:0; pointer-events:none;
+  background: linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,.45) 100%);
+}
+.lux-meta{
+  position:absolute; left:14px; right:14px; bottom:12px;
+  display:flex; align-items:center; justify-content:space-between; gap:.6rem;
+}
+.lux-chip{
+  padding:.35rem .6rem; border-radius:9999px;
+  font-size:.78rem; font-weight:800; letter-spacing:.02em;
+  color:#0a0f1f; background: linear-gradient(90deg, #ffd889, var(--acc-gold));
+  box-shadow: 0 6px 14px rgba(246,198,91,.28), inset 0 1px 0 rgba(255,255,255,.7);
+}
+.lux-date{ color:#cbd5e1; font-weight:700; font-size:.86rem }
+
+/* Body */
+.lux-body{ padding: 14px 16px 18px }
+.lux-title{
+  font-family: var(--font-display);
+  color:#eaf1fb; font-weight:800; letter-spacing:-.012em;
+  line-height:1.16; font-size: clamp(1.35rem, 3.8vw, 1.75rem);
+}
+.lux-underline{
+  height:2px; width:100%; transform: scaleX(.08); transform-origin:left center;
+  background: linear-gradient(90deg, rgba(246,198,91,.65), rgba(99,102,241,.45), rgba(16,185,129,.45));
+  transition: transform .35s ease;
+  border-radius:9999px; margin-top:10px;
+}
+
+/* Subtle entrance on mount */
+.lux-card{ opacity:0; transform: translateY(10px); animation: luxIn .36s ease forwards; }
+.lux-card:nth-child(1){ animation-delay:.02s }
+.lux-card:nth-child(2){ animation-delay:.10s }
+.lux-card:nth-child(3){ animation-delay:.18s }
+@keyframes luxIn{ to{ opacity:1; transform:none } }
+
+@media (prefers-reduced-motion: reduce){
+  .lux-card{ animation:none; opacity:1; transform:none }
+}

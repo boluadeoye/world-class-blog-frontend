@@ -1,11 +1,15 @@
 import StartHereNewsletter from "../components/home/StartHereNewsletter";
 import HeroDeck from "../components/home/HeroDeck";
-
 import FeaturedRail from "../components/paynext/FeaturedRail";
-import LatestGrid from "../components/paynext/LatestGrid";
+import LuxLatest from "../components/home/LuxLatest";
 import VideosShowcase from "../components/paynext/VideosShowcase";
 
-import { fetchLatestArticles, fetchFeaturedPosts, fetchVideoPosts, fetchFeaturedVideo } from "../lib/homeData";
+import {
+  fetchLatestArticles,
+  fetchFeaturedPosts,
+  fetchVideoPosts,
+  fetchFeaturedVideo,
+} from "../lib/homeData";
 
 export default async function Page({ searchParams }) {
   const tag = typeof searchParams?.tag === "string" ? searchParams.tag : "";
@@ -20,9 +24,14 @@ export default async function Page({ searchParams }) {
   return (
     <div className="relative">
       <HeroDeck />
+
       <FeaturedRail posts={featuredPosts} />
-      <LatestGrid posts={latest} />
+
+      {/* Luxurious single-column latest (shows only the latest 3 internally) */}
+      <LuxLatest posts={latest} />
+
       <VideosShowcase id="videos" featured={featuredVideo} items={videos} />
+
       <StartHereNewsletter />
     </div>
   );
