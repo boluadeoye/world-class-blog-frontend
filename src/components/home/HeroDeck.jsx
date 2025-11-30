@@ -1,7 +1,6 @@
 // src/components/home/HeroDeck.jsx
 "use client";
 
-import { useMemo } from "react";
 import { Code2, NotebookPen, Clapperboard, Rocket, MessageSquare } from "lucide-react";
 import { Playfair_Display } from "next/font/google";
 import HeroCrest from "./HeroCrest";
@@ -14,10 +13,10 @@ export default function HeroDeck() {
   const role = "FULL‑STACK DEVELOPER & WRITER";
   const bio  = "I build fast, clear web experiences and share practical notes on engineering, product, and writing.";
 
-  // sequencing: name -> role -> tagline
-  const step  = 38;   // ms between characters (fast but not brisk)
-  const dur   = 650;  // ms per character animation
-  const gap   = 180;  // ms gap between sections
+  // Direct, premium timing
+  const step  = 36;   // ms between characters (fast, not jumpy)
+  const dur   = 560;  // per-character, straight fade/slide
+  const gap   = 160;  // gap between sections
 
   const nameTotal = (name.length - 1) * step + dur + gap;
   const roleTotal = (role.length - 1) * step + dur + gap;
@@ -28,7 +27,7 @@ export default function HeroDeck() {
   return (
     <section className="px-4 sm:px-6 lg:px-8 pt-6">
       <div className="relative mx-auto max-w-6xl studio-min-card px-6 sm:px-10 py-8 sm:py-10">
-        {/* minimal ambient + crest (below content) */}
+        {/* ambient + crest (under text) */}
         <div className="studio-min-aurora a" aria-hidden />
         <div className="studio-min-aurora b" aria-hidden />
         <div className="hero-crest-layer" aria-hidden><HeroCrest /></div>
@@ -36,7 +35,7 @@ export default function HeroDeck() {
         <div className="relative z-[2] grid grid-cols-12 items-center gap-6">
           {/* Left: text */}
           <div className="col-span-12 md:col-span-7 pr-1 sm:pr-4">
-            {/* Name: letter-by-letter */}
+            {/* Name: gradient texture + 2-line mask shine */}
             <TypeShow
               text={name}
               startAt={0}
@@ -44,17 +43,17 @@ export default function HeroDeck() {
               dur={dur}
               className={[
                 playfair.className,
-                "hero-title-min mt-0 block",
+                "hero-title-min hero-title-gradient mt-0 block",
                 "text-[44px] sm:text-[58px] md:text-[68px]"
               ].join(" ")}
             />
 
-            {/* Role: letter-by-letter, starts after name finishes */}
+            {/* Role: gold gradient + 2-line mask shine */}
             <div className="mt-3 flex items-center gap-2">
               <Code2
                 size={14}
                 className="shrink-0 text-[color:var(--acc-gold)] translate-y-[1px] seq-fade"
-                style={{ animationDelay: `${Math.max(0, roleStart - 120)}ms` }}
+                style={{ ['--delay' as any]: `${Math.max(0, roleStart - 120)}ms` }}
                 aria-hidden="true"
               />
               <TypeShow
@@ -62,11 +61,11 @@ export default function HeroDeck() {
                 startAt={roleStart}
                 step={step}
                 dur={dur}
-                className="font-extrabold tracking-wide text-[color:var(--acc-gold)]"
+                className="hero-role-gradient font-extrabold tracking-wide"
               />
             </div>
 
-            {/* Tagline: letter-by-letter, starts after role finishes */}
+            {/* Tagline: direct sequence (no mask), beautiful display font */}
             <TypeShow
               text={bio}
               startAt={bioStart}
@@ -75,13 +74,13 @@ export default function HeroDeck() {
               className="hero-copy-min hero-copy-beauty mt-4 max-w-[50ch] block"
             />
 
-            {/* CTA appears near the end of the tagline sequence */}
+            {/* CTA: appears after tagline begins */}
             <div className="mt-5 sm:mt-6">
               <span className="relative inline-block cta-hand">
                 <a
                   href="/chat"
                   className="cta-chip-min seq-fade"
-                  style={{ animationDelay: `${bioStart + 280}ms` }}
+                  style={{ ['--delay' as any]: `${bioStart + 260}ms` }}
                 >
                   <span>Open Chat</span>
                   <MessageSquare className="ico" aria-hidden="true" />
@@ -91,7 +90,7 @@ export default function HeroDeck() {
             </div>
           </div>
 
-          {/* Right: feature deck (unchanged) */}
+          {/* Right deck (unchanged) */}
           <div className="col-span-12 md:col-span-5">
             <div className="grid grid-cols-2 gap-3 sm:gap-4">
               <a href="/articles" className="deck-card group">

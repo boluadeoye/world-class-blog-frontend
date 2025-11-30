@@ -22,18 +22,22 @@ export default function TypeShow({
   const chars = useMemo(() => Array.from(text || ''), [text]);
   return (
     <span className={className} aria-label={ariaLabel || text}>
-      {chars.map((ch, i) => (
-        <span
-          key={i}
-          className="seq-char"
-          style={{
-            animationDelay: `${startAt + i * step}ms`,
-            animationDuration: `${dur}ms`,
-          }}
-        >
-          {ch === ' ' ? '\u00A0' : ch}
-        </span>
-      ))}
+      {chars.map((ch, i) => {
+        const delay = startAt + i * step;
+        return (
+          <span
+            key={i}
+            className="seq-char"
+            style={{
+              // drive all CSS animations with the same per‑char delay/duration
+              ['--delay' as any]: `${delay}ms`,
+              ['--dur' as any]: `${dur}ms`,
+            }}
+          >
+            {ch === ' ' ? '\u00A0' : ch}
+          </span>
+        );
+      })}
     </span>
   );
 }
