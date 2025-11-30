@@ -11,79 +11,50 @@ const playfair = Playfair_Display({ subsets: ["latin"], weight: ["700","800","90
 
 function AutoRail({ children }) {
   const trackRef = useRef(null);
-  const pausedRef = useRef(false);
   const rafRef = useRef(0);
-  const loopWidthRef = useRef(0);
+  const pausedRef = useRef(false);
 
-  // Measure after images decode, then start loop
   useEffect(() => {
     const el = trackRef.current;
     if (!el) return;
 
-    const imgs = Array.from(el.querySelectorAll("img"));
-    const decodeAll = Promise.all(
-      imgs.map(img => (img.decode ? img.decode().catch(() => {}) : Promise.resolve()))
-    ).catch(() => {});
-
-    let disposed = false;
-
-    const measure = () => {
-      const sets = el.querySelectorAll(".rail-set");
-      if (sets.length > 0) {
-        loopWidthRef.current = sets[0].scrollWidth || sets[0].getBoundingClientRect().width;
-      }
-    };
-
-    const startLoop = () => {
+    const run = () => {
       cancelAnimationFrame(rafRef.current);
       const prefersReduced =
         typeof window !== "undefined" &&
         window.matchMedia &&
         window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (prefersReduced) return;
 
-      if (prefersReduced) return; // respect reduced motion
-
-      const speed = 0.8; // px per frame (~48px/s @60fps)
-      const step = () => {
-        if (disposed) return;
-        const el = trackRef.current;
-        if (!el) return;
-        if (!pausedRef.current && loopWidthRef.current > 0) {
-          el.scrollLeft += speed;
-          if (el.scrollLeft >= loopWidthRef.current) {
-            el.scrollLeft -= loopWidthRef.current; // seamless wrap
+      const stepPx = 0.8; // ~48px/s @ 60fps
+      const tick = () => {
+        const max = el.scrollWidth - el.clientWidth;
+        if (!pausedRef.current && max > 2) {
+          el.scrollLeft += stepPx;
+          if (el.scrollLeft >= max - 1) {
+            el.scrollLeft = 0; // simple wrap
           }
         }
-        rafRef.current = requestAnimationFrame(step);
+        rafRef.current = requestAnimationFrame(tick);
       };
-      rafRef.current = requestAnimationFrame(step);
+      rafRef.current = requestAnimationFrame(tick);
     };
 
-    const init = async () => {
-      await decodeAll;
-      measure();
-      startLoop();
-    };
-    init();
+    // start after a frame to ensure layout is ready
+    const id = requestAnimationFrame(run);
 
-    const onResize = () => measure();
+    const onResize = () => run();
     window.addEventListener("resize", onResize);
-
-    const onVis = () => {
-      // pause loop when tab hidden
-      pausedRef.current = document.hidden || pausedRef.current;
-    };
+    const onVis = () => { pausedRef.current = document.hidden || pausedRef.current; };
     document.addEventListener("visibilitychange", onVis);
 
     return () => {
-      disposed = true;
+      cancelAnimationFrame(id);
+      cancelAnimationFrame(rafRef.current);
       window.removeEventListener("resize", onResize);
       document.removeEventListener("visibilitychange", onVis);
-      cancelAnimationFrame(rafRef.current);
     };
   }, []);
-
-  const pause = (v) => { pausedRef.current = v; };
 
   const byTile = (dir = 1) => {
     const el = trackRef.current;
@@ -94,6 +65,8 @@ function AutoRail({ children }) {
     el.scrollBy({ left: dir * dist, behavior: "smooth" });
   };
 
+  const pause = (v) => { pausedRef.current = v; };
+
   return (
     <div className="lux-rail">
       <button className="rail-nav rail-left" aria-label="Scroll left" onClick={() => byTile(-1)}>
@@ -101,8 +74,8 @@ function AutoRail({ children }) {
       </button>
 
       <div
-        className="lux-rail-track no-scrollbar"
         ref={trackRef}
+        className="lux-rail-track no-scrollbar"
         onMouseEnter={() => pause(true)}
         onMouseLeave={() => pause(false)}
         onTouchStart={() => pause(true)}
@@ -112,9 +85,7 @@ function AutoRail({ children }) {
         tabIndex={0}
         aria-label="Quick sections"
       >
-        {/* duplicate for seamless loop */}
-        <div className="rail-set">{children}</div>
-        <div className="rail-set" aria-hidden="true">{children}</div>
+        {children}
       </div>
 
       <button className="rail-nav rail-right" aria-label="Scroll right" onClick={() => byTile(1)}>
@@ -132,7 +103,7 @@ export default function HeroDeck() {
   const role = "FULL‑STACK DEVELOPER & WRITER";
   const bio  = "I build fast, clear web experiences and share practical notes on engineering, product, and writing.";
 
-  // Crisp timing
+  // crisp sequence
   const step  = 28, dur = 480, gap = 140;
   const nameTotal = (name.length - 1) * step + dur + gap;
   const roleTotal = (role.length - 1) * step + dur + gap;
@@ -177,7 +148,7 @@ export default function HeroDeck() {
             </div>
           </div>
 
-          {/* Auto-scrolling horizontal rail */}
+          {/* Auto-scrolling horizontal rail (Projects removed) */}
           <div className="col-span-12">
             <AutoRail>
               <a href="/articles" className="lux-tile rail-snap">
