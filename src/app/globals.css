@@ -2866,3 +2866,17 @@ header a[href="/projects"], nav a[href="/projects"]{ display:none !important; }
 .lux-media{ position:relative; aspect-ratio: 16/9; overflow:hidden }
 .lux-img{ width:100%; height:100%; object-fit:cover; display:block; }
 .lux-media-overlay{ position:absolute; inset:0; pointer-events:none; background: linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,.45) 100%); }
+
+/* Header row for LuxLatest: headline + small browse button aligned left */
+.lux-header{ display:flex; flex-direction:column; gap:4px; margin-bottom:10px; }
+@media (min-width: 520px){
+  .lux-header{ flex-direction:column; gap:6px; }
+}
+
+/* Guarantee image sits under the gradient overlay but actually renders */
+.lux-media{ position:relative; aspect-ratio: 16/9; overflow:hidden; z-index:0 }
+.lux-img{ position:relative; z-index:0; width:100%; height:100%; object-fit:cover; display:block; }
+.lux-media-overlay{ position:absolute; inset:0; z-index:1; pointer-events:none;
+  background: linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,.45) 100%);
+}
+.lux-meta{ position:absolute; z-index:2; left:14px; right:14px; bottom:12px; display:flex; align-items:center; justify-content:space-between; gap:.6rem; }

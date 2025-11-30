@@ -1,26 +1,52 @@
 // src/components/home/LuxLatest.jsx
 "use client";
 
-// Try very hard to find a usable cover image
+// helper
+const first = (...vals) => vals.find(v => typeof v === "string" && v.trim().length > 0) || "";
+
+function ytIdFromUrl(u) {
+  try {
+    const url = new URL(u);
+    if (url.hostname === "youtu.be") return url.pathname.slice(1);
+    if (url.searchParams.get("v")) return url.searchParams.get("v");
+    const parts = url.pathname.split("/").filter(Boolean);
+    const i = parts.findIndex(p => ["embed", "shorts", "v", "watch"].includes(p));
+    if (i >= 0 && parts[i + 1]) return parts[i + 1];
+    return parts[parts.length - 1] || null;
+  } catch { return null; }
+}
+
+// Find a usable cover image from many shapes (API/editor/SEO)
 function coverOf(p) {
-  const tryKeys = [
+  // common direct fields
+  const direct = first(
     p?.hero_image?.url,
     p?.heroImage?.url,
     p?.og_image,
     p?.ogImage,
-    p?.cover,
+    p?.seo?.og_image,
+    p?.seo?.ogImage,
+    p?.seo?.openGraph?.image,
+    p?.cover?.url,
     p?.cover_url,
     p?.coverUrl,
-    p?.image,
     p?.image_url,
     p?.imageUrl,
+    p?.image,
     p?.thumbnail,
-    p?.banner,
-    p?.banner_image?.url,
-  ].filter(Boolean);
-  if (tryKeys.length) return tryKeys[0];
+    p?.banner?.url,
+    p?.banner_image?.url
+  );
+  if (direct) return direct;
 
-  // EditorJS content (string or object)
+  // images_inline like our post generator
+  try {
+    const inl = Array.isArray(p?.images_inline) ? p.images_inline : [];
+    const firstInl = first(inl?.[0]?.url, inl?.[1]?.url);
+    if (firstInl) return firstInl;
+  } catch {}
+
+  // EditorJS blocks in content or content_editorjs
   try {
     const c = typeof p?.content === "string" ? JSON.parse(p.content) : p?.content;
     const blocks = Array.isArray(c?.blocks) ? c.blocks : [];
@@ -29,37 +55,59 @@ function coverOf(p) {
     if (url) return url;
   } catch {}
 
-  // Any alternate fields people use
   try {
     const c2 = typeof p?.content_editorjs === "string"
       ? JSON.parse(p.content_editorjs)
       : p?.content_editorjs;
-    const blocks = Array.isArray(c2?.blocks) ? c2.blocks : [];
-    const imgBlock = blocks.find(b => b?.type === "image" && (b?.data?.file?.url || b?.data?.url));
-    const url = imgBlock?.data?.file?.url || imgBlock?.data?.url;
-    if (url) return url;
+    const blocks2 = Array.isArray(c2?.blocks) ? c2.blocks : [];
+    const imgBlock2 = blocks2.find(b => b?.type === "image" && (b?.data?.file?.url || b?.data?.url));
+    const url2 = imgBlock2?.data?.file?.url || imgBlock2?.data?.url;
+    if (url2) return url2;
   } catch {}
 
-  // Fallback: scrape a src from HTML if present
+  // scrape first <img src="..."> from HTML
   if (typeof p?.content_html === "string") {
     const m = p.content_html.match(/<img[^>]+src=["']([^"']+)["']/i);
     if (m?.[1]) return m[1];
   }
 
-  return ""; // let the component fall back to gradient
+  // YouTube thumbnail from first reference/link if present
+  try {
+    const yts = Array.isArray(p?.youtube_references) ? p.youtube_references : [];
+    const yurl = first(yts?.[0]?.url, yts?.[1]?.url, yts?.[2]?.url);
+    const id = ytIdFromUrl(yurl || "");
+    if (id) return `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
+  } catch {}
+
+  // last resort: empty → gradient fallback will show
+  return "";
+}
+
+function toTitle(s) {
+  if (!s) return "";
+  return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
 function catOf(p) {
   const known = ["health","finance","technology","education","others"];
-  const c = String(p?.category || "").trim().toLowerCase();
-  if (c && known.includes(c)) return c[0].toUpperCase() + c.slice(1);
+  const raw =
+    (p?.category && (typeof p.category === "string" ? p.category : (p.category?.name || p.category?.title || p.category?.slug))) ||
+    p?.category_name ||
+    p?.categoryName ||
+    p?.categoryTitle ||
+    (Array.isArray(p?.categories) && (p.categories[0]?.name || p.categories[0]?.title || p.categories[0]?.slug)) ||
+    "";
 
-  // Try tags
-  const tags = Array.isArray(p?.tags) ? p.tags : [];
-  const hit = tags
-    .map(t => String(t).toLowerCase())
-    .find(t => known.includes(t));
-  if (hit) return hit[0].toUpperCase() + hit.slice(1);
+  let c = String(raw || "").trim().toLowerCase();
+  if (c && known.includes(c)) return toTitle(c);
+
+  // try tags
+  const tags = Array.isArray(p?.tags) ? p.tags.map(x => String(x).toLowerCase()) : [];
+  const hit = tags.find(t => known.includes(t));
+  if (hit) return toTitle(hit);
+
+  // if we still have raw category, show it as Title Case (don’t force “Other”)
+  if (raw) return toTitle(String(raw));
 
   return "Other";
 }
@@ -80,9 +128,13 @@ export default function LuxLatest({ posts = [] }) {
 
   return (
     <section className="mt-8 sm:mt-10">
-      {/* No big heading — just a tiny browse button on the right */}
-      <div className="flex items-center justify-end mb-3">
-        <a href="/articles" className="btn-beam-gold btn-xs">Browse →</a>
+      {/* Beautiful premium headline kept, with a small browse pill nudged left */}
+      <div className="lux-header">
+        <div className="section-eyebrow tracking-[.22em] text-slate-400">Latest Posts</div>
+        <div className="flex items-center gap-2 flex-wrap">
+          <h2 className="lux-h2">Fresh from the blog</h2>
+          <a href="/articles" className="btn-beam-gold btn-xs ml-1">Browse →</a>
+        </div>
       </div>
 
       <div className="space-y-5">
@@ -103,6 +155,7 @@ export default function LuxLatest({ posts = [] }) {
                     className="lux-img"
                     loading={i === 0 ? "eager" : "lazy"}
                     decoding="async"
+                    referrerPolicy="no-referrer"
                   />
                 ) : (
                   <div className="lux-img lux-img-fallback" />
