@@ -1551,3 +1551,259 @@ body { margin: 0; }
   .article-aurora.a,.article-aurora.b{ animation:none }
   .timer-meta .dot{ animation:none }
 }
+
+/* --- Post page hardening: no horizontal scroll, proper widths, clean sections --- */
+
+/* Prevent side scrolling from absolute auroras and oversized elements */
+.article-studio{ position:relative; overflow-x: clip; }
+
+/* Larger reading column (was too tiny). Clamp to viewport safely */
+.article-shell{ max-width: min(72rem, 100%); } /* ~1152px */
+.article-card{
+  max-width: min(68rem, 100% - 0px);
+  margin-inline: auto;
+  padding: clamp(16px, 3.2vw, 32px);
+}
+.article-card img, .article-card video, .article-card canvas, .article-card iframe{
+  max-width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 14px;
+}
+
+/* Reduce accidental huge bottom gaps */
+.article-studio{ padding-bottom: 24px; }
+.article-shell{ padding-bottom: clamp(32px, 6vw, 64px); }
+
+/* Headings/text do not overflow; break long words/urls */
+.article-card h1,.article-card h2,.article-card h3{ word-break: break-word; hyphens: auto; }
+
+/* Timer bar: ensure it never forces horizontal scroll */
+.timer-bar{ margin-left: auto; margin-right: auto; max-width: min(72rem, 100%); }
+
+/* --- Comments polish (without touching your auth flow) --- */
+.article-card :is(#comments, .comments, [data-section="comments"]){
+  margin-top: clamp(20px, 4vw, 32px);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(2,6,23,.68), rgba(2,6,23,.82));
+  border: 1px solid rgba(255,255,255,.10);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 8px 28px rgba(2,6,23,.55);
+  padding: clamp(12px, 2.4vw, 22px);
+}
+.article-card :is(#comments, .comments, [data-section="comments"]) :is(input, textarea){
+  background: rgba(15,23,42,.55);
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 12px;
+  padding: .65rem .8rem;
+  color: #e6eef8;
+}
+.article-card :is(#comments, .comments, [data-section="comments"]) button{
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(2,6,23,.72), rgba(15,23,42,.88));
+  border: 1px solid rgba(255,255,255,.12);
+  color: #e6eef8;
+  padding: .55rem .9rem;
+  font-weight: 700;
+}
+.article-card :is(#comments, .comments, [data-section="comments"]) .comment-item{
+  padding: .8rem; border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.article-card :is(#comments, .comments, [data-section="comments"]) .comment-item:last-child{
+  border-bottom: 0;
+}
+
+/* --- Share row polish --- */
+.article-card :is(.share, .share-row, [data-share]){
+  margin-top: clamp(16px, 3vw, 28px);
+  display:flex; flex-wrap: wrap; gap:.6rem;
+  padding:.6rem; border-radius: 9999px;
+  background: linear-gradient(180deg, rgba(2,6,23,.62), rgba(2,6,23,.78));
+  border:1px solid rgba(255,255,255,.10);
+}
+.article-card :is(.share, .share-row, [data-share]) a{
+  display:inline-flex; align-items:center; gap:.4rem;
+  padding:.45rem .7rem; border-radius:9999px;
+  color:#e2e8f0; font-weight:600;
+  background: linear-gradient(180deg, rgba(15,23,42,.75), rgba(15,23,42,.9));
+  border:1px solid rgba(255,255,255,.10);
+}
+
+/* --- Read next cards: glassy and vibrant --- */
+.article-related{ margin-top: clamp(22px, 5vw, 36px); }
+.article-related .related-card{
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(2,6,23,.68), rgba(2,6,23,.86));
+  border: 1px solid rgba(255,255,255,.10);
+  box-shadow: 0 10px 28px rgba(2,6,23,.6), inset 0 1px 0 rgba(255,255,255,.06);
+  padding: 16px;
+}
+.article-related .related-card:hover{
+  box-shadow: 0 12px 32px rgba(2,6,23,.65), 0 10px 34px rgba(56,189,248,.12);
+}
+
+/* Safety: any element wider than viewport is clamped */
+.article-studio *{ max-width: 100%; }
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce){
+  .article-aurora.a,.article-aurora.b{ animation:none }
+}
+
+/* --- Post layout hardening (override last) --- */
+html, body { overflow-x: clip; }
+.article-studio{ position:relative; overflow-x: clip; padding-bottom: 0; }
+.article-shell{ max-width: min(76rem, 100%); padding-bottom: clamp(24px, 5vw, 56px); }
+
+/* Wider readable card + safe media */
+.article-card{
+  max-width: min(70rem, 100%);
+  margin-inline: auto;
+  padding: clamp(16px, 3.2vw, 36px);
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(2,6,23,.78), rgba(2,6,23,.88));
+  border: 1px solid rgba(255,255,255,.08);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 12px 40px rgba(2,6,23,.8);
+}
+.article-card img, .article-card video, .article-card iframe, .article-card canvas {
+  display:block; max-width:100%; height:auto; border-radius:14px;
+}
+
+/* Timer bar must never cause side scroll */
+.timer-bar{ margin: 8px auto 10px; max-width: min(76rem, 100%); }
+.timer-card{ overflow:hidden }
+
+/* Comments polish (auth untouched — purely visual) */
+.article-card :is(#comments, .comments, [data-section="comments"]){
+  margin-top: clamp(18px, 4vw, 32px);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(2,6,23,.66), rgba(2,6,23,.82));
+  border: 1px solid rgba(255,255,255,.10);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 8px 28px rgba(2,6,23,.5);
+  padding: clamp(12px, 2.2vw, 22px);
+}
+.article-card :is(#comments, .comments, [data-section="comments"]) :is(input, textarea){
+  background: rgba(15,23,42,.55);
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 12px;
+  padding: .65rem .8rem; color:#e6eef8;
+}
+.article-card :is(#comments, .comments, [data-section="comments"]) button{
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(2,6,23,.72), rgba(15,23,42,.88));
+  border: 1px solid rgba(255,255,255,.12); color:#e6eef8; padding:.55rem .9rem; font-weight:700;
+}
+.article-card :is(#comments, .comments, [data-section="comments"]) .comment-item{
+  padding:.8rem; border-bottom:1px solid rgba(255,255,255,.06);
+}
+.article-card :is(#comments, .comments, [data-section="comments"]) .comment-item:last-child{ border-bottom:0; }
+
+/* Share row cleanup */
+.article-card :is(.share, .share-row, [data-share]){
+  margin-top: clamp(16px, 3vw, 28px);
+  display:flex; flex-wrap:wrap; gap:.6rem;
+  padding:.6rem; border-radius:9999px;
+  background: linear-gradient(180deg, rgba(2,6,23,.62), rgba(2,6,23,.78));
+  border:1px solid rgba(255,255,255,.10);
+}
+.article-card :is(.share, .share-row, [data-share]) a{
+  display:inline-flex; align-items:center; gap:.4rem;
+  padding:.45rem .7rem; border-radius:9999px;
+  color:#e2e8f0; font-weight:600;
+  background: linear-gradient(180deg, rgba(15,23,42,.75), rgba(15,23,42,.9));
+  border:1px solid rgba(255,255,255,.10);
+}
+
+/* Read next: vibrant glass cards */
+.article-related{ margin-top: clamp(22px, 5vw, 36px); }
+.article-related .related-card{
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(2,6,23,.68), rgba(2,6,23,.86));
+  border: 1px solid rgba(255,255,255,.10);
+  box-shadow: 0 10px 28px rgba(2,6,23,.6), inset 0 1px 0 rgba(255,255,255,.06);
+  padding: 16px;
+}
+.article-related .related-card:hover{
+  box-shadow: 0 12px 32px rgba(2,6,23,.65), 0 10px 34px rgba(56,189,248,.12);
+}
+
+/* Safety clamp: no element wider than viewport */
+.article-studio *{ max-width: 100%; }
+
+/* ---- Post page hardening (no sideways scroll, no huge bottom gap) ---- */
+html, body { overflow-x: clip; }
+.post-shell{ overflow-x: clip; }
+
+/* Wider readable card */
+.article-card{
+  max-width: min(70rem, 100%);
+  margin-inline: auto;
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(2,6,23,.78), rgba(2,6,23,.88));
+  border: 1px solid rgba(255,255,255,.08);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 12px 40px rgba(2,6,23,.8);
+  padding: clamp(16px, 3.2vw, 36px);
+}
+
+/* Make media safe */
+#post-body img, #post-body video, #post-body iframe, #post-body canvas{
+  display:block; max-width:100%; height:auto; border-radius:14px;
+}
+
+/* Reading timer — compact and safe widths */
+.timer-wrap{ position:sticky; top:8px; z-index:30; margin:0 auto 10px; max-width:min(72rem,100%); }
+.timer-card{
+  display:flex; align-items:center; gap:.8rem; justify-content:space-between;
+  border-radius:9999px; padding:.5rem .8rem;
+  background: linear-gradient(180deg, rgba(2,6,23,.72), rgba(15,23,42,.82));
+  border:1px solid rgba(255,255,255,.08);
+  box-shadow: 0 8px 24px rgba(2,6,23,.5), inset 0 1px 0 rgba(255,255,255,.06);
+  color:#e2e8f0; overflow:hidden;
+}
+.timer-meta{ display:inline-flex; align-items:center; gap:.45rem; font-size:.82rem; font-weight:600; }
+.timer-meta .label{ color:#93a4b7 }
+.timer-meta .value{ color:#e5edf7 }
+.timer-meta .dot{ width:6px;height:6px;border-radius:9999px;background:#34d399; box-shadow:0 0 0 0 rgba(52,211,153,.7); animation:pulseDot 1.8s infinite; }
+@keyframes pulseDot{0%{box-shadow:0 0 0 0 rgba(52,211,153,.7)}70%{box-shadow:0 0 0 10px rgba(52,211,153,0)}100%{box-shadow:0 0 0 0 rgba(52,211,153,0)}}
+.timer-track{ height:3px; border-radius:9999px; overflow:hidden; background: rgba(255,255,255,.06); margin-top:6px; }
+.timer-track .bar{ display:block; width:100%; height:100%; background: linear-gradient(90deg,#22d3ee,#60a5fa,#34d399) }
+
+/* Comments (visual only; auth untouched) */
+.comments{
+  border-radius:16px; padding: clamp(12px,2.2vw,22px);
+  background: linear-gradient(180deg, rgba(2,6,23,.66), rgba(2,6,23,.82));
+  border:1px solid rgba(255,255,255,.10);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 8px 28px rgba(2,6,23,.5);
+}
+.comments :is(input, textarea){
+  background: rgba(15,23,42,.55); border:1px solid rgba(255,255,255,.10);
+  border-radius:12px; padding:.65rem .8rem; color:#e6eef8;
+}
+.comments button{
+  border-radius:12px; background: linear-gradient(180deg, rgba(2,6,23,.72), rgba(15,23,42,.88));
+  border:1px solid rgba(255,255,255,.12); color:#e6eef8; padding:.55rem .9rem; font-weight:700;
+}
+
+/* Share row */
+.share-row{
+  display:flex; flex-wrap:wrap; gap:.6rem; padding:.6rem; border-radius:9999px;
+  background: linear-gradient(180deg, rgba(2,6,23,.62), rgba(2,6,23,.78));
+  border:1px solid rgba(255,255,255,.10);
+}
+.share-row a{
+  display:inline-flex; align-items:center; gap:.4rem; padding:.45rem .7rem; border-radius:9999px;
+  color:#e2e8f0; font-weight:600; background: linear-gradient(180deg, rgba(15,23,42,.75), rgba(15,23,42,.9));
+  border:1px solid rgba(255,255,255,.10);
+}
+
+/* Read next — glassy cards even if component controls its own markup */
+.article-related{ margin-top: clamp(22px,5vw,36px) }
+.article-related a, .article-related article, .article-related li > *{
+  border-radius:18px !important;
+  background: linear-gradient(180deg, rgba(2,6,23,.68), rgba(2,6,23,.86)) !important;
+  border:1px solid rgba(255,255,255,.10) !important;
+  box-shadow: 0 10px 28px rgba(2,6,23,.6), inset 0 1px 0 rgba(255,255,255,.06) !important;
+  padding:16px !important;
+}
+
+/* Safety clamp */
+.post-shell, .article-card, #post-body, .comments, .share-row, .article-related{ max-width: 100%; }

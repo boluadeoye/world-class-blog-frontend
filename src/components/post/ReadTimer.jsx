@@ -1,125 +1,75 @@
 'use client';
-import {useEffect, useMemo, useRef, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 
-function clamp(n, min, max){ return Math.min(max, Math.max(min, n)); }
-function pageY(el){ let y=0; for(let e=el; e; e=e.offsetParent){ y += e.offsetTop || 0; } return y; }
-function mmss(sec){ const m = Math.floor(sec/60).toString().padStart(2,'0'); const s=(sec%60).toString().padStart(2,'0'); return `${m}:${s}`; }
+const clamp=(n,min,max)=>Math.min(max,Math.max(min,n));
+const mmss=(s)=>`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
 
-function countWordsIn(container){
-  if(!container) return 0;
-  const SKIP_IDS = /comment|comments|reply|read-?next|related|newsletter|subscribe|footer|header|nav|menu/i;
-  const SKIP_CLASS = /comment|comments|reply|read-?next|related|newsletter|subscribe|aside|share|cta|menu/i;
-  const SKIP_TAG = /SCRIPT|STYLE|NOSCRIPT|IFRAME|SVG/;
-
-  let words = 0;
-  const walk = (node) => {
-    if(node.nodeType === 1){
-      const el = node;
-      if(SKIP_TAG.test(el.tagName)) return;
-      if((el.id && SKIP_IDS.test(el.id)) || (el.className && SKIP_CLASS.test(String(el.className)))) return;
-      for(const child of el.childNodes) walk(child);
-    } else if(node.nodeType === 3){
-      const txt = node.nodeValue || '';
-      words += (txt.trim().match(/\b[\p{L}\p{N}’'-]+\b/gu) || []).length;
+function countWords(root){
+  if(!root) return 0;
+  const SKIP=/comment|reply|newsletter|subscribe|aside|share/i;
+  let w=0;
+  const walk=(n)=>{
+    if(n.nodeType===1){
+      const el=n;
+      if(SKIP.test(el.id||'')||SKIP.test(String(el.className||''))) return;
+      el.childNodes.forEach(walk);
+    }else if(n.nodeType===3){
+      const t=n.nodeValue||'';
+      w+=(t.trim().match(/\b[\p{L}\p{N}’'-]+\b/gu)||[]).length;
     }
   };
-  walk(container);
-  return words;
+  walk(root);
+  return w;
 }
 
-export default function ReadTimer({
-  containerSelector = '#article-body',
-  wpm = Number(process.env.NEXT_PUBLIC_READ_WPM || 220),
-  className = ''
-}){
-  const [est, setEst] = useState(0);
-  const [spent, setSpent] = useState(0);
-  const [now, setNow] = useState(new Date());
-  const [progress, setProgress] = useState(0);
-  const started = useRef(false);
-  const raf = useRef(0);
-  const tick = useRef(0);
+export default function ReadTimer({ containerSelector = '#post-body', wpm = 220 }){
+  const [est,setEst]=useState(1);
+  const [spent,setSpent]=useState(0);
+  const [now,setNow]=useState(new Date());
+  const started=useRef(false); const onPageInt=useRef(0); const raf=useRef(0);
 
-  const labelNow = useMemo(() => now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}), [now]);
-
-  useEffect(() => {
-    const el = document.querySelector(containerSelector);
+  useEffect(()=>{
+    const el=document.querySelector(containerSelector);
     if(!el) return;
+    const words=countWords(el);
+    setEst(Math.max(1,Math.round(words/Math.max(120,wpm))));
+    const vis=()=>{ if(document.hidden){ clearInterval(onPageInt.current); } };
+    document.addEventListener('visibilitychange',vis);
 
-    // Estimate read time from word count
-    const words = countWordsIn(el);
-    const minutes = Math.max(1, Math.round(words / Math.max(120, wpm)));
-    setEst(minutes);
-
-    // Start timer when article enters viewport
-    const io = new IntersectionObserver((entries) => {
-      const vis = entries.some(e => e.isIntersecting);
-      if(vis && !started.current){
-        started.current = true;
-        tick.current = window.setInterval(() => setSpent(s => s+1), 1000);
-      } else if(!vis && started.current){
-        window.clearInterval(tick.current);
-        started.current = false;
+    const io=new IntersectionObserver((ents)=>{
+      const v=ents.some(e=>e.isIntersecting);
+      if(v && !started.current){
+        started.current=true;
+        onPageInt.current=window.setInterval(()=>setSpent(s=>s+1),1000);
+      }else if(!v && started.current){
+        clearInterval(onPageInt.current);
+        started.current=false;
       }
-    }, { threshold: 0.25 });
+    },{threshold:0.25});
     io.observe(el);
 
-    // Pause on tab hide
-    const onVis = () => {
-      if(document.hidden){ window.clearInterval(tick.current); }
-      else if(!started.current){ /* wait until intersecting again */ }
-    };
-    document.addEventListener('visibilitychange', onVis);
+    const clock=setInterval(()=>setNow(new Date()),1000);
 
-    // Live clock
-    const clock = window.setInterval(() => setNow(new Date()), 1000);
-
-    // Scroll progress for the article container
-    const start = pageY(el);
-    const end = start + el.offsetHeight - window.innerHeight;
-    const onScroll = () => {
+    const onScroll=()=>{
       cancelAnimationFrame(raf.current);
-      raf.current = requestAnimationFrame(() => {
-        const y = window.scrollY || window.pageYOffset || 0;
-        const pct = clamp((y - start) / Math.max(1, end - start), 0, 1);
-        setProgress(pct);
-      });
+      raf.current=requestAnimationFrame(()=>{/* progress handled visually by CSS width clamp; no need to store */});
     };
-    const onResize = () => { onScroll(); };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onResize);
-    onScroll();
+    window.addEventListener('scroll',onScroll,{passive:true});
 
-    return () => {
-      io.disconnect();
-      document.removeEventListener('visibilitychange', onVis);
-      window.clearInterval(tick.current);
-      window.clearInterval(clock);
-      cancelAnimationFrame(raf.current);
-      window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', onResize);
+    return ()=>{ io.disconnect(); document.removeEventListener('visibilitychange',vis);
+      clearInterval(onPageInt.current); clearInterval(clock); cancelAnimationFrame(raf.current);
+      window.removeEventListener('scroll',onScroll);
     };
-  }, [containerSelector, wpm]);
+  },[containerSelector,wpm]);
 
   return (
-    <div className={`timer-bar sticky top-0 z-30`}>
-      <div className={`timer-card ${className}`}>
-        <div className="timer-meta">
-          <span className="dot" aria-hidden="true" />
-          <span className="now" aria-label="Current time">{labelNow}</span>
-        </div>
-        <div className="timer-meta">
-          <span className="label">Est. read</span>
-          <span className="value">{est} min</span>
-        </div>
-        <div className="timer-meta">
-          <span className="label">On page</span>
-          <span className="value">{mmss(spent)}</span>
-        </div>
+    <div className="timer-wrap">
+      <div className="timer-card">
+        <div className="timer-meta"><span className="dot" />{now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</div>
+        <div className="timer-meta"><span className="label">Est. read</span><span className="value">{est} min</span></div>
+        <div className="timer-meta"><span className="label">On page</span><span className="value">{mmss(spent)}</span></div>
       </div>
-      <div className="timer-progress" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progress*100)}>
-        <span className="bar" style={{transform:`scaleX(${progress})`}} />
-      </div>
+      <div className="timer-track"><span className="bar" /></div>
     </div>
   );
 }

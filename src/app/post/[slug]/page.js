@@ -7,6 +7,9 @@ import LikeButton from "../../../components/public/LikeButton";
 import ShareBar from "../../../components/public/ShareBar";
 import Comments from "../../../components/public/Comments";
 import ReadNext from "../../../components/public/ReadNext";
+import dynamic from "next/dynamic";
+
+const ReadTimer = dynamic(() => import("../../../components/post/ReadTimer"), { ssr: false });
 
 export default async function PostPage({ params }) {
   const { slug } = await params;
@@ -20,38 +23,28 @@ export default async function PostPage({ params }) {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
   const url = `${baseUrl}/post/${post.slug}`;
 
-  // build recommendations
   let all = [];
-  try {
-    all = await getPublicPosts();
-  } catch {}
+  try { all = await getPublicPosts(); } catch {}
   const sameCat = String(post.category || "").trim().toLowerCase();
   const rec = (all || [])
     .filter((p) => (p.slug || p.id) && (p.slug !== post.slug))
     .sort((a, b) => new Date(b.created_at || b.createdAt) - new Date(a.created_at || a.createdAt));
-
-  const preferred = sameCat
-    ? rec.filter((p) => String(p.category || "").trim().toLowerCase() === sameCat)
-    : [];
-
+  const preferred = sameCat ? rec.filter((p) => String(p.category || "").trim().toLowerCase() === sameCat) : [];
   const fallback = rec.filter((p) => !preferred.includes(p));
   const recommended = [...preferred.slice(0, 3), ...fallback].slice(0, 3);
 
   return (
-    <div className="relative mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
-      <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute -top-24 left-0 h-64 w-64 rounded-full bg-sky-500/20 blur-3xl" />
-      </div>
-
+    <div className="post-shell mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <ReadTimer containerSelector="#post-body" />
       <Link href="/" className="mb-6 inline-flex items-center gap-2 text-xs text-slate-300 hover:text-sky-300">
         <ArrowLeft className="h-3 w-3" />
         <span>Back to home</span>
       </Link>
 
-      <article className="space-y-6 rounded-3xl border border-slate-800 bg-slate-900/80 p-6 shadow-xl shadow-slate-950/70 sm:p-8">
+      <article className="article-card space-y-6">
         <header className="space-y-3">
-          <div className="inline-flex items-center gap-2 rounded-full border border-sky-500/40 bg-slate-950/70 px-3 py-1 text-[11px] text-sky-200">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-sky-400" />
+          <div className="inline-flex items-center gap-2 rounded-full border border-sky-500/30 bg-slate-950/70 px-3 py-1 text-[11px] text-sky-200">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
             <span>World‑Class Blog Article</span>
           </div>
 
@@ -71,7 +64,7 @@ export default async function PostPage({ params }) {
           </div>
         </header>
 
-        <section className="pt-2">
+        <section id="post-body" className="pt-2">
           <PostRenderer data={post.content} />
         </section>
 
@@ -79,15 +72,19 @@ export default async function PostPage({ params }) {
           <div className="flex flex-wrap items-center gap-3">
             <LikeButton postId={post.id} />
           </div>
-          <ShareBar url={url} title={post.title} />
+          <div className="share-row" data-share>
+            <ShareBar url={url} title={post.title} />
+          </div>
         </section>
 
-        <section className="mt-6">
+        <section id="comments" className="comments mt-6">
           <Comments postId={post.id} />
         </section>
       </article>
 
-      <ReadNext posts={recommended} />
+      <section className="article-related">
+        <ReadNext posts={recommended} />
+      </section>
     </div>
   );
 }
@@ -98,15 +95,11 @@ function computeReadingTime(content) {
   try {
     const parsed = typeof content === "string" ? JSON.parse(content) : content;
     if (parsed && Array.isArray(parsed.blocks)) {
-      text = parsed.blocks
-        .map((b) => (b.data && (b.data.text || b.data.caption)) || "")
-        .join(" ");
+      text = parsed.blocks.map((b) => (b.data && (b.data.text || b.data.caption)) || "").join(" ");
     } else if (typeof content === "string") {
       text = content;
     }
-  } catch {
-    text = String(content);
-  }
+  } catch { text = String(content); }
   const words = text.trim() ? text.trim().split(/\s+/).length : 0;
   return Math.max(1, Math.round(words / 200));
 }
