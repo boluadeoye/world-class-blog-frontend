@@ -2190,3 +2190,30 @@ html, body { overflow-x: clip; }
     opacity:.6;
   }
 }
+
+/* --- FORCE crest to far inside corner (top-left) --- */
+.studio-min-card .hero-crest-layer,
+.studio-min-card .hero-crest-wrap{
+  position:absolute !important;
+  top: 6px !important;
+  left: 6px !important;   /* tight to the corner */
+  right: auto !important;
+  z-index: 1 !important;
+  pointer-events:none;
+  opacity:.60;
+  mix-blend-mode: screen;
+  filter: drop-shadow(0 6px 18px rgba(246,198,91,.16)) saturate(112%);
+  transform: translateZ(0) scale(.95);
+}
+/* ensure content sits above crest */
+.studio-min-card .grid{ position: relative; z-index: 2; }
+
+@media (max-width: 420px){
+  .studio-min-card .hero-crest-layer,
+  .studio-min-card .hero-crest-wrap{
+    top: 8px !important;
+    left: 6px !important;
+    transform: translateZ(0) scale(.94);
+    opacity:.62;
+  }
+}
