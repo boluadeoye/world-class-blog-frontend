@@ -1,7 +1,6 @@
 'use client';
 import {useEffect, useRef, useState} from 'react';
 
-const clamp=(n,min,max)=>Math.min(max,Math.max(min,n));
 const mmss=(s)=>`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
 
 function countWords(root){
@@ -22,17 +21,29 @@ function countWords(root){
   return w;
 }
 
-export default function ReadTimer({ containerSelector = '#post-body', wpm = 220 }){
-  const [est,setEst]=useState(1);
+export default function ReadTimer({
+  containerSelector = '#post-body',
+  estimated = null,           // prefer manual estimate (minutes)
+  wpm = 220,                  // fallback speed if estimated not given
+}){
+  const [est,setEst]=useState(() => (Number.isFinite(estimated)? estimated : 1));
   const [spent,setSpent]=useState(0);
   const [now,setNow]=useState(new Date());
-  const started=useRef(false); const onPageInt=useRef(0); const raf=useRef(0);
+  const started=useRef(false);
+  const onPageInt=useRef(0);
 
   useEffect(()=>{
     const el=document.querySelector(containerSelector);
     if(!el) return;
-    const words=countWords(el);
-    setEst(Math.max(1,Math.round(words/Math.max(120,wpm))));
+
+    if(Number.isFinite(estimated) && estimated>0){
+      setEst(Math.round(estimated));
+    }else{
+      const words=countWords(el);
+      const calc=Math.max(1,Math.round(words/Math.max(120,wpm)));
+      setEst(calc);
+    }
+
     const vis=()=>{ if(document.hidden){ clearInterval(onPageInt.current); } };
     document.addEventListener('visibilitychange',vis);
 
@@ -50,17 +61,10 @@ export default function ReadTimer({ containerSelector = '#post-body', wpm = 220 
 
     const clock=setInterval(()=>setNow(new Date()),1000);
 
-    const onScroll=()=>{
-      cancelAnimationFrame(raf.current);
-      raf.current=requestAnimationFrame(()=>{/* progress handled visually by CSS width clamp; no need to store */});
-    };
-    window.addEventListener('scroll',onScroll,{passive:true});
-
     return ()=>{ io.disconnect(); document.removeEventListener('visibilitychange',vis);
-      clearInterval(onPageInt.current); clearInterval(clock); cancelAnimationFrame(raf.current);
-      window.removeEventListener('scroll',onScroll);
+      clearInterval(onPageInt.current); clearInterval(clock);
     };
-  },[containerSelector,wpm]);
+  },[containerSelector, estimated, wpm]);
 
   return (
     <div className="timer-wrap">

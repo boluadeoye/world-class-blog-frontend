@@ -8,6 +8,9 @@ import ShareBar from "../../../components/public/ShareBar";
 import Comments from "../../../components/public/Comments";
 import ReadNext from "../../../components/public/ReadNext";
 import TimerIsland from "../../../components/post/TimerIsland";
+import { Lora } from "next/font/google";
+
+const lora = Lora({ subsets: ["latin"], weight: ["400","600","700"], variable: "--font-article" });
 
 export default async function PostPage({ params }) {
   const { slug } = await params;
@@ -16,7 +19,9 @@ export default async function PostPage({ params }) {
 
   const dateRaw = post.created_at || post.createdAt;
   const created = dateRaw ? new Date(dateRaw).toLocaleDateString() : "";
-  const readingMinutes = computeReadingTime(post.content);
+
+  const manualMinutes = getManualReadMinutes(post);
+  const readingMinutes = manualMinutes ?? computeReadingTime(post.content);
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
   const url = `${baseUrl}/post/${post.slug}`;
@@ -32,8 +37,9 @@ export default async function PostPage({ params }) {
   const recommended = [...preferred.slice(0, 3), ...fallback].slice(0, 3);
 
   return (
-    <div className="post-shell mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-      <TimerIsland containerSelector="#post-body" />
+    <div className={`${lora.variable} post-shell mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12`}>
+      <TimerIsland containerSelector="#post-body" estimated={readingMinutes} />
+
       <Link href="/" className="mb-6 inline-flex items-center gap-2 text-xs text-slate-300 hover:text-sky-300">
         <ArrowLeft className="h-3 w-3" />
         <span>Back to home</span>
@@ -85,6 +91,21 @@ export default async function PostPage({ params }) {
       </section>
     </div>
   );
+}
+
+function getManualReadMinutes(post){
+  try{
+    const meta = post.meta || post.metadata || {};
+    const cands = [
+      post.read_minutes, post.read_time, post.readTime, post.estimated_read_time, post.estimatedReadTime,
+      meta.read_minutes, meta.read_time, meta.readTime, meta.readingMinutes, meta.estimatedReadTime
+    ];
+    for(const v of cands){
+      const n = Number(v);
+      if(Number.isFinite(n) && n > 0) return Math.round(n);
+    }
+  }catch {}
+  return null;
 }
 
 function computeReadingTime(content) {
