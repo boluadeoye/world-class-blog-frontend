@@ -2352,3 +2352,18 @@ html, body { overflow-x: clip; }
     inset 0 1px 0 rgba(255,255,255,.06),
     0 18px 56px rgba(2,6,23,.78);
 }
+
+/* === FINAL OVERRIDE: remove any legacy blur from character animation === */
+.seq-char{
+  /* ensure no inherited/earlier blur leaks through */
+  filter: none !important;
+  opacity: 0;
+  transform: translateY(8px);
+  animation:
+    seqIn var(--dur,560ms) cubic-bezier(.25,.85,.25,1) var(--delay,0ms) forwards,
+    shine var(--shine-time,1400ms) ease-out var(--delay,0ms) forwards;
+}
+/* keep the “straight” motion keyframes */
+@keyframes seqIn{ to{ transform:none; opacity:1 } }
+/* the 2-line gradient mask sweeps across the text; no blur involved */
+@keyframes shine{ to{ background-position: 0 0, 120% 0 } }
