@@ -26,22 +26,19 @@ function useDurableHistory(key){
   }, [key]);
   return [value, setValue];
 }
-
-function transcript(messages){
-  return messages.map(m => `${m.role === 'user' ? 'Visitor' : 'Me'}: ${m.content}`).join('\n\n');
-}
+const transcript = (messages) => messages.map(m => `${m.role === 'user' ? 'Visitor' : 'Me'}: ${m.content}`).join('\n\n');
 
 export default function ClientChat(){
   const [messages, setMessages] = useDurableHistory("bolu_chat_history_v2");
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
+  const [openIdx, setOpenIdx] = useState(-1);
   const endRef = useRef(null);
 
   const site = (process.env.NEXT_PUBLIC_SITE_URL || "https://boluadeoye.com.ng").replace(/\/+$/,'');
   const email = process.env.NEXT_PUBLIC_CONTACT_EMAIL || "boluadeoye97@gmail.com";
   const who = (process.env.NEXT_PUBLIC_DISPLAY_NAME || process.env.NEXT_PUBLIC_OWNER_NAME || "Boluwatife");
 
-  // Generated avatar (not personal photo)
   const avatar = useMemo(() => {
     const seed = encodeURIComponent(who + "-pa");
     return `https://api.dicebear.com/9.x/bottts-neutral/svg?seed=${seed}&size=64&radius=50&backgroundType=gradientLinear`;
@@ -82,101 +79,74 @@ ${transcript(messages)}
     );
     window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
   }
+  function clearSession(){ try{ localStorage.removeItem("bolu_chat_history_v2"); }catch{} setMessages([]); }
 
-  function clearSession(){
-    try { localStorage.removeItem("bolu_chat_history_v2"); } catch {}
-    setMessages([]);
-  }
-
-  function promptClick(e, p){
+  function onPromptClick(i, p, e){
     e.preventDefault();
-    const details = e.currentTarget.closest("details");
-    if (details) { details.open = true; setTimeout(()=>{ details.open = false; }, 180); }
-    ask(p);
+    setOpenIdx(prev => (prev === i ? -1 : i));
+    setTimeout(() => { setOpenIdx(-1); ask(p); }, 140);
   }
 
   return (
     <main className="min-h-dvh bg-slate-950 text-slate-200 p-4">
       <div className="max-w-3xl mx-auto">
-        <section className="chat-card space-y-6">
+        <section className="studio-min-card p-4 sm:p-6 space-y-6">
           <header className="flex items-start justify-between gap-3">
             <div className="flex items-start gap-3">
               <img src={avatar} alt="Avatar" className="ai-avatar" />
               <div>
                 <h1 className="text-xl font-extrabold leading-tight">Open Chat</h1>
-                <p className="text-sm text-slate-400 mt-1">
-                  I’m {who}. Ask me about my work, projects, or how to start.
-                </p>
+                <p className="text-sm text-slate-400 mt-1">I’m {who}. Ask me about my work, projects, or how to start.</p>
               </div>
             </div>
             <div className="flex items-center gap-2 pt-1">
-              <button onClick={sendToEmail} className="icon-btn" type="button" aria-label="Send to Email" title="Send to Email">
-                <Mail size={16} />
-              </button>
-              <button onClick={clearSession} className="icon-btn ghost" type="button" aria-label="Clear conversation" title="Clear conversation">
-                <Trash2 size={16} />
-              </button>
+              <button onClick={sendToEmail} className="icon-btn" type="button" aria-label="Send to Email" title="Send to Email"><Mail size={16}/></button>
+              <button onClick={clearSession} className="icon-btn ghost" type="button" aria-label="Clear conversation" title="Clear conversation"><Trash2 size={16}/></button>
             </div>
           </header>
 
           {messages.length === 0 && (
             <>
               <div className="bubble ai standalone">
-                <ReactMarkdown className="md-prose" remarkPlugins={[remarkGfm]}>
-                  {greeting}
-                </ReactMarkdown>
+                <ReactMarkdown className="md-prose" remarkPlugins={[remarkGfm]}>{greeting}</ReactMarkdown>
               </div>
-              <ul className="qp-list">
+              <div className="qp-acc">
                 {PROMPTS.map((p,i)=>(
-                  <li key={i}>
-                    <details className="qp">
-                      <summary onClick={(e)=>promptClick(e,p)}>
-                        <span>{p}</span>
-                        <ChevronDown className="chev" size={16}/>
-                      </summary>
-                    </details>
-                  </li>
+                  <details key={i} open={openIdx===i} onToggle={(e)=>e.preventDefault()}>
+                    <summary onClick={(e)=>onPromptClick(i,p,e)}>
+                      <span>{p}</span>
+                      <ChevronDown className="chev" size={16}/>
+                    </summary>
+                  </details>
                 ))}
-              </ul>
+              </div>
             </>
           )}
 
           <div className="flow space-y-4">
             {messages.map((m, i)=>(
               m.role === "assistant" ? (
-                <div key={i} className="ai-row">
+                <div key={i} className="flex items-start gap-3">
                   <img src={avatar} alt="" className="ai-avatar shrink-0" />
                   <div className="bubble ai">
-                    <ReactMarkdown className="md-prose" remarkPlugins={[remarkGfm]}>
-                      {m.content}
-                    </ReactMarkdown>
+                    <ReactMarkdown className="md-prose" remarkPlugins={[remarkGfm]}>{m.content}</ReactMarkdown>
                   </div>
                 </div>
               ) : (
-                <div key={i} className="bubble user">
-                  <div className="md-prose">{m.content}</div>
-                </div>
+                <div key={i} className="bubble user"><div className="md-prose">{m.content}</div></div>
               )
             ))}
             {busy && (
-              <div className="ai-row">
+              <div className="flex items-start gap-3">
                 <img src={avatar} alt="" className="ai-avatar shrink-0" />
-                <div className="bubble ai">
-                  <div className="chat-typing"><span></span><span></span><span></span></div>
-                </div>
+                <div className="bubble ai"><div className="chat-typing"><span></span><span></span><span></span></div></div>
               </div>
             )}
             <div ref={endRef} />
           </div>
 
           <form className="chat-input-row" onSubmit={e=>{ e.preventDefault(); ask(input); }}>
-            <textarea
-              className="chat-input"
-              rows={1}
-              value={input}
-              onChange={e=>setInput(e.target.value)}
-              placeholder="Type your question…"
-            />
+            <textarea className="chat-input" rows={1} value={input} onChange={e=>setInput(e.target.value)} placeholder="Type your question…"/>
             <button disabled={busy || !input.trim()} className="btn-send" type="submit">Send</button>
           </form>
         </section>

@@ -2009,3 +2009,68 @@ html, body { overflow-x: clip; }
 }
 
 /* Markdown already configured (bold, lists, links) */
+
+/* ===== Studio Minimal tokens ===== */
+:root{
+  --acc-gold:#f6c65b;
+  --surface-1: rgba(2,6,23,.82);
+  --surface-2: rgba(2,6,23,.90);
+  --glass-border: rgba(255,255,255,.08);
+  --shadow-1: 0 14px 42px rgba(2,6,23,.72);
+  --radius-lg: 20px;
+}
+
+/* Studio glass card */
+.studio-min-card{
+  position:relative; overflow:hidden; border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, var(--surface-1), var(--surface-2));
+  border: 1px solid var(--glass-border);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06), var(--shadow-1);
+}
+
+/* Minimal aurora */
+.studio-min-aurora{ position:absolute; inset:auto; width:120%; height:120%; filter: blur(60px); opacity:.35; pointer-events:none; }
+.studio-min-aurora.a{ left:-15%; top:-20%; background: radial-gradient(40% 40% at 18% 30%, rgba(59,130,246,.24), rgba(59,130,246,0) 70%) }
+.studio-min-aurora.b{ right:-18%; bottom:-18%; background: radial-gradient(40% 40% at 70% 70%, rgba(16,185,129,.20), rgba(16,185,129,0) 70%) }
+
+/* Hero minimal */
+.hero-title-min{ font-family: var(--font-display); font-weight:800; color:#fff; letter-spacing:-.012em; line-height:1.02; }
+.hero-copy-min{ color:#cbd5e1; line-height:1.7; text-wrap:balance; }
+.cta-chip-min{
+  --bg1: rgba(15,23,42,.75); --bg2: rgba(15,23,42,.9);
+  display:inline-flex; align-items:center; gap:.55rem; padding:.55rem .9rem; border-radius:9999px;
+  background: linear-gradient(180deg, var(--bg1), var(--bg2)); color:#e2e8f0; font-weight:700;
+  border:1px solid var(--glass-border);
+  box-shadow: 0 8px 20px rgba(2,6,23,.55), inset 0 1px 0 rgba(255,255,255,.06);
+  transition: transform .12s ease, box-shadow .2s ease;
+}
+.cta-chip-min:hover{ transform: translateY(-1px) }
+.cta-chip-min .ico{ width:1.05rem; height:1.05rem }
+.hero-crest-wrap{ position:absolute; top: clamp(8px,2.8vw,24px); right: clamp(8px,3vw,28px); opacity:.2; }
+
+/* Chat header icons */
+.icon-btn{
+  width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;
+  border-radius:9999px;border:1px solid rgba(255,255,255,.14);
+  background: linear-gradient(180deg, rgba(15,23,42,.72), rgba(15,23,42,.9));
+  color:#e2e8f0; box-shadow: 0 6px 16px rgba(2,6,23,.6), inset 0 1px 0 rgba(255,255,255,.06);
+}
+.icon-btn.ghost{ background: rgba(15,23,42,.55) }
+
+/* Accordion prompts (one open) */
+.qp-acc{ display:block; }
+.qp-acc details{ border:1px solid rgba(255,255,255,.10); border-radius:14px; background:rgba(15,23,42,.6); overflow:hidden }
+.qp-acc details + details{ margin-top:.55rem }
+.qp-acc summary{
+  list-style:none; cursor:pointer; padding:.65rem .8rem;
+  display:flex; align-items:center; justify-content:space-between; gap:.6rem; color:#e2e8f0;
+}
+.qp-acc summary::-webkit-details-marker{ display:none }
+.qp-acc .chev{ transition: transform .15s ease; opacity:.8 }
+.qp-acc details[open] .chev{ transform: rotate(180deg) }
+
+/* Chat bubbles spacing */
+.bubble{ max-width: 80%; }
+
+/* Markdown tuning */
+.md-prose strong{ font-weight:800; color:#e9eef8 }
