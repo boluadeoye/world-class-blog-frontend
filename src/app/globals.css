@@ -2217,3 +2217,32 @@ html, body { overflow-x: clip; }
     opacity:.62;
   }
 }
+
+/* --- Crest: pin to far top-right inside corner, guaranteed visible --- */
+.studio-min-card .hero-crest-layer,
+.studio-min-card .hero-crest-wrap{
+  position: absolute !important;
+  top: -6px !important;      /* slightly above for "by the corner" feel */
+  right: -10px !important;   /* push to the edge; negative to tuck in */
+  left: auto !important;
+  z-index: 1 !important;     /* sits above aurora, below content */
+  display: block !important;
+  opacity: .85 !important;   /* stronger so it can't disappear */
+  mix-blend-mode: normal !important;  /* no blend tricks that can hide it */
+  transform: translateZ(0) scale(.96);
+  filter: drop-shadow(0 10px 24px rgba(246,198,91,.20)); /* soft glow */
+}
+
+/* ensure content is above the crest */
+.studio-min-card .grid{ position: relative; z-index: 2; }
+
+/* Small phones: keep it tucked but visible */
+@media (max-width: 420px){
+  .studio-min-card .hero-crest-layer,
+  .studio-min-card .hero-crest-wrap{
+    top: -4px !important;
+    right: -8px !important;
+    transform: translateZ(0) scale(.94);
+    opacity: .9 !important;
+  }
+}
