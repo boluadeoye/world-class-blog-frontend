@@ -2638,3 +2638,31 @@ header a[href="/projects"], nav a[href="/projects"]{ display:none !important; }
 @media (prefers-reduced-motion: reduce){
   .lux-tile::before, .lux-tile::after{ animation:none; transition:none }
 }
+
+/* Horizontal rail (single row) */
+.lux-rail{ position:relative; }
+.lux-rail-track{
+  display:flex; gap:12px;
+  overflow-x:auto; overflow-y:hidden;
+  padding: 4px 2px 10px 2px;
+  scroll-snap-type: x mandatory;
+  scroll-padding-left: 12px;
+  -webkit-overflow-scrolling: touch;
+}
+.rail-snap{ scroll-snap-align: start }
+
+/* Edge gradients */
+.lux-rail-fade-left, .lux-rail-fade-right{
+  position:absolute; top:0; bottom:0; width:28px; pointer-events:none;
+}
+.lux-rail-fade-left{ left:0; background:linear-gradient(to right, rgba(2,6,23,1), rgba(2,6,23,0)); }
+.lux-rail-fade-right{ right:0; background:linear-gradient(to left, rgba(2,6,23,1), rgba(2,6,23,0)); }
+
+/* Tile sizing for rail (lux effects already defined earlier) */
+.lux-tile{
+  min-width: clamp(200px, 60vw, 260px);
+  min-height: 120px;
+}
+
+/* Keep Projects hidden in navbar */
+header a[href="/projects"], nav a[href="/projects"]{ display:none !important; }

@@ -13,7 +13,7 @@ export default function HeroDeck() {
   const role = "FULL‑STACK DEVELOPER & WRITER";
   const bio  = "I build fast, clear web experiences and share practical notes on engineering, product, and writing.";
 
-  // Sequenced timing (crisp, premium)
+  // Premium, crisp timing
   const step  = 28;
   const dur   = 480;
   const gap   = 140;
@@ -25,13 +25,14 @@ export default function HeroDeck() {
   return (
     <section className="px-4 sm:px-6 lg:px-8 pt-6">
       <div className="relative mx-auto max-w-6xl studio-min-card px-6 sm:px-10 py-8 sm:py-10">
+        {/* ambient + crest */}
         <div className="studio-min-aurora a" aria-hidden />
         <div className="studio-min-aurora b" aria-hidden />
         <div className="hero-crest-layer" aria-hidden><HeroCrest /></div>
 
-        <div className="relative z-[2] grid grid-cols-12 items-center gap-6">
-          {/* Left: text */}
-          <div className="col-span-12 md:col-span-7 pr-1 sm:pr-4">
+        <div className="relative z-[2] grid grid-cols-12 items-start gap-6">
+          {/* Text block */}
+          <div className="col-span-12 md:col-span-12 pr-1 sm:pr-4">
             <TypeShow
               text={name}
               startAt={0}
@@ -81,31 +82,37 @@ export default function HeroDeck() {
             </div>
           </div>
 
-          {/* Right: premium tiles (Projects removed) */}
-          <div className="col-span-12 md:col-span-5">
-            <div className="grid grid-cols-2 md:grid-cols-2 gap-3 sm:gap-4">
-              <a href="/articles" className="lux-tile group">
-                <div className="lux-tile-overlay" />
-                <NotebookPen className="text-white/90" />
-                <div className="lux-tile-title">Latest Notes</div>
-                <div className="lux-tile-sub">Concise ideas & deep dives</div>
-              </a>
+          {/* Horizontal rail (single row, scrollable) */}
+          <div className="col-span-12">
+            <div className="lux-rail">
+              <div className="lux-rail-track no-scrollbar" tabIndex={0} aria-label="Quick sections">
+                <a href="/articles" className="lux-tile rail-snap">
+                  <div className="lux-tile-overlay" />
+                  <NotebookPen className="text-white/90" />
+                  <div className="lux-tile-title">Latest Notes</div>
+                  <div className="lux-tile-sub">Concise ideas & deep dives</div>
+                </a>
 
-              <a href="/#videos" className="lux-tile group">
-                <div className="lux-tile-overlay" />
-                <Clapperboard className="text-white/90" />
-                <div className="lux-tile-title">Videos</div>
-                <div className="lux-tile-sub">Demos & walkthroughs</div>
-              </a>
+                <a href="/#videos" className="lux-tile rail-snap">
+                  <div className="lux-tile-overlay" />
+                  <Clapperboard className="text-white/90" />
+                  <div className="lux-tile-title">Videos</div>
+                  <div className="lux-tile-sub">Demos & walkthroughs</div>
+                </a>
 
-              {/* Projects tile removed */}
+                {/* Projects removed */}
 
-              <a href="/about" className="lux-tile group">
-                <div className="lux-tile-overlay" />
-                <MessageSquare className="text-white/90" />
-                <div className="lux-tile-title">About</div>
-                <div className="lux-tile-sub">How I work</div>
-              </a>
+                <a href="/about" className="lux-tile rail-snap">
+                  <div className="lux-tile-overlay" />
+                  <MessageSquare className="text-white/90" />
+                  <div className="lux-tile-title">About</div>
+                  <div className="lux-tile-sub">How I work</div>
+                </a>
+              </div>
+
+              {/* edge fades */}
+              <div className="lux-rail-fade-left" aria-hidden="true" />
+              <div className="lux-rail-fade-right" aria-hidden="true" />
             </div>
           </div>
         </div>
