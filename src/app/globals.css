@@ -2097,3 +2097,47 @@ html, body { overflow-x: clip; }
 }
 @keyframes handDangle{ 0%{ transform: rotate(-10deg) translateY(-1px) } 100%{ transform: rotate(8deg) translateY(1px) } }
 @media (prefers-reduced-motion: reduce){ .hand-cursor{ animation:none } }
+
+/* Beautiful tagline (use display font for character) */
+.hero-copy-beauty{
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(1rem, 2.8vw, 1.125rem);
+  line-height: 1.75;
+  letter-spacing: .005em;
+  color: #dbe7f5;
+}
+
+/* Subtle finger pointer on CTA (smaller, softer motion) */
+.cta-hand{ position: relative; }
+.hand-cursor{
+  position:absolute; right:-12px; top:-10px;
+  width:20px; height:20px; display:block; opacity:.55;
+  transform-origin: center left;
+  text-shadow:0 2px 8px rgba(0,0,0,.35);
+  animation: handDangle 1.6s ease-in-out infinite alternate;
+  pointer-events:none;
+}
+@keyframes handDangle{ 0%{ transform: rotate(-10deg) translateY(-1px) } 100%{ transform: rotate(8deg) translateY(1px) } }
+@media (prefers-reduced-motion: reduce){ .hand-cursor{ animation:none } }
+
+/* Layering for hero */
+.studio-min-aurora{ z-index: 0; }
+.hero-crest-wrap{
+  position:absolute; top: clamp(8px,2.6vw,24px); right: clamp(8px,3vw,28px);
+  z-index: 1; pointer-events:none; opacity:.45;
+  color: var(--acc-gold); /* if crest uses currentColor for strokes */
+  mix-blend-mode: screen;
+  filter: drop-shadow(0 6px 18px rgba(246,198,91,.18)) saturate(115%);
+}
+.studio-min-card .grid{ position: relative; z-index: 2; } /* ensure text over crest */
+
+/* Keep the pointer subtle (already reduced but lock values) */
+.cta-hand{ position: relative; }
+.hand-cursor{
+  position:absolute; right:-10px; top:-9px; width:18px; height:18px; opacity:.42;
+  transform-origin: center left; text-shadow:0 2px 8px rgba(0,0,0,.3);
+  animation: handDangle 1.6s ease-in-out infinite alternate;
+}
+@keyframes handDangle{ 0%{ transform: rotate(-8deg) translateY(-1px) } 100%{ transform: rotate(6deg) translateY(1px) } }
+@media (prefers-reduced-motion: reduce){ .hand-cursor{ animation:none } }

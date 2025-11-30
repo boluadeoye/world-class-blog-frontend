@@ -29,12 +29,16 @@ export default function HeroDeck() {
   return (
     <section className="px-4 sm:px-6 lg:px-8 pt-6">
       <div className="relative mx-auto max-w-6xl studio-min-card px-6 sm:px-10 py-8 sm:py-10">
-        {/* minimal ambient + crest */}
+        {/* minimal ambient */}
         <div className="studio-min-aurora a" aria-hidden />
         <div className="studio-min-aurora b" aria-hidden />
-        <div className="hero-crest-wrap" aria-hidden><HeroCrest /></div>
+        {/* crest sits above aurora, below content */}
+        <div className="hero-crest-layer" aria-hidden>
+          <HeroCrest />
+        </div>
 
-        <div className="grid grid-cols-12 items-center gap-6">
+        {/* content above crest */}
+        <div className="relative z-[2] grid grid-cols-12 items-center gap-6">
           {/* Left: text */}
           <div className="col-span-12 md:col-span-7 pr-1 sm:pr-4">
             <AnimatedLetters
@@ -47,10 +51,12 @@ export default function HeroDeck() {
             />
 
             <div className="mt-3 flex items-center gap-2">
-              <Code2 size={16} className="shrink-0 text-[color:var(--acc-gold)] translate-y-[1px]" aria-hidden="true" />
+              {/* smaller < > icon */}
+              <Code2 size={14} className="shrink-0 text-[color:var(--acc-gold)] translate-y-[1px]" aria-hidden="true" />
               <div className="font-extrabold tracking-wide text-[color:var(--acc-gold)]">{role}</div>
             </div>
 
+            {/* beautiful tagline */}
             <p className="hero-copy-min hero-copy-beauty mt-4 max-w-[50ch]">
               {bio}
             </p>
@@ -61,6 +67,7 @@ export default function HeroDeck() {
                   <span>Open Chat</span>
                   <MessageSquare className="ico" aria-hidden="true" />
                 </a>
+                {/* subtle pointer */}
                 <span className="hand-cursor" aria-hidden="true">👈</span>
               </span>
             </div>
