@@ -1974,3 +1974,38 @@ html, body { overflow-x: clip; }
   padding:.08rem .35rem; border-radius:.35rem; color:#cde6ff;
 }
 .md-prose a{ color:#93c5fd; text-underline-offset:3px; }
+
+/* Header icon buttons (small, beautiful) */
+.icon-btn{
+  width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;
+  border-radius:9999px;border:1px solid rgba(255,255,255,.14);
+  background: linear-gradient(180deg, rgba(15,23,42,.75), rgba(15,23,42,.9));
+  color:#e2e8f0; box-shadow: 0 6px 16px rgba(2,6,23,.6), inset 0 1px 0 rgba(255,255,255,.06);
+  transition: transform .12s ease, box-shadow .2s ease;
+}
+.icon-btn:hover{ transform: translateY(-1px); box-shadow: 0 9px 22px rgba(2,6,23,.65), inset 0 1px 0 rgba(255,255,255,.08) }
+.icon-btn.ghost{ background: rgba(15,23,42,.55) }
+
+/* Quick-prompts as simple collapsible drop-ins */
+.qp-list{ display:block; margin-top:.2rem; }
+.qp{ border:1px solid rgba(255,255,255,.1); border-radius:14px; background:rgba(15,23,42,.6); }
+.qp + .qp, .qp-list li + li{ margin-top:.55rem; }
+.qp > summary{
+  list-style:none; cursor:pointer; padding:.65rem .8rem; display:flex; align-items:center; justify-content:space-between; gap:.6rem;
+  color:#e2e8f0; user-select:none;
+}
+.qp > summary::-webkit-details-marker{ display:none }
+.qp .chev{ transition: transform .15s ease; opacity:.8 }
+.qp[open] .chev{ transform: rotate(180deg) }
+
+/* Keep breathing space tidy on small screens */
+.chat-card{ padding: clamp(16px, 3.4vw, 26px); }
+.bubble{ max-width: 88%; }
+
+/* Avatar */
+.ai-avatar{
+  width: 28px; height: 28px; border-radius: 9999px; object-fit: cover;
+  border: 1px solid rgba(255,255,255,.18); box-shadow: 0 6px 14px rgba(2,6,23,.6);
+}
+
+/* Markdown already configured (bold, lists, links) */

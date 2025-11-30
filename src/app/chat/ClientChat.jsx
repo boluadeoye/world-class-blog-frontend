@@ -2,12 +2,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { Mail, Trash2, ChevronDown } from "lucide-react";
 
-const SUGGESTS = [
+const PROMPTS = [
   "What does Boluwatife build?",
   "Show recent projects.",
   "How do we start a website project?",
   "What’s your mobile performance approach?",
+  "Where can I read his best articles?",
 ];
 
 function useDurableHistory(key){
@@ -19,11 +21,7 @@ function useDurableHistory(key){
       return Array.isArray(v) ? v : [];
     } catch { return []; }
   });
-  // persist on every change
-  useEffect(() => {
-    try { localStorage.setItem(key, JSON.stringify(value)); } catch {}
-  }, [key, value]);
-  // sync across tabs
+  useEffect(() => { try { localStorage.setItem(key, JSON.stringify(value)); } catch {} }, [key, value]);
   useEffect(() => {
     const onStorage = (e) => {
       if (e.key === key && e.newValue) {
@@ -49,10 +47,10 @@ export default function ClientChat(){
   const site = (process.env.NEXT_PUBLIC_SITE_URL || "https://boluadeoye.com.ng").replace(/\/+$/,'');
   const email = process.env.NEXT_PUBLIC_CONTACT_EMAIL || "boluadeoye97@gmail.com";
 
-  // Free, non-personal avatar (DiceBear)
+  // Generated avatar (not your photo)
   const avatar = useMemo(() => {
     const seed = encodeURIComponent((process.env.NEXT_PUBLIC_DISPLAY_NAME || "boluwatife") + "-pa");
-    return `https://api.dicebear.com/9.x/bottts-neutral/svg?seed=${seed}&size=80&radius=50&backgroundType=gradientLinear`;
+    return `https://api.dicebear.com/9.x/bottts-neutral/svg?seed=${seed}&size=64&radius=50&backgroundType=gradientLinear`;
   }, []);
 
   const greeting = `Hi, I'm Boluwatife's personal assistant. How may we help you today?`;
@@ -100,26 +98,35 @@ ${transcript(messages)}
     setMessages([]);
   }
 
+  // Quick prompts as "collapsible drop-ins": summary row with chevron.
+  // We trigger ask() when summary is tapped; we briefly open/close for the drop effect.
+  function promptClick(e, p){
+    e.preventDefault();
+    const details = e.currentTarget.closest("details");
+    if (details) { details.open = true; setTimeout(()=>{ details.open = false; }, 220); }
+    ask(p);
+  }
+
   return (
     <main className="min-h-dvh bg-slate-950 text-slate-200 p-4">
-      <div className="max-w-3xl mx-auto space-y-5">
-        <section className="chat-card space-y-5">
-          <header className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
+      <div className="max-w-3xl mx-auto">
+        <section className="chat-card space-y-6">
+          <header className="flex items-start justify-between gap-3">
+            <div className="flex items-start gap-3">
               <img src={avatar} alt="Assistant avatar" className="ai-avatar" />
               <div>
-                <h1 className="text-2xl font-bold leading-tight">Open Chat</h1>
-                <p className="text-sm text-slate-400">
+                <h1 className="text-xl font-extrabold leading-tight">Open Chat</h1>
+                <p className="text-sm text-slate-400 mt-1">
                   I’m Boluwatife’s personal assistant. Ask about his work, projects, or how to start.
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <button onClick={sendToEmail} className="btn-email-pill" type="button" title="Send summary to email">
-                Send to Email
+            <div className="flex items-center gap-2 pt-1">
+              <button onClick={sendToEmail} className="icon-btn" type="button" title="Send to Email" aria-label="Send to Email">
+                <Mail size={16} />
               </button>
-              <button onClick={clearSession} className="btn-ghost-small" type="button" title="Clear conversation">
-                Clear
+              <button onClick={clearSession} className="icon-btn ghost" type="button" title="Clear conversation" aria-label="Clear conversation">
+                <Trash2 size={16} />
               </button>
             </div>
           </header>
@@ -131,11 +138,19 @@ ${transcript(messages)}
                   {greeting}
                 </ReactMarkdown>
               </div>
-              <div className="chip-grid">
-                {SUGGESTS.map((s,i)=>(
-                  <button key={i} className="chip" onClick={()=>ask(s)}>{s}</button>
+
+              <ul className="qp-list">
+                {PROMPTS.map((p,i)=>(
+                  <li key={i}>
+                    <details className="qp">
+                      <summary onClick={(e)=>promptClick(e,p)}>
+                        <span>{p}</span>
+                        <ChevronDown className="chev" size={16}/>
+                      </summary>
+                    </details>
+                  </li>
                 ))}
-              </div>
+              </ul>
             </>
           )}
 
