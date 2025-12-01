@@ -3,32 +3,15 @@
 
 const first = (...vals) => vals.find(v => typeof v === "string" && v.trim().length > 0) || "";
 
-/* Robust cover extraction:
-   - meta.cover
-   - hero/og/cover fields
-   - first Markdown image inside `content`
-   - first <img src> inside `content_html`
-   - EditorJS image in `content` or `content_editorjs`
-*/
+/* Cover extraction: meta.cover → hero/og/cover* → first Markdown image → HTML <img> → EditorJS image */
 function coverOf(p) {
   const direct = first(
     p?.meta?.cover,
-    p?.hero_image?.url,
-    p?.heroImage?.url,
-    p?.og_image,
-    p?.ogImage,
-    p?.seo?.og_image,
-    p?.seo?.ogImage,
-    p?.seo?.openGraph?.image,
-    p?.cover?.url,
-    p?.cover_url,
-    p?.coverUrl,
-    p?.image_url,
-    p?.imageUrl,
-    p?.image,
-    p?.thumbnail,
-    p?.banner?.url,
-    p?.banner_image?.url
+    p?.hero_image?.url, p?.heroImage?.url,
+    p?.og_image, p?.ogImage, p?.seo?.og_image, p?.seo?.ogImage, p?.seo?.openGraph?.image,
+    p?.cover?.url, p?.cover_url, p?.coverUrl,
+    p?.image_url, p?.imageUrl, p?.image,
+    p?.thumbnail, p?.banner?.url, p?.banner_image?.url
   );
   if (direct) return direct;
 
@@ -63,36 +46,20 @@ function coverOf(p) {
   return "";
 }
 
-function toTitle(s) {
-  if (!s) return "";
-  return s.charAt(0).toUpperCase() + s.slice(1);
-}
+function toTitle(s){ return s ? s.charAt(0).toUpperCase() + s.slice(1) : ""; }
 
-/* Category extraction:
-   - meta.category
-   - category (object or string)
-   - categories[0]
-   - tags fallback
-*/
+/* Category: prefer meta.category, then category object/string, then categories[0], then tags */
 function catOf(p) {
-  const known = ["health","finance","technology","education","others"];
   const primary =
     p?.meta?.category ||
     (typeof p?.category === "string" ? p.category : (p?.category?.name || p?.category?.title || p?.category?.slug)) ||
     (Array.isArray(p?.categories) && (p.categories[0]?.name || p.categories[0]?.title || p.categories[0]?.slug)) ||
     "";
-
-  let c = String(primary || "").trim();
-  if (c) {
-    const low = c.toLowerCase();
-    if (known.includes(low)) return toTitle(low);
-    return toTitle(c); // show provided category even if custom
-  }
-
+  if (primary) return toTitle(String(primary));
+  const known = ["health","finance","technology","education","others"];
   const tags = Array.isArray(p?.tags) ? p.tags.map(t => String(t).toLowerCase()) : [];
   const hit = tags.find(t => known.includes(t));
   if (hit) return toTitle(hit);
-
   return "Other";
 }
 
@@ -106,19 +73,22 @@ function hrefOf(p) {
   return slug ? `/post/${slug}` : "#";
 }
 
+const FALLBACK_IMG = "https://images.unsplash.com/photo-1503264116251-35a269479413?auto=format&fit=crop&w=1600&q=80";
+
 export default function LuxLatest({ posts = [] }) {
   const items = (posts || []).slice(0, 3);
   if (!items.length) return null;
 
   return (
     <section className="mt-8 sm:mt-10">
-      {/* Keep only 'Latest Posts' + small Browse on the right */}
+      {/* Keep only 'Latest Posts' + small Browse on the right (moderate, nudged) */}
       <div className="flex items-center justify-between mb-3 sm:mb-4">
         <div className="section-eyebrow tracking-[.22em] text-slate-400">Latest Posts</div>
-        <a href="/articles" className="btn-beam-gold btn-xs mr-1">Browse →</a>
+        <a href="/articles" className="btn-beam-gold btn-xs mr-2">Browse →</a>
       </div>
 
-      <div className="space-y-4">
+      {/* Narrow cards wrapper; height stays intact (16:9) */}
+      <div className="lux-list">
         {items.map((p, i) => {
           const href = hrefOf(p);
           const title = p?.title || "Untitled";
@@ -129,18 +99,15 @@ export default function LuxLatest({ posts = [] }) {
           return (
             <a key={i} href={href} className="lux-card group">
               <div className="lux-media">
-                {img ? (
-                  <img
-                    src={img}
-                    alt={title}
-                    className="lux-img"
-                    loading={i === 0 ? "eager" : "lazy"}
-                    decoding="async"
-                    referrerPolicy="no-referrer"
-                  />
-                ) : (
-                  <div className="lux-img lux-img-fallback" />
-                )}
+                <img
+                  src={img || FALLBACK_IMG}
+                  alt={title}
+                  className="lux-img"
+                  loading={i === 0 ? "eager" : "lazy"}
+                  decoding="async"
+                  referrerPolicy="no-referrer"
+                  onError={(e)=>{ e.currentTarget.src = FALLBACK_IMG; }}
+                />
                 <div className="lux-media-overlay" />
                 <div className="lux-meta">
                   <span className="lux-chip">{cat}</span>
