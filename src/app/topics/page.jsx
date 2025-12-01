@@ -1,4 +1,4 @@
-import { getPublicPosts } from "../../lib/api";
+import { getLatestPosts } from "../../lib/api";
 import Link from "next/link";
 
 // Category normalization (fixes "Other" bug)
@@ -32,14 +32,14 @@ function descFor(cat){
 }
 
 export default async function Page(){
-  const posts = await getPublicPosts().catch(()=>[]);
+  // Pull many posts to categorize (not the featured-only feed)
+  const posts = await getLatestPosts(200).catch(()=>[]);
   const byCat = new Map([["Health",[]],["Finance",[]],["Technology",[]],["Education",[]],["Other",[]]]);
-  (posts||[]).forEach(p=>{
+  (Array.isArray(posts) ? posts : []).forEach(p=>{
     const cat = normalizeCategory(p);
     if (!byCat.has(cat)) byCat.set(cat, []);
     byCat.get(cat).push({ id: p?.id || p?.slug, slug: p?.slug, title: p?.title });
   });
-
   const cats = Array.from(byCat.keys());
 
   return (
@@ -48,8 +48,7 @@ export default async function Page(){
       <div className="max-w-3xl mx-auto mb-6">
         <form action="/articles" className="search-lux" role="search">
           <input
-            name="q"
-            type="search"
+            name="q" type="search"
             placeholder="Search posts by title, topic, or keyword…"
             className="search-input-lux"
             aria-label="Search posts"
@@ -73,11 +72,9 @@ export default async function Page(){
 
               {list.length > 0 && (
                 <ul className="mt-3 grid gap-2">
-                  {list.slice(0,5).map(p=>(
+                  {list.slice(0,12).map(p=>(
                     <li key={p.id}>
-                      <Link href={`/post/${p.slug}`} className="topic-link">
-                        {p.title}
-                      </Link>
+                      <Link href={`/post/${p.slug}`} className="topic-link">{p.title}</Link>
                     </li>
                   ))}
                 </ul>

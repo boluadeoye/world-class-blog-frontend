@@ -1,8 +1,20 @@
 // src/components/public/ShareBar.jsx
 "use client";
 
+function primarySite(){
+  const env = (process.env.NEXT_PUBLIC_SITE_URL || "").trim().replace(/\/+$/,"");
+  if (!env) return "https://boluadeoye.com.ng";
+  try {
+    const h = new URL(env.startsWith("http")? env : `https://${env}`).hostname;
+    if (h.endsWith("vercel.app")) return "https://boluadeoye.com.ng";
+    return env.startsWith("http") ? env : `https://${env}`;
+  } catch {
+    return "https://boluadeoye.com.ng";
+  }
+}
+
 export default function ShareBar({ url, title }) {
-  const site = process.env.NEXT_PUBLIC_SITE_URL || "https://boluadeoye.com.ng";
+  const site = primarySite();
   const canonical = url && url.startsWith("http") ? url : `${site}${url || ""}`;
   const encUrl = encodeURIComponent(canonical);
   const encTitle = encodeURIComponent(title || "Check this out");

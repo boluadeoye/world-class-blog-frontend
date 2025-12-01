@@ -3,7 +3,7 @@
 
 const first = (...vals) => vals.find(v => typeof v === "string" && v.trim().length > 0) || "";
 
-/* Cover extraction: meta.cover → hero/og/cover* → first Markdown image → HTML <img> → EditorJS image */
+/* Robust cover: meta.cover → hero/og/cover → first markdown img → html <img> → EditorJS image */
 function coverOf(p) {
   const direct = first(
     p?.meta?.cover,
@@ -15,19 +15,14 @@ function coverOf(p) {
   );
   if (direct) return direct;
 
-  // Markdown content: ![alt](url)
   if (typeof p?.content === "string") {
     const m = p.content.match(/!\[[^\]]*\]\((https?:\/\/[^\s)]+)\)/i);
     if (m?.[1]) return m[1];
   }
-
-  // HTML: <img src="...">
-  if (typeof p?.content_html === "string") {
+  if (typeof p?.content_html === "string"){
     const m2 = p.content_html.match(/<img[^>]+src=["']([^"']+)["']/i);
     if (m2?.[1]) return m2[1];
   }
-
-  // EditorJS inside content/content_editorjs
   try {
     const ej = typeof p?.content === "string" ? JSON.parse(p.content) : p?.content;
     const blocks = Array.isArray(ej?.blocks) ? ej.blocks : [];
@@ -42,7 +37,6 @@ function coverOf(p) {
     const u2 = img2?.data?.file?.url || img2?.data?.url;
     if (u2) return u2;
   } catch {}
-
   return "";
 }
 
@@ -53,7 +47,7 @@ function catOf(p) {
   const primary =
     p?.meta?.category ||
     (typeof p?.category === "string" ? p.category : (p?.category?.name || p?.category?.title || p?.category?.slug)) ||
-    (Array.isArray(p?.categories) && (p.categories[0]?.name || p.categories[0]?.title || p.categories[0]?.slug)) ||
+    (Array.isArray(p?.categories) && (p?.categories[0]?.name || p?.categories[0]?.title || p?.categories[0]?.slug)) ||
     "";
   if (primary) return toTitle(String(primary));
   const known = ["health","finance","technology","education","others"];
@@ -81,18 +75,17 @@ export default function LuxLatest({ posts = [] }) {
 
   return (
     <section className="mt-8 sm:mt-10">
-      {/* Keep only 'Latest Posts' + small Browse on the right (moderate, nudged) */}
+      {/* Beautiful header + small browse on the right */}
       <div className="flex items-center justify-between mb-3 sm:mb-4">
-        <div className="section-eyebrow tracking-[.22em] text-slate-400">Latest Posts</div>
+        <h2 className="lux-h2">Latest Posts</h2>
         <a href="/articles" className="btn-beam-gold btn-xs mr-2">Browse →</a>
       </div>
 
-      {/* Narrow cards wrapper; height stays intact (16:9) */}
       <div className="lux-list">
         {items.map((p, i) => {
           const href = hrefOf(p);
           const title = p?.title || "Untitled";
-          const img = coverOf(p);
+          const img = coverOf(p) || FALLBACK_IMG;
           const cat = catOf(p);
           const date = dateOf(p);
 
@@ -100,7 +93,7 @@ export default function LuxLatest({ posts = [] }) {
             <a key={i} href={href} className="lux-card group">
               <div className="lux-media">
                 <img
-                  src={img || FALLBACK_IMG}
+                  src={img}
                   alt={title}
                   className="lux-img"
                   loading={i === 0 ? "eager" : "lazy"}

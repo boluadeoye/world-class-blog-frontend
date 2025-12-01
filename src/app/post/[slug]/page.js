@@ -9,15 +9,23 @@ import Comments from "../../../components/public/Comments";
 import ReadNext from "../../../components/public/ReadNext";
 import TimerIsland from "../../../components/post/TimerIsland";
 
-/* cover extraction similar to LuxLatest */
 const first = (...vals) => vals.find(v => typeof v === "string" && v.trim().length > 0) || "";
+function siteBase(){
+  const env = (process.env.NEXT_PUBLIC_SITE_URL || "").trim().replace(/\/+$/,"");
+  if (!env) return "https://boluadeoye.com.ng";
+  try {
+    const h = new URL(env.startsWith("http")? env : `https://${env}`).hostname;
+    if (h.endsWith("vercel.app")) return "https://boluadeoye.com.ng";
+    return env.startsWith("http") ? env : `https://${env}`;
+  } catch {
+    return "https://boluadeoye.com.ng";
+  }
+}
 function coverOf(p){
   const direct = first(
     p?.meta?.cover, p?.hero_image?.url, p?.og_image, p?.seo?.og_image,
     p?.cover?.url, p?.cover_url, p?.image_url, p?.image, p?.thumbnail, p?.banner?.url
-  );
-  if (direct) return direct;
-
+  ); if (direct) return direct;
   if (typeof p?.content === "string"){
     const m = p.content.match(/!\[[^\]]*\]\((https?:\/\/[^\s)]+)\)/i);
     if (m?.[1]) return m[1];
@@ -35,12 +43,11 @@ function coverOf(p){
   return "";
 }
 
-/* Dynamic metadata for social previews */
 export async function generateMetadata({ params }){
   const { slug } = await params;
   const post = await getPostBySlug(slug);
   if (!post) return {};
-  const site = process.env.NEXT_PUBLIC_SITE_URL || "https://boluadeoye.com.ng";
+  const site = siteBase();
   const canonical = `${site}/post/${post.slug}`;
   const title = post.title || "Post";
   const desc = (post.excerpt || "").trim() ||
@@ -72,9 +79,7 @@ function computeReadingTime(content) {
     } else if (typeof content === "string") {
       text = content;
     }
-  } catch {
-    text = String(content);
-  }
+  } catch { text = String(content); }
   const words = text.trim() ? text.trim().split(/\s+/).length : 0;
   return Math.max(1, Math.round(words / 200));
 }
@@ -88,26 +93,24 @@ export default async function PostPage({ params }) {
   const created = dateRaw ? new Date(dateRaw).toLocaleDateString() : "";
   const readingMinutes = computeReadingTime(post.content);
 
-  const site = process.env.NEXT_PUBLIC_SITE_URL || "https://boluadeoye.com.ng";
+  const site = siteBase();
   const url = `${site}/post/${post.slug}`;
 
   let all = [];
   try { all = await getPublicPosts(); } catch {}
-  const sameCat = String(post.category || post?.meta?.category || "").trim().toLowerCase();
+  const sameCat = String(post?.meta?.category || post?.category || "").trim().toLowerCase();
   const rec = (all || [])
     .filter((p) => (p.slug || p.id) && (p.slug !== post.slug))
     .sort((a, b) => new Date(b.created_at || b.createdAt) - new Date(a.created_at || a.createdAt));
-  const preferred = sameCat ? rec.filter((p) => String(p.category || p?.meta?.category || "").trim().toLowerCase() === sameCat) : [];
+  const preferred = sameCat ? rec.filter((p) => String(p?.meta?.category || p?.category || "").trim().toLowerCase() === sameCat) : [];
   const fallback = rec.filter((p) => !preferred.includes(p));
   const recommended = [...preferred.slice(0, 3), ...fallback].slice(0, 3);
 
   return (
     <div className="post-shell mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
       <TimerIsland containerSelector="#post-body" estimated={readingMinutes} />
-
       <Link href="/" className="mb-6 inline-flex items-center gap-2 text-xs text-slate-300 hover:text-sky-300">
-        <ArrowLeft className="h-3 w-3" />
-        <span>Back to home</span>
+        <ArrowLeft className="h-3 w-3" /><span>Back to home</span>
       </Link>
 
       <article className="article-card space-y-6">
@@ -116,42 +119,24 @@ export default async function PostPage({ params }) {
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
             <span>World‑Class Blog Article</span>
           </div>
-          <h1 className="font-display text-2xl font-semibold tracking-tight text-slate-50 sm:text-3xl lg:text-4xl">
-            {post.title}
-          </h1>
+          <h1 className="font-display text-2xl font-semibold tracking-tight text-slate-50 sm:text-3xl lg:text-4xl">{post.title}</h1>
           <div className="flex flex-wrap items-center gap-3 text-[11px] text-slate-400">
-            {created && (
-              <div className="flex items-center gap-1.5">
-                <Clock className="h-3.5 w-3.5" />
-                <span>{created}</span>
-              </div>
-            )}
-            <span>•</span>
-            <span>{readingMinutes} min read</span>
+            {created && (<div className="flex items-center gap-1.5"><Clock className="h-3.5 w-3.5" /><span>{created}</span></div>)}
+            <span>•</span><span>{readingMinutes} min read</span>
           </div>
         </header>
 
-        <section id="post-body" className="pt-2">
-          <PostRenderer data={post.content} />
-        </section>
+        <section id="post-body" className="pt-2"><PostRenderer data={post.content} /></section>
 
         <section className="space-y-3 pt-4 border-t border-slate-800">
-          <div className="flex flex-wrap items-center gap-3">
-            <LikeButton postId={post.id} />
-          </div>
-          <div className="share-row" data-share>
-            <ShareBar url={url} title={post.title} />
-          </div>
+          <div className="flex flex-wrap items-center gap-3"><LikeButton postId={post.id} /></div>
+          <div className="share-row" data-share><ShareBar url={url} title={post.title} /></div>
         </section>
 
-        <section id="comments" className="comments mt-6">
-          <Comments postId={post.id} />
-        </section>
+        <section id="comments" className="comments mt-6"><Comments postId={post.id} /></section>
       </article>
 
-      <section className="article-related">
-        <ReadNext posts={recommended} />
-      </section>
+      <section className="article-related"><ReadNext posts={recommended} /></section>
     </div>
   );
 }
