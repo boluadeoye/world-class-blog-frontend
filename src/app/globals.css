@@ -2893,3 +2893,29 @@ header a[href="/projects"], nav a[href="/projects"]{ display:none !important; }
 .lux-meta{ position:absolute; z-index:2; left:14px; right:14px; bottom:12px;
   display:flex; align-items:center; justify-content:space-between; gap:.6rem;
 }
+
+/* === LuxLatest compact overrides === */
+.lux-card{ border-radius:16px; }
+.lux-media{ aspect-ratio: 21/9; } /* shorter banner than 16/9 */
+.lux-body{ padding: 10px 12px 12px; }
+
+.lux-title.sm{
+  font-size: clamp(.92rem, 2.4vw, 1.18rem);
+  line-height: 1.16;
+  letter-spacing: -0.01em;
+}
+
+.lux-chip{
+  padding:.22rem .5rem;
+  font-size:.70rem;
+  font-weight:800;
+}
+.lux-date{ font-size:.78rem; }
+
+.lux-underline{ height:2px; margin-top:8px; transform: scaleX(.06); }
+
+/* Slightly smaller border/shadow to feel less bulky */
+.lux-card{
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 12px 40px rgba(2,6,23,.68);
+  border-width: 1.5px;
+}

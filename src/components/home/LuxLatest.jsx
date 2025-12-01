@@ -118,7 +118,7 @@ export default function LuxLatest({ posts = [] }) {
         <a href="/articles" className="btn-beam-gold btn-xs mr-1">Browse →</a>
       </div>
 
-      <div className="space-y-5">
+      <div className="space-y-4">
         {items.map((p, i) => {
           const href = hrefOf(p);
           const title = p?.title || "Untitled";
