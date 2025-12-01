@@ -8,9 +8,76 @@ import ShareBar from "../../../components/public/ShareBar";
 import Comments from "../../../components/public/Comments";
 import ReadNext from "../../../components/public/ReadNext";
 import TimerIsland from "../../../components/post/TimerIsland";
-import { Lora } from "next/font/google";
 
-const lora = Lora({ subsets: ["latin"], weight: ["400","600","700"], variable: "--font-article" });
+/* cover extraction similar to LuxLatest */
+const first = (...vals) => vals.find(v => typeof v === "string" && v.trim().length > 0) || "";
+function coverOf(p){
+  const direct = first(
+    p?.meta?.cover, p?.hero_image?.url, p?.og_image, p?.seo?.og_image,
+    p?.cover?.url, p?.cover_url, p?.image_url, p?.image, p?.thumbnail, p?.banner?.url
+  );
+  if (direct) return direct;
+
+  if (typeof p?.content === "string"){
+    const m = p.content.match(/!\[[^\]]*\]\((https?:\/\/[^\s)]+)\)/i);
+    if (m?.[1]) return m[1];
+  }
+  if (typeof p?.content_html === "string"){
+    const m2 = p.content_html.match(/<img[^>]+src=["']([^"']+)["']/i);
+    if (m2?.[1]) return m2[1];
+  }
+  try {
+    const ej = typeof p?.content === "string" ? JSON.parse(p.content) : p?.content;
+    const blocks = Array.isArray(ej?.blocks) ? ej.blocks : [];
+    const img = blocks.find(b => b?.type === "image" && (b?.data?.file?.url || b?.data?.url));
+    const u = img?.data?.file?.url || img?.data?.url; if (u) return u;
+  } catch {}
+  return "";
+}
+
+/* Dynamic metadata for social previews */
+export async function generateMetadata({ params }){
+  const { slug } = await params;
+  const post = await getPostBySlug(slug);
+  if (!post) return {};
+  const site = process.env.NEXT_PUBLIC_SITE_URL || "https://boluadeoye.com.ng";
+  const canonical = `${site}/post/${post.slug}`;
+  const title = post.title || "Post";
+  const desc = (post.excerpt || "").trim() ||
+    (typeof post.content === "string" ? post.content.replace(/[#*_`>!\[\]\(\)]/g,"").slice(0,160) : "") ||
+    "Read this article on boluadeoye.com.ng";
+  const image = coverOf(post) || `${site}/og-default.jpg`;
+
+  return {
+    title,
+    description: desc,
+    alternates: { canonical },
+    openGraph: {
+      title, description: desc, url: canonical, type: "article",
+      images: [{ url: image, width: 1200, height: 630 }]
+    },
+    twitter: {
+      card: "summary_large_image", title, description: desc, images: [image]
+    }
+  };
+}
+
+function computeReadingTime(content) {
+  if (!content) return 3;
+  let text = "";
+  try {
+    const parsed = typeof content === "string" ? JSON.parse(content) : content;
+    if (parsed && Array.isArray(parsed.blocks)) {
+      text = parsed.blocks.map((b) => (b.data && (b.data.text || b.data.caption)) || "").join(" ");
+    } else if (typeof content === "string") {
+      text = content;
+    }
+  } catch {
+    text = String(content);
+  }
+  const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+  return Math.max(1, Math.round(words / 200));
+}
 
 export default async function PostPage({ params }) {
   const { slug } = await params;
@@ -19,25 +86,23 @@ export default async function PostPage({ params }) {
 
   const dateRaw = post.created_at || post.createdAt;
   const created = dateRaw ? new Date(dateRaw).toLocaleDateString() : "";
+  const readingMinutes = computeReadingTime(post.content);
 
-  const manualMinutes = getManualReadMinutes(post);
-  const readingMinutes = manualMinutes ?? computeReadingTime(post.content);
-
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-  const url = `${baseUrl}/post/${post.slug}`;
+  const site = process.env.NEXT_PUBLIC_SITE_URL || "https://boluadeoye.com.ng";
+  const url = `${site}/post/${post.slug}`;
 
   let all = [];
   try { all = await getPublicPosts(); } catch {}
-  const sameCat = String(post.category || "").trim().toLowerCase();
+  const sameCat = String(post.category || post?.meta?.category || "").trim().toLowerCase();
   const rec = (all || [])
     .filter((p) => (p.slug || p.id) && (p.slug !== post.slug))
     .sort((a, b) => new Date(b.created_at || b.createdAt) - new Date(a.created_at || a.createdAt));
-  const preferred = sameCat ? rec.filter((p) => String(p.category || "").trim().toLowerCase() === sameCat) : [];
+  const preferred = sameCat ? rec.filter((p) => String(p.category || p?.meta?.category || "").trim().toLowerCase() === sameCat) : [];
   const fallback = rec.filter((p) => !preferred.includes(p));
   const recommended = [...preferred.slice(0, 3), ...fallback].slice(0, 3);
 
   return (
-    <div className={`${lora.variable} post-shell mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12`}>
+    <div className="post-shell mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
       <TimerIsland containerSelector="#post-body" estimated={readingMinutes} />
 
       <Link href="/" className="mb-6 inline-flex items-center gap-2 text-xs text-slate-300 hover:text-sky-300">
@@ -51,11 +116,9 @@ export default async function PostPage({ params }) {
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
             <span>World‑Class Blog Article</span>
           </div>
-
           <h1 className="font-display text-2xl font-semibold tracking-tight text-slate-50 sm:text-3xl lg:text-4xl">
             {post.title}
           </h1>
-
           <div className="flex flex-wrap items-center gap-3 text-[11px] text-slate-400">
             {created && (
               <div className="flex items-center gap-1.5">
@@ -91,34 +154,4 @@ export default async function PostPage({ params }) {
       </section>
     </div>
   );
-}
-
-function getManualReadMinutes(post){
-  try{
-    const meta = post.meta || post.metadata || {};
-    const cands = [
-      post.read_minutes, post.read_time, post.readTime, post.estimated_read_time, post.estimatedReadTime,
-      meta.read_minutes, meta.read_time, meta.readTime, meta.readingMinutes, meta.estimatedReadTime
-    ];
-    for(const v of cands){
-      const n = Number(v);
-      if(Number.isFinite(n) && n > 0) return Math.round(n);
-    }
-  }catch {}
-  return null;
-}
-
-function computeReadingTime(content) {
-  if (!content) return 3;
-  let text = "";
-  try {
-    const parsed = typeof content === "string" ? JSON.parse(content) : content;
-    if (parsed && Array.isArray(parsed.blocks)) {
-      text = parsed.blocks.map((b) => (b.data && (b.data.text || b.data.caption)) || "").join(" ");
-    } else if (typeof content === "string") {
-      text = content;
-    }
-  } catch { text = String(content); }
-  const words = text.trim() ? text.trim().split(/\s+/).length : 0;
-  return Math.max(1, Math.round(words / 200));
 }
