@@ -13,17 +13,28 @@ export default function CoverUpload({ onChange }) {
     if (!file) return;
     setBusy(true);
     try {
-      const fd = new FormData();
-      fd.append("file", file);
+      // 1) ask API for a signed upload URL
+      const r = await fetch("/api/upload", {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({ filename: file.name, type: file.type || "image/jpeg" })
+      });
+      const j = await r.json().catch(()=>({}));
+      if (!r.ok || !j?.uploadUrl) throw new Error(j?.error || "Failed to get upload URL");
 
-      const r = await fetch("/api/upload", { method: "POST", body: fd });
-      if (!r.ok) throw new Error("Upload failed");
-      const data = await r.json();
+      // 2) upload the file to Blob (direct)
+      const up = await fetch(j.uploadUrl, {
+        method: "POST",
+        headers: { "Content-Type": file.type || "image/jpeg", "x-vercel-filename": file.name },
+        body: file
+      });
+      const data = await up.json().catch(()=>({}));
+      if (!up.ok || !data?.url) throw new Error(data?.error || "Upload failed");
+
       setUrl(data.url);
       onChange?.(data.url);
     } catch (err) {
-      console.error(err);
-      alert("Upload failed");
+      alert(err.message || "Upload failed");
     } finally {
       setBusy(false);
     }
@@ -35,11 +46,7 @@ export default function CoverUpload({ onChange }) {
       <button type="button" className="btn-beam-gold btn-xs" onClick={pick} disabled={busy}>
         {busy ? "Uploading…" : "Upload Cover"}
       </button>
-      {url && (
-        <a href={url} target="_blank" rel="noreferrer" className="text-sky-300 text-xs underline">
-          Preview
-        </a>
-      )}
+      {url && <a href={url} target="_blank" rel="noreferrer" className="text-sky-300 text-xs underline">Preview</a>}
     </div>
   );
 }
