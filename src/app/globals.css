@@ -2995,3 +2995,37 @@ header a[href="/projects"], nav a[href="/projects"]{ display:none !important; }
   color:#eaf1fb; font-weight:700;
 }
 .topic-link:hover{ border-color: rgba(255,255,255,.18) }
+
+/* === Chat compact overrides === */
+.chat-card{ padding: 12px 14px; }
+.chat-input-row{ gap: .5rem; }
+.chat-input{ padding: .65rem .8rem; }
+.btn-send{ padding: .65rem .85rem; }
+
+.chat-card .bubble{
+  max-width: 78%;
+  padding: .7rem .9rem;
+  margin: 6px 0;
+  border-radius: 14px;
+}
+.chat-card .bubble.ai{
+  background: rgba(15,23,42,.78);
+  border: 1px solid rgba(255,255,255,.08);
+}
+.chat-card .bubble.user{
+  background: linear-gradient(180deg, rgba(56,189,248,.12), rgba(56,189,248,.08));
+  border: 1px solid rgba(56,189,248,.30);
+}
+
+/* Ensure streamed markdown text never renders “invisible” */
+.chat-card .md-prose{ color:#e6eef8; }
+.chat-card .md-prose strong{ color:#ffffff; }
+
+/* Mode chips smaller */
+.btn-xs{ padding:.34rem .6rem; font-size:.86rem; border-radius:9999px; }
+
+/* Suggestion chips smaller */
+.chip{ padding:.45rem .7rem; font-size:.86rem; border-radius:9999px; }
+
+/* Slightly tighter section overall */
+.main .chat-card h1{ margin-bottom: 2px; }
