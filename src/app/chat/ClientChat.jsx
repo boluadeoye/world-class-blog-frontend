@@ -39,15 +39,21 @@ export default function ClientChat(){
   const [mode,setMode] = useState("inquiry");
   const endRef = useRef(null);
 
-  const site = (process.env.NEXT_PUBLIC_SITE_URL || "https://boluadeoye.com.ng").replace(/\/+$/,'');
   const email = process.env.NEXT_PUBLIC_CONTACT_EMAIL || "boluadeoye97@gmail.com";
-
-  const greeting = useMemo(
-    ()=>`Hi, I’m Boluwatife’s personal assistant. How can I help today?`,
-    []
-  );
+  const greeting = useMemo(()=>`Hi, I’m Boluwatife’s personal assistant. How can I help today?`,[]);
 
   useEffect(()=>{ endRef.current?.scrollIntoView({behavior:"smooth"}); },[messages,busy]);
+
+  async function fallbackComplete(history){
+    const r = await fetch("/api/chat/complete", {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({ messages: history, mode })
+    });
+    const j = await r.json().catch(()=>({}));
+    if (!r.ok || !j?.reply) throw new Error(j?.error || "Fallback failed");
+    return j.reply;
+  }
 
   async function streamAsk(prompt){
     if (busy) return;
@@ -59,21 +65,22 @@ export default function ClientChat(){
     setInput("");
     setBusy(true);
 
-    // create an empty assistant turn we’ll fill as deltas arrive
+    // create empty assistant turn to fill
     setMessages(prev => [...prev, { role:"assistant", content: "" }]);
 
+    let appended = false;
     try{
       const r = await fetch("/api/chat/stream", {
         method:"POST",
         headers:{ "Content-Type":"application/json", "Accept":"text/event-stream" },
         body: JSON.stringify({ messages: history, mode })
       });
-
-      if (!r.ok || !r.body) throw new Error("Network error");
+      if (!r.ok || !r.body) throw new Error("stream request failed");
 
       const reader = r.body.getReader();
       const decoder = new TextDecoder();
       let buffer = "";
+      let gotAny = false;
 
       while (true){
         const { done, value } = await reader.read();
@@ -88,24 +95,53 @@ export default function ClientChat(){
           if (!json) continue;
           try{
             const evt = JSON.parse(json);
-            if (evt.error){
-              throw new Error(evt.error);
-            }
+            if (evt.error) throw new Error(evt.error);
             if (evt.delta){
+              gotAny = true;
+              appended = true;
               setMessages(prev => {
                 const copy = prev.slice();
                 const last = copy[copy.length-1];
-                if (last?.role === "assistant") {
-                  last.content += evt.delta;
-                }
+                if (last?.role === "assistant") last.content += evt.delta;
                 return copy;
               });
             }
-          }catch{}
+          }catch(e){
+            throw e;
+          }
         }
       }
+
+      // if stream produced nothing, fallback
+      if (!gotAny) {
+        const reply = await fallbackComplete(history);
+        appended = true;
+        setMessages(prev => {
+          const copy = prev.slice();
+          const last = copy[copy.length-1];
+          if (last?.role === "assistant") last.content = reply;
+          return copy;
+        });
+      }
     }catch(e){
-      setMessages(prev => [...prev, { role:"assistant", content: "Sorry, I ran into a network issue." }]);
+      // fallback on any error
+      try{
+        const reply = await fallbackComplete(history);
+        appended = true;
+        setMessages(prev => {
+          const copy = prev.slice();
+          const last = copy[copy.length-1];
+          if (last?.role === "assistant") last.content = reply;
+          return copy;
+        });
+      }catch(e2){
+        setMessages(prev => {
+          const copy = prev.slice();
+          const last = copy[copy.length-1];
+          if (last?.role === "assistant") last.content = "Sorry, I ran into a network issue.";
+          return copy;
+        });
+      }
     }finally{
       setBusy(false);
     }
@@ -120,22 +156,15 @@ export default function ClientChat(){
           <header className="flex items-center justify-between gap-3">
             <div>
               <h1 className="text-xl font-bold">Open Chat</h1>
-              <p className="text-sm text-slate-400">I’m Boluwatife’s personal assistant. Ask about his work, tech, APIs, troubleshooting, or writing.</p>
+              <p className="text-sm text-slate-400">I’m Boluwatife’s PA. Ask about work, tech, APIs, troubleshooting, or writing.</p>
             </div>
-            <a href={`mailto:${email}`} className="icon-btn" title="Email">
-              <Mail size={16} />
-            </a>
+            <a href={`mailto:${email}`} className="icon-btn" title="Email"><Mail size={16} /></a>
           </header>
 
           {/* Modes */}
-          <div className="mt-3 flex flex-wrap gap-2">
+          <div className="mt-2 flex flex-wrap gap-2">
             {MODES.map(m => (
-              <button
-                key={m.key}
-                onClick={()=>setMode(m.key)}
-                className={`btn-xs ${mode===m.key ? 'btn-beam-gold' : 'btn-outline-lux'}`}
-                type="button"
-              >
+              <button key={m.key} onClick={()=>setMode(m.key)} className={`btn-xs ${mode===m.key ? 'btn-beam-gold' : 'btn-outline-lux'}`} type="button">
                 {m.label}
               </button>
             ))}
@@ -151,7 +180,7 @@ export default function ClientChat(){
           )}
 
           {/* Transcript */}
-          <div className="mt-4 space-y-3">
+          <div className="mt-3 space-y-2">
             {messages.map((m, i)=>(
               <div key={i} className={m.role === "user" ? "bubble user" : "bubble ai"}>
                 <div className="md-prose whitespace-pre-wrap">
@@ -159,21 +188,13 @@ export default function ClientChat(){
                 </div>
               </div>
             ))}
-            {busy && (
-              <div className="bubble ai"><div className="chat-typing"><span></span><span></span><span></span></div></div>
-            )}
+            {busy && <div className="bubble ai"><div className="chat-typing"><span></span><span></span><span></span></div></div>}
             <div ref={endRef} />
           </div>
 
           {/* Composer */}
           <form className="chat-input-row" onSubmit={onSubmit}>
-            <textarea
-              className="chat-input"
-              rows={1}
-              value={input}
-              onChange={(e)=>setInput(e.target.value)}
-              placeholder="Type your question…"
-            />
+            <textarea className="chat-input" rows={1} value={input} onChange={(e)=>setInput(e.target.value)} placeholder="Type your question…"/>
             <button disabled={busy || !input.trim()} className="btn-send" type="submit">Send</button>
           </form>
         </section>
