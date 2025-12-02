@@ -8,7 +8,6 @@ import PostForm from "../../../../components/admin/PostForm";
  * Edit Post page
  * - URL: /admin/editor/[id]
  */
-
 export default function EditPostPage() {
   const params = useParams();
   const router = useRouter();
@@ -30,20 +29,25 @@ export default function EditPostPage() {
       try {
         const res = await fetch(`${API_BASE}/posts/${id}`, {
           method: "GET",
-          credentials: "include"
+          credentials: "include",
         });
-
         if (!res.ok) {
           throw new Error(`Failed to fetch post (${res.status})`);
         }
 
         const data = await res.json();
+        const meta = data?.meta || {};
         // Ensure content is a string for PostForm / RichTextEditor
         setPost({
           id: data.id,
-          title: data.title,
-          slug: data.slug,
-          content: data.content || ""
+          title: data.title || "",
+          slug: data.slug || "",
+          content: data.content || "",
+          category: meta.category || data.category || "Other",
+          cover: meta.cover || "",
+          tags: Array.isArray(data.tags) ? data.tags : [],
+          published: typeof data.published === "boolean" ? data.published : true,
+          type: data.type || "article",
         });
       } catch (err) {
         setLoadError(String(err?.message || err));
@@ -61,26 +65,30 @@ export default function EditPostPage() {
     setSaveError("");
 
     try {
+      const body = {
+        title: (updated?.title ?? post.title) || "",
+        slug: (updated?.slug ?? post.slug) || "",
+        content: String(updated?.content ?? post.content ?? ""),
+        type: (updated?.type ?? post.type ?? "article"),
+        tags: Array.isArray(updated?.tags) ? updated.tags : post.tags || [],
+        meta: {
+          ...(updated?.category || post.category ? { category: updated?.category ?? post.category } : {}),
+          ...(updated?.cover || post.cover ? { cover: updated?.cover ?? post.cover } : {}),
+        },
+        published: typeof updated?.published === "boolean" ? updated.published : post.published ?? true,
+      };
+
       const res = await fetch(`${API_BASE}/posts/${id}`, {
         method: "PUT",
         credentials: "include",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          title: updated.title,
-          slug: updated.slug,
-          content: updated.content
-        })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
       });
 
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        const data = await res.text();
-        let msg = data;
-        try {
-          msg = JSON.parse(data)?.error || JSON.parse(data)?.message || data;
-        } catch {}
-        throw new Error(msg || `Failed to update post (${res.status})`);
+        const msg = data?.error || data?.message || `Failed to update post (${res.status})`;
+        throw new Error(msg);
       }
 
       router.push("/admin/dashboard");
