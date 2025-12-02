@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import CoverUpload from "../../../components/admin/CoverUpload";
 
 const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "https://project-blog-backend-beta.vercel.app/api").replace(/\/$/, "");
 
@@ -29,7 +30,6 @@ export default function Page() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [okMsg, setOk] = useState("");
-  const fileRef = useRef(null);
 
   // auto-generate slug until user edits it
   useMemo(() => {
@@ -37,35 +37,10 @@ export default function Page() {
   }, [title]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const allTags = useMemo(() => {
-    const base = tagsStr
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean);
+    const base = tagsStr.split(",").map((s) => s.trim()).filter(Boolean);
     if (featured && !base.includes("home-featured")) base.push("home-featured");
     return Array.from(new Set(base));
   }, [tagsStr, featured]);
-
-  async function uploadCover(file) {
-    if (!file) return;
-    try {
-      setError("");
-      setOk("");
-      const fname = `covers/${slug || toSlug(title) || Date.now()}.${(file.name.split(".").pop() || "jpg").toLowerCase()}`;
-      const res = await fetch(`${API_BASE}/upload?filename=${encodeURIComponent(fname)}`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": file.type || "image/jpeg" },
-        body: file,
-      });
-      if (!res.ok) throw new Error(`Upload failed (${res.status})`);
-      const data = await res.json();
-      if (!data?.url) throw new Error("No URL returned");
-      setCover(data.url);
-      setOk("Cover uploaded.");
-    } catch (e) {
-      setError(e.message || "Upload failed");
-    }
-  }
 
   async function save() {
     try {
@@ -121,16 +96,14 @@ export default function Page() {
             onChange={(e) => setTitle(e.target.value)}
           />
         </div>
+
         <div>
           <label className="adm-label">Slug</label>
           <input
             className="adm-input"
             placeholder="post-title-slug"
             value={slug}
-            onChange={(e) => {
-              setSlug(e.target.value);
-              setSlugEdited(true);
-            }}
+            onChange={(e) => { setSlug(e.target.value); setSlugEdited(true); }}
           />
         </div>
 
@@ -159,24 +132,15 @@ export default function Page() {
         </div>
 
         <div className="md:col-span-2">
-          <label className="adm-label">Cover image URL</label>
-          <div className="flex gap-2">
+          <label className="adm-label">Cover image</label>
+          <div className="flex gap-2 items-center">
             <input
               className="adm-input flex-1"
               placeholder="https://…/cover.jpg"
               value={cover}
               onChange={(e) => setCover(e.target.value)}
             />
-            <input
-              ref={fileRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(e) => uploadCover(e.target.files?.[0])}
-            />
-            <button className="adm-btn" onClick={() => fileRef.current?.click()}>
-              Upload
-            </button>
+            <CoverUpload onChange={(url)=>{ setCover(url); setError(""); setOk("Cover uploaded."); }} />
           </div>
           {cover ? (
             <div className="mt-2 overflow-hidden rounded-lg border border-slate-700/70">

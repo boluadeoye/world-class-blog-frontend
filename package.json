@@ -13,17 +13,18 @@
     "@editorjs/header": "^2.8.8",
     "@editorjs/image": "^2.10.3",
     "@editorjs/list": "^2.0.9",
+    "@next/swc-wasm-nodejs": "16.0.3",
     "@react-oauth/google": "^0.12.2",
     "@tailwindcss/typography": "^0.5.19",
     "@tanstack/react-query": "^5.90.9",
     "@tanstack/react-query-devtools": "^5.90.2",
+    "@vercel/blob": "^2.0.0",
     "lucide-react": "^0.553.0",
     "next": "16.0.3",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "react-markdown": "^10.1.0",
-    "remark-gfm": "^4.0.1",
-    "@next/swc-wasm-nodejs": "16.0.3"
+    "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.20",
