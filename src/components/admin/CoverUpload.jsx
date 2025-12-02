@@ -13,27 +13,16 @@ export default function CoverUpload({ onChange }) {
     if (!file) return;
     setBusy(true);
     try {
-      // (1) Ask API for signed upload URL
-      const r = await fetch("/api/upload", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ filename: file.name, type: file.type || "image/jpeg" })
-      });
-      if (!r.ok) throw new Error("failed to get upload url");
-      const { uploadUrl } = await r.json();
+      const fd = new FormData();
+      fd.append("file", file);
 
-      // (2) Upload direct to Blob
-      const up = await fetch(uploadUrl, {
-        method: "POST",
-        headers: { "Content-Type": file.type || "image/jpeg", "x-vercel-filename": file.name },
-        body: file
-      });
-      if (!up.ok) throw new Error("upload failed");
-      const data = await up.json(); // { url, pathname, ... }
+      const r = await fetch("/api/upload", { method: "POST", body: fd });
+      if (!r.ok) throw new Error("Upload failed");
+      const data = await r.json();
       setUrl(data.url);
       onChange?.(data.url);
-    } catch (e) {
-      console.error(e);
+    } catch (err) {
+      console.error(err);
       alert("Upload failed");
     } finally {
       setBusy(false);
