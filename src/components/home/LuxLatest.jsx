@@ -2,8 +2,9 @@
 "use client";
 
 const first = (...vals) => vals.find(v => typeof v === "string" && v.trim().length > 0) || "";
+const FALLBACK_IMG = "https://images.unsplash.com/photo-1503264116251-35a269479413?auto=format&fit=crop&w=1600&q=80";
+const isVideo = (p) => String(p?.type || "").toLowerCase() === "video" || !!(p?.meta?.youtubeUrl) || !!(p?.meta?.youtubeId);
 
-/* Robust cover: meta.cover → hero/og/cover → first markdown img → html <img> → EditorJS image */
 function coverOf(p) {
   const direct = first(
     p?.meta?.cover,
@@ -37,12 +38,11 @@ function coverOf(p) {
     const u2 = img2?.data?.file?.url || img2?.data?.url;
     if (u2) return u2;
   } catch {}
+
   return "";
 }
 
-function toTitle(s){ return s ? s.charAt(0).toUpperCase() + s.slice(1) : ""; }
-
-/* Category: prefer meta.category, then category object/string, then categories[0], then tags */
+const toTitle = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : "");
 function catOf(p) {
   const primary =
     p?.meta?.category ||
@@ -56,7 +56,6 @@ function catOf(p) {
   if (hit) return toTitle(hit);
   return "Other";
 }
-
 function dateOf(p) {
   const d = p?.created_at || p?.createdAt || p?.date;
   try { return d ? new Date(d).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'}) : ""; }
@@ -67,15 +66,12 @@ function hrefOf(p) {
   return slug ? `/post/${slug}` : "#";
 }
 
-const FALLBACK_IMG = "https://images.unsplash.com/photo-1503264116251-35a269479413?auto=format&fit=crop&w=1600&q=80";
-
 export default function LuxLatest({ posts = [] }) {
-  const items = (posts || []).slice(0, 3);
+  const items = (posts || []).filter(p => !isVideo(p)).slice(0, 3);
   if (!items.length) return null;
 
   return (
     <section className="mt-8 sm:mt-10">
-      {/* Beautiful header + small browse on the right */}
       <div className="flex items-center justify-between mb-3 sm:mb-4">
         <h2 className="lux-h2">Latest Posts</h2>
         <a href="/articles" className="btn-beam-gold btn-xs mr-2">Browse →</a>
