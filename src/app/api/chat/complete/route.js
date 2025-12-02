@@ -2,7 +2,9 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const API_KEY = process.env.GEMINI_API_KEY;
-const MODEL = process.env.GEMINI_MODEL || "gemini-1.5-flash-latest";
+// sanitize model: use env only if it looks like a real Gemini model name
+const RAW_MODEL = (process.env.GEMINI_MODEL || "").trim();
+const MODEL = /^gemini-/.test(RAW_MODEL) ? RAW_MODEL : "gemini-1.5-flash-latest";
 
 function buildPersona(mode, site, email){
   const base = `You are Boluwatife’s personal assistant (PA). Speak as the assistant (“I”), on his behalf. Help across business, technology, AI, APIs, light troubleshooting, and writing — concise, warm, and practical.
@@ -54,7 +56,7 @@ export async function POST(req){
     }
     const data = await r.json();
     const reply = (data?.candidates?.[0]?.content?.parts || []).map(p=>p.text||"").join("").trim() || "I couldn't generate a reply.";
-    return new Response(JSON.stringify({ reply, model: MODEL }), { status:200, headers:{ "Content-Type":"application/json" }});
+    return new Response(JSON.stringify({ reply }), { status:200, headers:{ "Content-Type":"application/json" }});
   }catch(e){
     return new Response(JSON.stringify({ error:String(e) }), { status:500, headers:{ "Content-Type":"application/json" }});
   }
