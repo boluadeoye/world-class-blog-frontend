@@ -1,121 +1,90 @@
-"use client";
-import { motion } from "framer-motion";
-import { ArrowRight, Sparkles, Menu, Globe } from "lucide-react";
 import Link from "next/link";
+import { ArrowRight, Sparkles, Menu, Globe, Terminal } from "lucide-react";
+import { fetchLatestArticles, fetchFeaturedPosts, fetchVideoPosts, fetchFeaturedVideo } from "../lib/homeData";
+import { LuxCard, LuxRail, LuxYoutube } from "../components/home/LuxSections";
+import CinematicHero from "../components/home/CinematicHero";
 
-// Animation Variants (Spring Physics)
-const containerVars = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.15,
-      delayChildren: 0.2,
-    },
-  },
-};
+export const revalidate = 3600;
 
-const itemVars = {
-  hidden: { y: 50, opacity: 0 },
-  show: { 
-    y: 0, 
-    opacity: 1,
-    transition: { type: "spring", stiffness: 100, damping: 20 }
-  },
-};
+export default async function Page() {
+  // 1. Fetch Data (Restored)
+  const [latest, featuredPosts, videos, featuredVideo] = await Promise.all([
+    fetchLatestArticles(8),
+    fetchFeaturedPosts(3),
+    fetchVideoPosts(4),
+    fetchFeaturedVideo(),
+  ]);
 
-export default function Home() {
+  // 2. Safe Fallbacks
+  const safeLatest = Array.isArray(latest) ? latest : [];
+  const safeFeatured = Array.isArray(featuredPosts) ? featuredPosts : [];
+  
+  // 3. Determine Hero & Sub-features
+  const heroPost = safeFeatured[0] || safeLatest[0] || null;
+  const subFeatures = safeFeatured.length > 1 
+    ? safeFeatured.slice(1, 3) 
+    : safeLatest.slice(1, 3);
+
+  // 4. Filter Rail (Remove duplicates)
+  const usedSlugs = new Set();
+  if (heroPost) usedSlugs.add(heroPost.slug);
+  subFeatures.forEach(p => p && usedSlugs.add(p.slug));
+  const railPosts = safeLatest.filter(p => !usedSlugs.has(p.slug));
+
   return (
-    <main className="relative min-h-screen w-full overflow-hidden flex flex-col justify-center px-6 md:px-12">
+    <main className="relative min-h-screen w-full bg-zinc-950 text-zinc-100 selection:bg-amber-500/30">
       
-      {/* === SCENOGRAPHY: Breathing Aurora Background === */}
-      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-        <motion.div 
-          animate={{ rotate: 360 }}
-          transition={{ duration: 50, repeat: Infinity, ease: "linear" }}
-          className="absolute -top-[20%] -left-[10%] w-[70vw] h-[70vw] bg-indigo-900/20 rounded-full blur-[100px]"
-        />
-        <motion.div 
-          animate={{ rotate: -360 }}
-          transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-          className="absolute top-[20%] -right-[10%] w-[60vw] h-[60vw] bg-amber-900/10 rounded-full blur-[100px]"
-        />
-      </div>
+      {/* === 1. CINEMATIC HERO (Animated) === */}
+      <CinematicHero />
 
-      {/* === CONTENT LAYER === */}
-      <motion.div 
-        variants={containerVars}
-        initial="hidden"
-        animate="show"
-        className="relative z-10 max-w-5xl w-full mx-auto"
-      >
-        
-        {/* 1. Live Broadcast Indicator */}
-        <motion.div variants={itemVars} className="flex items-center gap-3 mb-8">
-          <div className="relative flex h-3 w-3">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+      {/* === 2. FEATURED WORK (Restored Content) === */}
+      {heroPost && (
+        <section className="relative z-10 px-6 md:px-12 max-w-7xl mx-auto mb-24">
+          <div className="flex items-center gap-4 mb-8">
+            <div className="h-px flex-1 bg-zinc-800"></div>
+            <h2 className="font-serif text-2xl md:text-3xl text-zinc-100">Featured Work</h2>
+            <div className="h-px flex-1 bg-zinc-800"></div>
           </div>
-          <span className="font-sans text-xs tracking-[0.2em] text-zinc-500 uppercase">
-            Live Broadcast • Lagos, NG
-          </span>
-        </motion.div>
-
-        {/* 2. Cinematic Headline (Serif) */}
-        <div className="overflow-hidden">
-          <motion.h1 variants={itemVars} className="font-serif text-6xl md:text-9xl font-medium leading-[0.9] tracking-tight text-zinc-100 mb-4">
-            BOLU<br />ADEOYE
-          </motion.h1>
-        </div>
-
-        {/* 3. Technical Subhead (Sans) */}
-        <motion.div variants={itemVars} className="flex flex-col md:flex-row md:items-end gap-6 mb-12">
-          <p className="font-sans text-lg md:text-xl text-zinc-400 max-w-md leading-relaxed">
-            Full-Stack Engineer & Creative Technologist. <br/>
-            Building digital ecosystems with <span className="text-zinc-200">precision</span> and <span className="text-zinc-200">soul</span>.
-          </p>
-          <div className="h-px w-24 bg-zinc-800 md:mb-2"></div>
-        </motion.div>
-
-        {/* 4. Interactive CTA Dock */}
-        <motion.div variants={itemVars} className="flex flex-wrap gap-4">
-          <Link href="/about" className="group relative px-8 py-4 bg-zinc-100 text-zinc-950 rounded-full font-sans font-semibold tracking-wide overflow-hidden">
-            <span className="relative z-10 flex items-center gap-2">
-              Initiate Contact <ArrowRight size={18} />
-            </span>
-            <div className="absolute inset-0 bg-amber-400 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500 ease-out"></div>
-          </Link>
           
-          <Link href="/blog" className="px-8 py-4 border border-zinc-800 text-zinc-300 rounded-full font-sans hover:bg-zinc-900 transition-colors flex items-center gap-2">
-            <Sparkles size={18} className="text-amber-500" />
-            Read Transmission
-          </Link>
-        </motion.div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Main Hero Card */}
+            <div className="md:col-span-2 min-h-[400px]">
+              <LuxCard post={heroPost} priority={true} />
+            </div>
+            
+            {/* Sub Cards */}
+            <div className="flex flex-col gap-6">
+              {subFeatures[0] && <div className="flex-1 min-h-[180px]"><LuxCard post={subFeatures[0]} /></div>}
+              {subFeatures[1] && <div className="flex-1 min-h-[180px]"><LuxCard post={subFeatures[1]} /></div>}
+            </div>
+          </div>
+        </section>
+      )}
 
-      </motion.div>
+      {/* === 3. LATEST NOTES RAIL === */}
+      <section className="relative z-10 mb-24">
+        <LuxRail posts={railPosts} />
+      </section>
 
-      {/* === FLOATING NAVIGATION DOCK (Mobile First) === */}
-      <motion.nav 
-        initial={{ y: 100 }}
-        animate={{ y: 0 }}
-        transition={{ delay: 1, type: "spring" }}
-        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50"
-      >
+      {/* === 4. FEATURED VIDEO === */}
+      <section className="relative z-10 mb-32">
+        <LuxYoutube video={featuredVideo} />
+      </section>
+
+      {/* === 5. FLOATING DOCK (Fixed Links) === */}
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
         <div className="flex items-center gap-1 p-2 bg-zinc-900/80 backdrop-blur-xl border border-zinc-800 rounded-full shadow-2xl shadow-black/50">
           <Link href="/" className="p-3 rounded-full bg-zinc-800 text-white">
             <Globe size={20} />
           </Link>
-          <Link href="/blog" className="p-3 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-colors">
-            <span className="text-xs font-bold px-2">BLOG</span>
+          <Link href="/articles" className="p-3 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-colors">
+            <span className="text-xs font-bold px-2">NOTES</span>
           </Link>
           <Link href="/about" className="p-3 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-colors">
             <span className="text-xs font-bold px-2">ABOUT</span>
           </Link>
-          <button className="p-3 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-colors">
-            <Menu size={20} />
-          </button>
         </div>
-      </motion.nav>
+      </div>
 
     </main>
   );
