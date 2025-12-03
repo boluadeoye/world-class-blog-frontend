@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Play, FileText } from "lucide-react";
+import { ArrowRight, Play, FileText, Sparkles } from "lucide-react";
 import { fetchLatestArticles, fetchFeaturedPosts, fetchVideoPosts, fetchFeaturedVideo } from "../lib/homeData";
 import ModernHero from "../components/home/ModernHero";
 import ScrollReveal from "../components/ui/ScrollReveal";
@@ -26,13 +26,12 @@ export default async function Page() {
   return (
     <main className="min-h-screen bg-slate-950 text-slate-200 selection:bg-amber-500/30 overflow-x-hidden">
       
-      {/* === 1. HERO (Already Animated) === */}
+      {/* === 1. HERO === */}
       <ModernHero />
 
-      {/* === 2. FEATURED WORK (Reveal on Scroll) === */}
+      {/* === 2. FEATURED WORK === */}
       <section className="px-6 md:px-12 pb-24 relative z-10">
         <div className="max-w-7xl mx-auto">
-          
           <ScrollReveal>
             <div className="flex items-end justify-between mb-10 border-b border-slate-800 pb-4">
               <h2 className="font-serif text-3xl md:text-4xl text-slate-100">Selected Work</h2>
@@ -54,7 +53,6 @@ export default async function Page() {
                       <div className="absolute inset-0 bg-gradient-to-br from-slate-800 to-slate-900" />
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-transparent" />
-                    
                     <div className="absolute bottom-0 left-0 p-8 md:p-12 max-w-3xl">
                       <span className="inline-block px-3 py-1 mb-4 text-xs font-bold tracking-widest text-slate-950 bg-amber-400 rounded-full shadow-[0_0_15px_rgba(245,158,11,0.4)]">
                         {heroPost.meta?.category || "FEATURED"}
@@ -92,16 +90,13 @@ export default async function Page() {
         </div>
       </section>
 
-      {/* === 3. LATEST NOTES & VIDEO (Reveal on Scroll) === */}
+      {/* === 3. LATEST NOTES & VIDEO === */}
       <section className="px-6 md:px-12 py-24 bg-slate-900/30 border-t border-slate-800/50">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16">
-          
-          {/* List */}
           <div>
             <ScrollReveal>
               <h3 className="font-serif text-2xl text-slate-100 mb-8 flex items-center gap-3">
-                <FileText className="text-amber-500" size={24} /> 
-                Latest Notes
+                <FileText className="text-amber-500" size={24} /> Latest Notes
               </h3>
             </ScrollReveal>
             <div className="space-y-2">
@@ -121,12 +116,10 @@ export default async function Page() {
             </div>
           </div>
 
-          {/* Video */}
           <div>
             <ScrollReveal delay={0.2}>
               <h3 className="font-serif text-2xl text-slate-100 mb-8 flex items-center gap-3">
-                <Play className="text-red-500" size={24} /> 
-                On Air
+                <Play className="text-red-500" size={24} /> On Air
               </h3>
               {featuredVideo && featuredVideo.id ? (
                 <div className="relative group rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 shadow-2xl">
@@ -149,7 +142,22 @@ export default async function Page() {
               )}
             </ScrollReveal>
           </div>
+        </div>
+      </section>
 
+      {/* === 4. FOOTER CTA (Restored) === */}
+      <section className="py-24 px-6 text-center relative overflow-hidden border-t border-slate-800/50">
+        <div className="absolute inset-0 bg-indigo-600/5 skew-y-3 pointer-events-none"></div>
+        <div className="relative z-10 max-w-2xl mx-auto">
+          <ScrollReveal>
+            <h2 className="font-serif text-3xl md:text-5xl text-white mb-6">Ready to build something great?</h2>
+            <p className="text-slate-400 mb-8 text-lg">
+              Whether it's a web app, a content platform, or technical consulting, let's discuss how I can help.
+            </p>
+            <Link href="/chat" className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-white text-slate-950 font-bold hover:scale-105 transition-transform shadow-xl shadow-indigo-500/20">
+              Chat with my AI <Sparkles size={18} className="text-indigo-600" />
+            </Link>
+          </ScrollReveal>
         </div>
       </section>
 

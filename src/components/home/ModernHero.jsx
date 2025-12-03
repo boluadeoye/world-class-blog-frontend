@@ -1,10 +1,10 @@
 "use client";
 import { motion } from "framer-motion";
-import { ArrowRight, Cpu } from "lucide-react";
+import { ArrowRight, Cpu, MessageSquare } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 
-/* === LIVE SYSTEM STATUS === */
+/* === RESTORED GLASS STATUS PILL === */
 function SystemStatus() {
   const [text, setText] = useState("");
   const fullText = "System Online. Ready.";
@@ -23,13 +23,13 @@ function SystemStatus() {
   }, []);
 
   return (
-    <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-slate-950 border border-slate-800 shadow-xl z-20">
-      <div className="relative flex h-2.5 w-2.5">
+    <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md shadow-lg">
+      <div className="relative flex h-2 w-2">
         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
       </div>
-      <span className="font-mono text-[11px] md:text-xs text-emerald-400 tracking-widest uppercase font-bold">
-        {text}
+      <span className="font-mono text-[10px] md:text-xs text-emerald-400 tracking-widest uppercase font-bold">
+        {text}<span className="animate-pulse">_</span>
       </span>
     </div>
   );
@@ -37,66 +37,52 @@ function SystemStatus() {
 
 export default function ModernHero() {
   return (
-    <section className="hero-section relative min-h-[90vh] flex flex-col justify-center px-4 md:px-8 pt-24 pb-12 overflow-hidden">
+    <section className="hero-section relative min-h-[90vh] flex flex-col justify-center px-4 md:px-8 pt-4 pb-12 overflow-hidden">
       
-      {/* === 1. THE "SHINY" BACKLIGHT (Brighter than Card) === */}
+      {/* === 1. BACKLIGHT STAGE === */}
       <div className="absolute inset-0 z-0 pointer-events-none">
-        {/* Deep Space Base */}
         <div className="absolute inset-0 bg-[#050b14]"></div>
-        
-        {/* Bright Aurora Glows (Backlighting the card) */}
         <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[120%] h-[80%] bg-indigo-600/20 blur-[100px] rounded-full mix-blend-screen animate-pulse"></div>
         <div className="absolute bottom-[-10%] right-[-10%] w-[80%] h-[60%] bg-amber-600/10 blur-[120px] rounded-full mix-blend-screen"></div>
-        
-        {/* Global Grain */}
         <div className="absolute inset-0 opacity-[0.05] bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
       </div>
 
-      {/* === 2. THE SOLID HERO CARD === */}
+      {/* === 2. SOLID HERO CARD === */}
       <div className="relative z-10 w-full max-w-6xl mx-auto">
-        
-        {/* The Card Container */}
         <div className="relative bg-[#020617] rounded-[2.5rem] overflow-hidden shadow-2xl shadow-black/80">
           
-          {/* === CARD BORDER (The "Separator") === */}
+          {/* Card Border & Patterns */}
           <div className="absolute inset-0 rounded-[2.5rem] border border-white/10 pointer-events-none z-20"></div>
-          <div className="absolute inset-0 rounded-[2.5rem] border border-white/5 blur-[1px] pointer-events-none z-20"></div>
-
-          {/* === VISIBLE PATTERNS (Inside Card) === */}
           <div className="absolute inset-0 z-0 pointer-events-none">
-            {/* High-Visibility Grid */}
             <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:40px_40px]"></div>
-            {/* Radial Spotlight to highlight text */}
             <div className="absolute top-0 left-0 w-full h-full bg-radial-gradient(circle at 30% 30%, rgba(255,255,255,0.03), transparent 70%)"></div>
           </div>
 
           {/* === CONTENT === */}
           <div className="relative z-10 p-8 md:p-16 flex flex-col">
             
-            {/* TOP ROW: Status vs Photo */}
-            <div className="flex flex-col-reverse md:flex-row justify-between items-start md:items-center gap-8 mb-12">
+            {/* TOP ROW: Status vs Photo (Perfectly Aligned) */}
+            <div className="flex flex-col-reverse md:flex-row justify-between items-center gap-8 mb-10">
               
-              {/* Status Pill */}
+              {/* Status Pill (Left) */}
               <motion.div 
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.6 }}
+                className="self-start md:self-center"
               >
                 <SystemStatus />
               </motion.div>
 
-              {/* Portrait (Right Aligned) */}
+              {/* Portrait (Right) - Increased Size */}
               <motion.div 
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.8, type: "spring" }}
                 className="relative self-end md:self-auto"
               >
-                {/* Glow behind photo */}
                 <div className="absolute inset-0 bg-indigo-500/30 rounded-full blur-xl"></div>
-                
-                {/* Photo Frame */}
-                <div className="relative w-28 h-28 md:w-40 md:h-40 rounded-full p-1.5 bg-gradient-to-br from-slate-800 to-black border border-slate-700 shadow-2xl">
+                <div className="relative w-32 h-32 md:w-48 md:h-48 rounded-full p-1.5 bg-gradient-to-br from-slate-800 to-black border border-slate-700 shadow-2xl">
                   <img 
                     src="https://w5e7svgknmetlu9j.public.blob.vercel-storage.com/adeoye.jpg" 
                     alt="Bolu Adeoye" 
@@ -108,8 +94,6 @@ export default function ModernHero() {
 
             {/* MAIN TYPOGRAPHY */}
             <div className="max-w-4xl">
-              
-              {/* Name */}
               <div className="mb-8 relative">
                 <motion.h1 
                   initial={{ opacity: 0, y: 30 }}
@@ -122,7 +106,6 @@ export default function ModernHero() {
                 </motion.h1>
               </div>
 
-              {/* Role Line */}
               <motion.div
                 initial={{ opacity: 0, width: 0 }}
                 animate={{ opacity: 1, width: "100%" }}
@@ -135,7 +118,6 @@ export default function ModernHero() {
                 </h2>
               </motion.div>
 
-              {/* Description */}
               <motion.p 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -146,20 +128,22 @@ export default function ModernHero() {
                 Specializing in <span className="text-white font-medium border-b border-slate-700 pb-0.5">React Server Components</span>, <span className="text-white font-medium border-b border-slate-700 pb-0.5">Scalable Systems</span>, and <span className="text-white font-medium border-b border-slate-700 pb-0.5">Human-Centric UI</span>.
               </motion.p>
 
-              {/* ACTIONS */}
+              {/* === ACTIONS (Restored Chatbot CTA) === */}
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.5 }}
                 className="flex flex-wrap gap-5"
               >
-                <Link href="/about" className="group relative px-8 py-4 bg-white text-slate-950 rounded-full font-sans font-bold tracking-wide overflow-hidden animate-beam shadow-[0_0_25px_rgba(255,255,255,0.15)] hover:scale-105 transition-transform">
+                {/* Primary: Chat with AI */}
+                <Link href="/chat" className="group relative px-8 py-4 bg-white text-slate-950 rounded-full font-sans font-bold tracking-wide overflow-hidden animate-beam shadow-[0_0_25px_rgba(255,255,255,0.15)] hover:scale-105 transition-transform">
                   <span className="relative z-10 flex items-center gap-2">
-                    Initiate Contact <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                    Chat with AI <MessageSquare size={18} className="group-hover:translate-x-1 transition-transform" />
                   </span>
                 </Link>
                 
-                <Link href="/articles" className="group relative px-8 py-4 bg-slate-900 text-slate-300 rounded-full font-sans font-medium border border-slate-700 animate-border-pulse flex items-center gap-2 hover:text-white transition-colors hover:bg-slate-800">
+                {/* Secondary: Access Logs */}
+                <Link href="/articles" className="group relative px-8 py-4 bg-slate-900/50 backdrop-blur-md text-slate-300 rounded-full font-sans font-medium border border-slate-700 animate-border-pulse flex items-center gap-2 hover:text-white transition-colors hover:bg-slate-800">
                   <Cpu size={16} className="text-emerald-400 group-hover:rotate-90 transition-transform duration-500" />
                   <span>Access Logs</span>
                 </Link>
