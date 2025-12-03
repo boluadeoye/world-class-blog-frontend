@@ -114,26 +114,23 @@ export default function ModernHero() {
                 </h2>
               </motion.div>
 
-              {/* === DESCRIPTION WITH SHARP GLASS TILES === */}
+              {/* === PREMIUM GRADIENT TYPOGRAPHY === */}
               <motion.p 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 1, delay: 0.4 }}
-                className="font-sans text-lg md:text-2xl text-slate-300 max-w-3xl leading-loose mb-10 font-light"
+                className="font-sans text-lg md:text-2xl text-slate-300 max-w-3xl leading-relaxed mb-10 font-light"
               >
-                Architecting high-performance digital ecosystems. Specializing in
-                <span className="inline-block px-3 py-1 mx-1.5 bg-white/5 border border-white/10 rounded-sm text-white font-serif italic text-xl md:text-2xl hover:bg-white/10 transition-colors cursor-default backdrop-blur-sm">
+                Architecting high-performance digital ecosystems. Specializing in{" "}
+                <span className="font-serif italic text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-yellow-500 font-medium">
                   React Server Components
-                </span>
-                ,
-                <span className="inline-block px-3 py-1 mx-1.5 bg-white/5 border border-white/10 rounded-sm text-white font-serif italic text-xl md:text-2xl hover:bg-white/10 transition-colors cursor-default backdrop-blur-sm">
+                </span>,{" "}
+                <span className="font-serif italic text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-yellow-500 font-medium">
                   Scalable Systems
-                </span>
-                , and
-                <span className="inline-block px-3 py-1 mx-1.5 bg-white/5 border border-white/10 rounded-sm text-white font-serif italic text-xl md:text-2xl hover:bg-white/10 transition-colors cursor-default backdrop-blur-sm">
+                </span>, and{" "}
+                <span className="font-serif italic text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-yellow-500 font-medium">
                   Human-Centric UI
-                </span>
-                .
+                </span>.
               </motion.p>
 
               {/* === ACTIONS === */}
