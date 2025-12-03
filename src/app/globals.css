@@ -102,3 +102,8 @@ body:has(.hero-section) header .mobile-menu-trigger {
   animation: finger-tap 2s infinite ease-in-out;
   filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
 }
+
+/* === SHIMMER EFFECT FOR BUTTON === */
+@keyframes shimmer {
+  100% { transform: translateX(100%); }
+}
