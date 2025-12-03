@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { ArrowRight, Play, FileText, Sparkles } from "lucide-react";
+import { ArrowRight, Play, FileText, Sparkles, MessageSquare } from "lucide-react";
 import { fetchLatestArticles, fetchFeaturedPosts, fetchVideoPosts, fetchFeaturedVideo } from "../lib/homeData";
 import ModernHero from "../components/home/ModernHero";
 import ScrollReveal from "../components/ui/ScrollReveal";
+import NewsUpdates from "../components/home/NewsUpdates";
 
 export const revalidate = 3600;
 
@@ -29,12 +30,17 @@ export default async function Page() {
       {/* === 1. HERO === */}
       <ModernHero />
 
-      {/* === 2. FEATURED WORK === */}
-      <section className="px-6 md:px-12 pb-24 relative z-10">
+      {/* === SEPARATOR BAR (Fills the gap) === */}
+      <div className="w-full max-w-7xl mx-auto px-6 md:px-12 mb-12">
+        <div className="h-px w-full bg-gradient-to-r from-transparent via-slate-700 to-transparent opacity-50"></div>
+      </div>
+
+      {/* === 2. EDITOR'S PICKS === */}
+      <section className="px-6 md:px-12 pb-20 relative z-10">
         <div className="max-w-7xl mx-auto">
           <ScrollReveal>
-            <div className="flex items-end justify-between mb-10 border-b border-slate-800 pb-4">
-              <h2 className="font-serif text-3xl md:text-4xl text-slate-100">Selected Work</h2>
+            <div className="flex items-end justify-between mb-8">
+              <h2 className="font-serif text-3xl md:text-4xl text-slate-100">Editor's Picks</h2>
               <Link href="/articles" className="hidden md:flex items-center gap-2 text-sm font-bold tracking-widest uppercase text-slate-500 hover:text-amber-400 transition-colors">
                 View Archive <ArrowRight size={14} />
               </Link>
@@ -46,7 +52,7 @@ export default async function Page() {
             {heroPost && (
               <div className="md:col-span-8">
                 <ScrollReveal delay={0.1}>
-                  <Link href={`/post/${heroPost.slug}`} className="group relative block min-h-[450px] rounded-2xl overflow-hidden bg-slate-900 shadow-2xl shadow-black/50">
+                  <Link href={`/post/${heroPost.slug}`} className="group relative block min-h-[450px] rounded-2xl overflow-hidden bg-slate-900 shadow-2xl shadow-black/50 border border-slate-800/50">
                     {getImg(heroPost) ? (
                       <img src={getImg(heroPost)} alt={heroPost.title} className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105 opacity-90 group-hover:opacity-100" />
                     ) : (
@@ -91,7 +97,7 @@ export default async function Page() {
       </section>
 
       {/* === 3. LATEST NOTES & VIDEO === */}
-      <section className="px-6 md:px-12 py-24 bg-slate-900/30 border-t border-slate-800/50">
+      <section className="px-6 md:px-12 py-20 bg-slate-900/30 border-t border-slate-800/50">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16">
           <div>
             <ScrollReveal>
@@ -145,18 +151,29 @@ export default async function Page() {
         </div>
       </section>
 
-      {/* === 4. FOOTER CTA (Restored) === */}
-      <section className="py-24 px-6 text-center relative overflow-hidden border-t border-slate-800/50">
-        <div className="absolute inset-0 bg-indigo-600/5 skew-y-3 pointer-events-none"></div>
-        <div className="relative z-10 max-w-2xl mx-auto">
+      {/* === 4. REAL-TIME UPDATES === */}
+      <NewsUpdates />
+
+      {/* === 5. COMPACT FOOTER CTA === */}
+      <section className="py-16 px-6 border-t border-slate-800/50 bg-slate-950">
+        <div className="max-w-4xl mx-auto">
           <ScrollReveal>
-            <h2 className="font-serif text-3xl md:text-5xl text-white mb-6">Ready to build something great?</h2>
-            <p className="text-slate-400 mb-8 text-lg">
-              Whether it's a web app, a content platform, or technical consulting, let's discuss how I can help.
-            </p>
-            <Link href="/chat" className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-white text-slate-950 font-bold hover:scale-105 transition-transform shadow-xl shadow-indigo-500/20">
-              Chat with my AI <Sparkles size={18} className="text-indigo-600" />
-            </Link>
+            <div className="relative rounded-3xl bg-gradient-to-r from-slate-900 to-slate-800 border border-slate-700 p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl overflow-hidden">
+              {/* Background Glow */}
+              <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 blur-[80px] rounded-full pointer-events-none"></div>
+              
+              <div className="relative z-10 text-center md:text-left">
+                <h2 className="font-serif text-2xl md:text-3xl text-white mb-2">Ready to collaborate?</h2>
+                <p className="text-slate-400 text-sm md:text-base max-w-md">
+                  Let's build something world-class together.
+                </p>
+              </div>
+
+              <Link href="/chat" className="relative z-10 group flex items-center gap-3 px-6 py-3 bg-white text-slate-950 rounded-full font-bold hover:scale-105 transition-transform shadow-lg shadow-indigo-500/20">
+                <span>Start a Project</span>
+                <MessageSquare size={18} className="text-indigo-600 group-hover:rotate-12 transition-transform" />
+              </Link>
+            </div>
           </ScrollReveal>
         </div>
       </section>
