@@ -4,7 +4,7 @@ import { ArrowRight, Cpu, MessageSquare } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 
-/* === RESTORED GLASS STATUS PILL === */
+/* === GLASS STATUS PILL === */
 function SystemStatus() {
   const [text, setText] = useState("");
   const fullText = "System Online. Ready.";
@@ -23,7 +23,7 @@ function SystemStatus() {
   }, []);
 
   return (
-    <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md shadow-lg">
+    <div className="inline-flex items-center gap-2 md:gap-3 px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md shadow-lg whitespace-nowrap">
       <div className="relative flex h-2 w-2">
         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
         <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
@@ -51,38 +51,44 @@ export default function ModernHero() {
       <div className="relative z-10 w-full max-w-6xl mx-auto">
         <div className="relative bg-[#020617] rounded-[2.5rem] overflow-hidden shadow-2xl shadow-black/80">
           
-          {/* Card Border & Patterns */}
-          <div className="absolute inset-0 rounded-[2.5rem] border border-white/10 pointer-events-none z-20"></div>
+          {/* === VISIBLE BACKGROUND PATTERNS === */}
           <div className="absolute inset-0 z-0 pointer-events-none">
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:40px_40px]"></div>
-            <div className="absolute top-0 left-0 w-full h-full bg-radial-gradient(circle at 30% 30%, rgba(255,255,255,0.03), transparent 70%)"></div>
+            {/* Stronger Grid Pattern */}
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff10_1px,transparent_1px),linear-gradient(to_bottom,#ffffff10_1px,transparent_1px)] bg-[size:40px_40px]"></div>
+            
+            {/* Subtle Radial Highlight */}
+            <div className="absolute top-0 left-0 w-full h-full bg-radial-gradient(circle at 50% 0%, rgba(255,255,255,0.05), transparent 70%)"></div>
           </div>
 
+          {/* Card Border Glow */}
+          <div className="absolute inset-0 rounded-[2.5rem] border border-white/10 pointer-events-none z-20"></div>
+
           {/* === CONTENT === */}
-          <div className="relative z-10 p-8 md:p-16 flex flex-col">
+          <div className="relative z-10 p-6 md:p-16 flex flex-col">
             
-            {/* TOP ROW: Status vs Photo (Perfectly Aligned) */}
-            <div className="flex flex-col-reverse md:flex-row justify-between items-center gap-8 mb-10">
+            {/* === TOP ROW: SIDE-BY-SIDE ALIGNMENT === */}
+            {/* flex-row ensures they are always opposite each other */}
+            <div className="flex flex-row justify-between items-center mb-12">
               
               {/* Status Pill (Left) */}
               <motion.div 
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.6 }}
-                className="self-start md:self-center"
+                className="flex-shrink-0"
               >
                 <SystemStatus />
               </motion.div>
 
-              {/* Portrait (Right) - Increased Size */}
+              {/* Portrait (Right) */}
               <motion.div 
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.8, type: "spring" }}
-                className="relative self-end md:self-auto"
+                className="relative flex-shrink-0"
               >
                 <div className="absolute inset-0 bg-indigo-500/30 rounded-full blur-xl"></div>
-                <div className="relative w-32 h-32 md:w-48 md:h-48 rounded-full p-1.5 bg-gradient-to-br from-slate-800 to-black border border-slate-700 shadow-2xl">
+                <div className="relative w-24 h-24 md:w-48 md:h-48 rounded-full p-1 bg-gradient-to-br from-slate-700 to-black border border-slate-600 shadow-2xl">
                   <img 
                     src="https://w5e7svgknmetlu9j.public.blob.vercel-storage.com/adeoye.jpg" 
                     alt="Bolu Adeoye" 
@@ -92,7 +98,7 @@ export default function ModernHero() {
               </motion.div>
             </div>
 
-            {/* MAIN TYPOGRAPHY */}
+            {/* === MAIN TYPOGRAPHY === */}
             <div className="max-w-4xl">
               <div className="mb-8 relative">
                 <motion.h1 
@@ -128,21 +134,19 @@ export default function ModernHero() {
                 Specializing in <span className="text-white font-medium border-b border-slate-700 pb-0.5">React Server Components</span>, <span className="text-white font-medium border-b border-slate-700 pb-0.5">Scalable Systems</span>, and <span className="text-white font-medium border-b border-slate-700 pb-0.5">Human-Centric UI</span>.
               </motion.p>
 
-              {/* === ACTIONS (Restored Chatbot CTA) === */}
+              {/* === ACTIONS === */}
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.5 }}
                 className="flex flex-wrap gap-5"
               >
-                {/* Primary: Chat with AI */}
                 <Link href="/chat" className="group relative px-8 py-4 bg-white text-slate-950 rounded-full font-sans font-bold tracking-wide overflow-hidden animate-beam shadow-[0_0_25px_rgba(255,255,255,0.15)] hover:scale-105 transition-transform">
                   <span className="relative z-10 flex items-center gap-2">
                     Chat with AI <MessageSquare size={18} className="group-hover:translate-x-1 transition-transform" />
                   </span>
                 </Link>
                 
-                {/* Secondary: Access Logs */}
                 <Link href="/articles" className="group relative px-8 py-4 bg-slate-900/50 backdrop-blur-md text-slate-300 rounded-full font-sans font-medium border border-slate-700 animate-border-pulse flex items-center gap-2 hover:text-white transition-colors hover:bg-slate-800">
                   <Cpu size={16} className="text-emerald-400 group-hover:rotate-90 transition-transform duration-500" />
                   <span>Access Logs</span>
