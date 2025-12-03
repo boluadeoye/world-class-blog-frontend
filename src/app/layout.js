@@ -1,37 +1,30 @@
 import "./globals.css";
-import { Playfair_Display, Inter } from "next/font/google";
-import SmoothScroller from "../components/ui/SmoothScroller";
+import { Inter, Sora } from "next/font/google";
+import LayoutShell from "../components/LayoutShell";
 
-// 1. Editorial Serif (Headlines)
-const playfair = Playfair_Display({
-  subsets: ["latin"],
-  variable: "--font-serif",
-  display: "swap",
-});
-
-// 2. Technical Sans (Body/UI)
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
   display: "swap",
 });
 
+const sora = Sora({
+  subsets: ["latin"],
+  variable: "--font-display",
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
+
 export const metadata = {
-  title: "Bolu Adeoye | Digital Broadcast",
-  description: "Full-Stack Engineer & Creative Technologist.",
+  title: "World‑Class Blog",
+  description: "Essays by Adeoye Boluwatife — health, finance, technology, education, and the systems that connect them.",
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${playfair.variable} ${inter.variable}`}>
-      <body className="bg-zinc-950 text-zinc-100 antialiased selection:bg-amber-500/30 selection:text-amber-200">
-        {/* Cinematic Noise Overlay (Fixed) */}
-        <div className="bg-noise"></div>
-        
-        {/* Physics Scroll Wrapper */}
-        <SmoothScroller>
-          {children}
-        </SmoothScroller>
+    <html lang="en" className={`${inter.variable} ${sora.variable}`}>
+      <body className="font-sans antialiased text-slate-100 bg-slate-950">
+        <LayoutShell>{children}</LayoutShell>
       </body>
     </html>
   );
