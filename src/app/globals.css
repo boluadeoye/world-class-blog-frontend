@@ -49,3 +49,42 @@ html.lenis { height: auto; }
 .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
 .lenis.lenis-stopped { overflow: hidden; }
 .lenis.lenis-scrolling iframe { pointer-events: none; }
+
+/* === HOMEPAGE HEADER OVERRIDE (AGGRESSIVE) === */
+/* Only applies when .hero-section exists (Homepage) */
+
+body:has(.hero-section) header {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  pointer-events: none; /* Allow clicking through the empty header area */
+}
+
+/* Hide Logo, Nav Links, and any other containers */
+body:has(.hero-section) header > *:not(button):not(.mobile-menu-trigger) {
+  display: none !important;
+}
+
+/* Style the Hamburger Button to be a Floating Orb */
+body:has(.hero-section) header button,
+body:has(.hero-section) header .mobile-menu-trigger {
+  display: flex !important;
+  pointer-events: auto; /* Re-enable clicking */
+  position: fixed !important;
+  top: 24px !important;
+  right: 24px !important;
+  z-index: 100 !important;
+  
+  /* Premium Glass Look */
+  width: 50px;
+  height: 50px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: rgba(15, 23, 42, 0.6) !important; /* Dark Slate */
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  color: white !important;
+}
