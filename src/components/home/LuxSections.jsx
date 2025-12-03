@@ -2,27 +2,28 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, Play, Terminal } from "lucide-react";
 
-/* === 1. STUDIO HERO (Animated Masthead) === */
+/* === HELPER: Safe Data Mapping === */
+const getPostLink = (slug) => `/post/${slug}`;
+const getPostDate = (dateStr) => {
+  if (!dateStr) return "";
+  return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+};
+const getPostImage = (post) => post?.meta?.cover || post?.cover_image_url || null;
+const getPostCategory = (post) => post?.meta?.category || "Note";
+
+/* === 1. STUDIO HERO === */
 export function LuxHero() {
   return (
-    <section className="relative pt-28 pb-16 px-4 md:pt-36 md:pb-24">
+    <section className="relative pt-12 pb-12 px-0 md:pt-24 md:pb-20">
       <div className="max-w-4xl mx-auto text-center relative z-10">
-        {/* Minimal Card Wrapper */}
-        <div className="studio-min-card p-8 md:p-12 grid gap-6 md:gap-8">
-          
-          {/* Aurora Backgrounds */}
+        <div className="studio-min-card p-8 md:p-12 grid gap-6 md:gap-8 mx-4">
           <div className="studio-min-aurora a"></div>
           <div className="studio-min-aurora b"></div>
-
-          {/* Crest/Logo Layer (Top Right) */}
           <div className="hero-crest-layer">
-            <Terminal size={120} strokeWidth={0.5} />
+            <Terminal size={80} strokeWidth={0.5} className="opacity-50" />
           </div>
 
-          {/* Content Grid */}
           <div className="grid gap-5 relative z-10">
-            
-            {/* Role Line */}
             <div className="flex justify-center">
               <div className="hero-role-line text-amber-400/90 uppercase tracking-widest text-xs md:text-sm font-bold flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
@@ -30,27 +31,22 @@ export function LuxHero() {
               </div>
             </div>
 
-            {/* Name with Gradient Animation */}
             <h1 className="hero-title-min text-4xl md:text-6xl lg:text-7xl tracking-tight">
               <span className="hero-title-gradient">
-                <span className="seq-char" style={{ "--dur": "600ms", "--delay": "0ms" }}>Bolu</span>
-                <span className="seq-char" style={{ "--dur": "650ms", "--delay": "60ms" }}>Adeoye</span>
+                <span className="seq-char">Bolu</span> <span className="seq-char">Adeoye</span>
               </span>
             </h1>
 
-            {/* Tagline */}
-            <p className="hero-copy-beauty max-w-xl mx-auto text-lg md:text-xl opacity-0 animate-[seqFade_0.8s_ease_0.3s_forwards]">
+            <p className="hero-copy-beauty max-w-xl mx-auto text-lg md:text-xl text-slate-300">
               Crafting world-class digital experiences with precision, performance, and purpose.
             </p>
 
-            {/* CTA Row */}
-            <div className="flex flex-wrap justify-center gap-4 pt-4 opacity-0 animate-[seqFade_0.8s_ease_0.5s_forwards]">
+            <div className="flex flex-wrap justify-center gap-4 pt-4">
               <Link href="/about" className="cta-chip-min group">
-                <span className="cta-hand"><span className="hand-cursor">☝️</span></span>
                 <span>Let's Collaborate</span>
                 <ArrowRight className="ico group-hover:translate-x-1 transition-transform" />
               </Link>
-              <Link href="/blog" className="px-5 py-2 rounded-full border border-white/10 text-slate-400 text-sm font-bold hover:bg-white/5 transition-colors">
+              <Link href="/articles" className="px-5 py-2 rounded-full border border-white/10 text-slate-400 text-sm font-bold hover:bg-white/5 transition-colors">
                 Read Notes
               </Link>
             </div>
@@ -61,116 +57,111 @@ export function LuxHero() {
   );
 }
 
-/* === 2. LUX CARD (Featured Posts) === */
+/* === 2. LUX CARD === */
 export function LuxCard({ post, priority = false }) {
   if (!post) return null;
   
+  const imageUrl = getPostImage(post);
+  const dateStr = getPostDate(post.created_at);
+  const link = getPostLink(post.slug);
+
   return (
-    <Link href={`/blog/${post.slug}`} className="lux-card group h-full flex flex-col">
-      {/* Media Area */}
-      <div className="lux-media">
-        {post.coverImage ? (
+    <Link href={link} className="lux-card group h-full flex flex-col relative overflow-hidden rounded-2xl bg-slate-900 border border-white/10">
+      <div className="lux-media relative aspect-video w-full overflow-hidden">
+        {imageUrl ? (
           <Image 
-            src={post.coverImage} 
+            src={imageUrl} 
             alt={post.title} 
             fill 
-            className="lux-img group-hover:scale-105 transition-transform duration-700"
+            className="lux-img object-cover group-hover:scale-105 transition-transform duration-700"
             priority={priority}
           />
         ) : (
-          <div className="lux-img lux-img-fallback" />
+          <div className="lux-img lux-img-fallback w-full h-full bg-slate-800" />
         )}
-        <div className="lux-media-overlay" />
+        <div className="lux-media-overlay absolute inset-0 bg-gradient-to-t from-slate-950/80 to-transparent" />
         
-        {/* Floating Meta */}
-        <div className="lux-meta">
-          <span className="lux-chip shadow-lg">
-            {post.category || "Article"}
+        <div className="lux-meta absolute bottom-3 left-3 right-3 flex justify-between items-center">
+          <span className="lux-chip bg-amber-400 text-slate-950 text-xs font-bold px-2 py-1 rounded-full">
+            {getPostCategory(post)}
           </span>
-          <span className="lux-date drop-shadow-md">
-            {new Date(post.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+          <span className="lux-date text-xs text-slate-300 font-medium">
+            {dateStr}
           </span>
         </div>
       </div>
 
-      {/* Content Body */}
-      <div className="lux-body flex-1 flex flex-col">
-        <h3 className="lux-title mb-2 group-hover:text-white transition-colors">
+      <div className="lux-body p-5 flex-1 flex flex-col">
+        <h3 className="lux-title text-lg font-bold text-white mb-2 group-hover:text-blue-300 transition-colors line-clamp-2">
           {post.title}
         </h3>
         <p className="text-slate-400 text-sm line-clamp-2 mb-4 flex-1">
-          {post.excerpt}
+          {post.excerpt || post.content?.substring(0, 100) + "..."}
         </p>
-        <div className="lux-underline group-hover:scale-x-100"></div>
+        <div className="lux-underline h-0.5 w-full bg-gradient-to-r from-amber-400 to-blue-500 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
       </div>
     </Link>
   );
 }
 
-/* === 3. LUX RAIL (Horizontal Scroll) === */
+/* === 3. LUX RAIL === */
 export function LuxRail({ posts }) {
   if (!posts?.length) return null;
 
   return (
-    <div className="lux-rail my-12">
-      <div className="px-6 mb-4 flex items-center justify-between">
-        <h2 className="lux-h2 text-xl md:text-2xl">Latest Notes</h2>
-        <Link href="/blog" className="text-xs font-bold text-slate-400 hover:text-white uppercase tracking-wider">
+    <div className="lux-rail my-12 relative">
+      <div className="px-4 md:px-6 mb-4 flex items-center justify-between max-w-6xl mx-auto">
+        <h2 className="lux-h2 text-xl md:text-2xl font-bold text-white">Latest Notes</h2>
+        <Link href="/articles" className="text-xs font-bold text-slate-400 hover:text-white uppercase tracking-wider">
           View Archive
         </Link>
       </div>
 
-      <div className="lux-rail-track">
+      <div className="lux-rail-track flex gap-4 overflow-x-auto px-4 md:px-6 pb-6 snap-x">
         {posts.map((post) => (
-          <Link key={post.slug} href={`/blog/${post.slug}`} className="lux-tile rail-snap group min-w-[260px] md:min-w-[300px]">
-            <div className="lux-tile-overlay"></div>
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-amber-400/90 uppercase">{post.category || "Note"}</span>
+          <Link key={post.slug} href={getPostLink(post.slug)} className="lux-tile rail-snap group min-w-[280px] w-[280px] bg-slate-900 border border-white/10 rounded-xl p-4 flex flex-col relative overflow-hidden">
+            <div className="lux-tile-overlay absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div className="flex items-center justify-between mb-3 relative z-10">
+              <span className="text-xs font-bold text-amber-400/90 uppercase">{getPostCategory(post)}</span>
               <ArrowRight size={14} className="text-slate-600 group-hover:text-white transition-colors" />
             </div>
-            <h3 className="lux-tile-title line-clamp-2 group-hover:text-blue-200 transition-colors">
+            <h3 className="lux-tile-title text-base font-bold text-slate-200 line-clamp-2 group-hover:text-blue-200 transition-colors relative z-10">
               {post.title}
             </h3>
-            <p className="lux-tile-sub line-clamp-2 mt-auto pt-2">
-              {post.excerpt}
+            <p className="lux-tile-sub text-sm text-slate-500 line-clamp-2 mt-auto pt-2 relative z-10">
+              {post.excerpt || post.content?.substring(0, 60) + "..."}
             </p>
           </Link>
         ))}
       </div>
-      
-      <div className="lux-rail-fade-left"></div>
-      <div className="lux-rail-fade-right"></div>
     </div>
   );
 }
 
-/* === 4. YOUTUBE LITE (Performance) === */
+/* === 4. YOUTUBE LITE === */
 export function LuxYoutube({ video }) {
-  if (!video) return null;
-  
-  const videoId = video.meta?.youtubeId || video.meta?.youtubeUrl?.split('v=')[1];
-  if (!videoId) return null;
+  if (!video || !video.id) return null;
 
   return (
-    <div className="my-16 px-4 max-w-5xl mx-auto">
+    <div className="my-16 px-4 max-w-4xl mx-auto">
       <div className="flex items-center gap-3 mb-6">
         <div className="p-2 rounded-full bg-red-500/10 border border-red-500/20">
           <Play size={18} className="text-red-500 fill-current" />
         </div>
-        <h2 className="lux-h2 text-2xl">Featured Video</h2>
+        <h2 className="lux-h2 text-2xl font-bold text-white">Featured Video</h2>
       </div>
 
-      <div className="lux-card group relative overflow-hidden rounded-2xl border border-white/10 bg-slate-900">
+      <div className="lux-card group relative overflow-hidden rounded-2xl border border-white/10 bg-slate-900 shadow-2xl">
         <div className="aspect-video relative">
           <iframe
-            src={`https://www.youtube-nocookie.com/embed/${videoId}?rel=0`}
+            src={`https://www.youtube-nocookie.com/embed/${video.id}?rel=0`}
             title={video.title}
             className="absolute inset-0 w-full h-full"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
           ></iframe>
         </div>
-        <div className="p-5 bg-slate-950/80 backdrop-blur-md border-t border-white/5">
+        <div className="p-5 bg-slate-950 border-t border-white/5">
           <h3 className="text-lg font-bold text-white mb-1">{video.title}</h3>
           <p className="text-sm text-slate-400">Watch on YouTube</p>
         </div>
