@@ -1,8 +1,8 @@
 "use client";
 import { motion, useScroll, useSpring } from "framer-motion";
-import { ArrowLeft, Clock, Calendar, Tag, Share2, Bookmark } from "lucide-react";
+import { ArrowLeft, Clock, Calendar, Share2, Bookmark, Check, Link as LinkIcon } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
+import { useState, useEffect } from "react";
 
 /* === PROGRESS BAR === */
 function ReadingProgress() {
@@ -31,14 +31,12 @@ export function ArticleHero({ post }) {
 
   return (
     <section className="relative pt-32 pb-16 px-6 overflow-hidden">
-      {/* Background Atmosphere */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[80%] h-[80%] bg-indigo-900/20 blur-[120px] rounded-full mix-blend-screen" />
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03]"></div>
       </div>
 
       <div className="relative z-10 max-w-4xl mx-auto text-center">
-        {/* Category Chip */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -49,7 +47,6 @@ export function ArticleHero({ post }) {
           </span>
         </motion.div>
 
-        {/* Headline */}
         <motion.h1 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -59,7 +56,6 @@ export function ArticleHero({ post }) {
           {post.title}
         </motion.h1>
 
-        {/* Meta Data Bar */}
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -67,9 +63,8 @@ export function ArticleHero({ post }) {
           className="inline-flex flex-wrap items-center justify-center gap-4 md:gap-8 text-sm text-slate-400 border-t border-b border-white/10 py-4 px-8"
         >
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-slate-700 to-slate-900 border border-slate-600 overflow-hidden">
-               {/* Placeholder Avatar */}
-               <div className="w-full h-full flex items-center justify-center text-[10px] text-white">BA</div>
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-slate-700 to-slate-900 border border-slate-600 overflow-hidden flex items-center justify-center text-[10px] text-white font-bold">
+               BA
             </div>
             <span className="text-slate-200 font-medium">Boluwatife Adeoye</span>
           </div>
@@ -87,13 +82,52 @@ export function ArticleHero({ post }) {
   );
 }
 
-/* === CONTENT WRAPPER === */
+/* === CONTENT WRAPPER (With Share & Save Logic) === */
 export function ArticleContent({ children }) {
+  const [isSaved, setIsSaved] = useState(false);
+  const [justShared, setJustShared] = useState(false);
+
+  // Check local storage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem("saved_posts");
+    if (saved) {
+      // Simple check if current URL is in saved list (mock logic for UI)
+      setIsSaved(saved.includes(window.location.pathname));
+    }
+  }, []);
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: document.title,
+          url: window.location.href,
+        });
+      } catch (err) {
+        console.log("Share canceled");
+      }
+    } else {
+      // Fallback to clipboard
+      navigator.clipboard.writeText(window.location.href);
+      setJustShared(true);
+      setTimeout(() => setJustShared(false), 2000);
+    }
+  };
+
+  const handleSave = () => {
+    const newState = !isSaved;
+    setIsSaved(newState);
+    // In a real app, you'd save the slug/ID to localStorage array
+    if (newState) {
+      // Mock save
+      localStorage.setItem("saved_posts", (localStorage.getItem("saved_posts") || "") + window.location.pathname);
+    }
+  };
+
   return (
     <div className="relative z-10 max-w-3xl mx-auto px-6 pb-24">
       <ReadingProgress />
       
-      {/* Typography Styles */}
       <article className="prose prose-xl prose-invert prose-slate 
         prose-headings:font-serif prose-headings:font-medium prose-headings:text-white 
         prose-p:text-slate-300 prose-p:leading-relaxed prose-p:font-light
@@ -106,18 +140,35 @@ export function ArticleContent({ children }) {
         {children}
       </article>
 
-      {/* Share / Action Bar (Bottom) */}
+      {/* Share / Action Bar */}
       <div className="mt-16 pt-8 border-t border-white/10 flex justify-between items-center">
         <Link href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors group">
           <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
           <span>Back to Home</span>
         </Link>
+        
         <div className="flex gap-4">
-          <button className="p-3 rounded-full bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition-colors">
-            <Share2 size={18} />
+          {/* Share Button */}
+          <button 
+            onClick={handleShare}
+            className="group relative p-3 rounded-full bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition-colors"
+            title="Share this article"
+          >
+            {justShared ? <Check size={18} className="text-emerald-400" /> : <Share2 size={18} />}
+            {justShared && (
+              <span className="absolute -top-8 left-1/2 -translate-x-1/2 text-[10px] bg-emerald-500 text-black px-2 py-1 rounded font-bold">
+                Copied!
+              </span>
+            )}
           </button>
-          <button className="p-3 rounded-full bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition-colors">
-            <Bookmark size={18} />
+
+          {/* Save Button */}
+          <button 
+            onClick={handleSave}
+            className={`p-3 rounded-full transition-colors ${isSaved ? 'bg-amber-500/20 text-amber-400' : 'bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white'}`}
+            title={isSaved ? "Saved" : "Save for later"}
+          >
+            <Bookmark size={18} fill={isSaved ? "currentColor" : "none"} />
           </button>
         </div>
       </div>
