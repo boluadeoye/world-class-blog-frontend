@@ -13,7 +13,7 @@ const getYoutubeId = (url) => {
 const renderers = {
   // 1. Cinematic Images
   img: ({ node, ...props }) => (
-    <div className="my-12 relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-slate-900 group">
+    <div className="my-14 relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-slate-900 group">
       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
       <img 
         {...props} 
@@ -52,7 +52,7 @@ const renderers = {
     );
   },
 
-  // 3. Paragraphs (Forced Brightness)
+  // 3. Paragraphs (Plus Jakarta Sans - Sharp & Bright)
   p: ({ node, children }) => {
     if (children && children[0] && typeof children[0] === 'string') {
        const text = children[0];
@@ -71,40 +71,39 @@ const renderers = {
          );
        }
     }
-    // !text-slate-200 forces the color, overriding prose defaults
-    return <p className="mb-8 text-[1.15rem] leading-[1.9] !text-slate-200 font-light tracking-wide">{children}</p>;
+    // !text-slate-100 forces Platinum brightness
+    // font-sans uses Plus Jakarta Sans
+    return <p className="mb-8 text-[1.15rem] md:text-[1.25rem] leading-[1.8] !text-slate-100 font-sans font-normal tracking-wide">{children}</p>;
   },
 
-  // 4. Editorial Headings
-  h1: ({ node, ...props }) => <h1 {...props} className="text-4xl md:text-5xl font-serif font-medium !text-white mt-20 mb-10 tracking-tight leading-tight" />,
-  h2: ({ node, ...props }) => <h2 {...props} className="text-2xl md:text-3xl font-serif font-medium !text-white mt-16 mb-6 pb-4 border-b border-white/5" />,
-  h3: ({ node, ...props }) => <h3 {...props} className="text-xl md:text-2xl font-serif font-medium !text-amber-100 mt-12 mb-4" />,
+  // 4. Editorial Headings (Cormorant Garamond)
+  h1: ({ node, ...props }) => <h1 {...props} className="text-5xl md:text-6xl font-serif font-semibold !text-white mt-24 mb-12 tracking-tight leading-[1.1]" />,
+  h2: ({ node, ...props }) => <h2 {...props} className="text-3xl md:text-4xl font-serif font-semibold !text-white mt-20 mb-8 pb-4 border-b border-white/10" />,
+  h3: ({ node, ...props }) => <h3 {...props} className="text-2xl md:text-3xl font-serif font-medium !text-amber-100 mt-14 mb-6" />,
   
   // 5. Glass Blockquotes
   blockquote: ({ node, ...props }) => (
-    <blockquote {...props} className="relative pl-8 py-6 my-12 italic text-xl md:text-2xl !text-slate-200 bg-gradient-to-r from-white/5 to-transparent rounded-r-2xl border-l-4 border-amber-500 shadow-lg backdrop-blur-sm not-italic" />
+    <blockquote {...props} className="relative pl-10 py-8 my-14 italic text-2xl md:text-3xl font-serif !text-slate-200 bg-gradient-to-r from-white/5 to-transparent rounded-r-3xl border-l-4 border-amber-500 shadow-2xl backdrop-blur-sm not-italic" />
   ),
   
-  // 6. Luxury Lists (Diamond Bullets - Forced)
-  // list-none removes the default gray bullets
-  ul: ({ node, ...props }) => <ul {...props} className="mb-10 space-y-4 list-none pl-0" />,
-  ol: ({ node, ...props }) => <ol {...props} className="list-decimal pl-6 mb-10 space-y-4 text-lg !text-slate-200 marker:text-amber-500 marker:font-serif" />,
+  // 6. Luxury Lists
+  ul: ({ node, ...props }) => <ul {...props} className="mb-12 space-y-5 list-none pl-0" />,
+  ol: ({ node, ...props }) => <ol {...props} className="list-decimal pl-8 mb-12 space-y-5 text-xl !text-slate-200 marker:text-amber-500 marker:font-serif marker:font-bold" />,
   
   li: ({ node, ...props }) => (
-    <li className="flex items-start gap-4 text-lg !text-slate-200 leading-relaxed pl-2">
+    <li className="flex items-start gap-4 text-[1.15rem] !text-slate-100 leading-relaxed pl-2 font-sans">
       {/* The Diamond Icon */}
-      <span className="mt-2.5 w-2 h-2 rotate-45 bg-amber-400 shrink-0 shadow-[0_0_10px_rgba(251,191,36,0.8)]"></span>
+      <span className="mt-3 w-2 h-2 rotate-45 bg-amber-400 shrink-0 shadow-[0_0_12px_rgba(251,191,36,0.8)]"></span>
       <span className="flex-1">{props.children}</span>
     </li>
   ),
   
   // 7. Gold Bold Text
-  strong: ({ node, ...props }) => <strong {...props} className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-100 to-amber-300" />,
+  strong: ({ node, ...props }) => <strong {...props} className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-100 to-amber-400" />,
 };
 
 export default function SmartMarkdown({ content }) {
   return (
-    // Removed 'prose' class here to prevent conflicts, we are styling manually above
     <div className="max-w-none">
       <ReactMarkdown 
         remarkPlugins={[remarkGfm]} 

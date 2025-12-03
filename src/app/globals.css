@@ -4,97 +4,63 @@
 
 :root {
   --foreground-rgb: 255, 255, 255;
-  --background-start-rgb: 9, 9, 11; /* Zinc 950 */
+  --background-start-rgb: 2, 6, 23; /* Slate 950 */
   --background-end-rgb: 0, 0, 0;
 }
 
+/* === PREMIUM FONT RENDERING === */
 body {
+  font-family: var(--font-sans);
+  background: rgb(var(--background-start-rgb));
   color: rgb(var(--foreground-rgb));
-  background: linear-gradient(to bottom, transparent, rgb(var(--background-end-rgb))) rgb(var(--background-start-rgb));
-  overflow-x: hidden; /* Prevent horizontal scroll from animations */
+  
+  /* Make text look sharper and thinner */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
-/* === CINEMATIC GRAIN === */
-.bg-noise {
-  position: fixed;
+/* Luxury Headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-serif);
+  letter-spacing: -0.02em; /* Tighten for elegance */
+}
+
+/* === ANIMATIONS === */
+@keyframes beam-sweep {
+  0% { transform: translateX(-150%) skewX(-20deg); }
+  20% { transform: translateX(150%) skewX(-20deg); }
+  100% { transform: translateX(150%) skewX(-20deg); }
+}
+
+.animate-beam::after {
+  content: "";
+  position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
+  width: 50%;
   height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  transform: translateX(-150%);
+  animation: beam-sweep 4s infinite ease-in-out;
   pointer-events: none;
-  z-index: 50;
-  opacity: 0.035;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
 }
 
-/* === AURORA LIGHTING === */
-.aurora-blob {
-  position: absolute;
-  filter: blur(80px);
-  opacity: 0.4;
-  animation: float 10s ease-in-out infinite;
-  border-radius: 50%;
+@keyframes border-pulse {
+  0% { border-color: rgba(255,255,255,0.1); box-shadow: 0 0 0 rgba(16,185,129,0); }
+  50% { border-color: rgba(16,185,129,0.5); box-shadow: 0 0 15px rgba(16,185,129,0.2); }
+  100% { border-color: rgba(255,255,255,0.1); box-shadow: 0 0 0 rgba(16,185,129,0); }
 }
 
-@keyframes float {
-  0% { transform: translate(0px, 0px) scale(1); }
-  33% { transform: translate(30px, -50px) scale(1.1); }
-  66% { transform: translate(-20px, 20px) scale(0.9); }
-  100% { transform: translate(0px, 0px) scale(1); }
+.animate-border-pulse {
+  animation: border-pulse 3s infinite ease-in-out;
 }
 
-/* Hide scrollbar for Lenis (optional but cleaner) */
-html.lenis { height: auto; }
-.lenis.lenis-smooth { scroll-behavior: auto; }
-.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
-.lenis.lenis-stopped { overflow: hidden; }
-.lenis.lenis-scrolling iframe { pointer-events: none; }
-
-/* === HOMEPAGE HEADER OVERRIDE (AGGRESSIVE) === */
-/* Only applies when .hero-section exists (Homepage) */
-
-body:has(.hero-section) header {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  backdrop-filter: none !important;
-  pointer-events: none; /* Allow clicking through the empty header area */
-}
-
-/* Hide Logo, Nav Links, and any other containers */
-body:has(.hero-section) header > *:not(button):not(.mobile-menu-trigger) {
-  display: none !important;
-}
-
-/* Style the Hamburger Button to be a Floating Orb */
-body:has(.hero-section) header button,
-body:has(.hero-section) header .mobile-menu-trigger {
-  display: flex !important;
-  pointer-events: auto; /* Re-enable clicking */
-  position: fixed !important;
-  top: 24px !important;
-  right: 24px !important;
-  z-index: 100 !important;
-  
-  /* Premium Glass Look */
-  width: 50px;
-  height: 50px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 9999px;
-  background: rgba(15, 23, 42, 0.6) !important; /* Dark Slate */
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-  color: white !important;
-}
-
-/* === FINGER CLICK ANIMATION === */
 @keyframes finger-tap {
   0% { transform: translate(10px, 10px) scale(1); opacity: 0.8; }
   40% { transform: translate(0, 0) scale(1); opacity: 1; }
-  50% { transform: translate(0, 0) scale(0.9); } /* Press Down */
-  60% { transform: translate(0, 0) scale(1); }   /* Release */
+  50% { transform: translate(0, 0) scale(0.9); }
+  60% { transform: translate(0, 0) scale(1); }
   100% { transform: translate(10px, 10px) scale(1); opacity: 0.8; }
 }
 
@@ -103,19 +69,37 @@ body:has(.hero-section) header .mobile-menu-trigger {
   filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
 }
 
-/* === SHIMMER EFFECT FOR BUTTON === */
 @keyframes shimmer {
   100% { transform: translateX(100%); }
 }
 
-/* === PREMIUM TEXT RENDERING === */
-body {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
+/* === HIDE HEADER ON HOME === */
+body:has(.hero-section) header {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  pointer-events: none;
 }
-
-/* Force brighter text in articles */
-article p, article li {
-  text-shadow: 0 0 1px rgba(0,0,0,0.1); /* Subtle sharpness */
+body:has(.hero-section) header > *:not(button):not(.mobile-menu-trigger) {
+  display: none !important;
+}
+body:has(.hero-section) header button,
+body:has(.hero-section) header .mobile-menu-trigger {
+  display: flex !important;
+  pointer-events: auto;
+  position: fixed !important;
+  top: 24px !important;
+  right: 24px !important;
+  z-index: 100 !important;
+  width: 50px;
+  height: 50px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: rgba(15, 23, 42, 0.6) !important;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  color: white !important;
 }
