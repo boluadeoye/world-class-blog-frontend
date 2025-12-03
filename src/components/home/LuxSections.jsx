@@ -1,15 +1,38 @@
 import Link from "next/link";
-import Image from "next/image";
 import { ArrowRight, Play, Terminal } from "lucide-react";
 
-/* === HELPER: Safe Data Mapping === */
+/* === HELPER: Clean Data & Text === */
 const getPostLink = (slug) => `/post/${slug}`;
+
 const getPostDate = (dateStr) => {
   if (!dateStr) return "";
   return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 };
-const getPostImage = (post) => post?.meta?.cover || post?.cover_image_url || null;
+
+const getPostImage = (post) => {
+  // Prioritize meta.cover, then cover_image_url
+  return post?.meta?.cover || post?.cover_image_url || null;
+};
+
 const getPostCategory = (post) => post?.meta?.category || "Note";
+
+// STRIP MARKDOWN: Converts raw MD to clean plain text for previews
+const getCleanExcerpt = (post) => {
+  if (post.excerpt) return post.excerpt;
+  if (!post.content) return "";
+  
+  let text = post.content
+    .replace(/!\[.*?\]\(.*?\)/g, "")       // Remove images
+    .replace(/\[([^\]]+)\]\([^\)]+\)/g, "$1") // Replace links with text
+    .replace(/#{1,6}\s?/g, "")             // Remove headers
+    .replace(/(\*\*|__)(.*?)\1/g, "$2")    // Remove bold
+    .replace(/(\*|_)(.*?)\1/g, "$2")       // Remove italic
+    .replace(/`{3}[\s\S]*?`{3}/g, "")      // Remove code blocks
+    .replace(/`(.+?)`/g, "$1")             // Remove inline code
+    .replace(/\n/g, " ");                  // Replace newlines with spaces
+
+  return text.length > 120 ? text.substring(0, 120).trim() + "..." : text;
+};
 
 /* === 1. STUDIO HERO === */
 export function LuxHero() {
@@ -58,45 +81,48 @@ export function LuxHero() {
 }
 
 /* === 2. LUX CARD === */
-export function LuxCard({ post, priority = false }) {
+export function LuxCard({ post }) {
   if (!post) return null;
   
   const imageUrl = getPostImage(post);
   const dateStr = getPostDate(post.created_at);
   const link = getPostLink(post.slug);
+  const cleanExcerpt = getCleanExcerpt(post);
 
   return (
     <Link href={link} className="lux-card group h-full flex flex-col relative overflow-hidden rounded-2xl bg-slate-900 border border-white/10">
-      <div className="lux-media relative aspect-video w-full overflow-hidden">
+      {/* Media Area - Using standard img to bypass Next.js domain restrictions */}
+      <div className="lux-media relative aspect-video w-full overflow-hidden bg-slate-800">
         {imageUrl ? (
-          <Image 
+          <img 
             src={imageUrl} 
             alt={post.title} 
-            fill 
-            className="lux-img object-cover group-hover:scale-105 transition-transform duration-700"
-            priority={priority}
+            className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+            loading="lazy"
           />
         ) : (
-          <div className="lux-img lux-img-fallback w-full h-full bg-slate-800" />
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-800 to-slate-900" />
         )}
-        <div className="lux-media-overlay absolute inset-0 bg-gradient-to-t from-slate-950/80 to-transparent" />
+        <div className="lux-media-overlay absolute inset-0 bg-gradient-to-t from-slate-950/90 via-transparent to-transparent" />
         
+        {/* Floating Meta */}
         <div className="lux-meta absolute bottom-3 left-3 right-3 flex justify-between items-center">
-          <span className="lux-chip bg-amber-400 text-slate-950 text-xs font-bold px-2 py-1 rounded-full">
+          <span className="lux-chip bg-amber-400 text-slate-950 text-xs font-bold px-2 py-1 rounded-full shadow-lg">
             {getPostCategory(post)}
           </span>
-          <span className="lux-date text-xs text-slate-300 font-medium">
+          <span className="lux-date text-xs text-slate-200 font-medium drop-shadow-md">
             {dateStr}
           </span>
         </div>
       </div>
 
+      {/* Content Body */}
       <div className="lux-body p-5 flex-1 flex flex-col">
-        <h3 className="lux-title text-lg font-bold text-white mb-2 group-hover:text-blue-300 transition-colors line-clamp-2">
+        <h3 className="lux-title text-lg font-bold text-white mb-2 group-hover:text-blue-300 transition-colors line-clamp-2 leading-tight">
           {post.title}
         </h3>
-        <p className="text-slate-400 text-sm line-clamp-2 mb-4 flex-1">
-          {post.excerpt || post.content?.substring(0, 100) + "..."}
+        <p className="text-slate-400 text-sm line-clamp-3 mb-4 flex-1 leading-relaxed">
+          {cleanExcerpt}
         </p>
         <div className="lux-underline h-0.5 w-full bg-gradient-to-r from-amber-400 to-blue-500 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
       </div>
@@ -129,7 +155,7 @@ export function LuxRail({ posts }) {
               {post.title}
             </h3>
             <p className="lux-tile-sub text-sm text-slate-500 line-clamp-2 mt-auto pt-2 relative z-10">
-              {post.excerpt || post.content?.substring(0, 60) + "..."}
+              {getCleanExcerpt(post)}
             </p>
           </Link>
         ))}
