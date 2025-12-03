@@ -13,33 +13,8 @@ let MODEL_CACHE = globalThis.__geminiModelCache || null;
 globalThis.__geminiModelCache = MODEL_CACHE;
 
 async function detectModel(apiKey) {
-  if (MODEL_CACHE?.id) return MODEL_CACHE.id;
-  // FIX: Use specific stable model version
-  const prefers = process.env.GEMINI_MODEL || "gemini-2.0-flash";
-  // FIX: Use v1beta for discovery
-  const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
-  try {
-    const r = await fetch(url, { next: { revalidate: 300 } });
-    if (!r.ok) throw new Error(`ListModels ${r.status}`);
-    const data = await r.json();
-    const models = Array.isArray(data?.models) ? data.models : [];
-    const gens = models.filter(m => (m.supportedGenerationMethods || []).includes("generateContent"));
-    
-    // Try to find the preferred model in the list, otherwise fallback
-    const pick = gens.find(m => m.name.includes(prefers)) || gens[0];
-    
-    const raw = (pick?.name || prefers);
-    const id = raw.replace(/^models\//, "");
-    MODEL_CACHE = { id };
-    globalThis.__geminiModelCache = MODEL_CACHE;
-    return id;
-  } catch (e) {
-    // Fallback if listing fails
-    const id = prefers.replace(/^models\//, "");
-    MODEL_CACHE = { id };
-    globalThis.__geminiModelCache = MODEL_CACHE;
-    return id;
-  }
+  // Force Gemini 2.0 Flash
+  return "gemini-2.0-flash";
 }
 
 export async function POST(req) {
@@ -65,7 +40,7 @@ export async function POST(req) {
 `You are ${name}. Speak in first person ("I", "my") at all times. Do not say you're an AI.
 Tone: warm, concise, professional.
 - Canonical website: ${site}. Use only this domain in links.
-- Contact: ${email}. When appropriate, suggest sending a summary to this email.
+- Contact: ${email}.
 - Topics: services, stack, projects, articles.
 - Formatting: short paragraphs, Markdown bullets.`;
 
@@ -77,23 +52,18 @@ Tone: warm, concise, professional.
   }
   if (contents.length === 1) contents.push({ role: "user", parts: [{ text: "Hello!" }] });
 
-  const modelId = await detectModel(apiKey);
-  // FIX: Default to v1beta
+  const modelId = "gemini-2.0-flash";
   const version = "v1beta";
 
-  async function call(ver) {
-    const url = `https://generativelanguage.googleapis.com/${ver}/models/${modelId}:generateContent?key=${apiKey}`;
-    const payload = {
-      contents,
-      generationConfig: { temperature: 0.6, topK: 40, topP: 0.95, maxOutputTokens: 768 },
-    };
-    const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
-    const text = await r.text();
-    let data = {};
-    try { data = JSON.parse(text); } catch {}
-    return { ok: r.ok, status: r.status, data, text };
-  }
-
-  let res = await call(version);
-  return NextResponse.json(res.ok ? res.data : { error: res.status, text: res.text }, { status: res.ok ? 200 : res.status });
+  const url = `https://generativelanguage.googleapis.com/${version}/models/${modelId}:generateContent?key=${apiKey}`;
+  const payload = {
+    contents,
+    generationConfig: { temperature: 0.6, topK: 40, topP: 0.95, maxOutputTokens: 768 },
+  };
+  
+  const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+  const text = await r.text();
+  let data = {};
+  try { data = JSON.parse(text); } catch {}
+  return NextResponse.json(r.ok ? data : { error: r.status, text }, { status: r.ok ? 200 : r.status });
 }

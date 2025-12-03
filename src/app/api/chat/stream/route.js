@@ -2,15 +2,13 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const API_KEY = process.env.GEMINI_API_KEY;
-const RAW_MODEL = (process.env.GEMINI_MODEL || "").trim();
-// FIX: Use stable model name
-const MODEL = /^gemini-/.test(RAW_MODEL) ? RAW_MODEL : "gemini-2.0-flash";
+const MODEL = "gemini-2.0-flash";
 
 function buildPersona(mode, site, email){
   const base = `You are Boluwatife’s personal assistant (PA). Speak as the assistant (“I”), on his behalf.
 - Canonical website: ${site}.
 - Contact: ${email}.
-- Never claim to be Boluwatife; you are his PA.
+- Never claim to be Boluwatife.
 - Use Markdown; short mobile‑friendly paragraphs.`;
   
   const modes = {
@@ -48,11 +46,9 @@ export async function POST(req) {
     const email = process.env.NEXT_PUBLIC_CONTACT_EMAIL || "boluadeoye97@gmail.com";
     const persona = buildPersona(mode, site, email);
 
-    const personaTurn = { role: "user", parts: [{ text: persona }] };
-    const contents = [personaTurn, ...messagesToContents(messages)];
+    const contents = [{ role: "user", parts: [{ text: persona }] }, ...messagesToContents(messages)];
     const payload = { contents, generationConfig: { temperature: 0.6, topK: 40, topP: 0.95, maxOutputTokens: 768 } };
 
-    // FIX: Use v1beta for API version
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`;
     
     const r = await fetch(url, { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify(payload) });
@@ -80,16 +76,9 @@ export async function POST(req) {
 
     return new Response(readable, {
       status: 200,
-      headers: {
-        "Content-Type": "text/event-stream",
-        "Cache-Control": "no-cache, no-transform",
-        "Connection": "keep-alive",
-        "X-Accel-Buffering": "no"
-      }
+      headers: { "Content-Type": "text/event-stream", "Cache-Control": "no-cache, no-transform", "Connection": "keep-alive", "X-Accel-Buffering": "no" }
     });
   }catch(e){
-    return new Response(sse({ error:String(e) }), {
-      status: 500, headers: { "Content-Type":"text/event-stream", "Cache-Control":"no-cache", "Connection":"keep-alive" }
-    });
+    return new Response(sse({ error:String(e) }), { status: 500 });
   }
 }
