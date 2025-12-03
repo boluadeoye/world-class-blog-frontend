@@ -12,7 +12,7 @@ const getYoutubeId = (url) => {
 
 const renderers = {
   img: ({ node, ...props }) => (
-    <div className="my-12 relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl bg-slate-900 group">
+    <div className="my-10 relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-slate-900 group">
       <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
       <img 
         {...props} 
@@ -27,7 +27,7 @@ const renderers = {
     const youtubeId = getYoutubeId(href);
     if (youtubeId) {
       return (
-        <div className="my-16 relative aspect-video rounded-3xl overflow-hidden border border-white/10 shadow-2xl bg-black group ring-1 ring-white/10">
+        <div className="my-12 relative aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black group ring-1 ring-white/10">
           <iframe
             src={`https://www.youtube-nocookie.com/embed/${youtubeId}`}
             title="YouTube video player"
@@ -42,7 +42,7 @@ const renderers = {
       <Link 
         href={href} 
         {...props} 
-        className="text-amber-400 hover:text-amber-200 font-bold underline decoration-amber-500/40 underline-offset-4 transition-colors"
+        className="text-amber-400 hover:text-amber-200 font-medium underline decoration-amber-500/40 underline-offset-4 transition-colors"
         target={href.startsWith("http") ? "_blank" : undefined}
       >
         {children}
@@ -56,7 +56,7 @@ const renderers = {
        const youtubeId = getYoutubeId(text);
        if (youtubeId && text.trim().match(/^https?:\/\//)) {
          return (
-            <div className="my-16 relative aspect-video rounded-3xl overflow-hidden border border-white/10 shadow-2xl bg-black ring-1 ring-white/10">
+            <div className="my-12 relative aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black ring-1 ring-white/10">
               <iframe
                 src={`https://www.youtube-nocookie.com/embed/${youtubeId}`}
                 title="YouTube video player"
@@ -68,26 +68,29 @@ const renderers = {
          );
        }
     }
-    // JUSTIFIED TEXT, BRIGHTER COLOR
-    return <p className="mb-8 text-xl leading-loose text-slate-200 text-justify font-light tracking-wide">{children}</p>;
+    // LEFT ALIGNED, MODERN SPACING
+    return <p className="mb-6 text-lg md:text-[1.15rem] leading-[1.8] text-slate-300 text-left font-normal tracking-normal">{children}</p>;
   },
 
-  h1: ({ node, ...props }) => <h1 {...props} className="text-5xl font-serif font-medium text-white mt-20 mb-10 text-center tracking-tight" />,
-  h2: ({ node, ...props }) => <h2 {...props} className="text-3xl font-serif font-medium text-white mt-16 mb-8 border-b border-white/10 pb-4" />,
-  h3: ({ node, ...props }) => <h3 {...props} className="text-2xl font-serif font-medium text-amber-100 mt-12 mb-6" />,
+  h1: ({ node, ...props }) => <h1 {...props} className="text-4xl font-serif font-medium text-white mt-16 mb-8 tracking-tight" />,
+  h2: ({ node, ...props }) => <h2 {...props} className="text-2xl md:text-3xl font-serif font-medium text-white mt-12 mb-6 tracking-tight" />,
+  h3: ({ node, ...props }) => <h3 {...props} className="text-xl md:text-2xl font-serif font-medium text-amber-100 mt-10 mb-4" />,
   
   blockquote: ({ node, ...props }) => (
-    <blockquote {...props} className="border-l-4 border-amber-500 pl-8 py-6 my-12 italic text-2xl text-slate-300 bg-slate-900/40 rounded-r-2xl shadow-inner" />
+    <blockquote {...props} className="border-l-2 border-amber-500 pl-6 py-4 my-8 italic text-xl text-slate-400 bg-white/5 rounded-r-xl" />
   ),
   
-  ul: ({ node, ...props }) => <ul {...props} className="list-disc pl-6 mb-8 space-y-3 text-lg text-slate-300" />,
-  ol: ({ node, ...props }) => <ol {...props} className="list-decimal pl-6 mb-8 space-y-3 text-lg text-slate-300" />,
-  li: ({ node, ...props }) => <li {...props} className="pl-2" />,
+  ul: ({ node, ...props }) => <ul {...props} className="list-disc pl-5 mb-6 space-y-2 text-lg text-slate-300" />,
+  ol: ({ node, ...props }) => <ol {...props} className="list-decimal pl-5 mb-6 space-y-2 text-lg text-slate-300" />,
+  li: ({ node, ...props }) => <li {...props} className="pl-1" />,
+  
+  // Highlight Bold Text
+  strong: ({ node, ...props }) => <strong {...props} className="font-semibold text-white" />,
 };
 
 export default function SmartMarkdown({ content }) {
   return (
-    <div className="prose prose-xl prose-invert max-w-none">
+    <div className="prose prose-lg prose-invert max-w-none">
       <ReactMarkdown 
         remarkPlugins={[remarkGfm]} 
         components={renderers}
