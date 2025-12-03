@@ -38,8 +38,8 @@ export default function ClientChat(){
   const [busy,setBusy] = useState(false);
   const [mode,setMode] = useState("inquiry");
   const endRef = useRef(null);
-
   const email = process.env.NEXT_PUBLIC_CONTACT_EMAIL || "boluadeoye97@gmail.com";
+
   const greeting = useMemo(()=>`Hi, I’m Boluwatife’s personal assistant. How can I help today?`,[]);
 
   useEffect(()=>{ endRef.current?.scrollIntoView({behavior:"smooth"}); },[messages,busy]);
@@ -50,7 +50,9 @@ export default function ClientChat(){
       headers:{ "Content-Type":"application/json" },
       body: JSON.stringify({ messages: history, mode })
     });
-    const j = await r.json().catch(()=>({}));
+    const raw = await r.text();
+    let j = {};
+    try { j = JSON.parse(raw); } catch { j = { error: raw }; }
     if (!r.ok || !j?.reply) throw new Error(j?.error || "Fallback failed");
     return j.reply;
   }
@@ -65,7 +67,6 @@ export default function ClientChat(){
     setInput("");
     setBusy(true);
 
-    // create empty assistant turn to fill
     setMessages(prev => [...prev, { role:"assistant", content: "" }]);
 
     let appended = false;
@@ -112,7 +113,6 @@ export default function ClientChat(){
         }
       }
 
-      // if stream produced nothing, fallback
       if (!gotAny) {
         const reply = await fallbackComplete(history);
         appended = true;
@@ -124,7 +124,6 @@ export default function ClientChat(){
         });
       }
     }catch(e){
-      // fallback on any error
       try{
         const reply = await fallbackComplete(history);
         appended = true;
@@ -135,10 +134,11 @@ export default function ClientChat(){
           return copy;
         });
       }catch(e2){
+        const msg = String(e2?.message || e?.message || "Network issue");
         setMessages(prev => {
           const copy = prev.slice();
           const last = copy[copy.length-1];
-          if (last?.role === "assistant") last.content = "Sorry, I ran into a network issue.";
+          if (last?.role === "assistant") last.content = `Error: ${msg}`;
           return copy;
         });
       }
@@ -161,7 +161,6 @@ export default function ClientChat(){
             <a href={`mailto:${email}`} className="icon-btn" title="Email"><Mail size={16} /></a>
           </header>
 
-          {/* Modes */}
           <div className="mt-2 flex flex-wrap gap-2">
             {MODES.map(m => (
               <button key={m.key} onClick={()=>setMode(m.key)} className={`btn-xs ${mode===m.key ? 'btn-beam-gold' : 'btn-outline-lux'}`} type="button">
@@ -170,7 +169,6 @@ export default function ClientChat(){
             ))}
           </div>
 
-          {/* Suggestions if empty */}
           {messages.length === 0 && (
             <div className="mt-3 flex flex-wrap gap-2">
               {SUGGESTS.map((s,i)=>(
@@ -179,7 +177,6 @@ export default function ClientChat(){
             </div>
           )}
 
-          {/* Transcript */}
           <div className="mt-3 space-y-2">
             {messages.map((m, i)=>(
               <div key={i} className={m.role === "user" ? "bubble user" : "bubble ai"}>
@@ -192,7 +189,6 @@ export default function ClientChat(){
             <div ref={endRef} />
           </div>
 
-          {/* Composer */}
           <form className="chat-input-row" onSubmit={onSubmit}>
             <textarea className="chat-input" rows={1} value={input} onChange={(e)=>setInput(e.target.value)} placeholder="Type your question…"/>
             <button disabled={busy || !input.trim()} className="btn-send" type="submit">Send</button>

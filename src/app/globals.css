@@ -3043,3 +3043,14 @@ header a[href="/projects"], nav a[href="/projects"]{ display:none !important; }
 /* Force readable text color inside bubbles */
 .chat-card .md-prose{ color:#e6eef8; }
 .chat-card .md-prose strong{ color:#ffffff; }
+
+/* compact chat */
+.chat-card{ padding: 12px 14px; }
+.chat-input-row{ gap: .5rem; margin-top: 10px; }
+.chat-input{ padding: .6rem .8rem; }
+.btn-send{ padding: .6rem .85rem; }
+.chat-card .bubble{ max-width: 76%; padding: .65rem .85rem; margin: 6px 0; border-radius: 14px; }
+.chat-card .bubble.ai{ background: rgba(15,23,42,.80); border: 1px solid rgba(255,255,255,.08); }
+.chat-card .bubble.user{ background: linear-gradient(180deg, rgba(56,189,248,.13), rgba(56,189,248,.09)); border: 1px solid rgba(56,189,248,.28); }
+.chat-card .md-prose{ color:#e6eef8; }
+.chat-card .md-prose strong{ color:#ffffff; }
