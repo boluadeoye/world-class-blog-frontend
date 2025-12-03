@@ -15,7 +15,7 @@ export default function NewsUpdates() {
         );
         const data = await res.json();
         if (data.items) {
-          setNews(data.items.slice(0, 6));
+          setNews(data.items.slice(0, 8)); // Increased to 8 items since cards are smaller
         }
       } catch (e) {
         console.error("News fetch failed", e);
@@ -48,38 +48,40 @@ export default function NewsUpdates() {
           </div>
         </div>
 
-        {/* Horizontal Scroll Container (Compact & Aligned) */}
-        <div className="flex gap-5 overflow-x-auto pb-10 px-6 md:px-12 snap-x scroll-pl-6 md:scroll-pl-12 scrollbar-hide">
+        {/* Horizontal Scroll Container (Vertical Cards) */}
+        <div className="flex gap-4 overflow-x-auto pb-10 px-6 md:px-12 snap-x scroll-pl-6 md:scroll-pl-12 scrollbar-hide">
           {loading
-            ? [...Array(3)].map((_, i) => (
-                <div key={i} className="min-w-[260px] md:min-w-[300px] h-[170px] rounded-xl bg-white/5 animate-pulse border border-white/5 flex-shrink-0" />
+            ? [...Array(4)].map((_, i) => (
+                <div key={i} className="min-w-[220px] md:min-w-[240px] h-[280px] rounded-2xl bg-white/5 animate-pulse border border-white/5 flex-shrink-0" />
               ))
             : news.map((item, idx) => (
                 <Link
                   key={idx}
                   href={item.link}
                   target="_blank"
-                  className="group relative min-w-[260px] md:min-w-[300px] h-[170px] snap-start flex-shrink-0"
+                  className="group relative min-w-[220px] md:min-w-[240px] h-[280px] snap-start flex-shrink-0"
                 >
                   {/* Card Container */}
-                  <div className="h-full p-5 rounded-xl bg-slate-950 border border-white/10 hover:border-indigo-500/40 transition-all duration-500 flex flex-col justify-between overflow-hidden shadow-lg group-hover:shadow-xl group-hover:shadow-indigo-900/10">
+                  <div className="h-full p-5 rounded-2xl bg-slate-950 border border-white/10 hover:border-indigo-500/40 transition-all duration-500 flex flex-col justify-between overflow-hidden shadow-lg group-hover:shadow-xl group-hover:shadow-indigo-900/10 group-hover:-translate-y-1">
                     
                     {/* Hover Gradient */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                     
                     {/* Top Row */}
-                    <div className="relative z-10 flex justify-between items-start mb-3">
+                    <div className="relative z-10 flex justify-between items-start mb-4">
                       <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-white/5 border border-white/5 text-[9px] font-bold tracking-widest text-indigo-300 uppercase font-sans">
                         <Globe size={9} /> BBC
                       </span>
                       <ExternalLink size={14} className="text-slate-600 group-hover:text-white transition-colors" />
                     </div>
 
-                    {/* Content - Compact Serif */}
-                    <div className="relative z-10 flex-1">
-                      <h4 className="font-serif text-lg md:text-xl text-slate-200 leading-snug line-clamp-3 group-hover:text-white transition-colors tracking-tight">
+                    {/* Content - Vertical Layout */}
+                    <div className="relative z-10 flex-1 flex flex-col">
+                      <h4 className="font-serif text-xl text-slate-200 leading-snug line-clamp-4 group-hover:text-white transition-colors tracking-tight">
                         {item.title}
                       </h4>
+                      {/* Decorative Line */}
+                      <div className="w-8 h-0.5 bg-slate-800 mt-4 group-hover:bg-indigo-500/50 transition-colors"></div>
                     </div>
                     
                     {/* Bottom Row */}
