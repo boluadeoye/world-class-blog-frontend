@@ -17,7 +17,6 @@ async function getPostData(slug) {
 
   const post = allPosts[postIndex];
   
-  // Get 2 related posts (next ones in the list, or loop back to start)
   const related = [];
   if (allPosts.length > 1) related.push(allPosts[(postIndex + 1) % allPosts.length]);
   if (allPosts.length > 2) related.push(allPosts[(postIndex + 2) % allPosts.length]);
@@ -48,17 +47,16 @@ export default async function PostPage(props) {
       {/* 1. HERO */}
       <ArticleHero post={post} />
 
-      {/* 2. CONTENT (With YouTube & Images) */}
+      {/* 2. CONTENT */}
       <ArticleContent>
         <SmartMarkdown content={post.content} />
       </ArticleContent>
 
-      {/* 3. COMMENTS SECTION (Restored) */}
+      {/* 3. COMMENTS (Fixed Prop: Passing ID instead of Slug) */}
       <section className="max-w-3xl mx-auto px-6 pb-16">
-        <div className="p-1 rounded-2xl bg-gradient-to-b from-white/10 to-transparent">
-          <div className="bg-slate-900 rounded-xl p-6 md:p-8 border border-white/5">
-            <h3 className="text-2xl font-serif text-white mb-6">Discussion</h3>
-            <Comments slug={post.slug} />
+        <div className="p-1 rounded-3xl bg-gradient-to-b from-white/5 to-transparent">
+          <div className="bg-slate-950/50 backdrop-blur-sm rounded-2xl p-6 md:p-10 border border-white/5">
+            <Comments postId={post.id} />
           </div>
         </div>
       </section>
