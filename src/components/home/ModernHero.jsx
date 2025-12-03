@@ -1,6 +1,6 @@
 "use client";
 import { motion } from "framer-motion";
-import { ArrowRight, Cpu, MessageSquare } from "lucide-react";
+import { ArrowRight, Cpu } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 
@@ -51,13 +51,13 @@ export default function ModernHero() {
       <div className="relative z-10 w-full max-w-6xl mx-auto">
         <div className="relative bg-[#020617] rounded-[2.5rem] overflow-hidden shadow-2xl shadow-black/80">
           
-          {/* === VISIBLE BACKGROUND PATTERNS === */}
+          {/* === NEW PREMIUM PATTERN (Dot Matrix) === */}
           <div className="absolute inset-0 z-0 pointer-events-none">
-            {/* Stronger Grid Pattern */}
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff10_1px,transparent_1px),linear-gradient(to_bottom,#ffffff10_1px,transparent_1px)] bg-[size:40px_40px]"></div>
+            {/* Dot Matrix Pattern */}
+            <div className="absolute inset-0 bg-[radial-gradient(#ffffff15_1px,transparent_1px)] [background-size:20px_20px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_90%)]"></div>
             
             {/* Subtle Radial Highlight */}
-            <div className="absolute top-0 left-0 w-full h-full bg-radial-gradient(circle at 50% 0%, rgba(255,255,255,0.05), transparent 70%)"></div>
+            <div className="absolute top-0 left-0 w-full h-full bg-radial-gradient(circle at 50% 0%, rgba(255,255,255,0.03), transparent 70%)"></div>
           </div>
 
           {/* Card Border Glow */}
@@ -67,8 +67,7 @@ export default function ModernHero() {
           <div className="relative z-10 p-6 md:p-16 flex flex-col">
             
             {/* === TOP ROW: SIDE-BY-SIDE ALIGNMENT === */}
-            {/* flex-row ensures they are always opposite each other */}
-            <div className="flex flex-row justify-between items-center mb-12">
+            <div className="flex flex-row justify-between items-center mb-6 md:mb-8">
               
               {/* Status Pill (Left) */}
               <motion.div 
@@ -100,7 +99,9 @@ export default function ModernHero() {
 
             {/* === MAIN TYPOGRAPHY === */}
             <div className="max-w-4xl">
-              <div className="mb-8 relative">
+              
+              {/* Name (Tightened Spacing) */}
+              <div className="mb-6 relative">
                 <motion.h1 
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -116,7 +117,7 @@ export default function ModernHero() {
                 initial={{ opacity: 0, width: 0 }}
                 animate={{ opacity: 1, width: "100%" }}
                 transition={{ duration: 1, delay: 0.3 }}
-                className="flex items-center gap-4 mb-10"
+                className="flex items-center gap-4 mb-8"
               >
                 <div className="h-[3px] w-20 bg-amber-500 rounded-full"></div>
                 <h2 className="text-xs md:text-sm font-mono text-amber-400 tracking-[0.25em] uppercase font-bold shadow-black drop-shadow-md">
@@ -128,7 +129,7 @@ export default function ModernHero() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 1, delay: 0.4 }}
-                className="font-sans text-lg md:text-2xl text-slate-300 max-w-2xl leading-relaxed mb-12"
+                className="font-sans text-lg md:text-2xl text-slate-300 max-w-2xl leading-relaxed mb-10"
               >
                 Architecting high-performance digital ecosystems. 
                 Specializing in <span className="text-white font-medium border-b border-slate-700 pb-0.5">React Server Components</span>, <span className="text-white font-medium border-b border-slate-700 pb-0.5">Scalable Systems</span>, and <span className="text-white font-medium border-b border-slate-700 pb-0.5">Human-Centric UI</span>.
@@ -141,12 +142,18 @@ export default function ModernHero() {
                 transition={{ duration: 0.8, delay: 0.5 }}
                 className="flex flex-wrap gap-5"
               >
+                {/* Primary: Let's Talk (With Finger Animation) */}
                 <Link href="/chat" className="group relative px-8 py-4 bg-white text-slate-950 rounded-full font-sans font-bold tracking-wide overflow-hidden animate-beam shadow-[0_0_25px_rgba(255,255,255,0.15)] hover:scale-105 transition-transform">
                   <span className="relative z-10 flex items-center gap-2">
-                    Chat with AI <MessageSquare size={18} className="group-hover:translate-x-1 transition-transform" />
+                    Let's Talk <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                  </span>
+                  {/* The Clicking Finger */}
+                  <span className="absolute -bottom-2 -right-2 text-2xl animate-finger pointer-events-none z-20">
+                    👆
                   </span>
                 </Link>
                 
+                {/* Secondary: Access Logs */}
                 <Link href="/articles" className="group relative px-8 py-4 bg-slate-900/50 backdrop-blur-md text-slate-300 rounded-full font-sans font-medium border border-slate-700 animate-border-pulse flex items-center gap-2 hover:text-white transition-colors hover:bg-slate-800">
                   <Cpu size={16} className="text-emerald-400 group-hover:rotate-90 transition-transform duration-500" />
                   <span>Access Logs</span>
