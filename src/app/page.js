@@ -30,7 +30,7 @@ export default async function Page() {
       {/* === 1. HERO === */}
       <ModernHero />
 
-      {/* === SEPARATOR BAR (Fills the gap) === */}
+      {/* === SEPARATOR BAR === */}
       <div className="w-full max-w-7xl mx-auto px-6 md:px-12 mb-12">
         <div className="h-px w-full bg-gradient-to-r from-transparent via-slate-700 to-transparent opacity-50"></div>
       </div>
@@ -96,25 +96,30 @@ export default async function Page() {
         </div>
       </section>
 
-      {/* === 3. LATEST NOTES & VIDEO === */}
+      {/* === 3. LATEST NOTES & VIDEO (FIXED FONTS) === */}
       <section className="px-6 md:px-12 py-20 bg-slate-900/30 border-t border-slate-800/50">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16">
+          
+          {/* === LATEST NOTES LIST === */}
           <div>
             <ScrollReveal>
-              <h3 className="font-serif text-2xl text-slate-100 mb-8 flex items-center gap-3">
-                <FileText className="text-amber-500" size={24} /> Latest Notes
+              <h3 className="font-serif text-3xl text-slate-100 mb-8 flex items-center gap-3">
+                <FileText className="text-amber-500" size={28} /> 
+                Latest Notes
               </h3>
             </ScrollReveal>
-            <div className="space-y-2">
+            <div className="space-y-4">
               {recentNotes.map((post, i) => (
                 <ScrollReveal key={post.slug} delay={i * 0.1}>
-                  <Link href={`/post/${post.slug}`} className="group flex items-baseline gap-4 p-4 rounded-lg hover:bg-white/5 transition-colors border-b border-slate-800/50 last:border-0">
-                    <span className="font-mono text-xs text-slate-600">0{i + 1}</span>
+                  <Link href={`/post/${post.slug}`} className="group flex items-start gap-5 p-5 rounded-xl hover:bg-white/5 transition-colors border-b border-slate-800/50 last:border-0">
+                    {/* BIG BOLD NUMBER */}
+                    <span className="font-mono text-xl text-amber-500 font-bold mt-1">0{i + 1}</span>
                     <div>
-                      <h4 className="text-lg font-medium text-slate-300 group-hover:text-white transition-colors">
+                      {/* BIG BOLD TITLE */}
+                      <h4 className="text-xl md:text-2xl font-serif font-bold text-slate-200 group-hover:text-white transition-colors leading-tight">
                         {post.title}
                       </h4>
-                      <p className="text-sm text-slate-500 mt-1 line-clamp-1">{post.excerpt}</p>
+                      <p className="text-sm text-slate-500 mt-2 line-clamp-2 leading-relaxed">{post.excerpt}</p>
                     </div>
                   </Link>
                 </ScrollReveal>
@@ -122,10 +127,12 @@ export default async function Page() {
             </div>
           </div>
 
+          {/* === VIDEO SECTION === */}
           <div>
             <ScrollReveal delay={0.2}>
-              <h3 className="font-serif text-2xl text-slate-100 mb-8 flex items-center gap-3">
-                <Play className="text-red-500" size={24} /> On Air
+              <h3 className="font-serif text-3xl text-slate-100 mb-8 flex items-center gap-3">
+                <Play className="text-red-500" size={28} /> 
+                On Air
               </h3>
               {featuredVideo && featuredVideo.id ? (
                 <div className="relative group rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 shadow-2xl">
@@ -139,7 +146,7 @@ export default async function Page() {
                     ></iframe>
                   </div>
                   <div className="p-6">
-                    <h4 className="font-bold text-white text-lg">{featuredVideo.title}</h4>
+                    <h4 className="font-bold text-white text-xl">{featuredVideo.title}</h4>
                     <p className="text-sm text-slate-500 mt-1">Watch on YouTube</p>
                   </div>
                 </div>
@@ -159,7 +166,6 @@ export default async function Page() {
         <div className="max-w-4xl mx-auto">
           <ScrollReveal>
             <div className="relative rounded-3xl bg-gradient-to-r from-slate-900 to-slate-800 border border-slate-700 p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl overflow-hidden">
-              {/* Background Glow */}
               <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 blur-[80px] rounded-full pointer-events-none"></div>
               
               <div className="relative z-10 text-center md:text-left">
