@@ -11,9 +11,10 @@ const getYoutubeId = (url) => {
 };
 
 const renderers = {
+  // 1. Cinematic Images
   img: ({ node, ...props }) => (
-    <div className="my-10 relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-slate-900 group">
-      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+    <div className="my-12 relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-slate-900 group">
+      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
       <img 
         {...props} 
         className="w-full h-auto object-cover transform group-hover:scale-105 transition-transform duration-1000" 
@@ -23,11 +24,12 @@ const renderers = {
     </div>
   ),
 
+  // 2. Gold Links & Video Embeds
   a: ({ node, href, children, ...props }) => {
     const youtubeId = getYoutubeId(href);
     if (youtubeId) {
       return (
-        <div className="my-12 relative aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black group ring-1 ring-white/10">
+        <div className="my-16 relative aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black group ring-1 ring-white/10">
           <iframe
             src={`https://www.youtube-nocookie.com/embed/${youtubeId}`}
             title="YouTube video player"
@@ -42,7 +44,7 @@ const renderers = {
       <Link 
         href={href} 
         {...props} 
-        className="text-amber-400 hover:text-amber-200 font-medium underline decoration-amber-500/40 underline-offset-4 transition-colors"
+        className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-yellow-500 font-bold border-b border-amber-500/30 hover:border-amber-400 transition-all no-underline"
         target={href.startsWith("http") ? "_blank" : undefined}
       >
         {children}
@@ -50,13 +52,14 @@ const renderers = {
     );
   },
 
+  // 3. Paragraphs (Forced Brightness)
   p: ({ node, children }) => {
     if (children && children[0] && typeof children[0] === 'string') {
        const text = children[0];
        const youtubeId = getYoutubeId(text);
        if (youtubeId && text.trim().match(/^https?:\/\//)) {
          return (
-            <div className="my-12 relative aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black ring-1 ring-white/10">
+            <div className="my-16 relative aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black ring-1 ring-white/10">
               <iframe
                 src={`https://www.youtube-nocookie.com/embed/${youtubeId}`}
                 title="YouTube video player"
@@ -68,29 +71,41 @@ const renderers = {
          );
        }
     }
-    // LEFT ALIGNED, MODERN SPACING
-    return <p className="mb-6 text-lg md:text-[1.15rem] leading-[1.8] text-slate-300 text-left font-normal tracking-normal">{children}</p>;
+    // !text-slate-200 forces the color, overriding prose defaults
+    return <p className="mb-8 text-[1.15rem] leading-[1.9] !text-slate-200 font-light tracking-wide">{children}</p>;
   },
 
-  h1: ({ node, ...props }) => <h1 {...props} className="text-4xl font-serif font-medium text-white mt-16 mb-8 tracking-tight" />,
-  h2: ({ node, ...props }) => <h2 {...props} className="text-2xl md:text-3xl font-serif font-medium text-white mt-12 mb-6 tracking-tight" />,
-  h3: ({ node, ...props }) => <h3 {...props} className="text-xl md:text-2xl font-serif font-medium text-amber-100 mt-10 mb-4" />,
+  // 4. Editorial Headings
+  h1: ({ node, ...props }) => <h1 {...props} className="text-4xl md:text-5xl font-serif font-medium !text-white mt-20 mb-10 tracking-tight leading-tight" />,
+  h2: ({ node, ...props }) => <h2 {...props} className="text-2xl md:text-3xl font-serif font-medium !text-white mt-16 mb-6 pb-4 border-b border-white/5" />,
+  h3: ({ node, ...props }) => <h3 {...props} className="text-xl md:text-2xl font-serif font-medium !text-amber-100 mt-12 mb-4" />,
   
+  // 5. Glass Blockquotes
   blockquote: ({ node, ...props }) => (
-    <blockquote {...props} className="border-l-2 border-amber-500 pl-6 py-4 my-8 italic text-xl text-slate-400 bg-white/5 rounded-r-xl" />
+    <blockquote {...props} className="relative pl-8 py-6 my-12 italic text-xl md:text-2xl !text-slate-200 bg-gradient-to-r from-white/5 to-transparent rounded-r-2xl border-l-4 border-amber-500 shadow-lg backdrop-blur-sm not-italic" />
   ),
   
-  ul: ({ node, ...props }) => <ul {...props} className="list-disc pl-5 mb-6 space-y-2 text-lg text-slate-300" />,
-  ol: ({ node, ...props }) => <ol {...props} className="list-decimal pl-5 mb-6 space-y-2 text-lg text-slate-300" />,
-  li: ({ node, ...props }) => <li {...props} className="pl-1" />,
+  // 6. Luxury Lists (Diamond Bullets - Forced)
+  // list-none removes the default gray bullets
+  ul: ({ node, ...props }) => <ul {...props} className="mb-10 space-y-4 list-none pl-0" />,
+  ol: ({ node, ...props }) => <ol {...props} className="list-decimal pl-6 mb-10 space-y-4 text-lg !text-slate-200 marker:text-amber-500 marker:font-serif" />,
   
-  // Highlight Bold Text
-  strong: ({ node, ...props }) => <strong {...props} className="font-semibold text-white" />,
+  li: ({ node, ...props }) => (
+    <li className="flex items-start gap-4 text-lg !text-slate-200 leading-relaxed pl-2">
+      {/* The Diamond Icon */}
+      <span className="mt-2.5 w-2 h-2 rotate-45 bg-amber-400 shrink-0 shadow-[0_0_10px_rgba(251,191,36,0.8)]"></span>
+      <span className="flex-1">{props.children}</span>
+    </li>
+  ),
+  
+  // 7. Gold Bold Text
+  strong: ({ node, ...props }) => <strong {...props} className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-100 to-amber-300" />,
 };
 
 export default function SmartMarkdown({ content }) {
   return (
-    <div className="prose prose-lg prose-invert max-w-none">
+    // Removed 'prose' class here to prevent conflicts, we are styling manually above
+    <div className="max-w-none">
       <ReactMarkdown 
         remarkPlugins={[remarkGfm]} 
         components={renderers}

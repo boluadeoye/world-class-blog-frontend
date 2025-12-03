@@ -107,3 +107,15 @@ body:has(.hero-section) header .mobile-menu-trigger {
 @keyframes shimmer {
   100% { transform: translateX(100%); }
 }
+
+/* === PREMIUM TEXT RENDERING === */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Force brighter text in articles */
+article p, article li {
+  text-shadow: 0 0 1px rgba(0,0,0,0.1); /* Subtle sharpness */
+}
