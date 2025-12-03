@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 
 const API_KEY = process.env.GEMINI_API_KEY;
 const RAW_MODEL = (process.env.GEMINI_MODEL || "").trim();
-const MODEL = /^gemini-/.test(RAW_MODEL) ? RAW_MODEL : "gemini-1.5-flash-latest";
+const MODEL = /^gemini-/.test(RAW_MODEL) ? RAW_MODEL : "gemini-2.0-flash";
 
 export async function GET() {
   try {
@@ -16,7 +16,7 @@ export async function GET() {
     ];
     const payload = { contents, generationConfig:{ temperature:0.2, maxOutputTokens:128 } };
 
-    const url = `https://generativelanguage.googleapis.com/v1/models/${MODEL}:generateContent?key=${API_KEY}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`;
     const r = await fetch(url, { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify(payload) });
     const text = await r.text();
     if (!r.ok) {

@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 const API_KEY = process.env.GEMINI_API_KEY;
 const RAW_MODEL = (process.env.GEMINI_MODEL || "").trim();
 // FIX: Use stable model name
-const MODEL = /^gemini-/.test(RAW_MODEL) ? RAW_MODEL : "gemini-1.5-flash";
+const MODEL = /^gemini-/.test(RAW_MODEL) ? RAW_MODEL : "gemini-2.0-flash";
 
 function buildPersona(mode, site, email){
   const base = `You are Boluwatife’s personal assistant (PA). Speak as the assistant (“I”), on his behalf.

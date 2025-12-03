@@ -15,7 +15,7 @@ globalThis.__geminiModelCache = MODEL_CACHE;
 async function detectModel(apiKey) {
   if (MODEL_CACHE?.id) return MODEL_CACHE.id;
   // FIX: Use specific stable model version
-  const prefers = process.env.GEMINI_MODEL || "gemini-1.5-flash";
+  const prefers = process.env.GEMINI_MODEL || "gemini-2.0-flash";
   // FIX: Use v1beta for discovery
   const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
   try {
@@ -79,7 +79,7 @@ Tone: warm, concise, professional.
 
   const modelId = await detectModel(apiKey);
   // FIX: Default to v1beta
-  const version = process.env.GEMINI_API_VERSION || "v1beta";
+  const version = "v1beta";
 
   async function call(ver) {
     const url = `https://generativelanguage.googleapis.com/${ver}/models/${modelId}:generateContent?key=${apiKey}`;
