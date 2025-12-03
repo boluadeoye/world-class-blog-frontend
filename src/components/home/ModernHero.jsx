@@ -1,105 +1,170 @@
 "use client";
-import { motion } from "framer-motion";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { ArrowRight, Sparkles, Terminal, Cpu, Activity } from "lucide-react";
 import Link from "next/link";
+import { useState, useEffect } from "react";
+
+/* === LIVE TERMINAL COMPONENT === */
+function TerminalHUD() {
+  const [text, setText] = useState("");
+  const commands = [
+    "> Initializing Core Systems...",
+    "> Loading React Server Components...",
+    "> Connecting to Neural Network...",
+    "> System Online. Welcome, User."
+  ];
+  const [lineIndex, setLineIndex] = useState(0);
+
+  useEffect(() => {
+    let currentText = "";
+    let charIndex = 0;
+    let currentLine = commands[lineIndex];
+    
+    const typeInterval = setInterval(() => {
+      if (charIndex < currentLine.length) {
+        currentText += currentLine[charIndex];
+        setText(currentText);
+        charIndex++;
+      } else {
+        clearInterval(typeInterval);
+        setTimeout(() => {
+          if (lineIndex < commands.length - 1) {
+            setLineIndex(prev => prev + 1);
+          }
+        }, 800);
+      }
+    }, 30);
+
+    return () => clearInterval(typeInterval);
+  }, [lineIndex]);
+
+  return (
+    <div className="font-mono text-xs md:text-sm text-emerald-400 bg-black/80 border border-emerald-500/30 rounded-lg p-3 shadow-[0_0_20px_rgba(16,185,129,0.15)] backdrop-blur-md w-full max-w-md mb-6">
+      <div className="flex items-center gap-2 mb-2 border-b border-emerald-500/20 pb-1">
+        <div className="w-2 h-2 rounded-full bg-red-500/50"></div>
+        <div className="w-2 h-2 rounded-full bg-yellow-500/50"></div>
+        <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+        <span className="text-[10px] text-emerald-600 uppercase tracking-wider ml-auto">bash --live</span>
+      </div>
+      <div className="h-12 flex flex-col justify-end">
+        {commands.slice(0, lineIndex).map((cmd, i) => (
+          <div key={i} className="opacity-50">{cmd}</div>
+        ))}
+        <div className="flex">
+          <span>{text}</span>
+          <span className="w-2 h-4 bg-emerald-500 animate-pulse ml-1"></span>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function ModernHero() {
+  const { scrollY } = useScroll();
+  const y1 = useTransform(scrollY, [0, 500], [0, 200]);
+  const y2 = useTransform(scrollY, [0, 500], [0, -150]);
+
   return (
-    <section className="relative min-h-[80vh] flex flex-col justify-center px-6 md:px-12 overflow-hidden pt-12 md:pt-20">
+    <section className="relative min-h-[85vh] flex flex-col justify-start px-6 md:px-12 overflow-hidden pt-28 md:pt-36">
       
-      {/* === 1. LIQUID NEON BACKGROUND === */}
+      {/* === 1. ENGINEERED BACKGROUND (Grid + Neon) === */}
       <div className="absolute inset-0 z-0 pointer-events-none">
-        {/* Deep Space Base */}
-        <div className="absolute inset-0 bg-slate-950" />
+        {/* Technical Grid Pattern */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
         
-        {/* Moving Neon Orbs */}
+        {/* Intense Neon Orbs (Cyan & Amber) */}
         <motion.div 
-          animate={{ 
-            scale: [1, 1.2, 1],
-            rotate: [0, 90, 0],
-            opacity: [0.3, 0.5, 0.3] 
-          }}
-          transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-[-10%] right-[-10%] w-[80vw] h-[80vw] bg-indigo-600/30 rounded-full blur-[100px] mix-blend-screen" 
+          style={{ y: y1 }}
+          className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-cyan-500/20 rounded-full blur-[120px] mix-blend-screen animate-pulse" 
         />
         <motion.div 
-          animate={{ 
-            scale: [1, 1.3, 1],
-            x: [-20, 20, -20],
-            opacity: [0.2, 0.4, 0.2] 
-          }}
-          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute bottom-[10%] left-[-20%] w-[70vw] h-[70vw] bg-amber-600/20 rounded-full blur-[120px] mix-blend-screen" 
+          style={{ y: y2 }}
+          className="absolute top-[20%] left-[-10%] w-[500px] h-[500px] bg-amber-600/20 rounded-full blur-[100px] mix-blend-screen" 
         />
         
-        {/* Glass Texture Overlay */}
-        <div className="absolute inset-0 bg-slate-950/10 backdrop-blur-[1px]" />
+        {/* Vignette to focus center */}
+        <div className="absolute inset-0 bg-radial-gradient(circle at center, transparent 0%, #020617 100%)" />
       </div>
 
       <div className="relative z-10 max-w-5xl mx-auto w-full">
         
-        {/* 2. The "Label" */}
+        {/* 2. LIVE TERMINAL (The "Dynamic Element") */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <TerminalHUD />
+        </motion.div>
+
+        {/* 3. THE LABEL (System Status) */}
         <motion.div 
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="flex items-center gap-3 mb-5"
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="flex items-center gap-4 mb-4"
         >
-          <div className="h-[2px] w-8 bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.8)]"></div>
-          <span className="font-sans text-xs font-bold tracking-[0.25em] text-amber-500 uppercase drop-shadow-lg">
-            Full-Stack Engineer & Writer
+          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900/80 border border-slate-700/50 backdrop-blur-sm">
+            <Activity size={14} className="text-emerald-400" />
+            <span className="text-[10px] font-mono font-bold text-emerald-400 uppercase tracking-wider">
+              System Optimal
+            </span>
+          </div>
+          <div className="h-px w-12 bg-slate-700"></div>
+          <span className="font-sans text-xs font-bold tracking-[0.2em] text-slate-400 uppercase">
+            Full-Stack Engineer
           </span>
         </motion.div>
 
-        {/* 3. The "Headline" (Intense Typography) */}
-        <div className="mb-6 relative">
+        {/* 4. THE HEADLINE (Massive & Tight) */}
+        <div className="mb-8 relative">
           <motion.h1 
             initial={{ opacity: 0, y: 30, filter: "blur(10px)" }}
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            transition={{ duration: 0.8, delay: 0.1 }}
-            className="font-serif text-[3.5rem] leading-[1] md:text-8xl lg:text-9xl font-medium tracking-tight text-white"
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="font-serif text-6xl md:text-8xl lg:text-9xl font-medium leading-[0.9] tracking-tight text-white"
           >
             Boluwatife <br />
             <span className="italic text-slate-400 relative inline-block">
               Adeoye
-              {/* Subtle Underline Glow */}
+              {/* Neon Underline */}
               <motion.span 
                 initial={{ width: 0 }}
                 animate={{ width: "100%" }}
-                transition={{ duration: 1, delay: 0.8 }}
-                className="absolute bottom-2 left-0 h-[6px] bg-amber-500/20 -z-10 skew-x-12"
+                transition={{ duration: 1, delay: 1 }}
+                className="absolute bottom-2 left-0 h-[4px] bg-gradient-to-r from-cyan-500 to-amber-500 -z-10"
               />
             </span>
           </motion.h1>
         </div>
 
-        {/* 4. The "Subtext" */}
+        {/* 5. SUBTEXT (Technical) */}
         <motion.p 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 0.4 }}
-          className="font-sans text-lg text-slate-300 max-w-lg leading-relaxed mb-8 border-l-2 border-slate-700/50 pl-5"
+          transition={{ duration: 1, delay: 0.5 }}
+          className="font-sans text-lg text-slate-300 max-w-lg leading-relaxed mb-10 border-l-2 border-cyan-500/30 pl-5"
         >
-          Building digital ecosystems with <span className="text-white font-semibold shadow-amber-500/20 drop-shadow-md">precision</span> and <span className="text-white font-semibold shadow-indigo-500/20 drop-shadow-md">soul</span>. 
-          I write about the intersection of engineering, design, and human potential.
+          Architecting high-performance digital ecosystems. 
+          Specializing in <span className="text-cyan-300 font-medium">React Server Components</span>, <span className="text-amber-300 font-medium">Scalable Systems</span>, and <span className="text-white font-medium">Human-Centric UI</span>.
         </motion.p>
 
-        {/* 5. The "Actions" (Premium Buttons) */}
+        {/* 6. ACTIONS (Cyberpunk Buttons) */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
+          transition={{ duration: 0.8, delay: 0.7 }}
           className="flex flex-wrap gap-4"
         >
-          <Link href="/about" className="group relative px-8 py-4 bg-white text-slate-950 rounded-full font-sans font-bold tracking-wide overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.15)] hover:shadow-[0_0_30px_rgba(255,255,255,0.3)] transition-shadow">
+          <Link href="/about" className="group relative px-8 py-4 bg-white text-slate-950 rounded-full font-sans font-bold tracking-wide overflow-hidden shadow-[0_0_25px_rgba(255,255,255,0.2)] hover:shadow-[0_0_40px_rgba(255,255,255,0.4)] transition-shadow">
             <span className="relative z-10 flex items-center gap-2 group-hover:gap-3 transition-all">
-              Initiate Contact <ArrowRight size={18} />
+              <Terminal size={18} /> Initiate Protocol
             </span>
           </Link>
           
-          <Link href="/articles" className="px-8 py-4 border border-slate-700 bg-slate-900/50 backdrop-blur-md text-slate-300 rounded-full font-sans font-medium hover:bg-slate-800 hover:text-white hover:border-slate-500 transition-all flex items-center gap-2">
-            <Sparkles size={16} className="text-amber-500" />
-            Read Notes
+          <Link href="/articles" className="px-8 py-4 border border-slate-700 bg-slate-900/50 backdrop-blur-md text-slate-300 rounded-full font-sans font-medium hover:bg-slate-800 hover:text-white hover:border-cyan-500/50 transition-all flex items-center gap-2">
+            <Cpu size={16} className="text-cyan-500" />
+            Access Logs
           </Link>
         </motion.div>
 
