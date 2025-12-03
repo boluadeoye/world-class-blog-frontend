@@ -42,7 +42,6 @@ export default function ModernHero() {
       {/* === 1. BRIGHTER BACKLIGHT STAGE === */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute inset-0 bg-[#050b14]"></div>
-        {/* Increased Opacity and Size for Brighter Look */}
         <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[140%] h-[90%] bg-indigo-600/30 blur-[120px] rounded-full mix-blend-screen animate-pulse"></div>
         <div className="absolute bottom-[-10%] right-[-10%] w-[90%] h-[70%] bg-amber-600/20 blur-[120px] rounded-full mix-blend-screen"></div>
         <div className="absolute inset-0 opacity-[0.05] bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
@@ -50,10 +49,9 @@ export default function ModernHero() {
 
       {/* === 2. SOLID HERO CARD === */}
       <div className="relative z-10 w-full max-w-6xl mx-auto">
-        {/* Made background slightly transparent (/90) to let light through */}
         <div className="relative bg-[#020617]/90 backdrop-blur-xl rounded-[2.5rem] overflow-hidden shadow-2xl shadow-indigo-900/20 border border-white/10">
           
-          {/* === PREMIUM PATTERN (Dot Matrix) === */}
+          {/* === PREMIUM PATTERN === */}
           <div className="absolute inset-0 z-0 pointer-events-none">
             <div className="absolute inset-0 bg-[radial-gradient(#ffffff20_1px,transparent_1px)] [background-size:24px_24px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_95%)]"></div>
             <div className="absolute top-0 left-0 w-full h-full bg-radial-gradient(circle at 50% 0%, rgba(255,255,255,0.05), transparent 70%)"></div>
@@ -116,14 +114,17 @@ export default function ModernHero() {
                 </h2>
               </motion.div>
 
+              {/* === CHARMING DESCRIPTION === */}
               <motion.p 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 1, delay: 0.4 }}
-                className="font-sans text-lg md:text-2xl text-slate-200 max-w-2xl leading-relaxed mb-10"
+                className="font-sans text-lg md:text-2xl text-slate-300 max-w-3xl leading-loose mb-10 font-light"
               >
-                Architecting high-performance digital ecosystems. 
-                Specializing in <span className="text-white font-medium border-b border-slate-600 pb-0.5">React Server Components</span>, <span className="text-white font-medium border-b border-slate-600 pb-0.5">Scalable Systems</span>, and <span className="text-white font-medium border-b border-slate-600 pb-0.5">Human-Centric UI</span>.
+                Architecting high-performance digital ecosystems. Specializing in{" "}
+                <span className="font-serif italic text-white text-xl md:text-3xl px-1">React Server Components</span>,{" "}
+                <span className="font-serif italic text-white text-xl md:text-3xl px-1">Scalable Systems</span>, and{" "}
+                <span className="font-serif italic text-white text-xl md:text-3xl px-1">Human-Centric UI</span>.
               </motion.p>
 
               {/* === ACTIONS === */}
@@ -133,16 +134,13 @@ export default function ModernHero() {
                 transition={{ duration: 0.8, delay: 0.5 }}
                 className="flex flex-wrap gap-6 items-center"
               >
-                {/* === MODERN CHIP BUTTON (Wrapper for Finger) === */}
+                {/* Modern Chip Button */}
                 <div className="relative group inline-block">
                   <Link href="/chat" className="relative z-10 flex items-center gap-2 px-8 py-4 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold tracking-wide shadow-[0_0_20px_rgba(79,70,229,0.4)] hover:shadow-[0_0_30px_rgba(79,70,229,0.6)] hover:scale-105 transition-all duration-300 border border-white/10 overflow-hidden">
-                    {/* Shine Effect */}
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-[shimmer_2s_infinite]"></div>
                     <span>Let's Talk</span>
                     <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                   </Link>
-                  
-                  {/* FINGER POINTER (Outside Overflow) */}
                   <span className="absolute -bottom-3 -right-3 text-3xl animate-finger z-20 pointer-events-none drop-shadow-lg">
                     👆
                   </span>
