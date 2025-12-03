@@ -3,23 +3,26 @@ export const dynamic = "force-dynamic";
 
 const API_KEY = process.env.GEMINI_API_KEY;
 const RAW_MODEL = (process.env.GEMINI_MODEL || "").trim();
-const MODEL = /^gemini-/.test(RAW_MODEL) ? RAW_MODEL : "gemini-1.5-flash-latest";
+// FIX: Use stable model name
+const MODEL = /^gemini-/.test(RAW_MODEL) ? RAW_MODEL : "gemini-1.5-flash";
 
 function buildPersona(mode, site, email){
-  const base = `You are Boluwatife’s personal assistant (PA). Speak as the assistant (“I”), on his behalf. Help across business, technology, AI, APIs, light troubleshooting, and writing — concise, warm, and practical.
-- Canonical website: ${site} (never vercel.app).
-- Contact: ${email}. If the user wants to proceed, suggest sending a short brief and offer to email a summary to ${email}.
-- Never claim to be Boluwatife; you are his PA. Use “Boluwatife” or “my client” when needed.
+  const base = `You are Boluwatife’s personal assistant (PA). Speak as the assistant (“I”), on his behalf.
+- Canonical website: ${site}.
+- Contact: ${email}.
+- Never claim to be Boluwatife; you are his PA.
 - Use Markdown; short mobile‑friendly paragraphs.`;
+  
   const modes = {
-    inquiry: "Mode: Project inquiry. Ask 3–6 scoping questions, then propose next steps.",
-    advice: "Mode: Advice. Give clear, structured guidance with bullets and brief examples.",
-    troubleshoot: "Mode: Troubleshooting. Root‑cause candidates, step‑by‑step checks/commands, fallback plan.",
-    writing: "Mode: Writing. Outline first, then a crisp draft, then a brief polish checklist."
+    inquiry: "Mode: Project inquiry. Ask scoping questions.",
+    advice: "Mode: Advice. Give clear, structured guidance.",
+    troubleshoot: "Mode: Troubleshooting. Root‑cause candidates.",
+    writing: "Mode: Writing. Outline first, then draft."
   };
   const tag = modes[String(mode||"").toLowerCase()] || "";
   return tag ? `${base}\n\n${tag}` : base;
 }
+
 function messagesToContents(messages){
   const out = [];
   for (const m of (messages || [])) {
@@ -29,6 +32,7 @@ function messagesToContents(messages){
   }
   return out.length ? out : [{ role:"user", parts:[{ text:"Hello!" }] }];
 }
+
 const enc = new TextEncoder();
 const sse = (obj) => `data: ${JSON.stringify(obj)}\n\n`;
 
@@ -48,7 +52,9 @@ export async function POST(req) {
     const contents = [personaTurn, ...messagesToContents(messages)];
     const payload = { contents, generationConfig: { temperature: 0.6, topK: 40, topP: 0.95, maxOutputTokens: 768 } };
 
-    const url = `https://generativelanguage.googleapis.com/v1/models/${MODEL}:generateContent?key=${API_KEY}`;
+    // FIX: Use v1beta for API version
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`;
+    
     const r = await fetch(url, { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify(payload) });
     if (!r.ok) {
       const txt = await r.text();
