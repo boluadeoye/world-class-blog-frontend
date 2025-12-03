@@ -2,11 +2,9 @@ import { notFound } from "next/navigation";
 import { ArticleHero, ArticleContent } from "../../../components/article/ArticleLayout";
 import SmartMarkdown from "../../../components/article/SmartMarkdown";
 import { fetchLatestArticles } from "../../../lib/homeData";
+import Comments from "../../../components/public/Comments";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-
-// === IMPORT COMMENTS HERE (Update path after checking file structure) ===
-// import Comments from "../../../components/Comments"; 
 
 export const revalidate = 3600;
 
@@ -60,15 +58,12 @@ export default async function PostPage(props) {
         <div className="p-1 rounded-2xl bg-gradient-to-b from-white/10 to-transparent">
           <div className="bg-slate-900 rounded-xl p-6 md:p-8 border border-white/5">
             <h3 className="text-2xl font-serif text-white mb-6">Discussion</h3>
-            {/* <Comments slug={post.slug} /> */}
-            <div className="p-4 bg-slate-800/50 rounded-lg text-center text-slate-400">
-              Comments Component Loading... (Check import path)
-            </div>
+            <Comments slug={post.slug} />
           </div>
         </div>
       </section>
 
-      {/* 4. READ NEXT (Restored) */}
+      {/* 4. READ NEXT */}
       <section className="max-w-5xl mx-auto px-6 pb-24">
         <div className="flex items-center gap-4 mb-8">
           <div className="h-px flex-1 bg-slate-800"></div>
