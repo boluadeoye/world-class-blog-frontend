@@ -4,11 +4,12 @@ import { ArrowUpRight, BookOpen, Terminal, TrendingUp, PenTool, Activity, Layers
 import SearchHub from '../../components/topics/SearchHub';
 
 // --- CONFIGURATION ---
+// We map each topic to a search query on your existing Articles page
 const TOPIC_CARDS = [
   { 
     id: 'edu', 
     title: 'Education', 
-    slug: 'education',
+    query: 'Education',
     icon: BookOpen,
     color: 'text-blue-400',
     desc: 'Lifelong learning & academic mastery.'
@@ -16,7 +17,7 @@ const TOPIC_CARDS = [
   { 
     id: 'tech', 
     title: 'Technology', 
-    slug: 'technology',
+    query: 'Technology',
     icon: Terminal,
     color: 'text-emerald-400',
     desc: 'Next.js, Systems, and Code.'
@@ -24,7 +25,7 @@ const TOPIC_CARDS = [
   { 
     id: 'fin', 
     title: 'Finance', 
-    slug: 'finance',
+    query: 'Finance',
     icon: TrendingUp,
     color: 'text-amber-400',
     desc: 'Capital allocation & markets.'
@@ -32,7 +33,7 @@ const TOPIC_CARDS = [
   { 
     id: 'des', 
     title: 'Design', 
-    slug: 'design',
+    query: 'Design',
     icon: PenTool,
     color: 'text-purple-400',
     desc: 'Aesthetics & User Experience.'
@@ -40,7 +41,7 @@ const TOPIC_CARDS = [
   { 
     id: 'life', 
     title: 'Lifestyle', 
-    slug: 'lifestyle',
+    query: 'Lifestyle',
     icon: Activity,
     color: 'text-rose-400',
     desc: 'Philosophy & Personal Growth.'
@@ -48,10 +49,10 @@ const TOPIC_CARDS = [
   { 
     id: 'misc', 
     title: 'General', 
-    slug: 'general',
+    query: '', // Empty query shows all posts
     icon: Layers,
     color: 'text-slate-400',
-    desc: 'Uncategorized thoughts.'
+    desc: 'Browse the complete archive.'
   }
 ];
 
@@ -82,7 +83,8 @@ export default function TopicsGridPage() {
         {TOPIC_CARDS.map((topic) => (
           <Link 
             key={topic.id} 
-            href={`/topics/${topic.slug}`}
+            // CORRECT ROUTING: Points to your existing Articles page with a query
+            href={`/articles?q=${topic.query}`}
             className="group relative block h-full"
           >
             {/* Card Container */}
@@ -112,7 +114,7 @@ export default function TopicsGridPage() {
                 {/* Footer Action */}
                 <div className="flex items-center justify-between pt-6 border-t border-white/5 group-hover:border-white/10 transition-colors">
                   <span className="text-[10px] font-bold tracking-[0.2em] text-slate-600 group-hover:text-amber-500 uppercase transition-colors">
-                    View Collection
+                    Browse Feed
                   </span>
                   <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-slate-400 group-hover:bg-amber-500 group-hover:text-[#020617] transition-all duration-300">
                     <ArrowUpRight size={14} />
