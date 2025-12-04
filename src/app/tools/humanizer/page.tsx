@@ -1,20 +1,34 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Wand2, Copy, ShieldCheck, Activity, Zap, Sliders, CheckCircle2 } from 'lucide-react';
+import { Wand2, Copy, ShieldCheck, Activity, Zap, Sliders, History, Trash2, Check } from 'lucide-react';
 
 export default function HumanizerTool() {
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState('');
+  const [history, setHistory] = useState<string[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
   
-  // NEW: CONTROL STATE
+  // CONFIG
   const [mode, setMode] = useState('ghost');
-  const [tone, setTone] = useState('professional');
+  const [tone, setTone] = useState('casual'); // Casual beats detectors better
   
   // METRICS
   const [stats, setStats] = useState({ burstiness: 0, humanScore: 0 });
+
+  // Load History on Mount
+  useEffect(() => {
+    const saved = localStorage.getItem('stealth_history');
+    if (saved) setHistory(JSON.parse(saved));
+  }, []);
+
+  const saveToHistory = (text: string) => {
+    const newHistory = [text, ...history].slice(0, 5); // Keep last 5
+    setHistory(newHistory);
+    localStorage.setItem('stealth_history', JSON.stringify(newHistory));
+  };
 
   const analyzeText = (text: string) => {
     if (!text.trim()) return { burstiness: 0, humanScore: 0 };
@@ -25,12 +39,12 @@ export default function HumanizerTool() {
     const lengths = sentences.map(s => s.trim().split(/\s+/).length);
     const avgLength = lengths.reduce((a, b) => a + b, 0) / lengths.length;
     const variance = lengths.reduce((a, b) => a + Math.pow(b - avgLength, 2), 0) / lengths.length;
-    const burstiness = Math.min(100, Math.round(Math.sqrt(variance) * 12)); // Increased sensitivity
+    const burstiness = Math.min(100, Math.round(Math.sqrt(variance) * 15)); // Tuned for V4
     
     const uniqueWords = new Set(words.map(w => w.toLowerCase())).size;
     const richness = (uniqueWords / words.length) * 100;
     
-    const humanScore = Math.min(100, Math.round((burstiness * 0.7) + (richness * 0.3)));
+    const humanScore = Math.min(100, Math.round((burstiness * 0.6) + (richness * 0.4)));
     return { burstiness, humanScore };
   };
 
@@ -53,6 +67,7 @@ export default function HumanizerTool() {
       if (!res.ok) throw new Error(data.error || 'Processing failed');
 
       setOutput(data.result);
+      saveToHistory(data.result);
       
     } catch (err: any) {
       setError(err.message || 'System Error');
@@ -62,31 +77,34 @@ export default function HumanizerTool() {
   };
 
   return (
-    <main className="min-h-screen bg-[#020617] text-slate-200 font-sans selection:bg-emerald-500/30 pt-24 pb-12">
+    <main className="min-h-screen bg-[#020617] text-slate-200 font-sans selection:bg-amber-500/30 pt-24 pb-12 relative overflow-hidden">
       
+      {/* BACKGROUND NOISE */}
+      <div className="absolute inset-0 opacity-5 pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')] mix-blend-overlay"></div>
+
       {/* HEADER */}
-      <div className="max-w-6xl mx-auto px-6 mb-8 flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-white/5 pb-6">
+      <div className="max-w-7xl mx-auto px-6 mb-8 flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-white/5 pb-6 relative z-10">
         <div>
-          <div className="flex items-center gap-2 text-emerald-500 mb-2">
-            <ShieldCheck size={20} />
-            <span className="text-xs font-bold tracking-[0.2em] uppercase">Stealth Protocol V2.0</span>
+          <div className="flex items-center gap-2 text-amber-500 mb-2">
+            <ShieldCheck size={18} />
+            <span className="text-[10px] font-bold tracking-[0.3em] uppercase">Stealth Protocol V4.0</span>
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold text-white">
-            Stealth<span className="text-emerald-500">Writer</span>
+          <h1 className="text-4xl md:text-5xl font-serif text-white">
+            Stealth<span className="text-amber-500 italic">Writer</span>
           </h1>
         </div>
 
-        {/* HUD METRICS */}
-        <div className="flex gap-8 p-4 bg-[#0B1120] rounded-xl border border-white/5">
+        {/* HUD METRICS (GOLD THEME) */}
+        <div className="flex gap-8 p-4 bg-[#0B1120]/80 backdrop-blur-md rounded-xl border border-amber-500/10 shadow-2xl shadow-black/50">
           <div className="text-right">
             <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Burstiness</div>
-            <div className={`text-2xl font-mono font-bold ${stats.burstiness > 60 ? 'text-emerald-400' : 'text-amber-500'}`}>
+            <div className={`text-2xl font-mono font-bold ${stats.burstiness > 65 ? 'text-amber-400' : 'text-slate-500'}`}>
               {stats.burstiness}%
             </div>
           </div>
           <div className="text-right">
             <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Human Score</div>
-            <div className={`text-2xl font-mono font-bold ${stats.humanScore > 85 ? 'text-emerald-400' : 'text-rose-500'}`}>
+            <div className={`text-2xl font-mono font-bold ${stats.humanScore > 88 ? 'text-emerald-400' : 'text-amber-500'}`}>
               {stats.humanScore}
             </div>
           </div>
@@ -94,49 +112,55 @@ export default function HumanizerTool() {
       </div>
 
       {/* CONTROL DECK */}
-      <div className="max-w-6xl mx-auto px-6 mb-6">
-        <div className="flex flex-wrap gap-4 p-4 bg-[#0B1120] border border-white/5 rounded-xl items-center">
-          <div className="flex items-center gap-2 text-slate-400 text-sm font-bold uppercase tracking-wider mr-4">
-            <Sliders size={16} /> Config
-          </div>
+      <div className="max-w-7xl mx-auto px-6 mb-6 relative z-10">
+        <div className="flex flex-wrap justify-between gap-4 p-4 bg-[#0B1120]/50 border border-white/5 rounded-xl items-center backdrop-blur-sm">
           
-          {/* MODE SELECTOR */}
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-500">Mode:</span>
-            <select 
-              value={mode} 
-              onChange={(e) => setMode(e.target.value)}
-              className="bg-black/50 border border-white/10 rounded-lg px-3 py-1.5 text-sm text-emerald-400 focus:outline-none focus:border-emerald-500"
-            >
-              <option value="ghost">👻 Ghost (Max Stealth)</option>
-              <option value="academic">🎓 Academic</option>
-              <option value="casual">☕ Casual</option>
-              <option value="standard">⚖️ Standard</option>
-            </select>
+          <div className="flex gap-4">
+            {/* MODE */}
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-slate-500 font-bold uppercase">Mode</span>
+              <select 
+                value={mode} 
+                onChange={(e) => setMode(e.target.value)}
+                className="bg-black/50 border border-white/10 rounded-lg px-3 py-1.5 text-sm text-amber-500 focus:outline-none focus:border-amber-500/50"
+              >
+                <option value="ghost">👻 Ghost (Max Stealth)</option>
+                <option value="academic">🎓 Academic</option>
+                <option value="casual">☕ Casual</option>
+              </select>
+            </div>
+
+            {/* TONE */}
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-slate-500 font-bold uppercase">Tone</span>
+              <select 
+                value={tone} 
+                onChange={(e) => setTone(e.target.value)}
+                className="bg-black/50 border border-white/10 rounded-lg px-3 py-1.5 text-sm text-amber-500 focus:outline-none focus:border-amber-500/50"
+              >
+                <option value="casual">Casual (Best)</option>
+                <option value="professional">Professional</option>
+                <option value="storyteller">Storyteller</option>
+                <option value="blunt">Blunt</option>
+              </select>
+            </div>
           </div>
 
-          {/* TONE SELECTOR */}
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-500">Tone:</span>
-            <select 
-              value={tone} 
-              onChange={(e) => setTone(e.target.value)}
-              className="bg-black/50 border border-white/10 rounded-lg px-3 py-1.5 text-sm text-emerald-400 focus:outline-none focus:border-emerald-500"
-            >
-              <option value="professional">Professional</option>
-              <option value="opinionated">Opinionated</option>
-              <option value="storyteller">Storyteller</option>
-              <option value="blunt">Blunt/Direct</option>
-            </select>
-          </div>
+          {/* HISTORY TOGGLE */}
+          <button 
+            onClick={() => setShowHistory(!showHistory)}
+            className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${showHistory ? 'bg-amber-500 text-black' : 'bg-white/5 text-slate-400 hover:text-white'}`}
+          >
+            <History size={14} /> Vault
+          </button>
         </div>
       </div>
 
       {/* WORKSPACE */}
-      <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-6 h-[60vh]">
+      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-6 h-[65vh] relative z-10">
         
         {/* INPUT */}
-        <div className="flex flex-col gap-3">
+        <div className={`${showHistory ? 'lg:col-span-4' : 'lg:col-span-6'} flex flex-col gap-3 transition-all duration-500`}>
           <label className="flex items-center justify-between text-xs font-bold text-slate-500 uppercase tracking-widest">
             <span className="flex items-center gap-2"><Zap size={12} /> Input Source</span>
           </label>
@@ -144,30 +168,30 @@ export default function HumanizerTool() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Paste AI-generated text here..."
-            className="flex-1 bg-[#0B1120] border border-white/5 rounded-2xl p-6 text-slate-300 focus:outline-none focus:border-emerald-500/30 focus:bg-[#0f1629] resize-none font-mono text-sm leading-relaxed transition-all"
+            className="flex-1 bg-[#0B1120] border border-white/5 rounded-2xl p-6 text-slate-300 focus:outline-none focus:border-amber-500/30 focus:bg-[#0f1629] resize-none font-mono text-sm leading-relaxed transition-all"
           />
         </div>
 
         {/* OUTPUT */}
-        <div className="flex flex-col gap-3 relative">
-          <label className="flex items-center justify-between text-xs font-bold text-emerald-500 uppercase tracking-widest">
+        <div className={`${showHistory ? 'lg:col-span-5' : 'lg:col-span-6'} flex flex-col gap-3 transition-all duration-500 relative`}>
+          <label className="flex items-center justify-between text-xs font-bold text-amber-500 uppercase tracking-widest">
             <span className="flex items-center gap-2"><Activity size={12} /> Humanized Output</span>
             {output && (
               <button 
                 onClick={() => navigator.clipboard.writeText(output)}
-                className="flex items-center gap-1 text-emerald-500 hover:text-white transition-colors"
+                className="flex items-center gap-1 text-amber-500 hover:text-white transition-colors"
               >
                 <Copy size={14} /> <span className="text-[10px]">COPY</span>
               </button>
             )}
           </label>
           
-          <div className="flex-1 bg-[#0B1120] border border-emerald-500/20 rounded-2xl p-6 text-emerald-100/90 relative overflow-hidden">
+          <div className="flex-1 bg-[#0B1120] border border-amber-500/20 rounded-2xl p-6 text-amber-100/90 relative overflow-hidden shadow-2xl shadow-black/50">
             {isProcessing ? (
               <div className="absolute inset-0 bg-[#020617]/90 flex items-center justify-center z-10 backdrop-blur-sm">
                 <div className="flex flex-col items-center gap-4">
-                  <div className="w-12 h-12 border-4 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin" />
-                  <span className="text-xs font-mono text-emerald-500 animate-pulse tracking-widest">OBFUSCATING PATTERNS...</span>
+                  <div className="w-12 h-12 border-4 border-amber-500/30 border-t-amber-500 rounded-full animate-spin" />
+                  <span className="text-xs font-mono text-amber-500 animate-pulse tracking-widest">SCRAMBLING SIGNATURES...</span>
                 </div>
               </div>
             ) : error ? (
@@ -185,18 +209,36 @@ export default function HumanizerTool() {
           </div>
         </div>
 
+        {/* HISTORY SIDEBAR (Animated) */}
+        {showHistory && (
+          <div className="lg:col-span-3 flex flex-col gap-3 bg-[#0B1120] border border-white/5 rounded-2xl p-4 overflow-hidden animate-in slide-in-from-right duration-300">
+            <div className="flex items-center justify-between text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">
+              <span>Vault</span>
+              <button onClick={() => {setHistory([]); localStorage.removeItem('stealth_history')}} className="hover:text-rose-500"><Trash2 size={12}/></button>
+            </div>
+            <div className="flex-1 overflow-y-auto space-y-3 pr-2">
+              {history.length === 0 && <div className="text-slate-600 text-xs italic text-center mt-10">No history yet.</div>}
+              {history.map((item, i) => (
+                <div key={i} onClick={() => setOutput(item)} className="p-3 bg-white/5 rounded-lg border border-white/5 hover:border-amber-500/30 cursor-pointer transition-all text-xs text-slate-400 line-clamp-3 hover:text-slate-200">
+                  {item}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
       </div>
 
       {/* ACTION BUTTON */}
-      <div className="max-w-6xl mx-auto px-6 mt-8 flex justify-center">
+      <div className="max-w-7xl mx-auto px-6 mt-8 flex justify-center relative z-10">
         <button 
           onClick={handleHumanize}
           disabled={!input || isProcessing}
-          className="group relative flex items-center gap-3 px-10 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-full shadow-2xl shadow-emerald-900/30 transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden"
+          className="group relative flex items-center gap-3 px-12 py-5 bg-amber-600 hover:bg-amber-500 text-[#020617] font-bold rounded-full shadow-2xl shadow-amber-900/20 transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden"
         >
           <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
           <Wand2 size={20} />
-          <span className="relative tracking-wide">HUMANIZE TEXT</span>
+          <span className="relative tracking-widest text-sm">HUMANIZE</span>
         </button>
       </div>
 
