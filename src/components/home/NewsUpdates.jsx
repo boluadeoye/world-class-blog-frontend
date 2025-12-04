@@ -48,7 +48,7 @@ export default function NewsUpdates() {
           </div>
         </div>
 
-        {/* Horizontal Scroll Container (Ultra-Narrow Story Cards) */}
+        {/* Horizontal Scroll Container */}
         <div className="flex gap-3 overflow-x-auto pb-10 px-6 md:px-12 snap-x scroll-pl-6 md:scroll-pl-12 scrollbar-hide">
           {loading
             ? [...Array(5)].map((_, i) => (
@@ -72,24 +72,24 @@ export default function NewsUpdates() {
                       <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-white/5 border border-white/5 text-[7px] font-bold tracking-widest text-indigo-300 uppercase font-sans">
                         <Globe size={8} /> BBC
                       </span>
-                      <ExternalLink size={10} className="text-slate-600 group-hover:text-white transition-colors" />
+                      <ExternalLink size={10} className="text-slate-500 group-hover:text-white transition-colors" />
                     </div>
 
-                    {/* Content - Scaled Down for Narrow Width */}
+                    {/* Content - BOLD & CONFIDENT */}
                     <div className="relative z-10 flex-1 flex flex-col">
-                      <h4 className="font-serif text-sm md:text-base text-slate-200 leading-snug line-clamp-5 group-hover:text-white transition-colors tracking-tight">
+                      <h4 className="font-serif text-base md:text-lg font-bold text-white leading-[1.1] line-clamp-5 group-hover:text-indigo-200 transition-colors tracking-tight drop-shadow-md">
                         {item.title}
                       </h4>
                       {/* Decorative Line */}
-                      <div className="w-4 h-0.5 bg-slate-800 mt-3 group-hover:bg-indigo-500/50 transition-colors"></div>
+                      <div className="w-4 h-0.5 bg-indigo-500 mt-3 group-hover:w-8 transition-all duration-500"></div>
                     </div>
                     
                     {/* Bottom Row */}
                     <div className="relative z-10 mt-auto pt-2 border-t border-white/5 flex items-center justify-between">
-                      <span className="text-[8px] font-sans font-medium text-slate-500 group-hover:text-indigo-400 transition-colors tracking-wide">
+                      <span className="text-[8px] font-sans font-bold text-slate-400 group-hover:text-indigo-300 transition-colors tracking-wide">
                         {new Date(item.pubDate).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' })}
                       </span>
-                      <div className="flex items-center gap-1 text-[8px] font-bold text-slate-600 uppercase tracking-widest group-hover:text-slate-300 transition-colors font-sans">
+                      <div className="flex items-center gap-1 text-[8px] font-extrabold text-slate-500 uppercase tracking-widest group-hover:text-white transition-colors font-sans">
                         <span>Read</span>
                         <ArrowRight size={8} className="group-hover:translate-x-1 transition-transform" />
                       </div>
