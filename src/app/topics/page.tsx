@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, type Variants } from 'framer-motion';
 import Link from 'next/link';
 import { ArrowUpRight, Hash } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
@@ -13,7 +13,7 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-// --- MOCK DATA (Updated for the new theme) ---
+// --- MOCK DATA ---
 const TOPICS = [
   { 
     id: '1', 
@@ -59,8 +59,8 @@ const TOPICS = [
   }
 ];
 
-// --- ANIMATION VARIANTS ---
-const containerVariants = {
+// --- ANIMATION VARIANTS (TYPED) ---
+const containerVariants: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
@@ -68,7 +68,7 @@ const containerVariants = {
   },
 };
 
-const itemVariants = {
+const itemVariants: Variants = {
   hidden: { y: 20, opacity: 0 },
   visible: { 
     y: 0, 
@@ -79,10 +79,9 @@ const itemVariants = {
 
 export default function TopicsPage() {
   return (
-    // Deep Midnight Blue Background matching the screenshot
     <main className="min-h-screen w-full bg-[#020617] text-slate-200 selection:bg-amber-500/30">
       
-      {/* Subtle Gradient Overlay for depth */}
+      {/* Subtle Gradient Overlay */}
       <div className="fixed inset-0 z-0 pointer-events-none bg-gradient-to-b from-[#0f172a] to-[#020617] opacity-80" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-6 py-24 md:py-32">
@@ -100,7 +99,6 @@ export default function TopicsPage() {
           </div>
           
           <div className="space-y-4">
-            {/* Serif Font for that "Magazine" feel */}
             <h1 className="text-5xl md:text-7xl font-serif font-medium tracking-tight text-white">
               Explore <span className="italic text-slate-400">Categories</span>
             </h1>
@@ -130,7 +128,6 @@ export default function TopicsPage() {
                   <div className="relative z-10 flex flex-col h-full justify-between gap-8">
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
-                        {/* Gold Icon Box */}
                         <div className="p-3 rounded-lg bg-amber-500/10 text-amber-500 group-hover:bg-amber-500 group-hover:text-[#020617] transition-all duration-300">
                           <Hash size={20} strokeWidth={2} />
                         </div>
