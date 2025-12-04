@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
-    // 1. SEARCH FOR ANY POSSIBLE API KEY VARIABLE
+    // 1. GET API KEY
     const apiKey = process.env.GEMINI_API_KEY || 
                    process.env.GOOGLE_API_KEY || 
                    process.env.NEXT_PUBLIC_GEMINI_API_KEY ||
@@ -11,14 +11,15 @@ export async function POST(req: Request) {
 
     if (!apiKey) {
       return NextResponse.json(
-        { error: "Config Error: No API Key found. Please check Vercel Environment Variables." },
+        { error: "Config Error: No API Key found." },
         { status: 500 }
       );
     }
 
-    // 2. USE THE FASTER, MORE STABLE MODEL (Gemini 1.5 Flash)
+    // 2. USE THE STABLE MODEL (gemini-pro)
+    // This is the most reliable model for the free tier
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
     const { text } = await req.json();
     if (!text) return NextResponse.json({ error: "No text provided" }, { status: 400 });
@@ -45,8 +46,6 @@ export async function POST(req: Request) {
 
   } catch (error: any) {
     console.error("Humanizer API Error:", error);
-    
-    // 4. RETURN THE REAL ERROR (So we can see what's wrong)
     const realErrorMessage = error?.message || "Unknown error";
     return NextResponse.json(
       { error: `Google Error: ${realErrorMessage}` },
