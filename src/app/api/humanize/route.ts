@@ -1,13 +1,5 @@
 import { NextResponse } from "next/server";
 
-// --- V3 CONFIGURATION ---
-// Expanded list of words that trigger AI detectors immediately.
-const FORBIDDEN_WORDS = [
-  "delve", "crucial", "tapestry", "landscape", "moreover", "in conclusion", 
-  "underscores", "testament", "realm", "dynamic", "foster", "utilize",
-  "meticulous", "navigating", "ever-evolving", "game-changer", "notably"
-];
-
 export async function POST(req: Request) {
   try {
     // 1. CONFIG CHECK
@@ -18,7 +10,7 @@ export async function POST(req: Request) {
 
     if (!apiKey) return NextResponse.json({ error: "Config Error: No API Key found." }, { status: 500 });
 
-    const { text, mode = "ghost", tone = "professional" } = await req.json();
+    const { text, mode = "ghost", tone = "casual" } = await req.json();
 
     // 2. AUTO-DISCOVERY (Find a working model)
     const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
@@ -28,7 +20,7 @@ export async function POST(req: Request) {
     const availableModels = listData.models || [];
     let selectedModel = "";
     
-    // Priority: Flash > Pro (Flash is actually better for 'dumb/human' writing than Pro)
+    // Priority: Flash > Pro (Flash is 'dumber' and thus writes more like a human naturally)
     const preferredOrder = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro"];
     for (const pref of preferredOrder) {
       const match = availableModels.find((m: any) => m.name.includes(pref) && m.supportedGenerationMethods?.includes("generateContent"));
@@ -36,35 +28,28 @@ export async function POST(req: Request) {
     }
     if (!selectedModel) selectedModel = availableModels[0]?.name;
 
-    if (!selectedModel) return NextResponse.json({ error: "No models available." }, { status: 500 });
-
-    // 3. THE V3 "CHAOS" PROMPT
-    // We explicitly instruct it to break grammatical symmetry.
+    // 3. THE V5 "RE-VOICING" PROMPT
+    // We stop asking for "rewrites". We ask for "retellings".
     const prompt = `
-      ROLE: You are a text forensics expert and ghostwriter.
-      GOAL: Rewrite the input text to score 0% on AI Detection (GPTZero, Originality.ai).
+      TASK: You are a blunt, opinionated blogger. Read the input text, understand the core message, and then RETELL it in your own voice.
       
-      CRITICAL INSTRUCTIONS (The "Human" Algorithm):
-      1. TEMPERATURE SPIKE: Do not write predictably. Choose the 3rd or 4th most likely word, not the 1st.
-      2. SENTENCE VARIANCE: 
-         - Write a sentence with 4 words.
-         - Follow it with a sentence of 25+ words that uses multiple commas.
-         - Then a fragment. Like this.
-      3. BANNED VOCABULARY: Never use these words: ${FORBIDDEN_WORDS.join(", ")}.
-      4. IMPERFECTIONS: AI is too perfect. Add "human noise". Use contractions (it's, don't). Start sentences with conjunctions (But, And, So).
-      5. STRUCTURE: Destroy the original structure. If it had bullet points, turn them into a messy paragraph.
+      CRITICAL RULES TO BEAT AI DETECTION:
+      1. DESTROY THE STRUCTURE: Do not go sentence-by-sentence. Read the whole thing, then explain it from scratch.
+      2. USE "BRIDGE PHRASES": Start sentences with: "Here's the thing," "Honestly," "Look," "Basically," "Truth is,".
+      3. BE OPINIONATED: AI is neutral. You are not. Add tiny subjective comments like "(which is wild)" or "obviously."
+      4. SIMPLIFY: Use 8th-grade reading level. No complex words like "utilize" or "facilitate." Use "use" and "help."
+      5. CONTRACTIONS: Use "don't," "can't," "it's" everywhere. Never say "do not."
       
-      TONE SETTING: ${tone}
-      INTENSITY: ${mode === 'ghost' ? 'MAXIMUM (Aggressive Rewriting)' : 'Standard'}
+      TONE: ${tone} (Make it sound like a real person talking, not a robot writing).
       
       INPUT TEXT:
       "${text}"
       
-      REWRITTEN OUTPUT (Text Only):
+      YOUR RETELLING (Text Only):
     `;
 
-    // 4. EXECUTE WITH HIGH TEMPERATURE
-    // This is the secret sauce. Temperature 1.0 forces high perplexity.
+    // 4. EXECUTE WITH TUNED SETTINGS
+    // Temperature 1.0 is the sweet spot. 1.15 was too high (caused confusion).
     const generateUrl = `https://generativelanguage.googleapis.com/v1beta/${selectedModel}:generateContent?key=${apiKey}`;
     
     const genResp = await fetch(generateUrl, {
@@ -73,9 +58,9 @@ export async function POST(req: Request) {
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: {
-          temperature: 1.0,       // MAX RANDOMNESS (Standard is 0.7)
-          topP: 0.95,             // Wide vocabulary search
-          topK: 64,               // Consider more word options
+          temperature: 1.0,       // High randomness, but controlled
+          topP: 0.95,             // Diverse vocabulary
+          topK: 40,
           maxOutputTokens: 8192,
         }
       })
@@ -94,7 +79,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ 
       result: humanizedText,
       debug_model: selectedModel,
-      debug_mode: "V3_CHAOS_ENGINE"
+      debug_engine: "V5_REVOICER"
     });
 
   } catch (error: any) {
