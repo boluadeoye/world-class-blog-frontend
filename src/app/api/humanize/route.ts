@@ -24,29 +24,23 @@ export async function POST(req: Request) {
     }
     if (!selectedModel) selectedModel = availableModels[0]?.name;
 
-    // --- THE SPLIT BRAIN LOGIC ---
+    // --- THE V6 PROMPT LOGIC ---
     let prompt = "";
 
     if (mode === 'academic' || tone === 'professional') {
-      // === ACADEMIC STEALTH PROTOCOL ===
-      // No slang. No contractions. High complexity.
+      // === ACADEMIC SCRAMBLER (The "Tenured Professor" Protocol) ===
+      // Goal: High complexity, zero "AI Fluff".
       prompt = `
-        TASK: Rewrite the text for a Ph.D. or Undergraduate Research Project.
-        GOAL: 100% Human Score on Turnitin/GPTZero, but maintain strict ACADEMIC FORMALITY.
+        TASK: Rewrite the following text for a high-level Academic Research Paper.
+        GOAL: Bypass AI detection by using "Syntactic Complexity."
         
-        ACADEMIC RULES:
-        1. NO CONTRACTIONS: Never use "don't", "can't", "it's". Use "do not", "cannot", "it is".
-        2. NO SLANG: Do not use "Look," "Honestly," or "Basically."
-        3. OBJECTIVE TONE: Third-person only. No "I think" or "In my opinion."
-        
-        STEALTH TACTICS (How to beat AI while being formal):
-        1. INVERTED SENTENCES: Don't start every sentence with "The". Start with clauses: "While X suggests Y, Z remains..."
-        2. DENSITY VARIATION: Write one very long, complex sentence (30+ words) followed by a short, direct assertion.
-        3. SYNONYM SWAP: 
-           - Instead of "utilize", use "employ".
-           - Instead of "show", use "demonstrate" or "exhibit".
-           - Instead of "important", use "significant" or "critical".
-        4. REMOVE AI FLUFF: Delete "In conclusion," "Moreover," "It is important to note." Just state the facts.
+        STRICT ACADEMIC RULES:
+        1. BANISH TRANSITIONS: Do NOT use "Moreover," "Furthermore," "In conclusion," "Additionally," or "It is important to note." These are dead giveaways.
+        2. SENTENCE FUSION: AI writes short, choppy sentences. You must combine them. Use semi-colons (;) and em-dashes (—) to link related ideas into single, dense sentences.
+        3. INVERTED STRUCTURE: Do not start sentences with the subject. Start with a dependent clause. 
+           (Bad: "The data shows X." -> Good: "Given the prevalence of X in the dataset, it becomes clear that...")
+        4. VOCABULARY: Use precise, concrete verbs. Avoid "utilize" (use "deploy"), avoid "show" (use "indicate").
+        5. VOICE: Active voice only. (Bad: "Mistakes were made." -> Good: "The study identifies errors.")
         
         INPUT TEXT:
         "${text}"
@@ -54,12 +48,10 @@ export async function POST(req: Request) {
         REWRITTEN ACADEMIC OUTPUT:
       `;
     } else {
-      // === CASUAL/GHOST PROTOCOL (The V5 Engine) ===
-      // Slang allowed. High voice.
+      // === CASUAL/GHOST PROTOCOL (Unchanged - it works) ===
       prompt = `
         TASK: Retell this text in a casual, opinionated human voice.
         GOAL: 0% AI Detection.
-        
         RULES:
         1. USE "BRIDGE PHRASES": Start with "Look," "Honestly," "Here's the thing."
         2. CONTRACTIONS: Use "don't," "won't," "can't" everywhere.
@@ -73,7 +65,8 @@ export async function POST(req: Request) {
       `;
     }
 
-    // EXECUTE
+    // EXECUTE WITH HIGH TEMPERATURE (1.1)
+    // We need high randomness even for academic text to break the "average" patterns.
     const generateUrl = `https://generativelanguage.googleapis.com/v1beta/${selectedModel}:generateContent?key=${apiKey}`;
     
     const genResp = await fetch(generateUrl, {
@@ -82,8 +75,8 @@ export async function POST(req: Request) {
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: {
-          temperature: 1.0,
-          topP: 0.95,
+          temperature: 1.1,
+          topP: 0.98,
           topK: 40,
           maxOutputTokens: 8192,
         }
