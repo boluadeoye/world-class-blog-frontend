@@ -10,6 +10,7 @@ export default function NewsUpdates() {
   useEffect(() => {
     async function fetchNews() {
       try {
+        // Using rss2json to fetch BBC Technology
         const res = await fetch(
           "https://api.rss2json.com/v1/api.json?rss_url=http://feeds.bbci.co.uk/news/technology/rss.xml"
         );
@@ -25,6 +26,18 @@ export default function NewsUpdates() {
     }
     fetchNews();
   }, []);
+
+  // Helper to extract image from RSS item
+  const getImageUrl = (item) => {
+    // 1. Check enclosure (standard for BBC)
+    if (item.enclosure && item.enclosure.link) return item.enclosure.link;
+    // 2. Check thumbnail property
+    if (item.thumbnail) return item.thumbnail;
+    // 3. Fallback: Try to extract src from description HTML
+    const match = item.description?.match(/src="([^"]+)"/);
+    if (match) return match[1];
+    return null;
+  };
 
   if (!loading && news.length === 0) return null;
 
@@ -54,49 +67,60 @@ export default function NewsUpdates() {
             ? [...Array(5)].map((_, i) => (
                 <div key={i} className="min-w-[150px] md:min-w-[200px] h-[260px] rounded-xl bg-white/5 animate-pulse border border-white/5 flex-shrink-0" />
               ))
-            : news.map((item, idx) => (
-                <Link
-                  key={idx}
-                  href={item.link}
-                  target="_blank"
-                  className="group relative min-w-[150px] md:min-w-[200px] h-[260px] snap-start flex-shrink-0"
-                >
-                  {/* Card Container */}
-                  <div className="h-full p-4 rounded-xl bg-slate-950 border border-white/10 hover:border-indigo-500/40 transition-all duration-500 flex flex-col justify-between overflow-hidden shadow-lg group-hover:shadow-xl group-hover:shadow-indigo-900/10 group-hover:-translate-y-1">
-                    
-                    {/* Hover Gradient */}
-                    <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                    
-                    {/* Top Row */}
-                    <div className="relative z-10 flex justify-between items-start mb-3">
-                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-white/5 border border-white/5 text-[7px] font-bold tracking-widest text-indigo-300 uppercase font-sans">
-                        <Globe size={8} /> BBC
-                      </span>
-                      <ExternalLink size={10} className="text-slate-500 group-hover:text-white transition-colors" />
-                    </div>
+            : news.map((item, idx) => {
+                const bgImage = getImageUrl(item);
+                
+                return (
+                  <Link
+                    key={idx}
+                    href={item.link}
+                    target="_blank"
+                    className="group relative min-w-[150px] md:min-w-[200px] h-[260px] snap-start flex-shrink-0 rounded-xl overflow-hidden border border-white/10 shadow-lg hover:shadow-2xl hover:shadow-indigo-900/20 transition-all duration-500 hover:-translate-y-1"
+                  >
+                    {/* === BACKGROUND IMAGE === */}
+                    {bgImage ? (
+                      <img 
+                        src={bgImage} 
+                        alt="" 
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 bg-slate-900"></div>
+                    )}
 
-                    {/* Content - BOLD & CONFIDENT */}
-                    <div className="relative z-10 flex-1 flex flex-col">
-                      <h4 className="font-serif text-base md:text-lg font-bold text-white leading-[1.1] line-clamp-5 group-hover:text-indigo-200 transition-colors tracking-tight drop-shadow-md">
-                        {item.title}
-                      </h4>
-                      {/* Decorative Line */}
-                      <div className="w-4 h-0.5 bg-indigo-500 mt-3 group-hover:w-8 transition-all duration-500"></div>
-                    </div>
+                    {/* === DARK GRADIENT OVERLAY (For Text Readability) === */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent opacity-90 group-hover:opacity-80 transition-opacity duration-500"></div>
                     
-                    {/* Bottom Row */}
-                    <div className="relative z-10 mt-auto pt-2 border-t border-white/5 flex items-center justify-between">
-                      <span className="text-[8px] font-sans font-bold text-slate-400 group-hover:text-indigo-300 transition-colors tracking-wide">
-                        {new Date(item.pubDate).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' })}
-                      </span>
-                      <div className="flex items-center gap-1 text-[8px] font-extrabold text-slate-500 uppercase tracking-widest group-hover:text-white transition-colors font-sans">
-                        <span>Read</span>
-                        <ArrowRight size={8} className="group-hover:translate-x-1 transition-transform" />
+                    {/* === CONTENT === */}
+                    <div className="relative z-10 h-full p-4 flex flex-col justify-between">
+                      
+                      {/* Top Row */}
+                      <div className="flex justify-between items-start">
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-black/50 border border-white/10 text-[7px] font-bold tracking-widest text-white uppercase font-sans backdrop-blur-md">
+                          <Globe size={8} /> BBC
+                        </span>
+                      </div>
+
+                      {/* Bottom Content */}
+                      <div className="mt-auto">
+                        <h4 className="font-serif text-sm md:text-base font-bold text-white leading-[1.2] line-clamp-4 mb-3 drop-shadow-md">
+                          {item.title}
+                        </h4>
+                        
+                        <div className="pt-2 border-t border-white/20 flex items-center justify-between">
+                          <span className="text-[8px] font-sans font-bold text-slate-300 tracking-wide">
+                            {new Date(item.pubDate).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' })}
+                          </span>
+                          <div className="flex items-center gap-1 text-[8px] font-extrabold text-white uppercase tracking-widest">
+                            <span>Read</span>
+                            <ArrowRight size={8} className="group-hover:translate-x-1 transition-transform" />
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </Link>
-              ))}
+                  </Link>
+                );
+              })}
         </div>
       </div>
     </section>
