@@ -1,21 +1,8 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
-
-// THE KITCHEN SINK LIST
-// We try every known alias. One of these WILL work.
-const MODELS_TO_TRY = [
-  "gemini-1.5-flash",          // Standard Free
-  "gemini-1.5-flash-latest",   // Latest Alias
-  "gemini-1.5-flash-8b",       // High-efficiency (often empty quota)
-  "gemini-1.5-pro",            // High Intelligence
-  "gemini-1.5-pro-latest",     // Latest Pro
-  "gemini-pro",                // Legacy Stable
-  "gemini-1.0-pro",            // Legacy Versioned
-  "gemini-2.0-flash-exp"       // Experimental (Last resort due to quota)
-];
 
 export async function POST(req: Request) {
   try {
+    // 1. GET API KEY
     const apiKey = process.env.GEMINI_API_KEY || 
                    process.env.GOOGLE_API_KEY || 
                    process.env.NEXT_PUBLIC_GEMINI_API_KEY ||
@@ -26,9 +13,8 @@ export async function POST(req: Request) {
     }
 
     const { text } = await req.json();
-    const genAI = new GoogleGenerativeAI(apiKey);
 
-    // THE STEALTH PROMPT (Score 20 Target)
+    // 2. THE STEALTH PROMPT
     const prompt = `
       Act as a professional ghostwriter. Rewrite the text below to be 100% undetectable by AI detectors.
       
@@ -44,44 +30,46 @@ export async function POST(req: Request) {
       Rewritten Output:
     `;
 
-    let lastError = null;
-    let successModel = "";
-    let humanizedText = "";
+    // 3. RAW FETCH TO GOOGLE (Bypassing the SDK)
+    // We use gemini-1.5-flash because it is the most stable free model.
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
-    // LOOP THROUGH MODELS
-    for (const modelName of MODELS_TO_TRY) {
-      try {
-        console.log(`Trying model: ${modelName}...`);
-        const model = genAI.getGenerativeModel({ model: modelName });
-        
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        humanizedText = response.text();
-        successModel = modelName;
-        
-        // If we get here, it worked. Break the loop.
-        break;
-
-      } catch (error: any) {
-        console.warn(`Model ${modelName} failed: ${error.message}`);
-        lastError = error;
-        // Continue to next model...
-      }
-    }
-
-    if (!humanizedText) {
-      throw lastError || new Error("All models failed.");
-    }
-
-    return NextResponse.json({ 
-      result: humanizedText,
-      debug_model: successModel 
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        contents: [{
+          parts: [{ text: prompt }]
+        }]
+      })
     });
 
+    const data = await response.json();
+
+    // 4. ERROR HANDLING
+    if (!response.ok) {
+      const errorMsg = data.error?.message || "Unknown Google Error";
+      console.error("Google API Error:", errorMsg);
+      
+      // If 1.5 Flash fails, we could try Pro, but let's see the error first.
+      return NextResponse.json({ error: `Google Error: ${errorMsg}` }, { status: 500 });
+    }
+
+    // 5. EXTRACT TEXT
+    const humanizedText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+    if (!humanizedText) {
+      return NextResponse.json({ error: "AI returned empty response." }, { status: 500 });
+    }
+
+    return NextResponse.json({ result: humanizedText });
+
   } catch (error: any) {
-    console.error("Final Error:", error);
+    console.error("System Error:", error);
     return NextResponse.json(
-      { error: `System Exhausted. Last error: ${error.message}` },
+      { error: `System Error: ${error.message}` },
       { status: 500 }
     );
   }
