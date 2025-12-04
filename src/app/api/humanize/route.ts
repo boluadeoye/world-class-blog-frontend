@@ -1,18 +1,21 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
 
-// THE ROBUST MODEL LIST
-// The system will try these in order until one works.
+// THE KITCHEN SINK LIST
+// We try every known alias. One of these WILL work.
 const MODELS_TO_TRY = [
-  "gemini-1.5-flash",      // Best balance of speed/free-tier
-  "gemini-1.5-pro",        // High intelligence
-  "gemini-pro",            // Standard stable
-  "gemini-1.0-pro"         // Legacy backup
+  "gemini-1.5-flash",          // Standard Free
+  "gemini-1.5-flash-latest",   // Latest Alias
+  "gemini-1.5-flash-8b",       // High-efficiency (often empty quota)
+  "gemini-1.5-pro",            // High Intelligence
+  "gemini-1.5-pro-latest",     // Latest Pro
+  "gemini-pro",                // Legacy Stable
+  "gemini-1.0-pro",            // Legacy Versioned
+  "gemini-2.0-flash-exp"       // Experimental (Last resort due to quota)
 ];
 
 export async function POST(req: Request) {
   try {
-    // 1. GET API KEY
     const apiKey = process.env.GEMINI_API_KEY || 
                    process.env.GOOGLE_API_KEY || 
                    process.env.NEXT_PUBLIC_GEMINI_API_KEY ||
@@ -23,11 +26,9 @@ export async function POST(req: Request) {
     }
 
     const { text } = await req.json();
-    if (!text) return NextResponse.json({ error: "No text provided" }, { status: 400 });
-
     const genAI = new GoogleGenerativeAI(apiKey);
 
-    // 2. THE STEALTH PROMPT (Aggressive Humanization)
+    // THE STEALTH PROMPT (Score 20 Target)
     const prompt = `
       Act as a professional ghostwriter. Rewrite the text below to be 100% undetectable by AI detectors.
       
@@ -43,38 +44,44 @@ export async function POST(req: Request) {
       Rewritten Output:
     `;
 
-    // 3. THE FALLBACK LOOP
     let lastError = null;
+    let successModel = "";
+    let humanizedText = "";
 
+    // LOOP THROUGH MODELS
     for (const modelName of MODELS_TO_TRY) {
       try {
-        console.log(`Attempting generation with model: ${modelName}`);
+        console.log(`Trying model: ${modelName}...`);
         const model = genAI.getGenerativeModel({ model: modelName });
         
         const result = await model.generateContent(prompt);
         const response = await result.response;
-        const humanizedText = response.text();
-
-        // If we get here, it worked! Return immediately.
-        return NextResponse.json({ 
-          result: humanizedText,
-          modelUsed: modelName 
-        });
+        humanizedText = response.text();
+        successModel = modelName;
+        
+        // If we get here, it worked. Break the loop.
+        break;
 
       } catch (error: any) {
-        console.warn(`Model ${modelName} failed:`, error.message);
+        console.warn(`Model ${modelName} failed: ${error.message}`);
         lastError = error;
-        // Continue to the next model in the list...
+        // Continue to next model...
       }
     }
 
-    // 4. IF ALL FAIL
-    throw lastError || new Error("All models failed to generate content.");
+    if (!humanizedText) {
+      throw lastError || new Error("All models failed.");
+    }
+
+    return NextResponse.json({ 
+      result: humanizedText,
+      debug_model: successModel 
+    });
 
   } catch (error: any) {
-    console.error("Final Humanizer Error:", error);
+    console.error("Final Error:", error);
     return NextResponse.json(
-      { error: `System Exhausted: ${error.message}. Check API Key Quotas.` },
+      { error: `System Exhausted. Last error: ${error.message}` },
       { status: 500 }
     );
   }
