@@ -1,69 +1,75 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Wand2, Copy, ShieldCheck, Activity, Zap } from 'lucide-react';
+import { Wand2, Copy, ShieldCheck, Activity, Zap, AlertTriangle } from 'lucide-react';
 
 export default function HumanizerTool() {
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [error, setError] = useState('');
   
   // METRICS STATE
-  const [stats, setStats] = useState({ 
-    burstiness: 0, 
-    perplexity: 0, 
-    humanScore: 0 
-  });
+  const [stats, setStats] = useState({ burstiness: 0, humanScore: 0 });
 
   // --- LOCAL ANALYSIS ENGINE ---
-  // This runs instantly in the browser to score your text
   const analyzeText = (text: string) => {
-    if (!text.trim()) return { burstiness: 0, perplexity: 0, humanScore: 0 };
-
+    if (!text.trim()) return { burstiness: 0, humanScore: 0 };
     const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0);
     const words = text.trim().split(/\s+/);
-    
-    if (sentences.length === 0) return { burstiness: 0, perplexity: 0, humanScore: 0 };
+    if (sentences.length === 0) return { burstiness: 0, humanScore: 0 };
 
-    // 1. Burstiness (Variance in sentence length)
-    // AI writes uniform sentences. Humans write chaotic lengths.
+    // Burstiness Calculation
     const lengths = sentences.map(s => s.trim().split(/\s+/).length);
     const avgLength = lengths.reduce((a, b) => a + b, 0) / lengths.length;
     const variance = lengths.reduce((a, b) => a + Math.pow(b - avgLength, 2), 0) / lengths.length;
-    // Scale variance to a 0-100 score
     const burstiness = Math.min(100, Math.round(Math.sqrt(variance) * 10));
 
-    // 2. Perplexity (Vocabulary Richness)
-    // AI uses common words. Humans use rare words.
+    // Perplexity/Richness
     const uniqueWords = new Set(words.map(w => w.toLowerCase())).size;
     const richness = (uniqueWords / words.length) * 100;
-    const perplexity = Math.min(100, Math.round(richness * 1.5));
 
-    // 3. Estimated Human Score
-    const humanScore = Math.round((burstiness * 0.6) + (perplexity * 0.4));
-
-    return { burstiness, perplexity, humanScore };
+    // Human Score
+    const humanScore = Math.round((burstiness * 0.6) + (richness * 0.4));
+    return { burstiness, humanScore };
   };
 
-  // Update stats whenever input changes
-  useEffect(() => {
-    setStats(analyzeText(input));
-  }, [input]);
+  useEffect(() => { setStats(analyzeText(input)); }, [input]);
 
-  const handleHumanize = () => {
+  // --- THE REAL API CALL ---
+  const handleHumanize = async () => {
+    if (!input) return;
     setIsProcessing(true);
-    
-    // SIMULATION MODE (Waiting for Backend)
-    setTimeout(() => {
+    setError('');
+    setOutput('');
+
+    try {
+      const res = await fetch('/api/humanize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: input }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error || 'Processing failed');
+
+      setOutput(data.result);
+      
+      // Analyze the NEW output to show improvement
+      // (Optional: You could add a "Before vs After" comparison here later)
+      
+    } catch (err: any) {
+      setError(err.message || 'System Error');
+    } finally {
       setIsProcessing(false);
-      setOutput("System Ready. Waiting for API Key configuration to enable Neural Rewriting engine.");
-    }, 1500);
+    }
   };
 
   return (
     <main className="min-h-screen bg-[#050505] text-slate-200 font-sans selection:bg-emerald-500/30 pt-24 pb-12">
       
-      {/* --- HEADER --- */}
+      {/* HEADER */}
       <div className="max-w-6xl mx-auto px-6 mb-8 flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-white/10 pb-6">
         <div>
           <div className="flex items-center gap-2 text-emerald-500 mb-2">
@@ -95,10 +101,10 @@ export default function HumanizerTool() {
         </div>
       </div>
 
-      {/* --- WORKSPACE --- */}
+      {/* WORKSPACE */}
       <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-6 h-[60vh]">
         
-        {/* INPUT (AI) */}
+        {/* INPUT */}
         <div className="flex flex-col gap-3">
           <label className="flex items-center justify-between text-xs font-bold text-slate-500 uppercase tracking-widest">
             <span className="flex items-center gap-2"><Zap size={12} /> Input Source</span>
@@ -112,7 +118,7 @@ export default function HumanizerTool() {
           />
         </div>
 
-        {/* OUTPUT (HUMAN) */}
+        {/* OUTPUT */}
         <div className="flex flex-col gap-3 relative">
           <label className="flex items-center justify-between text-xs font-bold text-emerald-500 uppercase tracking-widest">
             <span className="flex items-center gap-2"><Activity size={12} /> Humanized Output</span>
@@ -127,6 +133,11 @@ export default function HumanizerTool() {
                   <span className="text-xs font-mono text-emerald-500 animate-pulse tracking-widest">REWRITING PATTERNS...</span>
                 </div>
               </div>
+            ) : error ? (
+              <div className="flex items-center justify-center h-full text-rose-500 gap-2">
+                <AlertTriangle size={20} />
+                <span>{error}</span>
+              </div>
             ) : (
               <textarea 
                 readOnly
@@ -140,7 +151,7 @@ export default function HumanizerTool() {
 
       </div>
 
-      {/* --- CONTROLS --- */}
+      {/* CONTROLS */}
       <div className="max-w-6xl mx-auto px-6 mt-8 flex justify-center">
         <button 
           onClick={handleHumanize}
