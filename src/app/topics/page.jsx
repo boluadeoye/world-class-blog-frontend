@@ -1,3 +1,4 @@
+"use client";
 import { getLatestPosts } from "../../lib/api";
 import Link from "next/link";
 import { ArrowRight, FileText, LayoutGrid, Zap } from "lucide-react";
