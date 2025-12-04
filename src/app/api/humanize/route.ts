@@ -1,99 +1,83 @@
 import { NextResponse } from "next/server";
 
+// --- THE STEALTH CONFIGURATION ---
+const FORBIDDEN_WORDS = [
+  "delve", "crucial", "tapestry", "landscape", "moreover", "in conclusion", 
+  "underscores", "testament", "realm", "dynamic", "foster", "utilize"
+];
+
+const MODES = {
+  "standard": "Balance between readability and humanization.",
+  "ghost": "MAXIMUM STEALTH. Aggressively change sentence structure. Use idioms. Intentionally imperfect grammar if needed.",
+  "academic": "High-level vocabulary, but varied sentence length. Avoid repetitive transition words.",
+  "casual": "Conversational, blog-style. Use contractions (don't, can't). Sound opinionated."
+};
+
 export async function POST(req: Request) {
   try {
-    // 1. GET API KEY
+    // 1. CONFIG CHECK
     const apiKey = process.env.GEMINI_API_KEY || 
                    process.env.GOOGLE_API_KEY || 
                    process.env.NEXT_PUBLIC_GEMINI_API_KEY ||
                    process.env.NEXT_PUBLIC_GOOGLE_API_KEY;
 
-    if (!apiKey) {
-      return NextResponse.json({ error: "Config Error: No API Key found." }, { status: 500 });
-    }
+    if (!apiKey) return NextResponse.json({ error: "Config Error: No API Key found." }, { status: 500 });
 
-    const { text } = await req.json();
+    // 2. PARSE REQUEST (Now accepts 'mode' and 'tone')
+    const { text, mode = "ghost", tone = "professional" } = await req.json();
 
-    // 2. AUTO-DISCOVERY: Ask Google what models are available
-    // This prevents 404 errors by only using models that actually exist for your key.
+    // 3. AUTO-DISCOVERY (Keep this, it works)
     const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
     const listResp = await fetch(listUrl);
     const listData = await listResp.json();
-
-    if (!listResp.ok) {
-      return NextResponse.json({ error: `Failed to list models: ${listData.error?.message}` }, { status: 500 });
-    }
-
-    // 3. SELECT THE BEST AVAILABLE MODEL
-    // We look for models that support 'generateContent'.
-    // Priority: Flash > Pro > 1.0
-    const availableModels = listData.models || [];
     
+    const availableModels = listData.models || [];
     let selectedModel = "";
     
-    // Strategy: Find the first model that is NOT experimental (to avoid 429s) and is "Gemini"
-    const preferredOrder = [
-      "gemini-1.5-flash",
-      "gemini-1.5-flash-latest",
-      "gemini-1.5-pro",
-      "gemini-pro",
-      "gemini-1.0-pro"
-    ];
-
-    // Try to find a preferred match
+    // Priority: Flash > Pro
+    const preferredOrder = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro"];
     for (const pref of preferredOrder) {
       const match = availableModels.find((m: any) => m.name.includes(pref) && m.supportedGenerationMethods?.includes("generateContent"));
-      if (match) {
-        selectedModel = match.name; // e.g., "models/gemini-1.5-flash-001"
-        break;
-      }
+      if (match) { selectedModel = match.name; break; }
     }
+    if (!selectedModel) selectedModel = availableModels[0]?.name; // Fallback
 
-    // Fallback: Just take the first available "gemini" model if no preferred match found
-    if (!selectedModel) {
-      const fallback = availableModels.find((m: any) => m.name.includes("gemini") && m.supportedGenerationMethods?.includes("generateContent"));
-      if (fallback) selectedModel = fallback.name;
-    }
+    if (!selectedModel) return NextResponse.json({ error: "No models available." }, { status: 500 });
 
-    if (!selectedModel) {
-      return NextResponse.json({ error: "No compatible Gemini models found for this API key." }, { status: 500 });
-    }
-
-    console.log(`Auto-Selected Model: ${selectedModel}`);
-
-    // 4. GENERATE CONTENT USING THE FOUND MODEL
-    const generateUrl = `https://generativelanguage.googleapis.com/v1beta/${selectedModel}:generateContent?key=${apiKey}`;
-    
+    // 4. THE ADVANCED PROMPT ENGINEERING
     const prompt = `
-      Act as a professional ghostwriter. Rewrite the text below to be 100% undetectable by AI detectors.
+      ROLE: You are a professional ghostwriter and text forensics expert.
+      GOAL: Rewrite the input text to bypass AI detection algorithms (like GPTZero, Turnitin).
       
-      Strict Rules:
-      1. BURSTINESS: Vary sentence length aggressively. Use a 3-word sentence. Then a 25-word sentence.
-      2. VOCABULARY: Remove all "AI words" (e.g., "delve", "crucial", "tapestry", "landscape", "moreover", "in conclusion").
-      3. IMPERFECTION: Add slight conversational nuances. Start sentences with "Look," or "Honestly,".
-      4. STRUCTURE: No bullet points. No headers. Just raw, flowing text.
+      CONFIGURATION:
+      - MODE: ${MODES[mode as keyof typeof MODES] || MODES.ghost}
+      - TONE: ${tone}
       
-      Input Text:
+      STRICT RULES (THE "HUMAN" ALGORITHM):
+      1. BURSTINESS: You MUST vary sentence length. Follow this pattern: Short. Medium. Very long and complex. Short.
+      2. VOCABULARY: Do NOT use these words: ${FORBIDDEN_WORDS.join(", ")}. Use Anglo-Saxon roots (e.g., "use" instead of "utilize").
+      3. PERPLEXITY: Increase lexical diversity. Don't repeat words.
+      4. STRUCTURE: Remove all bullet points. Merge them into flowing paragraphs.
+      5. IMPERFECTION: If mode is 'ghost' or 'casual', add slight conversational nuances (e.g., starting sentences with "Look," or "Honestly,").
+      
+      INPUT TEXT:
       "${text}"
       
-      Rewritten Output:
+      REWRITTEN OUTPUT (Text Only):
     `;
 
+    // 5. EXECUTE
+    const generateUrl = `https://generativelanguage.googleapis.com/v1beta/${selectedModel}:generateContent?key=${apiKey}`;
     const genResp = await fetch(generateUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }]
-      })
+      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
     });
 
     const genData = await genResp.json();
-
-    if (!genResp.ok) {
-      return NextResponse.json({ error: `Generation Error (${selectedModel}): ${genData.error?.message}` }, { status: 500 });
-    }
-
     const humanizedText = genData.candidates?.[0]?.content?.parts?.[0]?.text;
+
+    if (!humanizedText) throw new Error("AI returned empty response.");
 
     return NextResponse.json({ 
       result: humanizedText,
