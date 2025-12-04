@@ -1,9 +1,11 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
 import { BookOpen, Terminal, TrendingUp, PenTool, Activity, Layers, ArrowRight } from 'lucide-react';
 import SearchHub from '../../components/topics/SearchHub';
 
-// Static Data - Maps topics to your existing Articles page
+// Static Data
 const TOPICS = [
   { 
     id: 'edu', 
