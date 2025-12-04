@@ -14,7 +14,56 @@ export async function POST(req: Request) {
 
     const { text } = await req.json();
 
-    // 2. THE STEALTH PROMPT
+    // 2. AUTO-DISCOVERY: Ask Google what models are available
+    // This prevents 404 errors by only using models that actually exist for your key.
+    const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
+    const listResp = await fetch(listUrl);
+    const listData = await listResp.json();
+
+    if (!listResp.ok) {
+      return NextResponse.json({ error: `Failed to list models: ${listData.error?.message}` }, { status: 500 });
+    }
+
+    // 3. SELECT THE BEST AVAILABLE MODEL
+    // We look for models that support 'generateContent'.
+    // Priority: Flash > Pro > 1.0
+    const availableModels = listData.models || [];
+    
+    let selectedModel = "";
+    
+    // Strategy: Find the first model that is NOT experimental (to avoid 429s) and is "Gemini"
+    const preferredOrder = [
+      "gemini-1.5-flash",
+      "gemini-1.5-flash-latest",
+      "gemini-1.5-pro",
+      "gemini-pro",
+      "gemini-1.0-pro"
+    ];
+
+    // Try to find a preferred match
+    for (const pref of preferredOrder) {
+      const match = availableModels.find((m: any) => m.name.includes(pref) && m.supportedGenerationMethods?.includes("generateContent"));
+      if (match) {
+        selectedModel = match.name; // e.g., "models/gemini-1.5-flash-001"
+        break;
+      }
+    }
+
+    // Fallback: Just take the first available "gemini" model if no preferred match found
+    if (!selectedModel) {
+      const fallback = availableModels.find((m: any) => m.name.includes("gemini") && m.supportedGenerationMethods?.includes("generateContent"));
+      if (fallback) selectedModel = fallback.name;
+    }
+
+    if (!selectedModel) {
+      return NextResponse.json({ error: "No compatible Gemini models found for this API key." }, { status: 500 });
+    }
+
+    console.log(`Auto-Selected Model: ${selectedModel}`);
+
+    // 4. GENERATE CONTENT USING THE FOUND MODEL
+    const generateUrl = `https://generativelanguage.googleapis.com/v1beta/${selectedModel}:generateContent?key=${apiKey}`;
+    
     const prompt = `
       Act as a professional ghostwriter. Rewrite the text below to be 100% undetectable by AI detectors.
       
@@ -30,47 +79,29 @@ export async function POST(req: Request) {
       Rewritten Output:
     `;
 
-    // 3. RAW FETCH TO GOOGLE (Bypassing the SDK)
-    // We use gemini-1.5-flash because it is the most stable free model.
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-
-    const response = await fetch(url, {
+    const genResp = await fetch(generateUrl, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        contents: [{
-          parts: [{ text: prompt }]
-        }]
+        contents: [{ parts: [{ text: prompt }] }]
       })
     });
 
-    const data = await response.json();
+    const genData = await genResp.json();
 
-    // 4. ERROR HANDLING
-    if (!response.ok) {
-      const errorMsg = data.error?.message || "Unknown Google Error";
-      console.error("Google API Error:", errorMsg);
-      
-      // If 1.5 Flash fails, we could try Pro, but let's see the error first.
-      return NextResponse.json({ error: `Google Error: ${errorMsg}` }, { status: 500 });
+    if (!genResp.ok) {
+      return NextResponse.json({ error: `Generation Error (${selectedModel}): ${genData.error?.message}` }, { status: 500 });
     }
 
-    // 5. EXTRACT TEXT
-    const humanizedText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    const humanizedText = genData.candidates?.[0]?.content?.parts?.[0]?.text;
 
-    if (!humanizedText) {
-      return NextResponse.json({ error: "AI returned empty response." }, { status: 500 });
-    }
-
-    return NextResponse.json({ result: humanizedText });
+    return NextResponse.json({ 
+      result: humanizedText,
+      debug_model: selectedModel
+    });
 
   } catch (error: any) {
     console.error("System Error:", error);
-    return NextResponse.json(
-      { error: `System Error: ${error.message}` },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: `System Error: ${error.message}` }, { status: 500 });
   }
 }
