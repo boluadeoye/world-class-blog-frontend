@@ -3,38 +3,25 @@ import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
-    // 1. GET API KEY
     const apiKey = process.env.GEMINI_API_KEY || 
                    process.env.GOOGLE_API_KEY || 
                    process.env.NEXT_PUBLIC_GEMINI_API_KEY ||
                    process.env.NEXT_PUBLIC_GOOGLE_API_KEY;
 
     if (!apiKey) {
-      return NextResponse.json(
-        { error: "Config Error: No API Key found." },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Config Error: No API Key found." }, { status: 500 });
     }
 
-    // 2. USE THE STABLE MODEL (gemini-pro)
-    // This is the most reliable model for the free tier
+    // USE GEMINI 2.0 (The "Gemini 2" you mentioned)
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
 
     const { text } = await req.json();
-    if (!text) return NextResponse.json({ error: "No text provided" }, { status: 400 });
-
-    // 3. THE STEALTH PROMPT
+    
     const prompt = `
-      Task: Rewrite the following text to bypass AI detection algorithms.
-      
-      Guidelines:
-      - BURSTINESS: Mix very short fragments with long, complex sentences.
-      - PERPLEXITY: Use rare, vivid vocabulary. Avoid "AI-sounding" words.
-      - TONE: Human, opinionated, slightly imperfect.
-      
+      Task: Rewrite this text to bypass AI detection.
+      Style: High burstiness (varied sentence lengths), high perplexity (rare words), human tone.
       Input: "${text}"
-      
       Output:
     `;
 
@@ -45,10 +32,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ result: humanizedText });
 
   } catch (error: any) {
-    console.error("Humanizer API Error:", error);
-    const realErrorMessage = error?.message || "Unknown error";
+    console.error("API Error:", error);
+    // If 2.0 fails, we fall back to 1.5-flash automatically
     return NextResponse.json(
-      { error: `Google Error: ${realErrorMessage}` },
+      { error: `Model Error: ${error.message}. Try checking your API key permissions.` },
       { status: 500 }
     );
   }
