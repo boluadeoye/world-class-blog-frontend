@@ -24,49 +24,59 @@ export async function POST(req: Request) {
     }
     if (!selectedModel) selectedModel = availableModels[0]?.name;
 
-    // --- THE V6 PROMPT LOGIC ---
+    // --- THE V7 ADVERSARIAL PROMPT ---
+    // We inject the User's research directly into the prompt.
     let prompt = "";
 
     if (mode === 'academic' || tone === 'professional') {
-      // === ACADEMIC SCRAMBLER (The "Tenured Professor" Protocol) ===
-      // Goal: High complexity, zero "AI Fluff".
+      // === ACADEMIC BURSTINESS PROTOCOL ===
       prompt = `
-        TASK: Rewrite the following text for a high-level Academic Research Paper.
-        GOAL: Bypass AI detection by using "Syntactic Complexity."
+        ROLE: You are an adversarial AI expert. Your goal is to rewrite text to bypass AI detectors (like GPTZero).
         
-        STRICT ACADEMIC RULES:
-        1. BANISH TRANSITIONS: Do NOT use "Moreover," "Furthermore," "In conclusion," "Additionally," or "It is important to note." These are dead giveaways.
-        2. SENTENCE FUSION: AI writes short, choppy sentences. You must combine them. Use semi-colons (;) and em-dashes (—) to link related ideas into single, dense sentences.
-        3. INVERTED STRUCTURE: Do not start sentences with the subject. Start with a dependent clause. 
-           (Bad: "The data shows X." -> Good: "Given the prevalence of X in the dataset, it becomes clear that...")
-        4. VOCABULARY: Use precise, concrete verbs. Avoid "utilize" (use "deploy"), avoid "show" (use "indicate").
-        5. VOICE: Active voice only. (Bad: "Mistakes were made." -> Good: "The study identifies errors.")
+        THEORY OF MIND (How Detectors Work):
+        1. PERPLEXITY: Detectors flag text that is "predictable." You must be "surprising."
+        2. BURSTINESS: Detectors flag text with uniform sentence lengths. You must create "bursts" of variation.
+        
+        TASK: Rewrite the input text for an Academic/Professional context, but MAXIMIZE Perplexity and Burstiness.
+        
+        TACTICS FOR ACADEMIC STEALTH:
+        1. SENTENCE VARIANCE (Critical): 
+           - Write a 5-word sentence. 
+           - Follow it with a 35-word sentence containing multiple clauses.
+           - Follow that with a 10-word sentence.
+           - NEVER write three sentences of similar length in a row.
+        2. VOCABULARY: Use specific, rare domain terminology. Avoid generic words like "utilize," "foster," "crucial," "landscape."
+        3. STRUCTURE: 
+           - Remove all "signposting" words (Moreover, Furthermore, In conclusion).
+           - Use Active Voice (e.g., "We analyzed the data" NOT "The data was analyzed").
+           - Use mid-sentence interruptions (e.g., "The data—while initially promising—failed to...").
         
         INPUT TEXT:
         "${text}"
         
-        REWRITTEN ACADEMIC OUTPUT:
+        REWRITTEN OUTPUT (High Burstiness, High Perplexity):
       `;
     } else {
-      // === CASUAL/GHOST PROTOCOL (Unchanged - it works) ===
+      // === CASUAL CHAOS PROTOCOL ===
       prompt = `
-        TASK: Retell this text in a casual, opinionated human voice.
-        GOAL: 0% AI Detection.
-        RULES:
-        1. USE "BRIDGE PHRASES": Start with "Look," "Honestly," "Here's the thing."
-        2. CONTRACTIONS: Use "don't," "won't," "can't" everywhere.
-        3. IMPERFECTION: Break grammar rules slightly. Use fragments.
-        4. OPINION: Sound like a blogger, not a robot.
+        TASK: Rewrite this text to score 0% on AI detection.
+        STRATEGY: Maximize "Burstiness" (sentence length variation) and "Perplexity" (unpredictable words).
+        
+        TACTICS:
+        1. Write like a human talking fast. Use fragments. Run-on sentences. Then a short stop.
+        2. Use "Bridge Phrases": "Look," "Honestly," "Here's the deal."
+        3. Be opinionated. AI is neutral; humans are biased.
+        4. Use contractions (don't, can't, won't).
         
         INPUT TEXT:
         "${text}"
         
-        REWRITTEN CASUAL OUTPUT:
+        REWRITTEN OUTPUT:
       `;
     }
 
     // EXECUTE WITH HIGH TEMPERATURE (1.1)
-    // We need high randomness even for academic text to break the "average" patterns.
+    // High temperature increases Perplexity (unpredictability).
     const generateUrl = `https://generativelanguage.googleapis.com/v1beta/${selectedModel}:generateContent?key=${apiKey}`;
     
     const genResp = await fetch(generateUrl, {
@@ -76,8 +86,8 @@ export async function POST(req: Request) {
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: {
           temperature: 1.1,
-          topP: 0.98,
-          topK: 40,
+          topP: 0.99,
+          topK: 64,
           maxOutputTokens: 8192,
         }
       })
