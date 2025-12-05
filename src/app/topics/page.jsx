@@ -1,5 +1,7 @@
 import { fetchLatestArticles } from "../../lib/homeData";
-import Link from "next/link";
+import SearchHub from "../../components/topics/SearchHub";
+import TopicsGrid from "../../components/topics/TopicsGrid";
+import { LayoutGrid } from "lucide-react";
 
 export const revalidate = 3600;
 
@@ -20,69 +22,65 @@ function normalizeCategory(p) {
   return "Other";
 }
 
-function descFor(cat) {
+function getDescription(cat) {
   switch (cat) {
-    case "Health": return "Energy, wellbeing, mental clarity and the systems that sustain us.";
-    case "Finance": return "Money, investing, personal finance and building resilient wealth.";
-    case "Technology": return "Software, engineering, tools and the future of the web.";
-    case "Education": return "Learning, teaching, skill‑building and accelerating growth.";
-    default: return "Reflections, stories and everything that doesn’t fit a box.";
+    case "Health": return "Energy, wellbeing, and biological systems.";
+    case "Finance": return "Wealth building and financial psychology.";
+    case "Technology": return "Software architecture and digital ecosystems.";
+    case "Education": return "Accelerated learning and skill acquisition.";
+    default: return "Curated insights and reflections.";
   }
 }
 
-export default async function Page() {
+export default async function TopicsPage() {
+  // 1. Fetch Data
   const posts = await fetchLatestArticles(200).catch(() => []);
-  const byCat = new Map([["Health", []], ["Finance", []], ["Technology", []], ["Education", []], ["Other", []]]);
-
-  (Array.isArray(posts) ? posts : []).forEach(p => {
-    const cat = normalizeCategory(p);
-    if (!byCat.has(cat)) byCat.set(cat, []);
-    byCat.get(cat).push({ id: p?.id || p?.slug, slug: p?.slug, title: p?.title });
+  
+  // 2. Group Data
+  const categoryMap = new Map();
+  ["Health", "Finance", "Technology", "Education"].forEach(c => {
+    categoryMap.set(c, { name: c, posts: [], description: getDescription(c) });
   });
 
-  const cats = Array.from(byCat.keys()).filter(c => byCat.get(c).length > 0);
+  (Array.isArray(posts) ? posts : []).forEach(p => {
+    const catName = normalizeCategory(p);
+    if (!categoryMap.has(catName)) {
+      categoryMap.set(catName, { name: catName, posts: [], description: getDescription(catName) });
+    }
+    // Add post to category list
+    categoryMap.get(catName).posts.push({
+      id: p.id || p.slug,
+      slug: p.slug,
+      title: p.title
+    });
+  });
+
+  const topics = Array.from(categoryMap.values()).filter(t => t.posts.length > 0);
 
   return (
-    <main className="min-h-screen bg-slate-950 px-6 py-24">
-      <div className="max-w-3xl mx-auto">
-        <h1 className="text-3xl font-serif text-white mb-8">Topics</h1>
-        
-        <div className="grid gap-8">
-          {cats.map((c) => {
-            const list = byCat.get(c) || [];
-            return (
-              <section key={c} className="rounded-2xl border border-white/10 bg-slate-900/50 p-6">
-                <header className="mb-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <h2 className="text-2xl font-serif text-white">{c}</h2>
-                    <span className="text-xs font-mono text-slate-500 bg-white/5 px-2 py-1 rounded">
-                      {list.length} {list.length === 1 ? "post" : "posts"}
-                    </span>
-                  </div>
-                  <p className="text-sm text-slate-400">{descFor(c)}</p>
-                </header>
-                
-                <ul className="space-y-3">
-                  {list.slice(0, 5).map(p => (
-                    <li key={p.id}>
-                      <Link href={`/post/${p.slug}`} className="block text-slate-300 hover:text-amber-400 transition-colors text-base font-medium">
-                        {p.title}
-                      </Link>
-                    </li>
-                  ))}
-                  {list.length > 5 && (
-                    <li className="pt-2">
-                      <Link href={`/articles?category=${c}`} className="text-xs text-indigo-400 hover:text-indigo-300 uppercase tracking-wider font-bold">
-                        View all {c} posts &rarr;
-                      </Link>
-                    </li>
-                  )}
-                </ul>
-              </section>
-            );
-          })}
+    <main className="min-h-screen bg-slate-950 pt-24 pb-24">
+      
+      {/* HEADER */}
+      <div className="max-w-4xl mx-auto px-6 md:px-8 mb-12 text-center">
+        <div className="flex justify-center mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 font-bold text-[10px] tracking-widest uppercase">
+            <LayoutGrid size={14} /> Topics Index
+          </div>
         </div>
+        <h1 className="font-serif text-5xl md:text-6xl text-white tracking-tight mb-4">
+          The Knowledge Hub
+        </h1>
+        <p className="text-slate-400 text-lg max-w-xl mx-auto">
+          Curated collections of engineering, finance, and health insights.
+        </p>
       </div>
+      
+      {/* SEARCH */}
+      <SearchHub />
+
+      {/* GRID (With Live Posts) */}
+      <TopicsGrid topics={topics} />
+
     </main>
   );
 }
