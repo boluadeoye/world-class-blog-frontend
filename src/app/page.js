@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { ArrowRight, Play, FileText } from "lucide-react";
+import { ArrowRight, Play } from "lucide-react";
 import { fetchLatestArticles, fetchFeaturedPosts, fetchVideoPosts, fetchFeaturedVideo } from "../lib/homeData";
 import ModernHero from "../components/home/ModernHero";
 import ScrollReveal from "../components/ui/ScrollReveal";
 import NewsUpdates from "../components/home/NewsUpdates";
 import Newsletter from "../components/home/Newsletter";
-import TrendingRail from "../components/home/TrendingRail";
+import ServiceDeck from "../components/home/ServiceDeck";
 
 export const revalidate = 3600;
 
@@ -14,7 +14,7 @@ const getDate = (d) => d ? new Date(d).toLocaleDateString('en-US', {month:'short
 
 export default async function Page() {
   const [latest, featuredPosts, videos, featuredVideo] = await Promise.all([
-    fetchLatestArticles(8), // Fetch more for the rail
+    fetchLatestArticles(6),
     fetchFeaturedPosts(3),
     fetchVideoPosts(4),
     fetchFeaturedVideo(),
@@ -22,10 +22,6 @@ export default async function Page() {
 
   const heroPost = featuredPosts?.[0] || latest?.[0];
   const subFeatures = featuredPosts?.slice(1, 3) || latest?.slice(1, 3);
-  const usedSlugs = new Set([heroPost?.slug, ...subFeatures.map(p => p?.slug)]);
-  
-  // Filter posts for the Trending Rail (exclude featured ones)
-  const recentNotes = latest?.filter(p => !usedSlugs.has(p.slug)) || [];
 
   return (
     <main className="min-h-screen bg-slate-950 text-slate-200 selection:bg-amber-500/30 overflow-x-hidden">
@@ -95,13 +91,13 @@ export default async function Page() {
         </div>
       </section>
 
-      {/* === 3. TRENDING RAIL & VIDEO === */}
+      {/* === 3. SERVICES & VIDEO === */}
       <section className="px-6 md:px-12 py-12 bg-slate-900/30 border-t border-slate-800/50">
         <div className="max-w-7xl mx-auto">
           
-          {/* REPLACED LIST WITH TRENDING RAIL */}
+          {/* REPLACED EMPTY LIST WITH SERVICE DECK */}
           <ScrollReveal>
-            <TrendingRail posts={recentNotes} />
+            <ServiceDeck />
           </ScrollReveal>
 
           {/* VIDEO SECTION */}
