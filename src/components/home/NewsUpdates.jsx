@@ -76,11 +76,12 @@ export default function NewsUpdates() {
           </div>
         </div>
 
-        {/* Horizontal Scroll Container (Ultra-Narrow) */}
+        {/* Horizontal Scroll Container */}
         <div className="flex gap-3 overflow-x-auto pb-12 px-6 md:px-12 snap-x scroll-pl-6 md:scroll-pl-12 scrollbar-hide">
           {loading
             ? [...Array(6)].map((_, i) => (
-                <div key={i} className="min-w-[140px] md:min-w-[180px] h-[320px] rounded-[1.25rem] bg-white/5 animate-pulse border border-white/5 flex-shrink-0" />
+                // SKELETON: Fixed Width (w-) instead of min-w
+                <div key={i} className="w-[150px] md:w-[200px] h-[300px] rounded-[1.25rem] bg-white/5 animate-pulse border border-white/5 flex-shrink-0" />
               ))
             : news.map((item, idx) => {
                 const bgImage = getImageUrl(item);
@@ -90,7 +91,8 @@ export default function NewsUpdates() {
                     key={idx}
                     href={item.link}
                     target="_blank"
-                    className="group relative min-w-[140px] md:min-w-[180px] h-[320px] snap-start flex-shrink-0"
+                    // CARD: Fixed Width (w-) to match skeleton exactly
+                    className="group relative w-[150px] md:w-[200px] h-[300px] snap-start flex-shrink-0"
                   >
                     {/* === CARD CONTAINER === */}
                     <div className="relative h-full rounded-[1.25rem] overflow-hidden bg-slate-950 border border-white/10 shadow-xl transition-transform duration-500 group-hover:-translate-y-2 group-hover:shadow-white/5">
@@ -129,7 +131,7 @@ export default function NewsUpdates() {
                         
                         <div className="relative z-10 pt-3 border-t border-white/5 flex items-center justify-between mt-auto">
                           <span className="text-[8px] font-sans font-bold text-slate-500 uppercase tracking-wide">
-                            {new Date(item.pubDate).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' })}
+                            {new Date(item.pubDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                           </span>
                           <div className="w-5 h-5 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-white group-hover:text-black transition-all duration-300">
                             <ArrowRight size={8} />
