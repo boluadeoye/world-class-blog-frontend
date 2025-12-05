@@ -10,7 +10,6 @@ export default function NewsUpdates() {
   useEffect(() => {
     async function fetchNews() {
       try {
-        // Using rss2json to fetch BBC Technology
         const res = await fetch(
           "https://api.rss2json.com/v1/api.json?rss_url=http://feeds.bbci.co.uk/news/technology/rss.xml"
         );
@@ -27,7 +26,6 @@ export default function NewsUpdates() {
     fetchNews();
   }, []);
 
-  // Helper to extract image and try to get a higher res version if possible
   const getImageUrl = (item) => {
     let url = null;
     if (item.enclosure && item.enclosure.link) url = item.enclosure.link;
@@ -36,9 +34,6 @@ export default function NewsUpdates() {
       const match = item.description?.match(/src="([^"]+)"/);
       if (match) url = match[1];
     }
-    
-    // BBC Specific Hack: Try to replace low-res thumbnail patterns with higher res
-    // This is a best-effort attempt to get sharper images
     if (url && url.includes('bbc.co.uk')) {
       return url.replace('/240/', '/800/').replace('/320/', '/800/');
     }
@@ -49,12 +44,9 @@ export default function NewsUpdates() {
 
   return (
     <section className="py-20 border-t border-white/5 bg-[#020617] relative overflow-hidden">
-      {/* Background Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full max-w-7xl bg-radial-gradient(circle at 50% 50%, rgba(99,102,241,0.03), transparent 60%) pointer-events-none"></div>
 
       <div className="w-full max-w-7xl mx-auto">
-        
-        {/* Section Header */}
         <div className="px-6 md:px-12 mb-8 flex items-end justify-between">
           <div className="flex items-center gap-4">
             <div className="p-2 rounded-lg bg-white/5 border border-white/10 shadow-inner">
@@ -67,7 +59,6 @@ export default function NewsUpdates() {
           </div>
         </div>
 
-        {/* Horizontal Scroll Container */}
         <div className="flex gap-3 overflow-x-auto pb-10 px-6 md:px-12 snap-x scroll-pl-6 md:scroll-pl-12 scrollbar-hide">
           {loading
             ? [...Array(5)].map((_, i) => (
@@ -83,38 +74,37 @@ export default function NewsUpdates() {
                     target="_blank"
                     className="group relative min-w-[150px] md:min-w-[200px] h-[260px] snap-start flex-shrink-0 rounded-xl overflow-hidden border border-white/10 shadow-lg hover:shadow-2xl hover:shadow-indigo-900/20 transition-all duration-500 hover:-translate-y-1"
                   >
-                    {/* === BACKGROUND IMAGE (High Fidelity) === */}
+                    {/* === BACKGROUND IMAGE (Vivid & Bright) === */}
                     {bgImage ? (
                       <img 
                         src={bgImage} 
                         alt="" 
-                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 saturate-150 contrast-115 brightness-110"
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 saturate-[1.2] contrast-[1.15] brightness-[1.1]"
                       />
                     ) : (
                       <div className="absolute inset-0 bg-slate-900"></div>
                     )}
 
-                    {/* === SCRIM GRADIENT (Clear Top, Dark Bottom) === */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent opacity-90"></div>
+                    {/* === CLEAN GRADIENT (Bottom Only) === */}
+                    {/* This gradient starts transparent at top, only darkens bottom 40% for text */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent opacity-90"></div>
                     
                     {/* === CONTENT === */}
                     <div className="relative z-10 h-full p-4 flex flex-col justify-between">
                       
-                      {/* Top Row */}
                       <div className="flex justify-between items-start">
-                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-black/60 border border-white/10 text-[7px] font-bold tracking-widest text-white uppercase font-sans backdrop-blur-md shadow-sm">
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-black/40 border border-white/20 text-[7px] font-bold tracking-widest text-white uppercase font-sans backdrop-blur-md shadow-sm">
                           <Globe size={8} /> BBC
                         </span>
                       </div>
 
-                      {/* Bottom Content */}
                       <div className="mt-auto">
                         <h4 className="font-serif text-sm md:text-base font-bold text-white leading-[1.2] line-clamp-4 mb-3 drop-shadow-lg">
                           {item.title}
                         </h4>
                         
                         <div className="pt-2 border-t border-white/20 flex items-center justify-between">
-                          <span className="text-[8px] font-sans font-bold text-slate-300 tracking-wide">
+                          <span className="text-[8px] font-sans font-bold text-slate-200 tracking-wide">
                             {new Date(item.pubDate).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' })}
                           </span>
                           <div className="flex items-center gap-1 text-[8px] font-extrabold text-white uppercase tracking-widest">
