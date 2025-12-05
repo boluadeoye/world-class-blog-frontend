@@ -79,21 +79,21 @@ export default function NewsUpdates() {
                       <img 
                         src={bgImage} 
                         alt="" 
-                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 saturate-[1.2] contrast-[1.15] brightness-[1.1]"
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 saturate-[1.5] contrast-[1.2] brightness-[1.25]"
                       />
                     ) : (
                       <div className="absolute inset-0 bg-slate-900"></div>
                     )}
 
-                    {/* === CLEAN GRADIENT (Bottom Only) === */}
-                    {/* This gradient starts transparent at top, only darkens bottom 40% for text */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent opacity-90"></div>
+                    {/* === MINIMAL GRADIENT (Bottom 30% Only) === */}
+                    {/* This ensures the top of the image is 100% clear */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 via-30% to-transparent"></div>
                     
                     {/* === CONTENT === */}
                     <div className="relative z-10 h-full p-4 flex flex-col justify-between">
                       
                       <div className="flex justify-between items-start">
-                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-black/40 border border-white/20 text-[7px] font-bold tracking-widest text-white uppercase font-sans backdrop-blur-md shadow-sm">
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-black/60 border border-white/20 text-[7px] font-bold tracking-widest text-white uppercase font-sans backdrop-blur-md shadow-sm">
                           <Globe size={8} /> BBC
                         </span>
                       </div>
@@ -104,7 +104,7 @@ export default function NewsUpdates() {
                         </h4>
                         
                         <div className="pt-2 border-t border-white/20 flex items-center justify-between">
-                          <span className="text-[8px] font-sans font-bold text-slate-200 tracking-wide">
+                          <span className="text-[8px] font-sans font-bold text-slate-300 tracking-wide">
                             {new Date(item.pubDate).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' })}
                           </span>
                           <div className="flex items-center gap-1 text-[8px] font-extrabold text-white uppercase tracking-widest">
