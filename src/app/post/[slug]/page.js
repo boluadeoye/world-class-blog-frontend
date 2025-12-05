@@ -7,6 +7,17 @@ import Comments from "../../../components/public/Comments";
 
 export const revalidate = 3600;
 
+// === INTELLIGENT READ TIME CALCULATOR ===
+function calculateReadTime(content) {
+  if (!content) return "1 min read";
+  const wordsPerMinute = 200;
+  // Strip markdown symbols to get accurate word count
+  const text = content.replace(/[#*`\[\]()]/g, ''); 
+  const wordCount = text.trim().split(/\s+/).length;
+  const minutes = Math.ceil(wordCount / wordsPerMinute);
+  return `${minutes} min read`;
+}
+
 async function getPostData(slug) {
   const allPosts = await fetchLatestArticles(100);
   if (!Array.isArray(allPosts)) return { post: null, related: [] };
@@ -14,7 +25,13 @@ async function getPostData(slug) {
   const postIndex = allPosts.findIndex((p) => p.slug === slug);
   if (postIndex === -1) return { post: null, related: [] };
 
-  const post = allPosts[postIndex];
+  const rawPost = allPosts[postIndex];
+  
+  // Inject calculated read time
+  const post = {
+    ...rawPost,
+    readTime: calculateReadTime(rawPost.content)
+  };
   
   const related = [];
   if (allPosts.length > 1) related.push(allPosts[(postIndex + 1) % allPosts.length]);
@@ -60,7 +77,7 @@ export default async function PostPage(props) {
         </div>
       </section>
 
-      {/* 4. READ NEXT (New Premium Component) */}
+      {/* 4. READ NEXT */}
       <ReadNext posts={related} />
 
     </main>

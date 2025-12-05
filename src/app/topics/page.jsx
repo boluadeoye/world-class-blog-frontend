@@ -33,52 +33,45 @@ function getDescription(cat) {
 }
 
 export default async function TopicsPage() {
-  // 1. Fetch Data
   const posts = await fetchLatestArticles(200).catch(() => []);
-  
-  // 2. Group Data
   const categoryMap = new Map();
+  
   ["Health", "Finance", "Technology", "Education"].forEach(c => {
-    categoryMap.set(c, { name: c, posts: [], description: getDescription(c) });
+    categoryMap.set(c, { name: c, count: 0, posts: [], description: getDescription(c) });
   });
 
   (Array.isArray(posts) ? posts : []).forEach(p => {
     const catName = normalizeCategory(p);
     if (!categoryMap.has(catName)) {
-      categoryMap.set(catName, { name: catName, posts: [], description: getDescription(catName) });
+      categoryMap.set(catName, { name: catName, count: 0, posts: [], description: getDescription(catName) });
     }
-    // Add post to category list
-    categoryMap.get(catName).posts.push({
-      id: p.id || p.slug,
-      slug: p.slug,
-      title: p.title
-    });
+    categoryMap.get(catName).count += 1;
+    categoryMap.get(catName).posts.push({ id: p.id || p.slug, slug: p.slug, title: p.title });
   });
 
-  const topics = Array.from(categoryMap.values()).filter(t => t.posts.length > 0);
+  const topics = Array.from(categoryMap.values())
+    .filter(t => t.count > 0)
+    .sort((a, b) => b.count - a.count);
 
   return (
     <main className="min-h-screen bg-slate-950 pt-24 pb-24">
       
-      {/* HEADER */}
-      <div className="max-w-4xl mx-auto px-6 md:px-8 mb-12 text-center">
-        <div className="flex justify-center mb-6">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 font-bold text-[10px] tracking-widest uppercase">
-            <LayoutGrid size={14} /> Topics Index
-          </div>
+      {/* COMPACT HEADER */}
+      <div className="max-w-4xl mx-auto px-6 md:px-8 mb-8 text-center">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-slate-400 font-mono text-[10px] tracking-widest uppercase mb-4">
+          <LayoutGrid size={12} /> Topics Index
         </div>
-        <h1 className="font-serif text-5xl md:text-6xl text-white tracking-tight mb-4">
+        <h1 className="font-serif text-3xl md:text-4xl text-white tracking-tight">
           The Knowledge Hub
         </h1>
-        <p className="text-slate-400 text-lg max-w-xl mx-auto">
-          Curated collections of engineering, finance, and health insights.
-        </p>
       </div>
       
-      {/* SEARCH */}
-      <SearchHub />
+      {/* SEARCH (With Spacing) */}
+      <div className="mb-16">
+        <SearchHub />
+      </div>
 
-      {/* GRID (With Live Posts) */}
+      {/* GRID */}
       <TopicsGrid topics={topics} />
 
     </main>
