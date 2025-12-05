@@ -1,6 +1,6 @@
 "use client";
 import { motion } from "framer-motion";
-import { MessageSquare, Mail, Wifi, Battery, Signal, Search, Bell, Menu, Home, User, ShoppingBag, Heart, ArrowRight, Monitor, Bot } from "lucide-react";
+import { MessageSquare, Mail, Wifi, Battery, Signal, Search, Bell, Menu, Home, User, ShoppingBag, Heart, ArrowRight, Monitor, Bot, PenTool, BookOpen } from "lucide-react";
 import Link from "next/link";
 
 /* === 1. HIGH-DENSITY MINI-UIS === */
@@ -57,45 +57,41 @@ const FinTechUI = () => (
   </div>
 );
 
-const RealEstateUI = () => (
-  <div className="w-full h-full bg-white flex flex-col font-serif relative">
-    {/* Hero Image */}
-    <div className="h-[60%] relative overflow-hidden">
-      <img 
-        src="https://images.unsplash.com/photo-1600596542815-27b88e35eabb?auto=format&fit=crop&w=600&q=80" 
-        className="absolute inset-0 w-full h-full object-cover"
-        alt="House"
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-      
-      <div className="absolute top-3 left-3 right-3 flex justify-between text-white">
-        <div className="bg-white/20 backdrop-blur-md px-2 py-0.5 rounded text-[6px] font-sans font-bold uppercase">Luxe</div>
-        <Menu size={10} />
-      </div>
-      
-      <div className="absolute bottom-3 left-3 text-white">
-        <h3 className="text-lg leading-none mb-0.5">The Onyx Villa</h3>
-        <p className="text-[8px] font-sans opacity-90 flex items-center gap-1"><Home size={8} /> Beverly Hills, CA</p>
+const PersonalBlogUI = () => (
+  <div className="w-full h-full bg-[#111] flex flex-col font-sans text-white relative overflow-hidden">
+    {/* Nav */}
+    <div className="flex justify-between items-center p-4 border-b border-white/10">
+      <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center text-black font-bold text-[8px]">B</div>
+      <div className="flex gap-2">
+        <div className="w-8 h-1.5 bg-white/20 rounded-full"></div>
+        <div className="w-8 h-1.5 bg-white/20 rounded-full"></div>
       </div>
     </div>
 
-    {/* Details Grid */}
-    <div className="flex-1 p-3 flex flex-col justify-between bg-white">
-      <div className="flex justify-between items-center border-b border-slate-100 pb-2">
-        <div>
-          <p className="text-[8px] text-slate-400 font-sans uppercase tracking-wider">Price</p>
-          <p className="text-sm font-bold text-slate-900">$4.5M</p>
-        </div>
-        <div className="flex gap-2">
-          <div className="text-center"><p className="text-[8px] font-bold">5</p><p className="text-[6px] text-slate-400">Bed</p></div>
-          <div className="text-center"><p className="text-[8px] font-bold">6</p><p className="text-[6px] text-slate-400">Bath</p></div>
-          <div className="text-center"><p className="text-[8px] font-bold">4k</p><p className="text-[6px] text-slate-400">Sqft</p></div>
+    {/* Hero Article */}
+    <div className="p-4 flex-1 flex flex-col">
+      <div className="mb-4">
+        <span className="text-[6px] font-bold text-amber-400 uppercase tracking-widest mb-1 block">Featured</span>
+        <h3 className="font-serif text-lg leading-tight mb-2">The Art of <br/>Minimalism</h3>
+        <div className="space-y-1">
+          <div className="w-full h-1 bg-white/30 rounded"></div>
+          <div className="w-5/6 h-1 bg-white/30 rounded"></div>
+          <div className="w-4/6 h-1 bg-white/30 rounded"></div>
         </div>
       </div>
-      
-      <div className="flex gap-2 mt-1">
-        <div className="flex-1 bg-slate-900 text-white text-[8px] font-sans font-bold py-2 rounded text-center shadow-lg">Schedule Tour</div>
-        <div className="w-8 bg-slate-100 rounded flex items-center justify-center text-slate-900"><MessageSquare size={10} /></div>
+
+      {/* Grid */}
+      <div className="grid grid-cols-2 gap-3 mt-auto">
+        <div className="aspect-square bg-white/5 rounded-lg border border-white/10 p-2 flex flex-col justify-end">
+          <div className="w-6 h-6 rounded bg-indigo-500/20 flex items-center justify-center mb-2 text-indigo-400"><PenTool size={10} /></div>
+          <div className="w-full h-1 bg-white/20 rounded mb-1"></div>
+          <div className="w-1/2 h-1 bg-white/20 rounded"></div>
+        </div>
+        <div className="aspect-square bg-white/5 rounded-lg border border-white/10 p-2 flex flex-col justify-end">
+          <div className="w-6 h-6 rounded bg-rose-500/20 flex items-center justify-center mb-2 text-rose-400"><BookOpen size={10} /></div>
+          <div className="w-full h-1 bg-white/20 rounded mb-1"></div>
+          <div className="w-1/2 h-1 bg-white/20 rounded"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -182,7 +178,7 @@ const EcommerceUI = () => (
   </div>
 );
 
-/* === 2. DATA OBJECTS (Reduced Prices) === */
+/* === 2. DATA OBJECTS === */
 const projects = [
   {
     id: "fintech",
@@ -195,13 +191,13 @@ const projects = [
     color: "emerald"
   },
   {
-    id: "realestate",
-    title: "Luxury Estate",
-    price: "$250 / ₦380k",
-    desc: "Immersive property showcase with cinematic scroll effects and lead capture.",
-    why: "Sells the lifestyle, not just the house. Increases inquiry rates by 40%.",
-    stack: ["Next.js", "Framer Motion", "CMS"],
-    ui: <RealEstateUI />,
+    id: "blog",
+    title: "Personal Brand & Blog",
+    price: "$300 / ₦450k",
+    desc: "A high-performance digital garden for thought leaders. Features markdown support and SEO optimization.",
+    why: "Establishes authority and owns your audience. Faster and more secure than WordPress.",
+    stack: ["Next.js", "MDX", "Tailwind"],
+    ui: <PersonalBlogUI />,
     color: "amber"
   },
   {
