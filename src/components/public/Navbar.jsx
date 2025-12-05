@@ -3,14 +3,13 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
-import { Menu, X, Home, BookOpen, Hash, User, MessageSquare, ChevronRight } from "lucide-react";
-import Image from "next/image";
+import { Menu, X, Home, BookOpen, Hash, User, ChevronRight } from "lucide-react";
 
 const navLinks = [
-  { name: "Home", href: "/", icon: <Home size={20} /> },
-  { name: "Articles", href: "/articles", icon: <BookOpen size={20} /> },
-  { name: "Topics", href: "/topics", icon: <Hash size={20} /> },
-  { name: "About", href: "/about", icon: <User size={20} /> },
+  { name: "Home", href: "/", icon: <Home size={18} /> },
+  { name: "Articles", href: "/articles", icon: <BookOpen size={18} /> },
+  { name: "Topics", href: "/topics", icon: <Hash size={18} /> },
+  { name: "About", href: "/about", icon: <User size={18} /> },
 ];
 
 export default function Navbar() {
@@ -19,7 +18,7 @@ export default function Navbar() {
   const { scrollY } = useScroll();
   const pathname = usePathname();
 
-  // Smart Scroll Logic: Hide on scroll down, show on scroll up
+  // Smart Scroll: Hide on scroll down, show on scroll up
   useMotionValueEvent(scrollY, "change", (latest) => {
     const previous = scrollY.getPrevious();
     if (latest > previous && latest > 150) {
@@ -29,29 +28,23 @@ export default function Navbar() {
     }
   });
 
-  // Close menu on route change
-  useEffect(() => {
-    setIsOpen(false);
-  }, [pathname]);
+  useEffect(() => { setIsOpen(false); }, [pathname]);
 
   return (
     <>
-      {/* === SMART GLASS HEADER === */}
+      {/* === COMPACT SMART HEADER === */}
       <motion.header
-        variants={{
-          visible: { y: 0 },
-          hidden: { y: "-100%" },
-        }}
+        variants={{ visible: { y: 0 }, hidden: { y: "-100%" } }}
         animate={hidden ? "hidden" : "visible"}
         transition={{ duration: 0.35, ease: "easeInOut" }}
-        className="fixed top-0 left-0 right-0 z-40 px-6 py-4"
+        className="fixed top-0 left-0 right-0 z-40 px-4 py-3"
       >
         <div className="max-w-7xl mx-auto">
-          <div className="relative flex items-center justify-between p-3 rounded-full bg-slate-900/70 backdrop-blur-xl border border-white/10 shadow-2xl shadow-black/50">
+          <div className="relative flex items-center justify-between p-2 pl-3 rounded-full bg-slate-900/80 backdrop-blur-md border border-white/10 shadow-lg">
             
             {/* Logo Area */}
-            <Link href="/" className="flex items-center gap-3 pl-2 group logo-area">
-              <div className="relative w-10 h-10 rounded-full overflow-hidden border border-white/20 group-hover:border-indigo-500 transition-colors">
+            <Link href="/" className="flex items-center gap-3 group logo-area">
+              <div className="relative w-8 h-8 rounded-full overflow-hidden border border-white/20 group-hover:border-indigo-500 transition-colors">
                 <img 
                   src="https://w5e7svgknmetlu9j.public.blob.vercel-storage.com/adeoye.jpg" 
                   alt="Bolu" 
@@ -59,24 +52,24 @@ export default function Navbar() {
                 />
               </div>
               <div className="flex flex-col">
-                <span className="font-serif text-base font-bold text-white leading-none group-hover:text-indigo-300 transition-colors">
-                  Boluwatife
+                <span className="font-serif text-sm font-bold text-white leading-none group-hover:text-indigo-300 transition-colors">
+                  Adeoye Boluwatife
                 </span>
-                <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider">
-                  Engineer
+                <span className="text-[9px] font-mono text-slate-400 uppercase tracking-wider mt-0.5">
+                  Software Engineer
                 </span>
               </div>
             </Link>
 
-            {/* Desktop Nav (Hidden on Mobile) */}
+            {/* Desktop Nav */}
             <nav className="hidden md:flex items-center gap-1 bg-white/5 rounded-full px-2 py-1 border border-white/5">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                     pathname === link.href
-                      ? "bg-white text-slate-950 shadow-lg"
+                      ? "bg-white text-slate-950 shadow-sm"
                       : "text-slate-400 hover:text-white hover:bg-white/5"
                   }`}
                 >
@@ -88,20 +81,18 @@ export default function Navbar() {
             {/* Mobile Menu Trigger */}
             <button
               onClick={() => setIsOpen(true)}
-              className="mobile-menu-trigger p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors border border-white/5"
-              aria-label="Open Menu"
+              className="mobile-menu-trigger p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors border border-white/5"
             >
-              <Menu size={20} />
+              <Menu size={18} />
             </button>
           </div>
         </div>
       </motion.header>
 
-      {/* === PREMIUM SIDE DRAWER === */}
+      {/* === SIDE DRAWER === */}
       <AnimatePresence>
         {isOpen && (
           <>
-            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -110,70 +101,44 @@ export default function Navbar() {
               className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
             />
 
-            {/* Drawer */}
             <motion.div
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed top-0 right-0 bottom-0 z-50 w-full max-w-sm bg-[#020617] border-l border-white/10 shadow-2xl flex flex-col"
+              className="fixed top-0 right-0 bottom-0 z-50 w-full max-w-xs bg-[#020617] border-l border-white/10 shadow-2xl flex flex-col"
             >
-              {/* Drawer Header */}
-              <div className="flex items-center justify-between p-6 border-b border-white/5">
-                <span className="font-serif text-xl text-white">Menu</span>
-                <button
-                  onClick={() => setIsOpen(false)}
-                  className="p-2 rounded-full bg-white/5 hover:bg-red-500/20 hover:text-red-400 text-slate-400 transition-colors"
-                >
-                  <X size={24} />
+              <div className="flex items-center justify-between p-5 border-b border-white/5">
+                <span className="font-serif text-lg text-white">Menu</span>
+                <button onClick={() => setIsOpen(false)} className="p-2 rounded-full bg-white/5 text-slate-400">
+                  <X size={20} />
                 </button>
               </div>
 
-              {/* Links Container */}
-              <div className="flex-1 overflow-y-auto p-6 space-y-2">
-                {navLinks.map((link, i) => (
-                  <motion.div
+              <div className="flex-1 overflow-y-auto p-4 space-y-2">
+                {navLinks.map((link) => (
+                  <Link
                     key={link.href}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.05 + 0.1 }}
+                    href={link.href}
+                    className={`group flex items-center justify-between p-3 rounded-xl transition-all ${
+                      pathname === link.href
+                        ? "bg-indigo-600 text-white"
+                        : "bg-slate-900/50 text-slate-400 hover:bg-slate-800 hover:text-white"
+                    }`}
                   >
-                    <Link
-                      href={link.href}
-                      className={`group flex items-center justify-between p-4 rounded-2xl transition-all ${
-                        pathname === link.href
-                          ? "bg-indigo-600 text-white shadow-lg shadow-indigo-900/20"
-                          : "bg-slate-900/50 text-slate-400 hover:bg-slate-800 hover:text-white"
-                      }`}
-                    >
-                      <div className="flex items-center gap-4">
-                        {link.icon}
-                        <span className="font-medium text-lg">{link.name}</span>
-                      </div>
-                      <ChevronRight size={16} className={`opacity-0 group-hover:opacity-100 transition-opacity ${pathname === link.href ? 'opacity-100' : ''}`} />
-                    </Link>
-                  </motion.div>
+                    <div className="flex items-center gap-3">
+                      {link.icon}
+                      <span className="font-medium text-sm">{link.name}</span>
+                    </div>
+                    <ChevronRight size={14} className={`opacity-0 group-hover:opacity-100 ${pathname === link.href ? 'opacity-100' : ''}`} />
+                  </Link>
                 ))}
               </div>
-
-              {/* Drawer Footer */}
-              <div className="p-6 border-t border-white/5 bg-slate-950">
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                >
-                  <Link
-                    href="/chat"
-                    className="flex items-center justify-center gap-3 w-full py-4 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold shadow-lg hover:scale-[1.02] transition-transform"
-                  >
-                    <MessageSquare size={20} />
-                    Chat with AI
-                  </Link>
-                  <p className="text-center text-[10px] text-slate-600 mt-4 uppercase tracking-widest">
-                    © 2025 Boluwatife Adeoye
-                  </p>
-                </motion.div>
+              
+              <div className="p-5 border-t border-white/5">
+                <p className="text-center text-[10px] text-slate-600 uppercase tracking-widest">
+                  © 2025 Adeoye Boluwatife
+                </p>
               </div>
             </motion.div>
           </>
