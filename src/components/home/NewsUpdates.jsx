@@ -27,16 +27,22 @@ export default function NewsUpdates() {
     fetchNews();
   }, []);
 
-  // Helper to extract image from RSS item
+  // Helper to extract image and try to get a higher res version if possible
   const getImageUrl = (item) => {
-    // 1. Check enclosure (standard for BBC)
-    if (item.enclosure && item.enclosure.link) return item.enclosure.link;
-    // 2. Check thumbnail property
-    if (item.thumbnail) return item.thumbnail;
-    // 3. Fallback: Try to extract src from description HTML
-    const match = item.description?.match(/src="([^"]+)"/);
-    if (match) return match[1];
-    return null;
+    let url = null;
+    if (item.enclosure && item.enclosure.link) url = item.enclosure.link;
+    else if (item.thumbnail) url = item.thumbnail;
+    else {
+      const match = item.description?.match(/src="([^"]+)"/);
+      if (match) url = match[1];
+    }
+    
+    // BBC Specific Hack: Try to replace low-res thumbnail patterns with higher res
+    // This is a best-effort attempt to get sharper images
+    if (url && url.includes('bbc.co.uk')) {
+      return url.replace('/240/', '/800/').replace('/320/', '/800/');
+    }
+    return url;
   };
 
   if (!loading && news.length === 0) return null;
@@ -77,33 +83,33 @@ export default function NewsUpdates() {
                     target="_blank"
                     className="group relative min-w-[150px] md:min-w-[200px] h-[260px] snap-start flex-shrink-0 rounded-xl overflow-hidden border border-white/10 shadow-lg hover:shadow-2xl hover:shadow-indigo-900/20 transition-all duration-500 hover:-translate-y-1"
                   >
-                    {/* === BACKGROUND IMAGE === */}
+                    {/* === BACKGROUND IMAGE (High Fidelity) === */}
                     {bgImage ? (
                       <img 
                         src={bgImage} 
                         alt="" 
-                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 saturate-150 contrast-115 brightness-110"
                       />
                     ) : (
                       <div className="absolute inset-0 bg-slate-900"></div>
                     )}
 
-                    {/* === DARK GRADIENT OVERLAY (For Text Readability) === */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent opacity-90 group-hover:opacity-80 transition-opacity duration-500"></div>
+                    {/* === SCRIM GRADIENT (Clear Top, Dark Bottom) === */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent opacity-90"></div>
                     
                     {/* === CONTENT === */}
                     <div className="relative z-10 h-full p-4 flex flex-col justify-between">
                       
                       {/* Top Row */}
                       <div className="flex justify-between items-start">
-                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-black/50 border border-white/10 text-[7px] font-bold tracking-widest text-white uppercase font-sans backdrop-blur-md">
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-black/60 border border-white/10 text-[7px] font-bold tracking-widest text-white uppercase font-sans backdrop-blur-md shadow-sm">
                           <Globe size={8} /> BBC
                         </span>
                       </div>
 
                       {/* Bottom Content */}
                       <div className="mt-auto">
-                        <h4 className="font-serif text-sm md:text-base font-bold text-white leading-[1.2] line-clamp-4 mb-3 drop-shadow-md">
+                        <h4 className="font-serif text-sm md:text-base font-bold text-white leading-[1.2] line-clamp-4 mb-3 drop-shadow-lg">
                           {item.title}
                         </h4>
                         
