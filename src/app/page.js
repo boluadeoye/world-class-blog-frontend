@@ -5,16 +5,16 @@ import ModernHero from "../components/home/ModernHero";
 import ScrollReveal from "../components/ui/ScrollReveal";
 import NewsUpdates from "../components/home/NewsUpdates";
 import Newsletter from "../components/home/Newsletter";
+import TrendingRail from "../components/home/TrendingRail";
 
 export const revalidate = 3600;
 
-// Helpers
 const getImg = (p) => p?.meta?.cover || p?.cover_image_url || null;
 const getDate = (d) => d ? new Date(d).toLocaleDateString('en-US', {month:'short', day:'numeric'}) : "";
 
 export default async function Page() {
   const [latest, featuredPosts, videos, featuredVideo] = await Promise.all([
-    fetchLatestArticles(6),
+    fetchLatestArticles(8), // Fetch more for the rail
     fetchFeaturedPosts(3),
     fetchVideoPosts(4),
     fetchFeaturedVideo(),
@@ -23,21 +23,21 @@ export default async function Page() {
   const heroPost = featuredPosts?.[0] || latest?.[0];
   const subFeatures = featuredPosts?.slice(1, 3) || latest?.slice(1, 3);
   const usedSlugs = new Set([heroPost?.slug, ...subFeatures.map(p => p?.slug)]);
-  const recentNotes = latest?.filter(p => !usedSlugs.has(p.slug)).slice(0, 4) || [];
+  
+  // Filter posts for the Trending Rail (exclude featured ones)
+  const recentNotes = latest?.filter(p => !usedSlugs.has(p.slug)) || [];
 
   return (
     <main className="min-h-screen bg-slate-950 text-slate-200 selection:bg-amber-500/30 overflow-x-hidden">
       
-      {/* === 1. HERO === */}
       <ModernHero />
 
-      {/* === SEPARATOR BAR === */}
       <div className="w-full max-w-7xl mx-auto px-6 md:px-12 mb-12">
         <div className="h-px w-full bg-gradient-to-r from-transparent via-slate-700 to-transparent opacity-50"></div>
       </div>
 
-      {/* === 2. EDITOR'S PICKS === */}
-      <section className="px-6 md:px-12 pb-20 relative z-10">
+      {/* EDITOR'S PICKS */}
+      <section className="px-6 md:px-12 pb-12 relative z-10">
         <div className="max-w-7xl mx-auto">
           <ScrollReveal>
             <div className="flex items-end justify-between mb-8">
@@ -49,7 +49,6 @@ export default async function Page() {
           </ScrollReveal>
 
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-            {/* Main Feature */}
             {heroPost && (
               <div className="md:col-span-8">
                 <ScrollReveal delay={0.1}>
@@ -74,7 +73,6 @@ export default async function Page() {
               </div>
             )}
             
-            {/* Sub Features */}
             <div className="md:col-span-4 flex flex-col gap-6">
               {subFeatures.map((post, idx) => (
                 <ScrollReveal key={post.slug} delay={0.2 + (idx * 0.1)}>
@@ -97,42 +95,23 @@ export default async function Page() {
         </div>
       </section>
 
-      {/* === 3. LATEST NOTES & VIDEO === */}
-      <section className="px-6 md:px-12 py-20 bg-slate-900/30 border-t border-slate-800/50">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16">
+      {/* === 3. TRENDING RAIL & VIDEO === */}
+      <section className="px-6 md:px-12 py-12 bg-slate-900/30 border-t border-slate-800/50">
+        <div className="max-w-7xl mx-auto">
           
-          {/* LATEST NOTES */}
-          <div>
-            <ScrollReveal>
-              <h3 className="font-serif text-3xl text-slate-100 mb-8 flex items-center gap-3">
-                <FileText className="text-amber-500" size={28} /> Latest Notes
-              </h3>
-            </ScrollReveal>
-            <div className="space-y-4">
-              {recentNotes.map((post, i) => (
-                <ScrollReveal key={post.slug} delay={i * 0.1}>
-                  <Link href={`/post/${post.slug}`} className="group flex items-start gap-5 p-5 rounded-xl hover:bg-white/5 transition-colors border-b border-slate-800/50 last:border-0">
-                    <span className="font-mono text-xl text-amber-500 font-bold mt-1">0{i + 1}</span>
-                    <div>
-                      <h4 className="text-xl md:text-2xl font-serif font-bold text-slate-200 group-hover:text-white transition-colors leading-tight">
-                        {post.title}
-                      </h4>
-                      <p className="text-sm text-slate-500 mt-2 line-clamp-2 leading-relaxed">{post.excerpt}</p>
-                    </div>
-                  </Link>
-                </ScrollReveal>
-              ))}
-            </div>
-          </div>
+          {/* REPLACED LIST WITH TRENDING RAIL */}
+          <ScrollReveal>
+            <TrendingRail posts={recentNotes} />
+          </ScrollReveal>
 
           {/* VIDEO SECTION */}
-          <div>
+          <div className="mt-20">
             <ScrollReveal delay={0.2}>
               <h3 className="font-serif text-3xl text-slate-100 mb-8 flex items-center gap-3">
                 <Play className="text-red-500" size={28} /> On Air
               </h3>
               {featuredVideo && featuredVideo.id ? (
-                <div className="relative group rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 shadow-2xl">
+                <div className="relative group rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 shadow-2xl max-w-4xl mx-auto">
                   <div className="aspect-video relative">
                     <iframe
                       src={`https://www.youtube-nocookie.com/embed/${featuredVideo.id}?rel=0`}
@@ -158,7 +137,7 @@ export default async function Page() {
       {/* === 4. REAL-TIME UPDATES === */}
       <NewsUpdates />
 
-      {/* === 5. NEWSLETTER SIGNUP === */}
+      {/* === 5. NEWSLETTER === */}
       <Newsletter />
 
     </main>
