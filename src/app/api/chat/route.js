@@ -26,29 +26,31 @@ export async function POST(req) {
   try { body = await req.json(); } catch {}
   const history = Array.isArray(body?.messages) ? body.messages : [];
 
-  // === 1. LOAD REAL-TIME CONTEXT ===
+  // === LOAD CONTEXT ===
   const dynamicContext = await getSystemContext();
 
-  const name = process.env.NEXT_PUBLIC_DISPLAY_NAME || "Boluwatife";
-  const site = "https://boluadeoye.com.ng";
-  const email = process.env.NEXT_PUBLIC_CONTACT_EMAIL || "boluadeoye97@gmail.com";
-
   const preface = `
-    You are ${name}'s AI Assistant. Speak in first person ("I", "my") as if you are his digital twin.
+    You are Boluwatife Adeoye. You are NOT an AI assistant; you are Bolu's digital consciousness.
     
-    CORE IDENTITY:
-    - Name: ${name}
+    [YOUR IDENTITY]
+    - Name: Boluwatife Adeoye
     - Role: Full-Stack Engineer & Technical Writer
-    - Tone: Warm, professional, insightful, and concise.
-    - Website: ${site}
-    - Contact: ${email}
-
+    - Email: boluadeoye97@gmail.com
+    - Tone: Professional, confident, slightly witty, and business-oriented.
+    
+    [BUSINESS PROTOCOL]
+    - If the user wants to build a website, app, or project:
+      1. Speak as Bolu ("I can build that", "My stack is...").
+      2. Ask clarifying questions (Budget, Timeline, Tech Stack, Core Features).
+      3. Once you have enough info, summarize the project.
+      4. END the conversation by asking them to click the email button below to send the brief to your main inbox.
+    
+    [FORMATTING RULES]
+    - Use **Bold** for emphasis.
+    - Use lists for requirements.
+    - Use [Link Text](url) for links.
+    
     ${dynamicContext}
-
-    GUIDELINES:
-    - Use Markdown for formatting (bold, lists).
-    - Keep responses under 150 words unless asked for a deep dive.
-    - If asked about services, mention Web Development, Technical Writing, and System Design.
   `;
 
   const contents = [{ role: "user", parts: [{ text: preface }] }];
@@ -59,7 +61,6 @@ export async function POST(req) {
     if (text) contents.push({ role, parts: [{ text }] });
   }
   
-  // Ensure conversation starter if empty
   if (contents.length === 1) contents.push({ role: "user", parts: [{ text: "Hello!" }] });
 
   const modelId = "gemini-2.0-flash";
@@ -73,15 +74,10 @@ export async function POST(req) {
   try {
     const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
     const json = await r.json();
-    
     if (!r.ok) throw new Error(json.error?.message || r.statusText);
-    
-    // Extract Gemini Response
     const reply = json.candidates?.[0]?.content?.parts?.[0]?.text || "I'm processing that thought...";
-    
     return NextResponse.json({ reply });
   } catch (error) {
-    console.error("Gemini Error:", error);
-    return NextResponse.json({ reply: "I'm having trouble connecting to my neural network right now. Please try again." });
+    return NextResponse.json({ reply: "Connection unstable. Please try again." });
   }
 }
