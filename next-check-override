@@ -1,0 +1,1 @@
+{ "compilerOptions": { "ignoreDeprecations": "5.0",  "skipLibCheck":true, "checkJs": false, "noEmit": true},"include":["next-env.d.ts", "**/*.ts", "**/*.tsx"]             }
