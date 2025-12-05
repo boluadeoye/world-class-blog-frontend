@@ -1,91 +1,189 @@
 "use client";
 import { motion } from "framer-motion";
-import { ArrowRight, Smartphone, Monitor, Check, MessageSquare, Mail, CreditCard, BarChart3, ShoppingBag, Bot } from "lucide-react";
+import { ArrowRight, Monitor, MessageSquare, Mail, CreditCard, TrendingUp, Home, ShoppingBag, Bot, Search, Menu, User, Bell, Wifi } from "lucide-react";
 import Link from "next/link";
 
-/* === 1. MINI-UI RENDERERS (The "Fake" Websites) === */
+/* === 1. HIGH-FIDELITY MINI-UIS === */
 
 const FinTechUI = () => (
-  <div className="w-full h-full bg-slate-900 p-4 flex flex-col gap-3 overflow-hidden">
+  <div className="w-full h-full bg-[#0f172a] p-5 flex flex-col gap-4 font-sans text-white overflow-hidden relative">
+    {/* Status Bar */}
+    <div className="flex justify-between items-center opacity-50 mb-1">
+      <span className="text-[8px]">9:41</span>
+      <div className="flex gap-1"><Wifi size={8} /><div className="w-3 h-1.5 bg-white rounded-sm"></div></div>
+    </div>
+    
     {/* Header */}
     <div className="flex justify-between items-center">
-      <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center"><div className="w-4 h-4 rounded-full bg-emerald-500"></div></div>
-      <div className="w-20 h-2 rounded-full bg-slate-800"></div>
+      <div>
+        <p className="text-[8px] text-slate-400">Total Balance</p>
+        <h3 className="text-lg font-bold">$124,592.00</h3>
+      </div>
+      <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center border border-slate-700">
+        <Bell size={12} className="text-emerald-400" />
+      </div>
     </div>
-    {/* Balance Card */}
-    <div className="w-full aspect-[1.6] rounded-xl bg-gradient-to-br from-emerald-600 to-teal-800 p-3 flex flex-col justify-between shadow-lg">
-      <div className="flex justify-between"><div className="w-8 h-5 rounded bg-white/20"></div><div className="w-4 h-4 rounded-full bg-white/50"></div></div>
-      <div className="space-y-1"><div className="w-24 h-2 rounded bg-white/30"></div><div className="w-16 h-2 rounded bg-white/30"></div></div>
+
+    {/* The Card */}
+    <div className="w-full aspect-[1.6] rounded-xl bg-gradient-to-br from-emerald-600 to-teal-900 p-4 flex flex-col justify-between shadow-2xl relative overflow-hidden">
+      <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2"></div>
+      <div className="flex justify-between items-start z-10">
+        <div className="w-8 h-5 rounded bg-yellow-400/80 flex items-center justify-center"><div className="w-4 h-3 border border-black/20 rounded-sm"></div></div>
+        <span className="text-[10px] font-bold tracking-widest italic opacity-80">VISA</span>
+      </div>
+      <div className="z-10">
+        <p className="text-[10px] tracking-[0.15em] mb-1 font-mono opacity-90">**** **** **** 4289</p>
+        <div className="flex justify-between items-end">
+          <span className="text-[8px] opacity-75">BOLU ADEOYE</span>
+          <span className="text-[8px] opacity-75">12/28</span>
+        </div>
+      </div>
     </div>
-    {/* Graph */}
-    <div className="flex-1 bg-slate-800/50 rounded-xl p-2 flex items-end gap-1">
-      {[40, 70, 50, 90, 60, 80].map((h, i) => (
-        <div key={i} className="flex-1 bg-emerald-500/50 rounded-t-sm" style={{ height: `${h}%` }}></div>
-      ))}
+
+    {/* Transactions */}
+    <div className="flex-1 bg-slate-900/50 rounded-t-xl border-t border-white/5 p-3 space-y-3">
+      <div className="flex justify-between items-center">
+        <div className="flex gap-2 items-center">
+          <div className="w-6 h-6 rounded-full bg-red-500/20 flex items-center justify-center text-[8px] text-red-400 font-bold">N</div>
+          <div><p className="text-[9px] font-bold">Netflix</p><p className="text-[7px] text-slate-500">Subscription</p></div>
+        </div>
+        <span className="text-[9px] font-bold text-red-400">-$15.99</span>
+      </div>
+      <div className="flex justify-between items-center">
+        <div className="flex gap-2 items-center">
+          <div className="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center text-[8px] text-blue-400 font-bold">S</div>
+          <div><p className="text-[9px] font-bold">Stripe</p><p className="text-[7px] text-slate-500">Payout</p></div>
+        </div>
+        <span className="text-[9px] font-bold text-emerald-400">+$2,400.00</span>
+      </div>
     </div>
   </div>
 );
 
 const RealEstateUI = () => (
-  <div className="w-full h-full bg-[#0f0f0f] flex flex-col relative overflow-hidden">
-    {/* Hero Image Placeholder */}
-    <div className="h-[60%] bg-slate-800 relative">
-      <div className="absolute inset-0 bg-gradient-to-t from-[#0f0f0f] to-transparent"></div>
-      <div className="absolute bottom-4 left-4">
-        <div className="w-24 h-4 bg-amber-500/80 mb-2"></div>
-        <div className="w-32 h-2 bg-white/50"></div>
+  <div className="w-full h-full bg-white flex flex-col font-serif relative">
+    {/* Hero Image Simulation */}
+    <div className="h-[65%] bg-slate-200 relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-transparent"></div>
+      <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1600596542815-27b88e35eabb?auto=format&fit=crop&w=400&q=80')] bg-cover bg-center"></div>
+      
+      <div className="absolute top-3 left-3 right-3 flex justify-between text-white">
+        <Menu size={12} />
+        <span className="text-[8px] tracking-widest uppercase font-bold">Luxe Living</span>
+      </div>
+      
+      <div className="absolute bottom-4 left-4 text-white">
+        <span className="bg-amber-500 text-black text-[6px] font-bold px-1.5 py-0.5 rounded-sm uppercase tracking-wide mb-1 inline-block">New Listing</span>
+        <h3 className="text-lg leading-none mb-0.5">The Onyx Villa</h3>
+        <p className="text-[8px] font-sans opacity-90">Beverly Hills, CA</p>
       </div>
     </div>
-    {/* Content */}
-    <div className="p-4 flex gap-2">
-      <div className="flex-1 h-20 rounded-lg bg-white/5 border border-white/10"></div>
-      <div className="flex-1 h-20 rounded-lg bg-white/5 border border-white/10"></div>
+
+    {/* Details */}
+    <div className="flex-1 p-4 flex flex-col justify-between">
+      <div className="flex justify-between items-end border-b border-slate-100 pb-2">
+        <div>
+          <p className="text-[8px] text-slate-400 font-sans uppercase tracking-wider">Price</p>
+          <p className="text-sm font-bold text-slate-900">$4,500,000</p>
+        </div>
+        <div className="flex gap-2 text-[8px] text-slate-600 font-sans">
+          <span>5 Beds</span>
+          <span>•</span>
+          <span>6 Baths</span>
+        </div>
+      </div>
+      <div className="flex gap-2 mt-2">
+        <div className="flex-1 bg-slate-900 text-white text-[8px] font-sans font-bold py-2 rounded text-center">Book Tour</div>
+        <div className="w-8 bg-slate-100 rounded flex items-center justify-center text-slate-900"><MessageSquare size={10} /></div>
+      </div>
     </div>
   </div>
 );
 
 const AISaaSUI = () => (
-  <div className="w-full h-full bg-white flex flex-col">
+  <div className="w-full h-full bg-[#ffffff] flex flex-col font-sans text-slate-800">
     {/* Sidebar & Main */}
-    <div className="flex flex-1">
-      <div className="w-12 bg-slate-50 border-r border-slate-100 flex flex-col items-center py-4 gap-2">
-        <div className="w-6 h-6 rounded-md bg-indigo-600"></div>
-        <div className="w-6 h-6 rounded-md bg-slate-200"></div>
+    <div className="flex flex-1 overflow-hidden">
+      <div className="w-10 bg-slate-50 border-r border-slate-100 flex flex-col items-center py-3 gap-3">
+        <div className="w-5 h-5 rounded bg-indigo-600 flex items-center justify-center text-white"><Bot size={10} /></div>
+        <div className="w-4 h-4 rounded bg-slate-200"></div>
+        <div className="w-4 h-4 rounded bg-slate-200"></div>
       </div>
-      <div className="flex-1 p-4 flex flex-col gap-3">
-        <div className="self-end bg-indigo-600 text-white text-[8px] p-2 rounded-l-lg rounded-tr-lg max-w-[80%]">
-          Generate a marketing plan for Q4.
+      <div className="flex-1 p-3 flex flex-col gap-3 bg-slate-50/50">
+        {/* Bot Message */}
+        <div className="flex gap-2">
+          <div className="w-5 h-5 rounded-full bg-indigo-600 flex items-center justify-center text-white shrink-0"><Bot size={10} /></div>
+          <div className="bg-white border border-slate-100 p-2 rounded-2xl rounded-tl-none shadow-sm max-w-[90%]">
+            <p className="text-[7px] leading-relaxed text-slate-600">
+              Hello! I've analyzed your Q3 data. Revenue is up <span className="text-emerald-600 font-bold">24%</span>. Would you like a breakdown?
+            </p>
+          </div>
         </div>
-        <div className="self-start bg-slate-100 text-slate-600 text-[8px] p-2 rounded-r-lg rounded-tl-lg max-w-[80%]">
-          Here is a comprehensive strategy focusing on...
-          <div className="mt-1 w-full h-1 bg-slate-300 rounded"></div>
-          <div className="mt-1 w-2/3 h-1 bg-slate-300 rounded"></div>
+        {/* User Message */}
+        <div className="flex gap-2 flex-row-reverse">
+          <div className="w-5 h-5 rounded-full bg-slate-900 flex items-center justify-center text-white shrink-0"><User size={10} /></div>
+          <div className="bg-indigo-600 text-white p-2 rounded-2xl rounded-tr-none shadow-sm max-w-[80%]">
+            <p className="text-[7px] leading-relaxed">Yes, generate the report.</p>
+          </div>
+        </div>
+        {/* Processing */}
+        <div className="flex gap-2 items-center opacity-50">
+          <div className="w-5 h-5"></div>
+          <div className="flex gap-0.5">
+            <div className="w-1 h-1 bg-slate-400 rounded-full animate-bounce"></div>
+            <div className="w-1 h-1 bg-slate-400 rounded-full animate-bounce delay-75"></div>
+            <div className="w-1 h-1 bg-slate-400 rounded-full animate-bounce delay-150"></div>
+          </div>
         </div>
       </div>
     </div>
     {/* Input */}
-    <div className="p-2 border-t border-slate-100">
-      <div className="w-full h-6 rounded-full bg-slate-100"></div>
+    <div className="p-2 border-t border-slate-100 bg-white">
+      <div className="w-full h-7 rounded-full bg-slate-100 border border-slate-200 flex items-center px-3 justify-between">
+        <span className="text-[7px] text-slate-400">Ask AI anything...</span>
+        <div className="w-4 h-4 rounded-full bg-indigo-600 flex items-center justify-center text-white"><ArrowRight size={8} /></div>
+      </div>
     </div>
   </div>
 );
 
 const EcommerceUI = () => (
-  <div className="w-full h-full bg-slate-50 p-3 overflow-hidden">
-    <div className="flex justify-between mb-3">
-      <div className="w-4 h-4 rounded-full bg-black"></div>
-      <div className="w-4 h-4 rounded-full bg-slate-200"></div>
+  <div className="w-full h-full bg-white p-3 overflow-hidden font-sans flex flex-col">
+    <div className="flex justify-between items-center mb-3">
+      <span className="font-bold text-[10px] tracking-tighter">NIKE<span className="text-rose-500">.STORE</span></span>
+      <ShoppingBag size={10} />
     </div>
-    <div className="grid grid-cols-2 gap-2">
-      {[1, 2, 3, 4].map((i) => (
-        <div key={i} className="aspect-[3/4] bg-white rounded-lg shadow-sm p-1 flex flex-col">
-          <div className="flex-1 bg-slate-100 rounded-md mb-1 relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-tr from-rose-100 to-orange-50 opacity-50"></div>
-          </div>
-          <div className="w-full h-1.5 bg-slate-200 rounded mb-0.5"></div>
-          <div className="w-1/2 h-1.5 bg-black rounded"></div>
+    
+    {/* Hero Banner */}
+    <div className="w-full h-16 bg-slate-100 rounded-lg mb-3 relative overflow-hidden flex items-center px-3">
+      <div className="absolute right-[-10px] top-[-10px] w-20 h-20 bg-rose-500/10 rounded-full"></div>
+      <div>
+        <p className="text-[6px] font-bold text-rose-500 uppercase">New Arrival</p>
+        <h4 className="text-[10px] font-bold text-slate-900 leading-tight">Air Max <br/> Pulse</h4>
+      </div>
+    </div>
+
+    {/* Product Grid */}
+    <div className="grid grid-cols-2 gap-2 flex-1">
+      <div className="bg-slate-50 rounded-lg p-1.5 flex flex-col justify-between border border-slate-100">
+        <div className="w-full aspect-square bg-white rounded-md mb-1 flex items-center justify-center">
+           {/* Shoe Placeholder */}
+           <div className="w-8 h-4 bg-rose-500 rounded-full opacity-20 rotate-12"></div>
         </div>
-      ))}
+        <div>
+          <p className="text-[7px] font-bold text-slate-800">Jordan 1</p>
+          <p className="text-[7px] text-slate-500">$140</p>
+        </div>
+      </div>
+      <div className="bg-slate-50 rounded-lg p-1.5 flex flex-col justify-between border border-slate-100">
+        <div className="w-full aspect-square bg-white rounded-md mb-1 flex items-center justify-center">
+           <div className="w-8 h-4 bg-indigo-500 rounded-full opacity-20 -rotate-12"></div>
+        </div>
+        <div>
+          <p className="text-[7px] font-bold text-slate-800">Dunk Low</p>
+          <p className="text-[7px] text-slate-500">$110</p>
+        </div>
+      </div>
     </div>
   </div>
 );
