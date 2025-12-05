@@ -3,12 +3,12 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
-import { Menu, X, Home, BookOpen, Hash, User, ChevronRight } from "lucide-react";
+import { Menu, X, Home, BookOpen, FolderKanban, User, ChevronRight } from "lucide-react";
 
 const navLinks = [
   { name: "Home", href: "/", icon: <Home size={18} /> },
   { name: "Articles", href: "/articles", icon: <BookOpen size={18} /> },
-  { name: "Topics", href: "/topics", icon: <Hash size={18} /> },
+  { name: "Projects", href: "/projects", icon: <FolderKanban size={18} /> },
   { name: "About", href: "/about", icon: <User size={18} /> },
 ];
 
@@ -18,7 +18,6 @@ export default function Navbar() {
   const { scrollY } = useScroll();
   const pathname = usePathname();
 
-  // Smart Scroll: Hide on scroll down, show on scroll up
   useMotionValueEvent(scrollY, "change", (latest) => {
     const previous = scrollY.getPrevious();
     if (latest > previous && latest > 150) {
@@ -42,7 +41,6 @@ export default function Navbar() {
         <div className="max-w-7xl mx-auto">
           <div className="relative flex items-center justify-between p-2 pl-3 rounded-full bg-slate-900/80 backdrop-blur-md border border-white/10 shadow-lg">
             
-            {/* Logo Area */}
             <Link href="/" className="flex items-center gap-3 group logo-area">
               <div className="relative w-8 h-8 rounded-full overflow-hidden border border-white/20 group-hover:border-indigo-500 transition-colors">
                 <img 
@@ -61,7 +59,6 @@ export default function Navbar() {
               </div>
             </Link>
 
-            {/* Desktop Nav */}
             <nav className="hidden md:flex items-center gap-1 bg-white/5 rounded-full px-2 py-1 border border-white/5">
               {navLinks.map((link) => (
                 <Link
@@ -78,7 +75,6 @@ export default function Navbar() {
               ))}
             </nav>
 
-            {/* Mobile Menu Trigger */}
             <button
               onClick={() => setIsOpen(true)}
               className="mobile-menu-trigger p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors border border-white/5"
