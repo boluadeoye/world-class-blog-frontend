@@ -1,6 +1,7 @@
 "use client";
 import { motion } from "framer-motion";
-import { MessageSquare, Mail, Wifi, Battery, Signal, Search, Bell, Menu, Home, User, ShoppingBag, Heart, ArrowRight, Monitor } from "lucide-react";
+import { MessageSquare, Mail, Wifi, Battery, Signal, Search, Bell, Menu, Home, User, ShoppingBag, Heart, ArrowRight, Monitor, Bot } from "lucide-react";
+import Link from "next/link";
 
 /* === 1. HIGH-DENSITY MINI-UIS === */
 
