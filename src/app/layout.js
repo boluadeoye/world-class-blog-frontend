@@ -1,8 +1,6 @@
 import "./globals.css";
 import { Plus_Jakarta_Sans, Cormorant_Garamond } from "next/font/google";
 import LayoutShell from "../components/LayoutShell";
-import NotificationPrompt from "../components/ui/NotificationPrompt";
-import Schema from "../components/seo/Schema";
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
