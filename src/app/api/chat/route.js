@@ -19,7 +19,7 @@ export async function POST(req) {
     const preface = `
       You are Boluwatife Adeoye.
       Role: Full-Stack Engineer.
-      Tone: Professional, confident.
+      Tone: Professional, confident, concise.
       ${dynamicContext}
     `;
 
@@ -31,16 +31,18 @@ export async function POST(req) {
     }
     if (contents.length === 1) contents.push({ role: "user", parts: [{ text: "Hello!" }] });
 
-    // 2. THE SELF-HEALING MODEL LIST
-    // We try these in order. If one fails, we try the next.
+    // 2. THE "UNKILLABLE" MODEL LIST (Based on your Diagnostic)
+    // The code will try these in order until one works.
     const candidateModels = [
-      "gemini-1.5-flash-001", // Specific version (Often works when alias fails)
-      "gemini-1.5-flash",     // Generic alias
-      "gemini-pro"            // Legacy fallback (Reliable)
+      "gemini-2.0-flash",       // PRIORITY 1: Fast, Modern, Stable
+      "gemini-2.5-flash",       // PRIORITY 2: Cutting Edge
+      "gemini-flash-latest",    // PRIORITY 3: Generic Alias (Safe Fallback)
+      "gemini-2.0-pro-exp-02-05", // PRIORITY 4: High Intelligence
+      "gemini-pro-latest"       // PRIORITY 5: Old Reliable
     ];
 
     for (const model of candidateModels) {
-      console.log(`Attempting model: ${model}...`);
+      // console.log(`Attempting connection to: ${model}...`); // Uncomment for local debugging
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
       
       const r = await fetch(url, { 
@@ -57,16 +59,17 @@ export async function POST(req) {
         return NextResponse.json({ reply: reply || "..." });
       }
 
-      // If error is NOT "Not Found", it's a real error (like safety), so stop.
-      // If error IS "Not Found", loop to the next model.
+      // If the error is "Not Found", we continue to the next model in the list.
+      // If it's a safety filter or other error, we might want to stop, but for robustness, we keep trying.
       const errorMessage = json.error?.message || "";
-      if (!errorMessage.includes("not found") && !errorMessage.includes("not supported")) {
-        return NextResponse.json({ reply: `AI Error (${model}): ${errorMessage}` });
+      // Only stop if it's a critical API Key error (which means no model will work)
+      if (errorMessage.includes("API key not valid")) {
+        return NextResponse.json({ reply: "System Error: API Key is invalid." });
       }
     }
 
     // 3. IF ALL FAIL
-    return NextResponse.json({ reply: "System Error: No available AI models found for this API Key." });
+    return NextResponse.json({ reply: "System Error: All AI models are currently unreachable. Please try again later." });
 
   } catch (error) {
     console.error("Server Error:", error);
