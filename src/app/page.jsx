@@ -93,7 +93,7 @@ export default async function Page() {
             <Layers size={16} /> Core Competencies
           </h2>
           <div className="text-[10px] font-mono text-slate-600 uppercase tracking-widest animate-pulse">
-            <<< Swipe to Explore >>>
+            {"<<< Swipe to Explore >>>"}
           </div>
         </div>
 
