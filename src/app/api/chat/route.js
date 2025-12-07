@@ -1,26 +1,26 @@
 import { NextResponse } from "next/server";
-import { getSystemContext } from "../../../lib/aiContext";
+import { getSystemPrompt } from "../../../lib/brain";
 
 export async function POST(req) {
   try {
     const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      return NextResponse.json({ reply: "System Error: GEMINI_API_KEY is missing." });
-    }
+    if (!apiKey) return NextResponse.json({ reply: "System Error: Neural Link Severed (Missing Key)." });
 
-    // 1. PREPARE CONTEXT
+    // 1. LOAD THE BRAIN
+    const brainData = getSystemPrompt();
+
+    // 2. PARSE INPUT
     let body = {};
     try { body = await req.json(); } catch {}
     const history = Array.isArray(body?.messages) ? body.messages : [];
-    
-    let dynamicContext = "";
-    try { dynamicContext = await getSystemContext(); } catch {}
 
+    // 3. CONSTRUCT THE NEURAL PATHWAY
     const preface = `
-      You are Boluwatife Adeoye.
-      Role: Full-Stack Engineer.
-      Tone: Professional, confident, concise.
-      ${dynamicContext}
+      SYSTEM IDENTITY:
+      ${brainData}
+      
+      CURRENT OBJECTIVE:
+      Engage with the visitor as the sophisticated digital architect of this platform.
     `;
 
     const contents = [{ role: "user", parts: [{ text: preface }] }];
@@ -29,22 +29,18 @@ export async function POST(req) {
       const text = String(m.content || "").slice(0, 8000);
       if (text) contents.push({ role, parts: [{ text }] });
     }
-    if (contents.length === 1) contents.push({ role: "user", parts: [{ text: "Hello!" }] });
+    if (contents.length === 1) contents.push({ role: "user", parts: [{ text: "Initialize connection." }] });
 
-    // 2. THE "UNKILLABLE" MODEL LIST (Based on your Diagnostic)
-    // The code will try these in order until one works.
+    // 4. EXECUTE MODEL (Unkillable List)
     const candidateModels = [
-      "gemini-2.0-flash",       // PRIORITY 1: Fast, Modern, Stable
-      "gemini-2.5-flash",       // PRIORITY 2: Cutting Edge
-      "gemini-flash-latest",    // PRIORITY 3: Generic Alias (Safe Fallback)
-      "gemini-2.0-pro-exp-02-05", // PRIORITY 4: High Intelligence
-      "gemini-pro-latest"       // PRIORITY 5: Old Reliable
+      "gemini-2.0-flash",
+      "gemini-2.5-flash",
+      "gemini-flash-latest",
+      "gemini-pro"
     ];
 
     for (const model of candidateModels) {
-      // console.log(`Attempting connection to: ${model}...`); // Uncomment for local debugging
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-      
       const r = await fetch(url, { 
         method: "POST", 
         headers: { "Content-Type": "application/json" }, 
@@ -52,27 +48,15 @@ export async function POST(req) {
       });
 
       const json = await r.json();
-
       if (r.ok) {
-        // SUCCESS! We found a working model.
         const reply = json.candidates?.[0]?.content?.parts?.[0]?.text;
-        return NextResponse.json({ reply: reply || "..." });
-      }
-
-      // If the error is "Not Found", we continue to the next model in the list.
-      // If it's a safety filter or other error, we might want to stop, but for robustness, we keep trying.
-      const errorMessage = json.error?.message || "";
-      // Only stop if it's a critical API Key error (which means no model will work)
-      if (errorMessage.includes("API key not valid")) {
-        return NextResponse.json({ reply: "System Error: API Key is invalid." });
+        return NextResponse.json({ reply: reply || "Signal received, but data is empty." });
       }
     }
 
-    // 3. IF ALL FAIL
-    return NextResponse.json({ reply: "System Error: All AI models are currently unreachable. Please try again later." });
+    return NextResponse.json({ reply: "Neural Network Unreachable. All models offline." });
 
   } catch (error) {
-    console.error("Server Error:", error);
-    return NextResponse.json({ reply: "Connection error. Please try again." });
+    return NextResponse.json({ reply: "Critical System Failure." });
   }
 }
