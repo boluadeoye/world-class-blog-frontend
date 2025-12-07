@@ -5,8 +5,7 @@ import Link from "next/link";
 
 const SOURCES = [
   { id: "cnn", name: "CNN", url: "http://rss.cnn.com/rss/edition.rss", color: "bg-red-600" },
-  { id: "fox", name: "Fox News", url: "http://feeds.foxnews.com/foxnews/latest", color: "bg-blue-700" },
-  { id: "punch", name: "Punch NG", url: "https://punchng.com/feed/", color: "bg-emerald-600" }
+  { id: "fox", name: "Fox News", url: "http://feeds.foxnews.com/foxnews/latest", color: "bg-blue-700" }
 ];
 
 export default function NewsUpdates() {
@@ -16,7 +15,7 @@ export default function NewsUpdates() {
   useEffect(() => {
     async function fetchAllNews() {
       try {
-        const promises = SOURCES.map(source => 
+        const promises = SOURCES.map(source =>
           fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(source.url)}`)
             .then(res => res.json())
             .then(data => {
@@ -62,7 +61,7 @@ export default function NewsUpdates() {
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full max-w-7xl bg-radial-gradient(circle at 50% 50%, rgba(255,255,255,0.03), transparent 60%) pointer-events-none"></div>
 
       <div className="w-full max-w-7xl mx-auto">
-        
+
         {/* Section Header */}
         <div className="px-6 md:px-12 mb-10 flex items-end justify-between">
           <div className="flex items-center gap-4">
@@ -80,29 +79,27 @@ export default function NewsUpdates() {
         <div className="flex gap-3 overflow-x-auto pb-12 px-6 md:px-12 snap-x scroll-pl-6 md:scroll-pl-12 scrollbar-hide">
           {loading
             ? [...Array(6)].map((_, i) => (
-                // SKELETON: Fixed Width (w-) instead of min-w
                 <div key={i} className="w-[150px] md:w-[200px] h-[300px] rounded-[1.25rem] bg-white/5 animate-pulse border border-white/5 flex-shrink-0" />
               ))
             : news.map((item, idx) => {
                 const bgImage = getImageUrl(item);
-                
+
                 return (
                   <Link
                     key={idx}
                     href={item.link}
                     target="_blank"
-                    // CARD: Fixed Width (w-) to match skeleton exactly
                     className="group relative w-[150px] md:w-[200px] h-[300px] snap-start flex-shrink-0"
                   >
                     {/* === CARD CONTAINER === */}
                     <div className="relative h-full rounded-[1.25rem] overflow-hidden bg-slate-950 border border-white/10 shadow-xl transition-transform duration-500 group-hover:-translate-y-2 group-hover:shadow-white/5">
-                      
+
                       {/* 1. IMAGE SECTION (Top 45%) */}
                       <div className="h-[45%] relative overflow-hidden bg-slate-900">
                         {bgImage ? (
-                          <img 
-                            src={bgImage} 
-                            alt="" 
+                          <img
+                            src={bgImage}
+                            alt=""
                             className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 brightness-110 saturate-125"
                           />
                         ) : (
@@ -110,7 +107,6 @@ export default function NewsUpdates() {
                             <Globe size={24} className="text-white/10" />
                           </div>
                         )}
-                        
                         {/* Source Badge (Compact) */}
                         <div className="absolute top-2 left-2">
                           <span className={`inline-flex items-center justify-center px-2 py-0.5 rounded-md ${item.sourceColor} text-white text-[7px] font-bold tracking-widest uppercase font-sans shadow-lg`}>
@@ -128,7 +124,7 @@ export default function NewsUpdates() {
                             {item.title}
                           </h4>
                         </div>
-                        
+
                         <div className="relative z-10 pt-3 border-t border-white/5 flex items-center justify-between mt-auto">
                           <span className="text-[8px] font-sans font-bold text-slate-500 uppercase tracking-wide">
                             {new Date(item.pubDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
