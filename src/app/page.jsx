@@ -1,11 +1,10 @@
 import Link from "next/link";
-import { ArrowRight, Play, Code, PenTool, Cpu, Globe, Layers, Sparkles, Clock, MapPin } from "lucide-react";
+import { ArrowRight, Play, Code, PenTool, Cpu, Globe, Layers, Sparkles } from "lucide-react";
 import { fetchLatestArticles, fetchFeaturedPosts, fetchVideoPosts, fetchFeaturedVideo } from "../lib/homeData";
 import ModernHero from "../components/home/ModernHero";
 import ScrollReveal from "../components/ui/ScrollReveal";
 import NewsUpdates from "../components/home/NewsUpdates";
 import Newsletter from "../components/home/Newsletter";
-import CipherText from "../components/ui/CipherText"; // Import the new effect
 
 export const revalidate = 3600;
 const getImg = (p) => p?.meta?.cover || p?.cover_image_url || null;
@@ -82,48 +81,13 @@ export default async function Page() {
       <FilmGrain />
       <AmbientLighting />
 
-      {/* --- HERO SECTION WITH CIPHER EFFECT --- */}
-      <div className="relative z-10 pt-32 pb-12 px-6 md:px-12 max-w-7xl mx-auto">
-        
-        {/* Status Pill */}
-        <div className="mb-8 inline-flex items-center gap-3 px-3 py-1 rounded-full border border-emerald-500/20 bg-emerald-500/5 text-emerald-500 text-[10px] font-bold tracking-[0.2em] uppercase">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-          </span>
-          <span>System Online</span>
-        </div>
-
-        {/* The Cipher Title */}
-        <h1 className="text-6xl md:text-9xl font-serif text-white tracking-tighter leading-[0.9] mb-8">
-          <CipherText text="Boluwatife" className="block" />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-slate-400 to-slate-700 italic">
-            Adeoye
-          </span>
-        </h1>
-
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
-          <p className="max-w-xl text-lg md:text-xl text-slate-400 leading-relaxed font-light">
-            Full-Stack Architect & Digital Writer. <br />
-            Engineering <span className="text-amber-500">living software</span> systems.
-          </p>
-          
-          {/* Location Widget */}
-          <div className="flex items-center gap-6 text-xs font-mono text-slate-500 uppercase tracking-widest">
-            <div className="flex items-center gap-2">
-              <MapPin size={14} />
-              <span>Lagos, NG</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Clock size={14} />
-              <span>GMT+1</span>
-            </div>
-          </div>
-        </div>
+      {/* --- HERO SECTION --- */}
+      <div className="relative z-10">
+        <ModernHero />
       </div>
 
       {/* --- HORIZONTAL LUMINOUS SHOWCASE --- */}
-      <section className="relative z-20 mb-32 mt-12 overflow-hidden">
+      <section className="relative z-20 mb-32 -mt-8 overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 md:px-12 mb-8 flex items-end justify-between border-b border-white/5 pb-6">
           <h2 className="text-sm font-bold text-slate-500 uppercase tracking-[0.2em] flex items-center gap-2">
             <Layers size={16} /> Core Competencies
@@ -133,6 +97,7 @@ export default async function Page() {
           </div>
         </div>
 
+        {/* Horizontal Scroll Container */}
         <div className="flex overflow-x-auto gap-8 px-6 md:px-12 pb-12 snap-x snap-mandatory scrollbar-hide">
           {SERVICES.map((service, idx) => (
             <div 
@@ -145,29 +110,42 @@ export default async function Page() {
                 ${service.glow} hover:shadow-2xl
               `}
             >
+              {/* Inner Glass Reflection */}
               <div className="absolute inset-0 rounded-[2.5rem] bg-gradient-to-br from-white/5 to-transparent opacity-50 pointer-events-none" />
+              
+              {/* Luminous Top Border */}
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-[1px] bg-gradient-to-r from-transparent via-white/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
 
               <div className="relative z-10 h-full p-10 flex flex-col justify-between">
+                
+                {/* Icon Container */}
                 <div>
                   <div className={`w-16 h-16 rounded-2xl bg-[#020617]/50 border border-white/5 flex items-center justify-center mb-8 shadow-inner ${service.color} group-hover:scale-110 transition-transform duration-500`}>
                     <service.icon size={32} strokeWidth={1.5} />
                   </div>
+                  
                   <h3 className="text-3xl font-serif text-white mb-4 leading-tight">
                     {service.title}
                   </h3>
+                  
                   <div className="w-12 h-1 bg-white/10 rounded-full mb-6 group-hover:w-24 group-hover:bg-amber-500/50 transition-all duration-700" />
+                  
                   <p className="text-sm text-slate-400 leading-relaxed font-light">
                     {service.desc}
                   </p>
                 </div>
+
+                {/* Decorative Footer */}
                 <div className="flex items-center gap-2 opacity-30 group-hover:opacity-100 transition-opacity duration-500">
                   <Sparkles size={14} className={service.color} />
                   <span className="text-[10px] font-mono uppercase tracking-widest text-slate-500">Premium Service</span>
                 </div>
+
               </div>
             </div>
           ))}
+          
+          {/* Spacer for end of scroll */}
           <div className="w-6 flex-shrink-0" />
         </div>
       </section>
