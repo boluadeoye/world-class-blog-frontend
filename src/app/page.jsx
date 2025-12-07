@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Play, Code, PenTool, Cpu, Globe, ArrowUpRight, Layers } from "lucide-react";
+import { ArrowRight, Play, Code, PenTool, Cpu, Globe, Layers, Sparkles } from "lucide-react";
 import { fetchLatestArticles, fetchFeaturedPosts, fetchVideoPosts, fetchFeaturedVideo } from "../lib/homeData";
 import ModernHero from "../components/home/ModernHero";
 import ScrollReveal from "../components/ui/ScrollReveal";
@@ -29,43 +29,39 @@ const AmbientLighting = () => (
   </div>
 );
 
-// --- PREMIUM SERVICES DATA ---
+// --- SERVICE DATA ---
 const SERVICES = [
   {
     id: 'eng',
     title: 'Full-Stack Engineering',
-    desc: 'Scalable, high-performance web architectures using Next.js and Server Components.',
+    desc: 'High-performance architectures using Next.js Server Components.',
     icon: Code,
     color: 'text-blue-400',
-    bg: 'group-hover:bg-blue-500/10',
-    border: 'group-hover:border-blue-500/30'
+    glow: 'group-hover:shadow-blue-500/20 group-hover:border-blue-500/50'
   },
   {
     id: 'ai',
-    title: 'AI Systems Architecture',
-    desc: 'Integrating LLMs (Gemini/GPT) into business logic for intelligent automation.',
+    title: 'AI Systems',
+    desc: 'LLM integration and neural network interfaces.',
     icon: Cpu,
     color: 'text-emerald-400',
-    bg: 'group-hover:bg-emerald-500/10',
-    border: 'group-hover:border-emerald-500/30'
+    glow: 'group-hover:shadow-emerald-500/20 group-hover:border-emerald-500/50'
   },
   {
     id: 'content',
     title: 'Technical Writing',
-    desc: 'Documentation and narratives that bridge the gap between code and humans.',
+    desc: 'Documentation bridging code and human understanding.',
     icon: PenTool,
     color: 'text-amber-400',
-    bg: 'group-hover:bg-amber-500/10',
-    border: 'group-hover:border-amber-500/30'
+    glow: 'group-hover:shadow-amber-500/20 group-hover:border-amber-500/50'
   },
   {
     id: 'strat',
     title: 'Digital Strategy',
-    desc: 'Roadmapping and consulting for complex digital transformation projects.',
+    desc: 'Roadmapping for complex digital transformation.',
     icon: Globe,
     color: 'text-purple-400',
-    bg: 'group-hover:bg-purple-500/10',
-    border: 'group-hover:border-purple-500/30'
+    glow: 'group-hover:shadow-purple-500/20 group-hover:border-purple-500/50'
   }
 ];
 
@@ -90,46 +86,67 @@ export default async function Page() {
         <ModernHero />
       </div>
 
-      {/* --- NEW: PREMIUM SERVICES GLASS DECK --- */}
-      <section className="relative z-20 px-6 md:px-12 max-w-7xl mx-auto mb-32 -mt-8">
-        <div className="flex items-end justify-between mb-12 border-b border-white/5 pb-6">
-          <h2 className="text-sm font-bold text-slate-500 uppercase tracking-[0.2em]">
-            Core Competencies
+      {/* --- NEW: HORIZONTAL LUMINOUS SHOWCASE --- */}
+      <section className="relative z-20 mb-32 -mt-8 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 md:px-12 mb-8 flex items-end justify-between border-b border-white/5 pb-6">
+          <h2 className="text-sm font-bold text-slate-500 uppercase tracking-[0.2em] flex items-center gap-2">
+            <Layers size={16} /> Core Competencies
           </h2>
-          <Layers size={16} className="text-slate-600" />
+          <div className="text-[10px] font-mono text-slate-600 uppercase tracking-widest animate-pulse">
+            <<< Swipe to Explore >>>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Horizontal Scroll Container (Hide Scrollbar) */}
+        <div className="flex overflow-x-auto gap-8 px-6 md:px-12 pb-12 snap-x snap-mandatory scrollbar-hide">
           {SERVICES.map((service, idx) => (
-            <ScrollReveal key={service.id} delay={idx * 0.1}>
-              <div className={`group relative h-full p-8 rounded-[2rem] bg-[#0B1120]/60 backdrop-blur-xl border border-white/5 transition-all duration-500 ease-[cubic-bezier(0.68,-0.55,0.265,1.55)] hover:-translate-y-4 hover:scale-105 hover:shadow-2xl hover:shadow-black/50 ${service.border}`}>
+            <div 
+              key={service.id} 
+              className={`
+                relative flex-shrink-0 w-[320px] h-[420px] snap-center group
+                rounded-[2.5rem] bg-[#0B1120]/40 backdrop-blur-xl 
+                border border-white/10 transition-all duration-700 ease-out
+                hover:-translate-y-2 hover:scale-[1.02]
+                ${service.glow} hover:shadow-2xl
+              `}
+            >
+              {/* Inner Glass Reflection */}
+              <div className="absolute inset-0 rounded-[2.5rem] bg-gradient-to-br from-white/5 to-transparent opacity-50 pointer-events-none" />
+              
+              {/* Luminous Top Border */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-[1px] bg-gradient-to-r from-transparent via-white/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+
+              <div className="relative z-10 h-full p-10 flex flex-col justify-between">
                 
-                {/* Hover Gradient Blob */}
-                <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 bg-gradient-to-br from-transparent via-transparent to-${service.color.split('-')[1]}-900/20 rounded-[2rem]`} />
-
-                <div className="relative z-10 flex flex-col h-full justify-between gap-8">
-                  <div>
-                    <div className={`w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center mb-6 border border-white/5 transition-colors duration-500 ${service.bg} ${service.color}`}>
-                      <service.icon size={28} strokeWidth={1.5} />
-                    </div>
-                    <h3 className="text-xl font-serif text-white mb-3 group-hover:text-amber-50 transition-colors">
-                      {service.title}
-                    </h3>
-                    <p className="text-sm text-slate-400 leading-relaxed group-hover:text-slate-300 transition-colors">
-                      {service.desc}
-                    </p>
+                {/* Icon Container */}
+                <div>
+                  <div className={`w-16 h-16 rounded-2xl bg-[#020617]/50 border border-white/5 flex items-center justify-center mb-8 shadow-inner ${service.color} group-hover:scale-110 transition-transform duration-500`}>
+                    <service.icon size={32} strokeWidth={1.5} />
                   </div>
-
-                  <div className="flex items-center justify-between pt-6 border-t border-white/5 group-hover:border-white/10">
-                    <span className="text-[10px] font-bold tracking-[0.2em] text-slate-600 group-hover:text-white transition-colors uppercase">
-                      Explore
-                    </span>
-                    <ArrowUpRight size={14} className="text-slate-600 group-hover:text-amber-400 transition-transform duration-500 group-hover:translate-x-1 group-hover:-translate-y-1" />
-                  </div>
+                  
+                  <h3 className="text-3xl font-serif text-white mb-4 leading-tight">
+                    {service.title}
+                  </h3>
+                  
+                  <div className="w-12 h-1 bg-white/10 rounded-full mb-6 group-hover:w-24 group-hover:bg-amber-500/50 transition-all duration-700" />
+                  
+                  <p className="text-sm text-slate-400 leading-relaxed font-light">
+                    {service.desc}
+                  </p>
                 </div>
+
+                {/* Decorative Footer */}
+                <div className="flex items-center gap-2 opacity-30 group-hover:opacity-100 transition-opacity duration-500">
+                  <Sparkles size={14} className={service.color} />
+                  <span className="text-[10px] font-mono uppercase tracking-widest text-slate-500">Premium Service</span>
+                </div>
+
               </div>
-            </ScrollReveal>
+            </div>
           ))}
+          
+          {/* Spacer for end of scroll */}
+          <div className="w-6 flex-shrink-0" />
         </div>
       </section>
 
@@ -196,7 +213,7 @@ export default async function Page() {
         </div>
       </section>
 
-      {/* === VIDEO SECTION (Cleaned up) === */}
+      {/* === VIDEO SECTION === */}
       <section className="px-6 md:px-12 py-12 bg-slate-900/30 border-t border-slate-800/50 relative z-10">
         <div className="max-w-7xl mx-auto">
           <ScrollReveal delay={0.2}>
