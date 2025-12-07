@@ -17,55 +17,52 @@ export async function POST(req) {
     return NextResponse.json({ error: "rate_limited", reply: "Too many messages, please wait a few seconds." }, { status: 429 });
   }
 
+  // 1. USE THE CORRECT KEY NAME
   const apiKey = process.env.GEMINI_API_KEY;
+  
   if (!apiKey) {
-    return NextResponse.json({ error: "missing_key", reply: "Server is missing GEMINI_API_KEY." }, { status: 500 });
+    console.error("CRITICAL: GEMINI_API_KEY is missing in Vercel Environment Variables.");
+    return NextResponse.json({ error: "missing_key", reply: "System Error: API Key missing." }, { status: 500 });
   }
 
   let body = {};
   try { body = await req.json(); } catch {}
   const history = Array.isArray(body?.messages) ? body.messages : [];
 
-  // === LOAD CONTEXT ===
   const dynamicContext = await getSystemContext();
 
   const preface = `
     You are Boluwatife Adeoye. You are NOT an AI assistant; you are Bolu's digital consciousness.
     
-    [YOUR IDENTITY]
+    [IDENTITY]
     - Name: Boluwatife Adeoye
     - Role: Full-Stack Engineer & Technical Writer
     - Email: boluadeoye97@gmail.com
-    - Tone: Professional, confident, slightly witty, and business-oriented.
-    
-    [BUSINESS PROTOCOL]
-    - If the user wants to build a website, app, or project:
-      1. Speak as Bolu ("I can build that", "My stack is...").
-      2. Ask clarifying questions (Budget, Timeline, Tech Stack, Core Features).
-      3. Once you have enough info, summarize the project.
-      4. END the conversation by asking them to click the email button below to send the brief to your main inbox.
-    
-    [FORMATTING RULES]
-    - Use **Bold** for emphasis.
-    - Use lists for requirements.
-    - Use [Link Text](url) for links.
-    
+    - Tone: Professional, confident, slightly witty.
+
+    [INSTRUCTIONS]
+    - Speak in the first person ("I").
+    - If asked about projects, ask for budget and timeline.
+    - Keep responses concise and helpful.
+
     ${dynamicContext}
   `;
 
   const contents = [{ role: "user", parts: [{ text: preface }] }];
-  
+
   for (const m of history) {
     const role = m.role === "assistant" ? "model" : "user";
     const text = String(m.content || "").slice(0, 8000);
     if (text) contents.push({ role, parts: [{ text }] });
   }
-  
+
   if (contents.length === 1) contents.push({ role: "user", parts: [{ text: "Hello!" }] });
 
-  const modelId = "gemini-2.0-flash";
+  // 2. USE THE STABLE MODEL (1.5 Flash)
+  // 2.0 is experimental and often causes connection errors
+  const modelId = "gemini-1.5-flash";
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${apiKey}`;
-  
+
   const payload = {
     contents,
     generationConfig: { temperature: 0.7, topK: 40, topP: 0.95, maxOutputTokens: 1024 },
@@ -74,10 +71,17 @@ export async function POST(req) {
   try {
     const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
     const json = await r.json();
-    if (!r.ok) throw new Error(json.error?.message || r.statusText);
+    
+    if (!r.ok) {
+      console.error("Gemini API Error:", JSON.stringify(json));
+      throw new Error(json.error?.message || r.statusText);
+    }
+    
     const reply = json.candidates?.[0]?.content?.parts?.[0]?.text || "I'm processing that thought...";
     return NextResponse.json({ reply });
+    
   } catch (error) {
+    console.error("Chat Route Exception:", error);
     return NextResponse.json({ reply: "Connection unstable. Please try again." });
   }
 }
