@@ -1,5 +1,5 @@
 "use client";
-import { Download, ArrowLeft, CheckSquare, Layers, Shield, Zap, Database, Bot, MapPin } from "lucide-react";
+import { Download, ArrowLeft, CheckSquare, Layers, Shield, Zap, Database, Bot, MapPin, Smartphone } from "lucide-react";
 import Link from "next/link";
 
 export default function AutoamProposal() {
