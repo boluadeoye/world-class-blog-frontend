@@ -1,8 +1,9 @@
 "use client";
 import { motion, useScroll, useSpring } from "framer-motion";
-import { ArrowLeft, Clock, Calendar, Share2, Bookmark, Check, Link as LinkIcon } from "lucide-react";
+import { ArrowLeft, Clock, Calendar } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import ArticleActions from "./ArticleActions"; // Import the new component
 
 /* === FLOATING READING TIMER === */
 function ReadingTimer() {
@@ -19,7 +20,7 @@ function ReadingTimer() {
     <motion.div 
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="fixed top-6 right-6 z-[100] hidden md:flex items-center gap-3 px-4 py-2 rounded-full bg-slate-900/80 border border-white/10 backdrop-blur-xl shadow-2xl shadow-indigo-500/20"
+      className="fixed top-6 right-6 z-[100] hidden md:flex items-center gap-3 px-4 py-2 rounded-full bg-slate-900/80 border border-white/10 backdrop-blur-xl shadow-2xl shadow-indigo-500/20 pointer-events-none"
     >
       <div className="relative w-5 h-5">
         <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
@@ -43,7 +44,7 @@ export function ArticleHero({ post }) {
   return (
     <section className="relative pt-28 pb-12 px-6 overflow-hidden flex flex-col items-center text-center z-10">
       
-      {/* === ATMOSPHERE === */}
+      {/* === ATMOSPHERE (Pointer Events None) === */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[100vw] h-[100vh] bg-[#020617]"></div>
         <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-indigo-600/20 blur-[150px] rounded-full mix-blend-screen animate-pulse duration-[4s]"></div>
@@ -51,7 +52,7 @@ export function ArticleHero({ post }) {
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.04]"></div>
       </div>
 
-      <div className="relative z-10 max-w-3xl mx-auto">
+      <div className="relative z-10 max-w-3xl mx-auto pointer-events-auto">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -101,46 +102,6 @@ export function ArticleHero({ post }) {
 
 /* === CONTENT WRAPPER === */
 export function ArticleContent({ children }) {
-  const [isSaved, setIsSaved] = useState(false);
-  const [shareState, setShareState] = useState("idle"); // idle, copied
-
-  useEffect(() => {
-    const saved = localStorage.getItem("saved_posts");
-    if (saved) setIsSaved(saved.includes(window.location.pathname));
-  }, []);
-
-  const handleShare = async () => {
-    const url = window.location.href;
-    const title = document.title;
-
-    // Try Native Share first
-    if (navigator.share) {
-      try {
-        await navigator.share({ title, url });
-        return; // Success, exit
-      } catch (err) {
-        // User cancelled or failed, fall through to clipboard
-        console.log("Native share skipped/failed, trying clipboard");
-      }
-    }
-
-    // Fallback to Clipboard
-    try {
-      await navigator.clipboard.writeText(url);
-      setShareState("copied");
-      setTimeout(() => setShareState("idle"), 2000);
-    } catch (err) {
-      console.error("Clipboard failed", err);
-      alert("Could not copy link.");
-    }
-  };
-
-  const handleSave = () => {
-    const newState = !isSaved;
-    setIsSaved(newState);
-    if (newState) localStorage.setItem("saved_posts", (localStorage.getItem("saved_posts") || "") + window.location.pathname);
-  };
-
   return (
     <div className="relative z-20 max-w-[720px] mx-auto px-6 pb-24">
       <ReadingTimer />
@@ -159,38 +120,14 @@ export function ArticleContent({ children }) {
       </article>
 
       {/* Share / Action Bar (High Z-Index) */}
-      <div className="mt-16 pt-8 border-t border-white/10 flex justify-between items-center relative z-50">
-        <Link href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors group font-medium text-sm">
+      <div className="mt-16 pt-8 border-t border-white/10 flex justify-between items-center relative z-[100]">
+        <Link href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors group font-medium text-sm pointer-events-auto">
           <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
           <span>Back to Home</span>
         </Link>
         
-        <div className="flex gap-3">
-          {/* Share Button */}
-          <button 
-            onClick={handleShare}
-            className="group relative p-3 rounded-full bg-slate-800/80 hover:bg-indigo-600 text-slate-300 hover:text-white transition-all shadow-lg border border-white/10 active:scale-95"
-            aria-label="Share post"
-          >
-            {shareState === "copied" ? <Check size={18} className="text-white" /> : <Share2 size={18} />}
-            
-            {/* Tooltip */}
-            {shareState === "copied" && (
-              <span className="absolute -top-10 left-1/2 -translate-x-1/2 bg-emerald-500 text-slate-950 text-[10px] font-bold px-2 py-1 rounded shadow-lg whitespace-nowrap animate-in fade-in slide-in-from-bottom-2">
-                Link Copied!
-              </span>
-            )}
-          </button>
-
-          {/* Save Button */}
-          <button 
-            onClick={handleSave}
-            className={`p-3 rounded-full transition-all shadow-lg border border-white/10 active:scale-95 ${isSaved ? 'bg-amber-500 text-black' : 'bg-slate-800/80 hover:bg-white hover:text-black text-slate-300'}`}
-            aria-label="Save post"
-          >
-            <Bookmark size={18} fill={isSaved ? "currentColor" : "none"} />
-          </button>
-        </div>
+        {/* NEW DEDICATED COMPONENT */}
+        <ArticleActions />
       </div>
     </div>
   );
