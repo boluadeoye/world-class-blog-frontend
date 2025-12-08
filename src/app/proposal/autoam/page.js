@@ -1,5 +1,5 @@
 "use client";
-import { Printer, Download, ArrowLeft } from "lucide-react";
+import { Download, ArrowLeft, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 
 export default function AutoamProposal() {
@@ -9,58 +9,120 @@ export default function AutoamProposal() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 text-black font-serif p-0 md:p-8 print:p-0 print:bg-white">
+    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
       
-      {/* === TOOLBAR (Hidden when printing) === */}
-      <div className="fixed top-0 left-0 right-0 bg-slate-900 text-white p-4 flex justify-between items-center shadow-xl z-50 print:hidden">
-        <Link href="/" className="flex items-center gap-2 text-sm font-sans text-slate-300 hover:text-white">
-          <ArrowLeft size={16} /> Back to Site
+      {/* === AGGRESSIVE CSS RESET === */}
+      <style jsx global>{`
+        /* Hide Global Header & Footer */
+        body > header, body > footer, nav { display: none !important; }
+        /* Reset Page Background */
+        body { background: #f8fafc !important; }
+        @media print {
+          body { background: white !important; }
+          .no-print { display: none !important; }
+          .page-break { page-break-before: always; }
+        }
+      `}</style>
+
+      {/* === TOOLBAR (Hidden on Print) === */}
+      <div className="no-print fixed top-0 left-0 right-0 bg-slate-900 text-white p-4 flex justify-between items-center shadow-xl z-50">
+        <Link href="/" className="flex items-center gap-2 text-sm font-bold text-slate-300 hover:text-white">
+          <ArrowLeft size={16} /> Exit
         </Link>
-        <div className="flex items-center gap-4">
-          <span className="text-xs font-sans text-slate-400 hidden md:inline">Autoam Architecture v1.0</span>
-          <button 
-            onClick={handlePrint}
-            className="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-black px-4 py-2 rounded-lg font-sans font-bold text-sm transition-colors"
-          >
-            <Download size={16} /> Download PDF
-          </button>
-        </div>
+        <button 
+          onClick={handlePrint}
+          className="flex items-center gap-2 bg-white text-slate-900 hover:bg-slate-200 px-6 py-2 rounded-full font-bold text-sm transition-colors shadow-lg"
+        >
+          <Download size={16} /> Export PDF
+        </button>
       </div>
 
-      {/* === A4 DOCUMENT CONTAINER === */}
-      <div className="max-w-[210mm] mx-auto bg-white shadow-2xl print:shadow-none print:w-full print:max-w-none min-h-[297mm] p-[20mm] mt-16 print:mt-0 mb-16 print:mb-0">
+      {/* === A4 DOCUMENT === */}
+      <div className="max-w-[210mm] mx-auto bg-white shadow-2xl print:shadow-none min-h-[297mm] mt-20 print:mt-0 mb-20 print:mb-0 relative overflow-hidden">
         
-        {/* HEADER */}
-        <header className="border-b-2 border-black pb-6 mb-8">
-          <div className="flex justify-between items-end">
+        {/* DECORATIVE SIDE BAR */}
+        <div className="absolute top-0 bottom-0 left-0 w-3 bg-slate-900 print:w-3"></div>
+
+        <div className="p-[20mm] pl-[25mm]">
+          
+          {/* === HEADER === */}
+          <header className="flex justify-between items-start border-b-4 border-slate-900 pb-8 mb-10">
             <div>
-              <h1 className="text-3xl font-bold uppercase tracking-wider mb-2">Technical Architecture</h1>
-              <p className="text-sm text-gray-600 uppercase tracking-widest">System Design Blueprint</p>
+              {/* AGENCY LOGO */}
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-slate-900 text-white flex items-center justify-center font-black text-xl tracking-tighter">
+                  BA
+                </div>
+                <div className="leading-none">
+                  <h1 className="text-lg font-black uppercase tracking-widest text-slate-900">Bolu Adeoye</h1>
+                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Systems Engineering</p>
+                </div>
+              </div>
+              <h2 className="text-4xl font-black text-slate-900 uppercase tracking-tight leading-none">
+                Technical<br/>Architecture
+              </h2>
             </div>
             <div className="text-right">
-              <h2 className="text-xl font-bold">Autoam</h2>
-              <p className="text-sm text-gray-500">Version 1.0 • MVP</p>
+              <div className="inline-block bg-slate-100 px-4 py-2 rounded-lg border border-slate-200">
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Client</p>
+                <p className="text-xl font-black text-slate-900">AUTOAM</p>
+              </div>
+              <p className="text-xs font-mono text-slate-400 mt-2">REF: MVP-ARCH-V1.0</p>
             </div>
-          </div>
-        </header>
+          </header>
 
-        {/* CONTENT */}
-        <div className="prose prose-slate max-w-none prose-headings:font-serif prose-p:text-justify prose-p:leading-relaxed">
-          
-          {/* 1. EXECUTIVE SUMMARY */}
-          <section className="mb-8">
-            <h3 className="text-lg font-bold uppercase border-b border-gray-300 pb-1 mb-3">1. Executive Summary</h3>
-            <p className="text-sm">
-              Autoam is designed as a high-availability, real-time On-Demand Service Platform. The architecture prioritizes <strong>low-latency geolocation</strong> (connecting drivers to mechanics instantly), <strong>transactional security</strong> (escrow payments), and <strong>scalability</strong>. The system follows a Mobile-First, Cloud-Native approach.
-            </p>
-          </section>
+          {/* === CONTENT === */}
+          <div className="space-y-10">
+            
+            {/* 1. EXECUTIVE SUMMARY */}
+            <section>
+              <h3 className="flex items-center gap-3 text-sm font-black uppercase tracking-widest text-slate-400 mb-4">
+                <span className="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-[10px]">01</span>
+                Executive Summary
+              </h3>
+              <p className="text-base leading-relaxed font-medium text-slate-700 text-justify">
+                Autoam is architected as a high-availability, real-time <strong>On-Demand Service Platform</strong>. The system prioritizes low-latency geolocation (connecting drivers to mechanics instantly), transactional security (escrow payments), and horizontal scalability. The infrastructure follows a <strong>Mobile-First, Cloud-Native</strong> approach to ensure reliability in field conditions.
+              </p>
+            </section>
 
-          {/* 2. SYSTEM ARCHITECTURE */}
-          <section className="mb-8">
-            <h3 className="text-lg font-bold uppercase border-b border-gray-300 pb-1 mb-3">2. High-Level System Architecture</h3>
-            <div className="bg-gray-50 p-4 rounded border border-gray-200 font-mono text-[10px] leading-tight whitespace-pre overflow-x-auto">
+            {/* 2. THE STACK */}
+            <section>
+              <h3 className="flex items-center gap-3 text-sm font-black uppercase tracking-widest text-slate-400 mb-6">
+                <span className="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-[10px]">02</span>
+                Core Infrastructure
+              </h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 bg-slate-50 border-l-4 border-slate-900">
+                  <p className="text-xs font-bold text-slate-500 uppercase">Mobile Applications</p>
+                  <p className="text-lg font-black text-slate-900">React Native (Expo)</p>
+                  <p className="text-xs text-slate-600 mt-1">Cross-platform iOS & Android</p>
+                </div>
+                <div className="p-4 bg-slate-50 border-l-4 border-slate-900">
+                  <p className="text-xs font-bold text-slate-500 uppercase">Backend Core</p>
+                  <p className="text-lg font-black text-slate-900">Node.js / NestJS</p>
+                  <p className="text-xs text-slate-600 mt-1">Enterprise-grade Scalability</p>
+                </div>
+                <div className="p-4 bg-slate-50 border-l-4 border-slate-900">
+                  <p className="text-xs font-bold text-slate-500 uppercase">Database Engine</p>
+                  <p className="text-lg font-black text-slate-900">PostgreSQL + PostGIS</p>
+                  <p className="text-xs text-slate-600 mt-1">Geospatial Indexing</p>
+                </div>
+                <div className="p-4 bg-slate-50 border-l-4 border-slate-900">
+                  <p className="text-xs font-bold text-slate-500 uppercase">Real-Time Layer</p>
+                  <p className="text-lg font-black text-slate-900">Socket.io / WebSocket</p>
+                  <p className="text-xs text-slate-600 mt-1">Live Location Tracking</p>
+                </div>
+              </div>
+            </section>
+
+            {/* 3. SYSTEM DIAGRAM */}
+            <section>
+              <h3 className="flex items-center gap-3 text-sm font-black uppercase tracking-widest text-slate-400 mb-4">
+                <span className="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-[10px]">03</span>
+                Data Flow Architecture
+              </h3>
+              <div className="bg-slate-900 text-slate-300 p-6 rounded-xl font-mono text-[10px] leading-tight whitespace-pre overflow-hidden shadow-inner">
 {`[ USER APP ]        [ MECHANIC APP ]      [ ADMIN PORTAL ]
-(React Native)      (React Native)        (Next.js/React)
       |                   |                      |
       v                   v                      v
 +-------------------------------------------------------+
@@ -76,94 +138,66 @@ export default function AutoamProposal() {
 +-------+-------+                   +-------+-------+
         |                                   |
         +--------->[ DATABASE ]<------------+
-                  (PostgreSQL)
-`}
+                  (PostgreSQL)`}
+              </div>
+            </section>
+
+            {/* 4. DELIVERABLES */}
+            <section>
+              <h3 className="flex items-center gap-3 text-sm font-black uppercase tracking-widest text-slate-400 mb-4">
+                <span className="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-[10px]">04</span>
+                Project Deliverables
+              </h3>
+              <div className="space-y-3">
+                <div className="flex items-center gap-4 p-3 border-b border-slate-100">
+                  <CheckCircle2 size={20} className="text-slate-900" />
+                  <div>
+                    <p className="font-bold text-slate-900">User Application (Driver)</p>
+                    <p className="text-xs text-slate-500">SOS Request, Live Map, Payments</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4 p-3 border-b border-slate-100">
+                  <CheckCircle2 size={20} className="text-slate-900" />
+                  <div>
+                    <p className="font-bold text-slate-900">Partner Application (Mechanic)</p>
+                    <p className="text-xs text-slate-500">Job Radar, Navigation, Wallet</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4 p-3 border-b border-slate-100">
+                  <CheckCircle2 size={20} className="text-slate-900" />
+                  <div>
+                    <p className="font-bold text-slate-900">Admin Command Center</p>
+                    <p className="text-xs text-slate-500">User Verification, Dispute Resolution, Analytics</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+          </div>
+
+          {/* === FOOTER / SIGNATURE === */}
+          <footer className="mt-16 pt-8 border-t-4 border-slate-900 flex justify-between items-end">
+            <div>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Architectural Approval</p>
+              
+              {/* DIGITAL SIGNATURE */}
+              <div className="font-serif italic text-3xl text-slate-900 mb-2" style={{ fontFamily: 'cursive' }}>
+                Boluwatife Adeoye
+              </div>
+              
+              <div className="h-px w-40 bg-slate-300 mb-2"></div>
+              <p className="text-sm font-black text-slate-900 uppercase">Lead Technical Architect</p>
+              <p className="text-xs text-slate-500">boluadeoye.com.ng</p>
             </div>
-          </section>
-
-          {/* 3. FRONTEND STRATEGY */}
-          <section className="mb-8">
-            <h3 className="text-lg font-bold uppercase border-b border-gray-300 pb-1 mb-3">3. Frontend Strategy</h3>
-            <ul className="list-disc pl-5 text-sm space-y-2">
-              <li><strong>User App (Driver):</strong> Built on React Native (Expo). Features "One-Tap SOS" and Offline Mode for caching vehicle details.</li>
-              <li><strong>Partner App (Mechanic):</strong> Built on React Native. Features "Job Radar" background service and Turn-by-Turn Navigation.</li>
-              <li><strong>Command Center (Admin):</strong> Built on Next.js. Features "God Mode Map" for live fleet tracking.</li>
-            </ul>
-          </section>
-
-          {/* 4. BACKEND INFRASTRUCTURE */}
-          <section className="mb-8">
-            <h3 className="text-lg font-bold uppercase border-b border-gray-300 pb-1 mb-3">4. Backend Infrastructure</h3>
-            <p className="text-sm mb-2"><strong>The Matching Algorithm:</strong> Uses a Heuristic Scoring System based on Distance, Specialization (Car Brand), Rating, and Availability.</p>
             
-            <div className="bg-gray-50 p-4 rounded border border-gray-200 font-mono text-[10px] leading-tight whitespace-pre overflow-x-auto mt-4">
-{`+-----------+       +-----------+       +-----------+
-|   USERS   |       | REQUESTS  |       | MECHANICS |
-+-----------+       +-----------+       +-----------+
-| PK user_id|1-----*| PK req_id |*-----1| PK mech_id|
-|   name    |       |   status  |       |   skills  |
-|   phone   |       |   cost    |       |   rating  |
-+-----------+       +-----------+       +-----------+`}
-            </div>
-          </section>
-
-          {/* 5. SECURITY */}
-          <section className="mb-8">
-            <h3 className="text-lg font-bold uppercase border-b border-gray-300 pb-1 mb-3">5. Security & Compliance</h3>
-            <ul className="list-disc pl-5 text-sm space-y-2">
-              <li><strong>Escrow Payments:</strong> Funds are held in a ledger and only released to the mechanic upon job confirmation via OTP.</li>
-              <li><strong>Data Privacy:</strong> TLS 1.3 Encryption for data in transit. Phone number masking (proxy calling) for privacy.</li>
-            </ul>
-          </section>
-
-          {/* 6. WIREFRAME FLOW */}
-          <section className="mb-8">
-            <h3 className="text-lg font-bold uppercase border-b border-gray-300 pb-1 mb-3">6. User Journey (Wireframe)</h3>
-            <div className="bg-gray-50 p-4 rounded border border-gray-200 font-mono text-[10px] leading-tight whitespace-pre overflow-x-auto">
-{`[ HOME ] -> [ MAP VIEW ] -> [ SELECT SERVICE ]
-                                    |
-                                    v
-[ MATCHING ] -> [ ALGORITHM ] -> [ TRACKING ]
-                                    |
-                                    v
-[ COMPLETION ] <- [ ETA TIMER ] <- [ LIVE MAP ]`}
-            </div>
-          </section>
-
-          {/* 7. DELIVERABLES */}
-          <section className="mb-12">
-            <h3 className="text-lg font-bold uppercase border-b border-gray-300 pb-1 mb-3">7. Deliverables</h3>
-            <div className="grid grid-cols-3 gap-4 text-sm">
-              <div className="p-3 bg-gray-50 border border-gray-200">
-                <strong className="block mb-1">Phase 1</strong>
-                High-Fidelity Figma Prototypes
-              </div>
-              <div className="p-3 bg-gray-50 border border-gray-200">
-                <strong className="block mb-1">Phase 2</strong>
-                Functional MVP (Apps + Backend)
-              </div>
-              <div className="p-3 bg-gray-50 border border-gray-200">
-                <strong className="block mb-1">Phase 3</strong>
-                Payments & Admin Dashboard
+            <div className="text-right">
+              <div className="w-16 h-16 bg-slate-900 text-white flex items-center justify-center font-black text-2xl">
+                BA
               </div>
             </div>
-          </section>
+          </footer>
 
         </div>
-
-        {/* FOOTER / SIGNATURE */}
-        <footer className="mt-12 pt-8 border-t-2 border-black flex justify-between items-end">
-          <div>
-            <p className="text-xs text-gray-500 uppercase tracking-widest mb-2">Architectural Approval</p>
-            <div className="font-script text-2xl mb-1 font-bold">Boluwatife Adeoye</div>
-            <p className="text-sm font-bold">Full-Stack Engineer & Technical Consultant</p>
-            <p className="text-xs text-gray-600">boluadeoye.com.ng</p>
-          </div>
-          <div className="text-right text-xs text-gray-400">
-            Generated: {new Date().toLocaleDateString()}
-          </div>
-        </footer>
-
       </div>
     </div>
   );
