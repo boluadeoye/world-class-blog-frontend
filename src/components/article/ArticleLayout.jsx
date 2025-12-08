@@ -69,31 +69,8 @@ export function ArticleHero({ post }) {
   );
 }
 
-/* === CONTENT WRAPPER (Removed Share Button) === */
+/* === ARTICLE CONTENT (Stripped of Dock Logic) === */
 export function ArticleContent({ children }) {
-  const [isSaved, setIsSaved] = useState(false);
-  const [justShared, setJustShared] = useState(false);
-
-  useEffect(() => {
-    const saved = localStorage.getItem("saved_posts");
-    if (saved) setIsSaved(saved.includes(window.location.pathname));
-  }, []);
-
-  const handleShare = async () => {
-    if (navigator.share) { try { await navigator.share({ title: document.title, url: window.location.href }); } catch (err) {} } 
-    else { navigator.clipboard.writeText(window.location.href); setJustShared(true); setTimeout(() => setJustShared(false), 2000); }
-  };
-
-  const handleSave = () => {
-    const newState = !isSaved;
-    setIsSaved(newState);
-    if (newState) localStorage.setItem("saved_posts", (localStorage.getItem("saved_posts") || "") + window.location.pathname);
-  };
-
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
   return (
     <div className="relative z-10 max-w-[760px] mx-auto px-6 pb-24">
       <ReadingTimer />
@@ -113,43 +90,12 @@ export function ArticleContent({ children }) {
         {children}
       </article>
 
-      {/* Back to Home Link (Removed Share/Save from here) */}
+      {/* Back to Home Link */}
       <div className="mt-16 pt-8 border-t border-white/10 flex justify-start">
         <Link href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors group font-medium text-sm">
           <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
           <span>Back to Home</span>
         </Link>
-      </div>
-
-      {/* === FLOATING ACTION DOCK (New Fixed Element) === */}
-      <div className="fixed bottom-6 right-6 z-40 flex flex-col gap-3">
-        
-        {/* Scroll to Top Button */}
-        <button 
-          onClick={scrollToTop}
-          className="p-4 rounded-full bg-amber-500 text-black shadow-xl hover:bg-amber-400 transition-colors"
-          title="Scroll to Top"
-        >
-          <ArrowUp size={20} />
-        </button>
-
-        {/* Share Button (Now a FAB) */}
-        <button 
-          onClick={handleShare}
-          className="group relative p-4 rounded-full bg-indigo-600 text-white shadow-xl hover:bg-indigo-500 transition-colors"
-          title="Share this article"
-        >
-          {justShared ? <Check size={20} className="text-emerald-400" /> : <Share2 size={20} />}
-        </button>
-
-        {/* Save Button (Now a FAB) */}
-        <button 
-          onClick={handleSave}
-          className={`p-4 rounded-full transition-all shadow-xl ${isSaved ? 'bg-amber-500 text-black' : 'bg-slate-800/50 hover:bg-white hover:text-black text-slate-300'}`}
-          title={isSaved ? "Saved" : "Save for later"}
-        >
-          <Bookmark size={20} fill={isSaved ? "currentColor" : "none"} />
-        </button>
       </div>
     </div>
   );
