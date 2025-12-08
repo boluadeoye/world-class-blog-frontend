@@ -1,12 +1,12 @@
 "use client";
-import { Download, ArrowLeft, CheckSquare, Layers, Shield, Zap, Database } from "lucide-react";
+import { Download, ArrowLeft, CheckSquare, Layers, Shield, Zap, Database, Bot, MapPin } from "lucide-react";
 import Link from "next/link";
 
 export default function AutoamProposal() {
   
   const handlePrint = () => {
     const originalTitle = document.title;
-    document.title = "AUTOAM Project Architectural Proposal";
+    document.title = "AUTOAM Technical Architecture Blueprint v2.0";
     window.print();
     document.title = originalTitle;
   };
@@ -42,7 +42,7 @@ export default function AutoamProposal() {
             <span className="font-black text-2xl text-slate-900">BA</span>
           </div>
           <h1 className="text-2xl font-bold text-white mb-2">Technical Architecture</h1>
-          <p className="text-slate-400 text-sm mb-8">Project: Autoam MVP • v2.2 (Fixed Layout)</p>
+          <p className="text-slate-400 text-sm mb-8">Aligned with Autoam PRD v1.0</p>
           <button onClick={handlePrint} className="w-full flex items-center justify-center gap-3 bg-white hover:bg-slate-200 text-slate-950 font-bold py-4 rounded-xl transition-all transform hover:scale-[1.02] shadow-xl">
             <Download size={20} /> <span>Download Blueprint PDF</span>
           </button>
@@ -64,7 +64,7 @@ export default function AutoamProposal() {
               </div>
               <div className="text-right">
                 <div className="bg-black text-white px-6 py-2 font-bold text-sm uppercase inline-block mb-1">Confidential</div>
-                <p className="text-xs font-mono font-bold">DOC-ID: ATM-2025-X1</p>
+                <p className="text-xs font-mono font-bold">REF: PRD-ALIGN-V2</p>
               </div>
             </div>
 
@@ -72,10 +72,10 @@ export default function AutoamProposal() {
             <section className="mb-8">
               <h2 className="text-2xl font-black uppercase border-l-[10px] border-black pl-4 mb-4">1. Executive Summary</h2>
               <p className="text-sm leading-relaxed text-justify mb-4 font-bold text-black">
-                Autoam is engineered to be a high-availability, geolocation-centric marketplace connecting vehicle owners with automotive service providers. Unlike standard directories, Autoam functions as a <strong>Real-Time Logistics Platform</strong>.
+                This architecture is engineered to meet the specific KPIs outlined in the Autoam PRD (v1.0), specifically the <strong>&lt;3s load time</strong> and <strong>AI-driven diagnostics</strong>.
               </p>
               <p className="text-sm leading-relaxed text-justify font-bold text-black">
-                The architecture prioritizes <strong>Zero-Latency Dispatching</strong> (matching drivers to mechanics in under 2 seconds), <strong>Financial Trust</strong> (via an automated escrow ledger), and <strong>Offline Resilience</strong>. This document outlines the strategy to scale from MVP to 100,000+ users.
+                The system unifies three service verticals—<strong>Mechanics, Auto-Parts, and Fuel Stations</strong>—into a single geospatial engine. It introduces a dedicated <strong>AI Layer</strong> for vehicle fault diagnosis and utilizes an <strong>Offline-First</strong> data strategy to ensure reliability in low-connectivity zones across Nigeria.
               </p>
             </section>
 
@@ -85,46 +85,48 @@ export default function AutoamProposal() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="border-4 border-black p-4">
                   <div className="flex items-center gap-2 mb-2 border-b-4 border-black pb-2">
+                    <Smartphone size={18} />
                     <span className="font-black text-sm uppercase">Mobile (User & Pro)</span>
                   </div>
                   <p className="font-black text-lg">React Native (Expo)</p>
                   <ul className="list-disc pl-4 mt-2 text-xs font-bold space-y-1 text-slate-800">
-                    <li>Single codebase for iOS/Android.</li>
-                    <li>OTA Updates (Instant fixes).</li>
-                    <li>Native Google Maps SDK.</li>
+                    <li>Unified iOS/Android codebase.</li>
+                    <li><strong>Offline Mode:</strong> Local caching (WatermelonDB).</li>
+                    <li><strong>Maps:</strong> Native Google Maps SDK.</li>
                   </ul>
                 </div>
                 <div className="border-4 border-black p-4">
                   <div className="flex items-center gap-2 mb-2 border-b-4 border-black pb-2">
-                    <span className="font-black text-sm uppercase">Backend Core</span>
+                    <Bot size={18} />
+                    <span className="font-black text-sm uppercase">AI & Logic Core</span>
                   </div>
-                  <p className="font-black text-lg">Node.js + NestJS</p>
+                  <p className="font-black text-lg">NestJS + OpenAI</p>
                   <ul className="list-disc pl-4 mt-2 text-xs font-bold space-y-1 text-slate-800">
-                    <li>Strict architecture for scale.</li>
-                    <li>BullMQ (Redis) for dispatching.</li>
-                    <li>Hybrid REST + WebSockets.</li>
+                    <li><strong>AI Assistant:</strong> GPT-4o Mini for diagnostics.</li>
+                    <li><strong>Matching:</strong> Geospatial Heuristic Engine.</li>
+                    <li><strong>Queue:</strong> BullMQ for reliable dispatch.</li>
                   </ul>
                 </div>
                 <div className="border-4 border-black p-4">
                   <div className="flex items-center gap-2 mb-2 border-b-4 border-black pb-2">
+                    <Database size={18} />
                     <span className="font-black text-sm uppercase">Data Layer</span>
                   </div>
                   <p className="font-black text-lg">PostgreSQL + PostGIS</p>
                   <ul className="list-disc pl-4 mt-2 text-xs font-bold space-y-1 text-slate-800">
-                    <li>Relational integrity.</li>
-                    <li>Geospatial Indexing (Maps).</li>
-                    <li>"Find mechanics within 5km".</li>
+                    <li><strong>Multi-Vendor:</strong> Mechanics, Parts, Fuel.</li>
+                    <li><strong>Geo-Index:</strong> "Find nearest X within 5km".</li>
                   </ul>
                 </div>
                 <div className="border-4 border-black p-4">
                   <div className="flex items-center gap-2 mb-2 border-b-4 border-black pb-2">
+                    <Shield size={18} />
                     <span className="font-black text-sm uppercase">Security</span>
                   </div>
                   <p className="font-black text-lg">JWT + AES-256</p>
                   <ul className="list-disc pl-4 mt-2 text-xs font-bold space-y-1 text-slate-800">
-                    <li>Role-Based Access Control.</li>
-                    <li>Phone number masking.</li>
-                    <li>PCI-DSS Compliance.</li>
+                    <li><strong>Privacy:</strong> NDPR/GDPR Compliance.</li>
+                    <li><strong>Payments:</strong> PCI-DSS Escrow Logic.</li>
                   </ul>
                 </div>
               </div>
@@ -148,7 +150,7 @@ export default function AutoamProposal() {
               <div className="flex flex-col items-center gap-4 text-xs font-black uppercase">
                 <div className="flex gap-4 w-full justify-center">
                   <div className="border-[3px] border-black p-2 w-28 text-center bg-slate-100">User App<br/>(Driver)</div>
-                  <div className="border-[3px] border-black p-2 w-28 text-center bg-slate-100">Partner App<br/>(Mechanic)</div>
+                  <div className="border-[3px] border-black p-2 w-28 text-center bg-slate-100">Partner App<br/>(Mechanic/Dealer)</div>
                   <div className="border-[3px] border-black p-2 w-28 text-center bg-slate-100">Admin<br/>Portal</div>
                 </div>
                 <div className="h-4 w-1.5 bg-black"></div>
@@ -161,8 +163,11 @@ export default function AutoamProposal() {
                   <div className="border-[3px] border-black p-3 w-36 text-center bg-white">
                     CORE API<br/>(NestJS)
                   </div>
+                  <div className="border-[3px] border-black p-3 w-36 text-center bg-slate-800 text-white">
+                    AI ENGINE<br/>(LLM / RAG)
+                  </div>
                   <div className="border-[3px] border-black p-3 w-36 text-center bg-white">
-                    DISPATCH ENGINE<br/>(Socket.io)
+                    DISPATCH<br/>(Socket.io)
                   </div>
                 </div>
                 <div className="h-4 w-1.5 bg-black"></div>
@@ -179,16 +184,16 @@ export default function AutoamProposal() {
               <h2 className="text-2xl font-black uppercase border-l-[10px] border-black pl-4 mb-6">4. Core Database Schema</h2>
               <div className="space-y-4 text-xs font-mono font-bold">
                 <div className="border-4 border-black p-3 avoid-break">
-                  <p className="font-black border-b-4 border-black pb-1 mb-2 text-sm">USERS (Drivers & Mechanics)</p>
-                  <p className="text-slate-900">id (UUID) • phone (Unique) • password_hash • role (ENUM) • kyc_status • rating_avg • current_location (Point)</p>
+                  <p className="font-black border-b-4 border-black pb-1 mb-2 text-sm">USERS (Drivers & Providers)</p>
+                  <p className="text-slate-900">id (UUID) • type (DRIVER/MECHANIC/DEALER/FUEL) • kyc_docs • rating_avg • location (Point)</p>
                 </div>
                 <div className="border-4 border-black p-3 avoid-break">
                   <p className="font-black border-b-4 border-black pb-1 mb-2 text-sm">SERVICE_REQUESTS (Jobs)</p>
-                  <p className="text-slate-900">id • user_id • mechanic_id • vehicle_id • issue_type • status (PENDING/ACTIVE/COMPLETED) • location_coords • price_estimate</p>
+                  <p className="text-slate-900">id • user_id • provider_id • service_type (REPAIR/TOW/FUEL) • ai_diagnosis_log • status • cost</p>
                 </div>
                 <div className="border-4 border-black p-3 avoid-break">
-                  <p className="font-black border-b-4 border-black pb-1 mb-2 text-sm">TRANSACTIONS (Escrow)</p>
-                  <p className="text-slate-900">id • request_id • amount • currency • provider_ref • status (HELD/RELEASED/REFUNDED) • created_at</p>
+                  <p className="font-black border-b-4 border-black pb-1 mb-2 text-sm">INVENTORY (Parts & Fuel)</p>
+                  <p className="text-slate-900">id • provider_id • item_name • stock_level • price • compatibility_tags</p>
                 </div>
               </div>
             </section>
@@ -209,52 +214,51 @@ export default function AutoamProposal() {
               <div className="mb-4">
                 <h3 className="font-black text-lg uppercase mb-2">A. User Application</h3>
                 <ul className="list-disc pl-5 text-sm font-bold space-y-1 text-slate-900">
-                  <li>One-Tap SOS: Immediate request dispatch.</li>
-                  <li>Live Tracking: Uber-style map view.</li>
-                  <li>Vehicle Garage: Store multiple car profiles.</li>
-                  <li>Secure Wallet: Card/Bank integration.</li>
+                  <li><strong>AI Assistant:</strong> Chat interface for fault diagnosis before booking.</li>
+                  <li><strong>Multi-Service Map:</strong> Toggle between Mechanics, Parts, and Fuel.</li>
+                  <li><strong>Offline Mode:</strong> Access vehicle data without internet.</li>
                 </ul>
               </div>
               <div className="mb-4">
-                <h3 className="font-black text-lg uppercase mb-2">B. Partner Application</h3>
+                <h3 className="font-black text-lg uppercase mb-2">B. Provider Application</h3>
                 <ul className="list-disc pl-5 text-sm font-bold space-y-1 text-slate-900">
-                  <li>Job Radar: Background service detecting requests.</li>
-                  <li>Turn-by-Turn Nav: Integrated Google Maps.</li>
-                  <li>Earnings Dashboard: Daily/Weekly payout.</li>
+                  <li><strong>Job Radar:</strong> Background service detecting requests.</li>
+                  <li><strong>Inventory Mgmt:</strong> Simple interface for Dealers to update stock.</li>
+                  <li><strong>Earnings Wallet:</strong> Real-time commission tracking.</li>
                 </ul>
               </div>
               <div className="mb-4">
                 <h3 className="font-black text-lg uppercase mb-2">C. Admin Command Center</h3>
                 <ul className="list-disc pl-5 text-sm font-bold space-y-1 text-slate-900">
-                  <li>God Mode Map: Real-time heatmap of agents.</li>
-                  <li>Dispute Tribunal: Review chat logs.</li>
+                  <li><strong>God Mode Map:</strong> Real-time heatmap of all active agents.</li>
+                  <li><strong>Verification Portal:</strong> Review KYC docs for mechanics/dealers.</li>
                 </ul>
               </div>
             </section>
 
-            {/* 6. Implementation Roadmap (7 WEEKS) */}
+            {/* 6. Implementation Roadmap (9 WEEKS) */}
             <section>
-              <h2 className="text-2xl font-black uppercase border-l-[10px] border-black pl-4 mb-6">6. Implementation Roadmap (7 Weeks)</h2>
+              <h2 className="text-2xl font-black uppercase border-l-[10px] border-black pl-4 mb-6">6. Roadmap (9 Weeks)</h2>
               <div className="border-l-[6px] border-black ml-2 space-y-0">
                 <div className="relative pl-8 pb-4">
                   <div className="absolute -left-[12px] top-0 w-5 h-5 bg-black rounded-full border-4 border-white"></div>
                   <h4 className="font-black text-sm uppercase">Phase 1: Foundation (Weeks 1-2)</h4>
-                  <p className="text-xs font-bold text-slate-700 mt-1">System Design, Database Setup, UI/UX Wireframing, Auth System.</p>
+                  <p className="text-xs font-bold text-slate-700 mt-1">System Design, Database, UI/UX, Auth System.</p>
                 </div>
                 <div className="relative pl-8 pb-4">
                   <div className="absolute -left-[12px] top-0 w-5 h-5 bg-white border-[5px] border-black rounded-full"></div>
-                  <h4 className="font-black text-sm uppercase">Phase 2: Core Engine (Weeks 3-4)</h4>
-                  <p className="text-xs font-bold text-slate-700 mt-1">Geolocation Logic, Request Matching Algorithm, Real-time Sockets.</p>
+                  <h4 className="font-black text-sm uppercase">Phase 2: Core Engine (Weeks 3-5)</h4>
+                  <p className="text-xs font-bold text-slate-700 mt-1">Geolocation, AI Integration, Request Matching.</p>
                 </div>
                 <div className="relative pl-8 pb-4">
                   <div className="absolute -left-[12px] top-0 w-5 h-5 bg-white border-[5px] border-black rounded-full"></div>
-                  <h4 className="font-black text-sm uppercase">Phase 3: Financials (Weeks 5-6)</h4>
-                  <p className="text-xs font-bold text-slate-700 mt-1">Payment Gateway Integration, Escrow Logic, Wallet System.</p>
+                  <h4 className="font-black text-sm uppercase">Phase 3: Ecosystem (Weeks 6-7)</h4>
+                  <p className="text-xs font-bold text-slate-700 mt-1">Parts/Fuel Integration, Inventory System, Payments.</p>
                 </div>
                 <div className="relative pl-8">
                   <div className="absolute -left-[12px] top-0 w-5 h-5 bg-white border-[5px] border-black rounded-full"></div>
-                  <h4 className="font-black text-sm uppercase">Phase 4: Launch (Week 7)</h4>
-                  <p className="text-xs font-bold text-slate-700 mt-1">Beta Testing, Security Audit, App Store Deployment.</p>
+                  <h4 className="font-black text-sm uppercase">Phase 4: Launch (Weeks 8-9)</h4>
+                  <p className="text-xs font-bold text-slate-700 mt-1">Beta Testing, Security Audit, Deployment.</p>
                 </div>
               </div>
             </section>
