@@ -69,7 +69,7 @@ function TableOfContents({ headings }) {
   );
 }
 
-/* === 4. SOLID HERO BLOCK (No Overlap) === */
+/* === 4. SOLID HERO BLOCK (Fixed Tag) === */
 export function ArticleHero({ post, readTime }) {
   if (!post) return null;
   
@@ -77,57 +77,58 @@ export function ArticleHero({ post, readTime }) {
   const coverImage = post.meta?.cover || post.cover_image_url;
 
   return (
-    // Changed to relative block with explicit padding
-    <header className="relative w-full bg-slate-900 pt-32 pb-20 px-6 flex flex-col items-center justify-center min-h-[500px]">
+    // CHANGED TAG: <section> instead of <header> to avoid global CSS conflict
+    // Added 'relative' and 'z-0' to ensure it stays in flow
+    <section id="article-hero" className="relative w-full h-[50vh] min-h-[450px] flex flex-col justify-end pb-12 px-6 bg-slate-900 overflow-hidden z-0">
       
-      {/* BACKGROUND IMAGE (Absolute to Header only) */}
+      {/* BACKGROUND IMAGE */}
       <div className="absolute inset-0 z-0">
         {coverImage ? (
           <img 
             src={coverImage} 
             alt={post.title} 
-            className="w-full h-full object-cover blur-[2px] opacity-60" 
+            className="w-full h-full object-cover blur-[3px] opacity-70" 
           />
         ) : (
           <div className="w-full h-full bg-slate-900" />
         )}
-        {/* Solid Gradient Fade at Bottom to merge with content bg */}
+        {/* Solid Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/80 to-transparent"></div>
       </div>
 
-      {/* CONTENT (Z-10 to sit above image) */}
+      {/* CONTENT */}
       <div className="relative z-10 max-w-4xl mx-auto text-center w-full">
-        <div className="flex justify-center mb-8">
-          <span className="px-4 py-1.5 rounded-md bg-amber-500 text-slate-950 text-[10px] font-bold tracking-[0.2em] uppercase shadow-lg">
+        <div className="flex justify-center mb-6">
+          <span className="px-3 py-1 rounded-md bg-amber-500 text-slate-950 text-[10px] font-bold tracking-[0.2em] uppercase shadow-lg">
             {post.meta?.category || "Editorial"}
           </span>
         </div>
         
-        <h1 className="font-serif text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.1] mb-10 tracking-tight drop-shadow-2xl">
+        <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-[1.1] mb-8 tracking-tight drop-shadow-2xl">
           {post.title}
         </h1>
         
         {/* META DOCK */}
-        <div className="inline-flex flex-wrap items-center justify-center gap-6 text-xs md:text-sm text-slate-300 font-medium bg-black/60 backdrop-blur-xl border border-white/10 py-4 px-8 rounded-full shadow-2xl">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-amber-500 p-[1px]">
+        <div className="inline-flex flex-wrap items-center justify-center gap-6 text-xs md:text-sm text-slate-300 font-medium bg-black/50 backdrop-blur-md border border-white/10 py-3 px-6 rounded-full shadow-xl">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-full bg-amber-500 p-[1px]">
                <img src="https://w5e7svgknmetlu9j.public.blob.vercel-storage.com/adeoye.jpg" className="w-full h-full rounded-full object-cover" alt="BA" />
             </div>
             <span className="text-white font-bold">Boluwatife Adeoye</span>
           </div>
-          <span className="text-slate-600">|</span>
+          <span className="text-slate-500">•</span>
           <div className="flex items-center gap-2">
             <Calendar size={14} className="text-amber-500" />
             <span>{date}</span>
           </div>
-          <span className="text-slate-600">|</span>
+          <span className="text-slate-500">•</span>
           <div className="flex items-center gap-2">
             <Clock size={14} className="text-amber-500" />
             <span>{readTime}</span>
           </div>
         </div>
       </div>
-    </header>
+    </section>
   );
 }
 
@@ -147,8 +148,8 @@ export function ArticleGrid({ children, headings }) {
   };
 
   return (
-    // Solid Background Color + Top Border + Padding
-    <div className="relative z-20 bg-[#020617] border-t border-white/5">
+    // Solid Background + Z-Index to cover any potential under-layers
+    <div className="relative z-10 bg-[#020617] border-t border-white/5">
       <ReadingProgress />
       <Toast message="Link copied to clipboard!" show={toast} />
       
