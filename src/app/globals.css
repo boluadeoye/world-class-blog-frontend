@@ -103,3 +103,15 @@ body:has(.hero-section) header .mobile-menu-trigger {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
   color: white !important;
 }
+
+/* === UNSTICK HEADER === */
+/* Forces the navbar to scroll away with the page */
+header {
+  position: absolute !important;
+  top: 0;
+  width: 100%;
+  z-index: 50;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  border-bottom: none !important;
+}

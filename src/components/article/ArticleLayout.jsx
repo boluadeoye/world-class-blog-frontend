@@ -1,6 +1,6 @@
 "use client";
 import { motion, useScroll, useSpring } from "framer-motion";
-import { ArrowLeft, Clock, Calendar, Share2, Bookmark, Check, Hash, Link as LinkIcon } from "lucide-react";
+import { ArrowLeft, Clock, Calendar, Share2, Bookmark, Check, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 
@@ -20,7 +20,7 @@ function Toast({ message, show }) {
   );
 }
 
-/* === 3. CINEMATIC HERO (With Real Image) === */
+/* === 3. CINEMATIC HERO (With Intelligent Bottom Dock) === */
 export function ArticleHero({ post, readTime }) {
   if (!post) return null;
   
@@ -28,7 +28,7 @@ export function ArticleHero({ post, readTime }) {
   const coverImage = post.meta?.cover || post.cover_image_url;
 
   return (
-    <header className="relative min-h-[70vh] flex flex-col justify-end pb-20 px-6 overflow-hidden">
+    <header className="relative min-h-[90vh] flex flex-col justify-center items-center px-6 overflow-hidden">
       
       {/* BACKGROUND IMAGE LAYER */}
       <div className="absolute inset-0 z-0">
@@ -37,41 +37,85 @@ export function ArticleHero({ post, readTime }) {
         ) : (
           <div className="w-full h-full bg-slate-900" />
         )}
-        {/* Gradient Overlay for Text Readability */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/80 to-transparent"></div>
-        <div className="absolute inset-0 bg-black/30"></div>
+        {/* Cinematic Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-[#020617]"></div>
       </div>
 
-      <div className="relative z-10 max-w-4xl mx-auto text-center w-full">
-        <div className="flex justify-center mb-6">
-          <span className="px-4 py-1.5 rounded-full border border-amber-500/50 bg-black/50 text-amber-400 text-xs font-bold tracking-[0.2em] uppercase backdrop-blur-md">
+      {/* MAIN TITLE CONTENT */}
+      <div className="relative z-10 max-w-4xl mx-auto text-center w-full mt-10">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex justify-center mb-8"
+        >
+          <span className="px-4 py-1.5 rounded-full border border-amber-500/50 bg-black/40 text-amber-400 text-xs font-bold tracking-[0.2em] uppercase backdrop-blur-md shadow-lg">
             {post.meta?.category || "Editorial"}
           </span>
-        </div>
+        </motion.div>
         
-        <h1 className="font-serif text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.1] mb-8 tracking-tight drop-shadow-2xl">
+        <motion.h1 
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="font-serif text-5xl md:text-7xl lg:text-8xl font-bold text-white leading-[1.05] mb-8 tracking-tight drop-shadow-2xl"
+        >
           {post.title}
-        </h1>
-        
-        <div className="inline-flex flex-wrap items-center justify-center gap-6 text-sm text-slate-300 font-medium border-t border-white/20 pt-8">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-amber-500 p-[1px]">
-               <img src="https://w5e7svgknmetlu9j.public.blob.vercel-storage.com/adeoye.jpg" className="w-full h-full rounded-full object-cover" alt="BA" />
-            </div>
-            <span className="text-white">Boluwatife Adeoye</span>
-          </div>
-          <span className="text-slate-500">•</span>
-          <div className="flex items-center gap-2">
-            <Calendar size={14} className="text-amber-500" />
-            <span>{date}</span>
-          </div>
-          <span className="text-slate-500">•</span>
-          <div className="flex items-center gap-2">
-            <Clock size={14} className="text-amber-500" />
-            <span>{readTime}</span>
-          </div>
-        </div>
+        </motion.h1>
       </div>
+
+      {/* === THE INTELLIGENT BOTTOM DOCK === */}
+      <div className="absolute bottom-0 left-0 w-full flex flex-col items-center z-20">
+        
+        {/* Gradient Fade to Content */}
+        <div className="absolute bottom-0 w-full h-64 bg-gradient-to-t from-[#020617] to-transparent pointer-events-none"></div>
+
+        {/* The Floating Glass Capsule */}
+        <motion.div 
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, type: "spring" }}
+          className="relative mb-12 p-1 rounded-full bg-gradient-to-b from-white/10 to-transparent backdrop-blur-xl border border-white/10 shadow-2xl"
+        >
+          <div className="flex items-center gap-6 px-8 py-3 rounded-full bg-black/40">
+            
+            {/* Author */}
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-amber-500 p-[1px]">
+                 <img src="https://w5e7svgknmetlu9j.public.blob.vercel-storage.com/adeoye.jpg" className="w-full h-full rounded-full object-cover" alt="BA" />
+              </div>
+              <div className="text-left hidden md:block">
+                <p className="text-[10px] text-slate-400 uppercase tracking-wider font-bold">Written By</p>
+                <p className="text-xs text-white font-bold">Boluwatife Adeoye</p>
+              </div>
+            </div>
+
+            <div className="w-px h-8 bg-white/10"></div>
+
+            {/* Meta */}
+            <div className="flex items-center gap-4 text-xs font-medium text-slate-300">
+              <div className="flex items-center gap-2">
+                <Calendar size={14} className="text-amber-500" />
+                <span>{date}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Clock size={14} className="text-amber-500" />
+                <span>{readTime}</span>
+              </div>
+            </div>
+
+          </div>
+        </motion.div>
+
+        {/* Scroll Indicator */}
+        <motion.div 
+          animate={{ y: [0, 10, 0] }}
+          transition={{ duration: 2, repeat: Infinity }}
+          className="mb-6 text-slate-500"
+        >
+          <ChevronDown size={24} />
+        </motion.div>
+      </div>
+
     </header>
   );
 }
