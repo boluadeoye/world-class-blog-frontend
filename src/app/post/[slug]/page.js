@@ -1,10 +1,9 @@
 import { notFound } from "next/navigation";
-import { ArticleHero, ArticleContent } from "../../../components/article/ArticleLayout";
+import { ArticleHero, ArticleGrid } from "../../../components/article/ArticleLayout";
 import SmartMarkdown from "../../../components/article/SmartMarkdown";
 import { fetchLatestArticles } from "../../../lib/homeData";
 import Comments from "../../../components/public/Comments";
 import ReadNext from "../../../components/article/ReadNext";
-import FloatingActionDock from "../../../components/article/FloatingActionDock"; // New Import
 
 export const revalidate = 3600;
 
@@ -24,6 +23,21 @@ async function getPostData(slug) {
   return { post, related };
 }
 
+// Helper to extract headings for TOC
+function extractHeadings(content) {
+  const headings = [];
+  const lines = content.split('\n');
+  lines.forEach(line => {
+    const match = line.match(/^##\s+(.+)$/); // Match H2s
+    if (match) {
+      // Create a slug from the text
+      const slug = match[1].toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
+      headings.push(slug);
+    }
+  });
+  return headings;
+}
+
 export async function generateMetadata(props) {
   const params = await props.params;
   const { post } = await getPostData(params.slug);
@@ -41,31 +55,24 @@ export default async function PostPage(props) {
 
   if (!post) notFound();
 
+  const headings = extractHeadings(post.content);
+
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-200 selection:bg-amber-500/30">
+    <main className="min-h-screen bg-[#020617] text-slate-200 selection:bg-amber-500/30">
       
-      {/* 1. HERO */}
       <ArticleHero post={post} />
 
-      {/* 2. CONTENT */}
-      <ArticleContent>
+      <ArticleGrid headings={headings}>
         <SmartMarkdown content={post.content} />
-      </ArticleContent>
-
-      {/* 3. COMMENTS */}
-      <section className="max-w-3xl mx-auto px-6 pb-16">
-        <div className="p-1 rounded-3xl bg-gradient-to-b from-white/5 to-transparent">
-          <div className="bg-slate-950/50 backdrop-blur-sm rounded-2xl p-6 md:p-10 border border-white/5">
-            <Comments postId={post.id} />
-          </div>
+        
+        {/* Comments Section */}
+        <div className="mt-24 pt-12 border-t border-white/10">
+          <h3 className="font-serif text-3xl text-white mb-8">Discussion</h3>
+          <Comments postId={post.id} />
         </div>
-      </section>
+      </ArticleGrid>
 
-      {/* 4. READ NEXT */}
       <ReadNext posts={related} />
-
-      {/* 5. FLOATING ACTION DOCK (New Component) */}
-      <FloatingActionDock />
 
     </main>
   );
