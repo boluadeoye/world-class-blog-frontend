@@ -1,6 +1,6 @@
 "use client";
 import { motion, useScroll, useSpring } from "framer-motion";
-import { ArrowLeft, Clock, Calendar, Share2, Bookmark, Check, Hash } from "lucide-react";
+import { ArrowLeft, Clock, Calendar, Share2, Bookmark, Check, Hash, ArrowUp } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 
@@ -20,7 +20,30 @@ function Toast({ message, show }) {
   );
 }
 
-/* === 3. STICKY TOC === */
+/* === 3. BACK TO TOP BUTTON === */
+function BackToTop() {
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setShow(window.scrollY > 600);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  return (
+    <button
+      onClick={scrollToTop}
+      className={`fixed bottom-8 right-6 md:right-12 p-4 rounded-full bg-amber-500 text-slate-950 shadow-[0_0_20px_rgba(245,158,11,0.4)] z-50 transition-all duration-500 hover:scale-110 hover:bg-amber-400 ${show ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'}`}
+      aria-label="Back to top"
+    >
+      <ArrowUp size={24} strokeWidth={3} />
+    </button>
+  );
+}
+
+/* === 4. STICKY TOC === */
 function TableOfContents({ headings }) {
   const [activeId, setActiveId] = useState("");
 
@@ -69,7 +92,7 @@ function TableOfContents({ headings }) {
   );
 }
 
-/* === 4. SOLID HERO BLOCK (Fixed Tag) === */
+/* === 5. SOLID HERO BLOCK === */
 export function ArticleHero({ post, readTime }) {
   if (!post) return null;
   
@@ -77,10 +100,13 @@ export function ArticleHero({ post, readTime }) {
   const coverImage = post.meta?.cover || post.cover_image_url;
 
   return (
-    // CHANGED TAG: <section> instead of <header> to avoid global CSS conflict
-    // Added 'relative' and 'z-0' to ensure it stays in flow
     <section id="article-hero" className="relative w-full h-[50vh] min-h-[450px] flex flex-col justify-end pb-12 px-6 bg-slate-900 overflow-hidden z-0">
       
+      {/* HIDE GLOBAL HEADER ON THIS PAGE */}
+      <style jsx global>{`
+        header { display: none !important; }
+      `}</style>
+
       {/* BACKGROUND IMAGE */}
       <div className="absolute inset-0 z-0">
         {coverImage ? (
@@ -92,7 +118,6 @@ export function ArticleHero({ post, readTime }) {
         ) : (
           <div className="w-full h-full bg-slate-900" />
         )}
-        {/* Solid Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/80 to-transparent"></div>
       </div>
 
@@ -132,7 +157,7 @@ export function ArticleHero({ post, readTime }) {
   );
 }
 
-/* === 5. SEPARATED CONTENT GRID === */
+/* === 6. SEPARATED CONTENT GRID === */
 export function ArticleGrid({ children, headings }) {
   const [toast, setToast] = useState(false);
 
@@ -148,9 +173,9 @@ export function ArticleGrid({ children, headings }) {
   };
 
   return (
-    // Solid Background + Z-Index to cover any potential under-layers
     <div className="relative z-10 bg-[#020617] border-t border-white/5">
       <ReadingProgress />
+      <BackToTop />
       <Toast message="Link copied to clipboard!" show={toast} />
       
       <div className="max-w-[1400px] mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 py-20">
