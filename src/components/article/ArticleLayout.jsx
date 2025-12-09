@@ -25,8 +25,6 @@ function TableOfContents({ headings }) {
   const [activeId, setActiveId] = useState("");
 
   useEffect(() => {
-    if (!headings || headings.length === 0) return;
-    
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -71,33 +69,35 @@ function TableOfContents({ headings }) {
   );
 }
 
-/* === 4. COMPACT CINEMATIC HERO (Crash Fixed) === */
+/* === 4. CINEMATIC HERO (Blurred & Spaced) === */
 export function ArticleHero({ post, readTime }) {
-  // Safety check: If post is missing, don't render anything (prevents crash)
   if (!post) return null;
   
-  // FIX: Removed Date.now() fallback to prevent Hydration Mismatch
-  const dateStr = post.created_at 
-    ? new Date(post.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) 
-    : "";
-    
+  const date = new Date(post.created_at || Date.now()).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
   const coverImage = post.meta?.cover || post.cover_image_url;
 
   return (
-    <header className="relative h-[50vh] min-h-[400px] flex flex-col justify-end pb-12 px-6 overflow-hidden bg-slate-900">
+    <header className="relative h-[55vh] min-h-[450px] flex flex-col justify-end pb-16 px-6 overflow-hidden bg-slate-900">
       
-      {/* BACKGROUND IMAGE */}
+      {/* BACKGROUND IMAGE (Blurred) */}
       <div className="absolute inset-0 z-0">
         {coverImage ? (
-          <img src={coverImage} alt={post.title} className="w-full h-full object-cover" />
+          <div className="absolute inset-0 transform scale-105">
+             <img 
+               src={coverImage} 
+               alt={post.title} 
+               className="w-full h-full object-cover blur-[3px] opacity-80" 
+             />
+          </div>
         ) : (
           <div className="w-full h-full bg-slate-900" />
         )}
-        {/* Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-black/50 to-transparent"></div>
+        {/* Gradient Overlay for Text Readability */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/60 to-transparent"></div>
+        <div className="absolute inset-0 bg-black/20"></div>
       </div>
 
-      {/* CONTENT */}
+      {/* CONTENT (Centered & Tight) */}
       <div className="relative z-10 max-w-4xl mx-auto text-center w-full">
         <div className="flex justify-center mb-6">
           <span className="px-3 py-1 rounded-md bg-amber-500 text-slate-950 text-[10px] font-bold tracking-[0.2em] uppercase shadow-lg">
@@ -110,26 +110,22 @@ export function ArticleHero({ post, readTime }) {
         </h1>
         
         {/* META DOCK */}
-        <div className="inline-flex flex-wrap items-center justify-center gap-6 text-xs md:text-sm text-slate-300 font-medium bg-black/30 backdrop-blur-md border border-white/10 py-3 px-6 rounded-full">
+        <div className="inline-flex flex-wrap items-center justify-center gap-6 text-xs md:text-sm text-slate-300 font-medium bg-black/40 backdrop-blur-md border border-white/10 py-3 px-6 rounded-full shadow-xl">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded-full bg-amber-500 p-[1px]">
                <img src="https://w5e7svgknmetlu9j.public.blob.vercel-storage.com/adeoye.jpg" className="w-full h-full rounded-full object-cover" alt="BA" />
             </div>
             <span className="text-white font-bold">Boluwatife Adeoye</span>
           </div>
-          {dateStr && (
-            <>
-              <span className="text-slate-500">•</span>
-              <div className="flex items-center gap-2">
-                <Calendar size={14} className="text-amber-500" />
-                <span>{dateStr}</span>
-              </div>
-            </>
-          )}
+          <span className="text-slate-500">•</span>
+          <div className="flex items-center gap-2">
+            <Calendar size={14} className="text-amber-500" />
+            <span>{date}</span>
+          </div>
           <span className="text-slate-500">•</span>
           <div className="flex items-center gap-2">
             <Clock size={14} className="text-amber-500" />
-            <span>{readTime || "Read"}</span>
+            <span>{readTime}</span>
           </div>
         </div>
       </div>
@@ -137,14 +133,12 @@ export function ArticleHero({ post, readTime }) {
   );
 }
 
-/* === 5. MAIN LAYOUT GRID === */
+/* === 5. MAIN LAYOUT GRID (Safe Stacking) === */
 export function ArticleGrid({ children, headings }) {
   const [toast, setToast] = useState(false);
 
   const handleShare = async () => {
-    if (typeof window === 'undefined') return;
     const url = window.location.href;
-    
     if (navigator.share) {
       try { await navigator.share({ title: document.title, url }); } catch (err) {}
     } else {
@@ -155,11 +149,12 @@ export function ArticleGrid({ children, headings }) {
   };
 
   return (
-    <div className="relative bg-[#020617]">
+    // z-20 ensures this sits ON TOP of any background elements
+    <div className="relative z-20 bg-[#020617]">
       <ReadingProgress />
       <Toast message="Link copied to clipboard!" show={toast} />
       
-      <div className="max-w-[1400px] mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 py-16 relative z-10">
+      <div className="max-w-[1400px] mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 py-16">
         
         {/* LEFT: Share (Sticky) */}
         <aside className="hidden lg:block lg:col-span-2 relative">
