@@ -1,6 +1,6 @@
 "use client";
 import { motion, useScroll, useSpring } from "framer-motion";
-import { ArrowLeft, Clock, Calendar, Share2, Bookmark, Check, Hash, ChevronDown } from "lucide-react";
+import { ArrowLeft, Clock, Calendar, Share2, Bookmark, Check, Hash } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 
@@ -69,7 +69,7 @@ function TableOfContents({ headings }) {
   );
 }
 
-/* === 4. CINEMATIC HERO (Blurred & Spaced) === */
+/* === 4. SEPARATED HERO SECTION === */
 export function ArticleHero({ post, readTime }) {
   if (!post) return null;
   
@@ -77,27 +77,26 @@ export function ArticleHero({ post, readTime }) {
   const coverImage = post.meta?.cover || post.cover_image_url;
 
   return (
-    <header className="relative h-[55vh] min-h-[450px] flex flex-col justify-end pb-16 px-6 overflow-hidden bg-slate-900">
+    // h-[50vh] ensures it takes up exactly half the viewport height
+    // relative positioning keeps it in the flow (no overlap)
+    <header className="relative h-[50vh] min-h-[400px] w-full flex flex-col justify-end pb-12 px-6 bg-slate-900 overflow-hidden">
       
-      {/* BACKGROUND IMAGE (Blurred) */}
+      {/* BACKGROUND IMAGE */}
       <div className="absolute inset-0 z-0">
         {coverImage ? (
-          <div className="absolute inset-0 transform scale-105">
-             <img 
-               src={coverImage} 
-               alt={post.title} 
-               className="w-full h-full object-cover blur-[3px] opacity-80" 
-             />
-          </div>
+          <img 
+            src={coverImage} 
+            alt={post.title} 
+            className="w-full h-full object-cover blur-[2px] opacity-80" 
+          />
         ) : (
           <div className="w-full h-full bg-slate-900" />
         )}
-        {/* Gradient Overlay for Text Readability */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/60 to-transparent"></div>
-        <div className="absolute inset-0 bg-black/20"></div>
+        {/* Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-black/60 to-transparent"></div>
       </div>
 
-      {/* CONTENT (Centered & Tight) */}
+      {/* CONTENT */}
       <div className="relative z-10 max-w-4xl mx-auto text-center w-full">
         <div className="flex justify-center mb-6">
           <span className="px-3 py-1 rounded-md bg-amber-500 text-slate-950 text-[10px] font-bold tracking-[0.2em] uppercase shadow-lg">
@@ -105,7 +104,7 @@ export function ArticleHero({ post, readTime }) {
           </span>
         </div>
         
-        <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-[1.1] mb-8 tracking-tight drop-shadow-2xl">
+        <h1 className="font-serif text-3xl md:text-5xl lg:text-6xl font-bold text-white leading-[1.1] mb-8 tracking-tight drop-shadow-2xl">
           {post.title}
         </h1>
         
@@ -133,7 +132,7 @@ export function ArticleHero({ post, readTime }) {
   );
 }
 
-/* === 5. MAIN LAYOUT GRID (Safe Stacking) === */
+/* === 5. SEPARATED CONTENT GRID === */
 export function ArticleGrid({ children, headings }) {
   const [toast, setToast] = useState(false);
 
@@ -149,8 +148,9 @@ export function ArticleGrid({ children, headings }) {
   };
 
   return (
-    // z-20 ensures this sits ON TOP of any background elements
-    <div className="relative z-20 bg-[#020617]">
+    // Added border-t to visually separate from hero
+    // Added pt-16 to push content down
+    <div className="relative bg-[#020617] border-t border-white/10">
       <ReadingProgress />
       <Toast message="Link copied to clipboard!" show={toast} />
       
