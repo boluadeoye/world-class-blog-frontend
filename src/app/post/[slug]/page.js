@@ -7,6 +7,14 @@ import ReadNext from "../../../components/article/ReadNext";
 
 export const revalidate = 3600;
 
+// Calculate Read Time
+function calculateReadTime(content) {
+  const wordsPerMinute = 200;
+  const words = content?.trim().split(/\s+/).length || 0;
+  const minutes = Math.ceil(words / wordsPerMinute);
+  return `${minutes} min read`;
+}
+
 async function getPostData(slug) {
   const allPosts = await fetchLatestArticles(100);
   if (!Array.isArray(allPosts)) return { post: null, related: [] };
@@ -21,21 +29,6 @@ async function getPostData(slug) {
   if (allPosts.length > 2) related.push(allPosts[(postIndex + 2) % allPosts.length]);
 
   return { post, related };
-}
-
-// Helper to extract headings for TOC
-function extractHeadings(content) {
-  const headings = [];
-  const lines = content.split('\n');
-  lines.forEach(line => {
-    const match = line.match(/^##\s+(.+)$/); // Match H2s
-    if (match) {
-      // Create a slug from the text
-      const slug = match[1].toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
-      headings.push(slug);
-    }
-  });
-  return headings;
 }
 
 export async function generateMetadata(props) {
@@ -55,23 +48,26 @@ export default async function PostPage(props) {
 
   if (!post) notFound();
 
-  const headings = extractHeadings(post.content);
+  const readTime = calculateReadTime(post.content);
 
   return (
     <main className="min-h-screen bg-[#020617] text-slate-200 selection:bg-amber-500/30">
       
-      <ArticleHero post={post} />
+      {/* 1. HERO (With Real Image & Read Time) */}
+      <ArticleHero post={post} readTime={readTime} />
 
-      <ArticleGrid headings={headings}>
+      {/* 2. CONTENT GRID */}
+      <ArticleGrid>
         <SmartMarkdown content={post.content} />
         
-        {/* Comments Section */}
+        {/* Comments */}
         <div className="mt-24 pt-12 border-t border-white/10">
           <h3 className="font-serif text-3xl text-white mb-8">Discussion</h3>
           <Comments postId={post.id} />
         </div>
       </ArticleGrid>
 
+      {/* 3. READ NEXT */}
       <ReadNext posts={related} />
 
     </main>
