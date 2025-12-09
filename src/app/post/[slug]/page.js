@@ -9,10 +9,26 @@ export const revalidate = 3600;
 
 // Calculate Read Time
 function calculateReadTime(content) {
+  if (!content) return "1 min read";
   const wordsPerMinute = 200;
-  const words = content?.trim().split(/\s+/).length || 0;
+  const words = content.trim().split(/\s+/).length;
   const minutes = Math.ceil(words / wordsPerMinute);
   return `${minutes} min read`;
+}
+
+// Helper to extract headings for TOC
+function extractHeadings(content) {
+  if (!content) return [];
+  const headings = [];
+  const lines = content.split('\n');
+  lines.forEach(line => {
+    const match = line.match(/^##\s+(.+)$/); // Match H2s
+    if (match) {
+      const slug = match[1].toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
+      headings.push(slug);
+    }
+  });
+  return headings;
 }
 
 async function getPostData(slug) {
@@ -49,16 +65,17 @@ export default async function PostPage(props) {
   if (!post) notFound();
 
   const readTime = calculateReadTime(post.content);
+  const headings = extractHeadings(post.content);
 
   return (
     <main className="min-h-screen bg-[#020617] text-slate-200 selection:bg-amber-500/30">
       
-      {/* 1. HERO (With Real Image & Read Time) */}
+      {/* 1. HERO */}
       <ArticleHero post={post} readTime={readTime} />
 
       {/* 2. CONTENT GRID */}
-      <ArticleGrid>
-        <SmartMarkdown content={post.content} />
+      <ArticleGrid headings={headings}>
+        <SmartMarkdown content={post.content || ""} />
         
         {/* Comments */}
         <div className="mt-24 pt-12 border-t border-white/10">

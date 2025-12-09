@@ -25,6 +25,8 @@ function TableOfContents({ headings }) {
   const [activeId, setActiveId] = useState("");
 
   useEffect(() => {
+    if (!headings || headings.length === 0) return;
+    
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -69,11 +71,16 @@ function TableOfContents({ headings }) {
   );
 }
 
-/* === 4. COMPACT CINEMATIC HERO (50% Height) === */
+/* === 4. COMPACT CINEMATIC HERO (Crash Fixed) === */
 export function ArticleHero({ post, readTime }) {
+  // Safety check: If post is missing, don't render anything (prevents crash)
   if (!post) return null;
   
-  const date = new Date(post.created_at || Date.now()).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  // FIX: Removed Date.now() fallback to prevent Hydration Mismatch
+  const dateStr = post.created_at 
+    ? new Date(post.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) 
+    : "";
+    
   const coverImage = post.meta?.cover || post.cover_image_url;
 
   return (
@@ -86,11 +93,11 @@ export function ArticleHero({ post, readTime }) {
         ) : (
           <div className="w-full h-full bg-slate-900" />
         )}
-        {/* Gradient Overlay for Text Readability */}
+        {/* Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-black/50 to-transparent"></div>
       </div>
 
-      {/* CONTENT (Centered & Tight) */}
+      {/* CONTENT */}
       <div className="relative z-10 max-w-4xl mx-auto text-center w-full">
         <div className="flex justify-center mb-6">
           <span className="px-3 py-1 rounded-md bg-amber-500 text-slate-950 text-[10px] font-bold tracking-[0.2em] uppercase shadow-lg">
@@ -102,7 +109,7 @@ export function ArticleHero({ post, readTime }) {
           {post.title}
         </h1>
         
-        {/* META DOCK (Clean & Integrated) */}
+        {/* META DOCK */}
         <div className="inline-flex flex-wrap items-center justify-center gap-6 text-xs md:text-sm text-slate-300 font-medium bg-black/30 backdrop-blur-md border border-white/10 py-3 px-6 rounded-full">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded-full bg-amber-500 p-[1px]">
@@ -110,15 +117,19 @@ export function ArticleHero({ post, readTime }) {
             </div>
             <span className="text-white font-bold">Boluwatife Adeoye</span>
           </div>
-          <span className="text-slate-500">•</span>
-          <div className="flex items-center gap-2">
-            <Calendar size={14} className="text-amber-500" />
-            <span>{date}</span>
-          </div>
+          {dateStr && (
+            <>
+              <span className="text-slate-500">•</span>
+              <div className="flex items-center gap-2">
+                <Calendar size={14} className="text-amber-500" />
+                <span>{dateStr}</span>
+              </div>
+            </>
+          )}
           <span className="text-slate-500">•</span>
           <div className="flex items-center gap-2">
             <Clock size={14} className="text-amber-500" />
-            <span>{readTime}</span>
+            <span>{readTime || "Read"}</span>
           </div>
         </div>
       </div>
@@ -131,7 +142,9 @@ export function ArticleGrid({ children, headings }) {
   const [toast, setToast] = useState(false);
 
   const handleShare = async () => {
+    if (typeof window === 'undefined') return;
     const url = window.location.href;
+    
     if (navigator.share) {
       try { await navigator.share({ title: document.title, url }); } catch (err) {}
     } else {
