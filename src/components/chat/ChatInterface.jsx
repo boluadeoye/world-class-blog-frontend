@@ -24,12 +24,21 @@ export default function ChatInterface({ blogContext }) {
     }
   }, [messages, mounted]);
 
-  // SAFE RENDER HELPER
+  // --- CRASH FIX: BULLETPROOF RENDERER ---
   const renderContent = (content) => {
-    if (typeof content === 'string') return content;
-    if (content?.text) return content.text;
-    if (content?.message) return content.message;
-    return "Error: Could not display message.";
+    try {
+      if (!content) return "";
+      if (typeof content === 'string') return content;
+      if (typeof content === 'object') {
+        // If it's an object, try to find text, otherwise stringify it
+        if (content.text) return String(content.text);
+        if (content.message) return String(content.message);
+        return JSON.stringify(content); 
+      }
+      return String(content);
+    } catch (e) {
+      return "Message format error.";
+    }
   };
 
   const handleSend = async (e) => {
@@ -39,37 +48,47 @@ export default function ChatInterface({ blogContext }) {
     const userText = input.trim();
     setInput("");
 
+    // Create user message
     const userMsg = { id: Date.now(), role: "user", content: userText };
+    
+    // Optimistic update
     setMessages(prev => [...prev, userMsg]);
     setIsLoading(true);
 
     try {
+      // Prepare payload with current history + new message
+      const payloadMessages = [...messages, userMsg];
+      
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages: [...messages, userMsg],
-          context: blogContext
+          messages: payloadMessages,
+          context: blogContext || "General Tech Context"
         }),
       });
 
       const data = await res.json();
 
-      if (res.ok && data.reply && typeof data.reply === 'string') {
-        setMessages(prev => [...prev, {
-          id: Date.now() + 1,
-          role: "assistant",
-          content: data.reply
-        }]);
-      } else {
-        throw new Error(data.error || "Invalid response");
+      if (!res.ok) {
+        throw new Error(data.error || "Server error");
       }
 
-    } catch (err) {
+      // Validate response strictly
+      const replyText = typeof data.reply === 'string' ? data.reply : JSON.stringify(data.reply);
+
       setMessages(prev => [...prev, {
         id: Date.now() + 1,
         role: "assistant",
-        content: err.message || "Connection interrupted. Please try again.",
+        content: replyText
+      }]);
+
+    } catch (err) {
+      console.error("Chat Error:", err);
+      setMessages(prev => [...prev, {
+        id: Date.now() + 1,
+        role: "assistant",
+        content: "Connection interrupted. Please try again.",
         isError: true
       }]);
     } finally {
@@ -118,7 +137,6 @@ export default function ChatInterface({ blogContext }) {
                 <Bot size={14} className="text-amber-400" />
               </div>
             )}
-
             <div className={`max-w-[85%] p-4 rounded-2xl text-sm leading-relaxed shadow-lg ${
               msg.role === 'user'
                 ? 'bg-indigo-600 text-white rounded-tr-none'
@@ -165,7 +183,6 @@ export default function ChatInterface({ blogContext }) {
           </button>
         </form>
       </div>
-
     </div>
   );
 }
