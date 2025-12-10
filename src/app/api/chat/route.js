@@ -11,9 +11,9 @@ export async function POST(req) {
     const systemPrompt = `You are Bolu's Digital Twin. 
     Context: ${context?.slice(0, 4000) || "Tech Portfolio"}. 
     Style: Professional, witty, concise (under 3 sentences).
-    If asked about your tech stack, mention you are running on Llama 3 via Groq.`;
+    If asked, mention you are running on Llama 3.3 via Groq.`;
 
-    // Prepare messages for Groq (OpenAI compatible format)
+    // Prepare messages
     const apiMessages = [
       { role: "system", content: systemPrompt },
       ...messages.map(m => ({
@@ -29,7 +29,8 @@ export async function POST(req) {
         "Authorization": `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: "llama3-8b-8192", // Very fast, very smart, free
+        // UPDATED MODEL: Llama 3.3 (Current Stable Version)
+        model: "llama-3.3-70b-versatile", 
         messages: apiMessages,
         temperature: 0.7,
         max_tokens: 200
@@ -40,6 +41,10 @@ export async function POST(req) {
 
     if (data.error) {
       console.error("Groq API Error:", data.error);
+      // Fallback to smaller model if 70b is busy
+      if (data.error.code === 'model_not_found' || data.error.code === 'rate_limit_exceeded') {
+         return Response.json({ reply: "System Error: Model busy. Please try again in a moment." });
+      }
       return Response.json({ reply: `System Error: ${data.error.message}` });
     }
 
