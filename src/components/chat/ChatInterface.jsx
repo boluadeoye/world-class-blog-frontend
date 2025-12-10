@@ -1,6 +1,12 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import { Send, Trash2, Bot, Sparkles, User } from "lucide-react";
+import { Send, Trash2, Bot, Sparkles, User, MessageCircle, Code, Briefcase } from "lucide-react";
+
+const SUGGESTIONS = [
+  { label: "Contact Me", icon: MessageCircle, prompt: "How can I contact you?" },
+  { label: "Tech Stack", icon: Code, prompt: "What is your preferred tech stack?" },
+  { label: "Recent Projects", icon: Briefcase, prompt: "Tell me about your recent projects." },
+];
 
 export default function ChatInterface({ blogContext }) {
   const [messages, setMessages] = useState([]);
@@ -9,27 +15,49 @@ export default function ChatInterface({ blogContext }) {
   const [mounted, setMounted] = useState(false);
   const scrollRef = useRef(null);
 
+  // 1. Load Chat from LocalStorage on Mount
   useEffect(() => {
     setMounted(true);
+    const saved = localStorage.getItem("bolu_chat_history");
+    if (saved) {
+      try {
+        setMessages(JSON.parse(saved));
+      } catch (e) {
+        initChat();
+      }
+    } else {
+      initChat();
+    }
+  }, []);
+
+  // 2. Save Chat to LocalStorage on Update
+  useEffect(() => {
+    if (mounted && messages.length > 0) {
+      localStorage.setItem("bolu_chat_history", JSON.stringify(messages));
+      scrollRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages, mounted]);
+
+  const initChat = () => {
     setMessages([{
       id: "init",
       role: "assistant",
-      content: "Hello. I'm Bolu's Digital Twin. Ask me about my projects, stack, or experience."
+      content: "Hi there! I'm Bolu's Digital Twin. I can answer questions about my blog posts, projects, or how to hire me. What's on your mind?"
     }]);
-  }, []);
+  };
 
-  useEffect(() => {
-    if (mounted) scrollRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, mounted]);
+  const clearChat = () => {
+    localStorage.removeItem("bolu_chat_history");
+    initChat();
+  };
 
-  const handleSend = async (e) => {
-    e.preventDefault();
-    if (!input.trim() || isLoading) return;
+  const handleSend = async (textOverride = null) => {
+    const textToSend = textOverride || input.trim();
+    if (!textToSend || isLoading) return;
 
-    const userText = input.trim();
     setInput("");
 
-    const userMsg = { id: Date.now(), role: "user", content: userText };
+    const userMsg = { id: Date.now(), role: "user", content: textToSend };
     setMessages(prev => [...prev, userMsg]);
     setIsLoading(true);
 
@@ -48,14 +76,14 @@ export default function ChatInterface({ blogContext }) {
       setMessages(prev => [...prev, {
         id: Date.now() + 1,
         role: "assistant",
-        content: data.reply || "No response."
+        content: data.reply || "I'm thinking..."
       }]);
 
     } catch (err) {
       setMessages(prev => [...prev, {
         id: Date.now() + 1,
         role: "assistant",
-        content: "Connection interrupted.",
+        content: "My connection is a bit unstable. Could you try again?",
         isError: true
       }]);
     } finally {
@@ -63,34 +91,48 @@ export default function ChatInterface({ blogContext }) {
     }
   };
 
+  // Helper to render links (basic detection)
+  const renderMessage = (text) => {
+    // Simple regex to detect URLs and make them clickable
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const parts = text.split(urlRegex);
+    
+    return parts.map((part, i) => 
+      urlRegex.test(part) ? (
+        <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-amber-400 underline hover:text-amber-300 break-all">
+          {part}
+        </a>
+      ) : (
+        <span key={i}>{part}</span>
+      )
+    );
+  };
+
   if (!mounted) return <div className="h-[600px] w-full bg-slate-900/50 rounded-3xl animate-pulse"></div>;
 
   return (
-    <div className="flex flex-col h-[600px] w-full bg-slate-950/80 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-2xl overflow-hidden relative">
+    <div className="flex flex-col h-[650px] w-full bg-slate-950/90 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-2xl overflow-hidden relative font-sans">
       
-      {/* Background Glow Effect */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-32 bg-indigo-500/10 blur-[100px] pointer-events-none" />
-
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 bg-white/5 border-b border-white/5 z-10">
         <div className="flex items-center gap-3">
           <div className="relative">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+            <div className="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
               <Bot size={20} className="text-white" />
             </div>
-            <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-slate-900 rounded-full"></span>
+            <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-slate-900 rounded-full animate-pulse"></span>
           </div>
           <div>
-            <h3 className="font-bold text-white text-sm tracking-wide">Digital Twin</h3>
+            <h3 className="font-bold text-white text-sm tracking-wide">Bolu AI</h3>
             <p className="text-[10px] text-slate-400 font-medium flex items-center gap-1">
-              <Sparkles size={8} className="text-amber-400" /> AI Powered
+              <Sparkles size={8} className="text-amber-400" /> Online & Ready
             </p>
           </div>
         </div>
         <button
-          onClick={() => setMessages([{ id: Date.now(), role: "assistant", content: "Memory cleared." }])}
+          onClick={clearChat}
           className="p-2 text-slate-500 hover:text-red-400 hover:bg-white/5 rounded-full transition-all"
-          title="Clear Chat"
+          title="Clear History"
         >
           <Trash2 size={18} />
         </button>
@@ -114,16 +156,10 @@ export default function ChatInterface({ blogContext }) {
                 ? 'bg-indigo-600 text-white rounded-tr-none shadow-indigo-500/10'
                 : msg.isError
                   ? 'bg-red-900/20 text-red-200 border border-red-500/20'
-                  : 'bg-slate-800/80 text-slate-200 border border-white/5 rounded-tl-none'
+                  : 'bg-slate-800 text-slate-200 border border-white/5 rounded-tl-none'
             }`}>
-              {msg.content}
+              {renderMessage(msg.content)}
             </div>
-
-            {msg.role === 'user' && (
-              <div className="w-8 h-8 rounded-full bg-slate-800 border border-white/10 flex items-center justify-center shrink-0 mt-1">
-                <User size={14} className="text-slate-400" />
-              </div>
-            )}
           </div>
         ))}
         
@@ -142,9 +178,24 @@ export default function ChatInterface({ blogContext }) {
         <div ref={scrollRef} />
       </div>
 
+      {/* Quick Suggestions */}
+      <div className="px-4 pb-2 flex gap-2 overflow-x-auto scrollbar-none">
+        {SUGGESTIONS.map((s) => (
+          <button
+            key={s.label}
+            onClick={() => handleSend(s.prompt)}
+            disabled={isLoading}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800/50 hover:bg-indigo-600/20 border border-white/5 hover:border-indigo-500/30 rounded-full text-xs text-slate-300 hover:text-white transition-all whitespace-nowrap"
+          >
+            <s.icon size={12} />
+            {s.label}
+          </button>
+        ))}
+      </div>
+
       {/* Input Area */}
       <div className="p-4 bg-black/20 border-t border-white/5 backdrop-blur-md">
-        <form onSubmit={handleSend} className="relative flex items-center gap-2 bg-slate-900/50 rounded-full p-1.5 border border-white/10 focus-within:border-indigo-500/50 focus-within:bg-slate-900/80 transition-all shadow-lg">
+        <form onSubmit={(e) => { e.preventDefault(); handleSend(); }} className="relative flex items-center gap-2 bg-slate-900/50 rounded-full p-1.5 border border-white/10 focus-within:border-indigo-500/50 focus-within:bg-slate-900/80 transition-all shadow-lg">
           <input
             type="text"
             value={input}
