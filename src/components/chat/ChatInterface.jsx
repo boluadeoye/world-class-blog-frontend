@@ -7,58 +7,45 @@ export default function ChatInterface({ blogContext }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
-  const [mounted, setMounted] = useState(false); // Hydration fix
   const scrollRef = useRef(null);
 
-  // 1. Handle Hydration & Load History
   useEffect(() => {
-    setMounted(true);
     const saved = localStorage.getItem("bolu_chat_history");
     if (saved) {
-      try {
-        setMessages(JSON.parse(saved));
-      } catch (e) {
-        console.error("Failed to parse chat history");
-      }
+      try { setMessages(JSON.parse(saved)); } catch (e) {}
     } else {
       setMessages([{
         id: "init",
         role: "assistant",
-        content: "Hello! I’m Bolu's digital twin. I've read all his articles and I'm ready to help. What's on your mind?"
+        content: "Hello! I’m Bolu's digital twin. I'm online and ready to chat."
       }]);
     }
   }, []);
 
-  // 2. Save History
   useEffect(() => {
-    if (mounted && messages.length > 0) {
+    if (messages.length > 0) {
       localStorage.setItem("bolu_chat_history", JSON.stringify(messages));
       scrollToBottom();
     }
-  }, [messages, mounted]);
+  }, [messages]);
 
   const scrollToBottom = () => {
-    // Small timeout to ensure DOM is updated
-    setTimeout(() => {
-      scrollRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 100);
+    setTimeout(() => scrollRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
   };
 
   const simulateTyping = async (text) => {
-    setIsTyping(true);
+    // Add the message placeholder
+    const tempId = Date.now();
+    setMessages(prev => [...prev, { id: tempId, role: "assistant", content: "" }]);
+    
     const words = text.split(" ");
     let currentText = "";
-    const tempId = Date.now();
-    
-    setMessages(prev => [...prev, { id: tempId, role: "assistant", content: "" }]);
 
     for (let i = 0; i < words.length; i++) {
       currentText += words[i] + " ";
       setMessages(prev => prev.map(msg => msg.id === tempId ? { ...msg, content: currentText } : msg));
-      // Faster typing for better UX
-      await new Promise(r => setTimeout(r, 20));
+      await new Promise(r => setTimeout(r, 30));
     }
-    setIsTyping(false);
   };
 
   const handleSend = async (e) => {
@@ -81,8 +68,7 @@ export default function ChatInterface({ blogContext }) {
       });
 
       const data = await res.json();
-      
-      setIsTyping(false); 
+      setIsTyping(false);
       
       if (res.ok && data.reply) {
         await simulateTyping(data.reply);
@@ -90,32 +76,26 @@ export default function ChatInterface({ blogContext }) {
         setMessages(prev => [...prev, { 
           id: Date.now(), 
           role: "assistant", 
-          content: `Error: ${data.error || "System malfunction."}`,
+          content: data.error || "Connection failed.",
           isError: true
         }]);
       }
 
     } catch (err) {
       setIsTyping(false);
-      setMessages(prev => [...prev, { id: Date.now(), role: "assistant", content: "Network Error: Could not reach the server." }]);
+      setMessages(prev => [...prev, { id: Date.now(), role: "assistant", content: "Network Error. Please check your connection.", isError: true }]);
     }
   };
 
   const clearChat = () => {
     localStorage.removeItem("bolu_chat_history");
-    setMessages([{
-      id: Date.now(),
-      role: "assistant",
-      content: "Memory wiped. Ready for a fresh start!"
-    }]);
+    setMessages([{ id: Date.now(), role: "assistant", content: "Memory cleared." }]);
   };
-
-  // Prevent Hydration Mismatch by not rendering until mounted
-  if (!mounted) return <div className="h-[85vh] max-w-3xl mx-auto bg-slate-900/50 rounded-3xl animate-pulse"></div>;
 
   return (
     <div className="flex flex-col h-[85vh] max-w-3xl mx-auto bg-slate-900/50 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl overflow-hidden">
       
+      {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 bg-slate-950/80 border-b border-white/5">
         <div className="flex items-center gap-3">
           <div className="relative">
@@ -133,11 +113,12 @@ export default function ChatInterface({ blogContext }) {
             </p>
           </div>
         </div>
-        <button onClick={clearChat} className="p-2 text-slate-500 hover:text-red-400 transition-colors" title="Clear Memory">
+        <button onClick={clearChat} className="p-2 text-slate-500 hover:text-red-400 transition-colors">
           <Trash2 size={18} />
         </button>
       </div>
 
+      {/* Chat Area */}
       <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
         <AnimatePresence>
           {messages.map((msg) => (
@@ -172,6 +153,7 @@ export default function ChatInterface({ blogContext }) {
           ))}
         </AnimatePresence>
         
+        {/* Typing Indicator (Separate from messages) */}
         {isTyping && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-4">
             <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center shrink-0">
@@ -187,6 +169,7 @@ export default function ChatInterface({ blogContext }) {
         <div ref={scrollRef} />
       </div>
 
+      {/* Input */}
       <div className="p-4 bg-slate-950 border-t border-white/5">
         <form onSubmit={handleSend} className="relative flex items-center gap-2 bg-slate-900 rounded-full p-1.5 border border-white/10 focus-within:border-indigo-500/50 transition-colors">
           <input 
