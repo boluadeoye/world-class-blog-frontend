@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
-import { Printer, PenTool, ArrowLeft, Eye, X } from "lucide-react";
+import { Printer, PenTool, ArrowLeft, Eye, X, FileText } from "lucide-react";
 import Link from "next/link";
 
 export default function ContractForge() {
@@ -28,14 +28,17 @@ Payment shall be made in milestones as agreed upon.
 *Drafted via The Forge*`);
 
   const handlePrint = () => {
-    window.print();
+    // Small timeout to ensure styles are applied before printing
+    setTimeout(() => {
+      window.print();
+    }, 100);
   };
 
   // The Document Component (Reused for Preview and Print)
   const DocumentPaper = () => (
     <div 
       className="bg-white text-slate-900 w-full max-w-[210mm] min-h-[297mm] p-[20mm] shadow-2xl relative flex flex-col justify-between mx-auto"
-      style={{ fontFamily: 'serif' }} // Using standard serif for reliability
+      style={{ fontFamily: 'serif' }} 
     >
       {/* HEADER */}
       <header className="border-b-2 border-slate-900 pb-6 mb-8 flex justify-between items-end">
@@ -78,24 +81,44 @@ Payment shall be made in milestones as agreed upon.
         
         {/* LEFT: INPUT */}
         <div className="w-full md:w-1/2 flex flex-col border-r border-white/10 h-full">
-          <div className="h-16 border-b border-white/10 flex items-center justify-between px-6 bg-slate-900/50 shrink-0">
+          <div className="h-16 border-b border-white/10 flex items-center justify-between px-4 bg-slate-900/50 shrink-0">
             <Link href="/" className="flex items-center gap-2 text-slate-400 hover:text-white text-xs font-bold uppercase">
               <ArrowLeft size={14} /> Exit
             </Link>
-            <div className="flex items-center gap-2 text-amber-500 font-bold text-sm uppercase">
+            
+            {/* MOBILE ACTIONS */}
+            <div className="flex items-center gap-3 md:hidden">
+              <button 
+                onClick={() => setShowPreview(true)} 
+                className="px-3 py-1.5 rounded bg-white/10 text-white text-xs font-bold uppercase border border-white/10"
+              >
+                Preview
+              </button>
+              <button 
+                onClick={handlePrint} 
+                className="px-3 py-1.5 rounded bg-amber-500 text-black text-xs font-bold uppercase shadow-lg shadow-amber-500/20"
+              >
+                Export PDF
+              </button>
+            </div>
+
+            {/* DESKTOP TITLE */}
+            <div className="hidden md:flex items-center gap-2 text-amber-500 font-bold text-sm uppercase">
               <PenTool size={16} /> The Forge
             </div>
-            {/* Mobile Preview Toggle */}
-            <button onClick={() => setShowPreview(true)} className="md:hidden text-amber-400 flex items-center gap-2 text-xs font-bold uppercase">
-              <Eye size={16} /> Preview
-            </button>
           </div>
+
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
             className="flex-1 bg-[#050505] text-slate-300 p-6 resize-none focus:outline-none font-mono text-sm leading-relaxed"
             placeholder="# Start typing..."
           />
+          
+          {/* Mobile Hint */}
+          <div className="md:hidden p-2 text-center text-[10px] text-slate-600 bg-slate-900">
+            Tip: Click Export, then select "Save as PDF"
+          </div>
         </div>
 
         {/* RIGHT: DESKTOP PREVIEW */}
@@ -118,11 +141,14 @@ Payment shall be made in milestones as agreed upon.
         <div className="fixed inset-0 z-50 bg-slate-900 flex flex-col md:hidden">
           <div className="h-16 border-b border-white/10 flex items-center justify-between px-4 bg-slate-900 shrink-0">
             <button onClick={() => setShowPreview(false)} className="text-slate-400 flex items-center gap-2 text-xs font-bold uppercase">
-              <X size={16} /> Edit
+              <X size={16} /> Close
             </button>
-            <span className="text-white font-bold text-sm">Preview</span>
-            <button onClick={handlePrint} className="text-amber-400 flex items-center gap-2 text-xs font-bold uppercase">
-              <Printer size={16} /> Print
+            <span className="text-white font-bold text-sm">Document Preview</span>
+            <button 
+              onClick={handlePrint} 
+              className="px-3 py-1.5 rounded bg-amber-500 text-black text-xs font-bold uppercase shadow-lg"
+            >
+              Export PDF
             </button>
           </div>
           <div className="flex-1 overflow-y-auto p-4 bg-slate-800">
