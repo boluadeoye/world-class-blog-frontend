@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import { Send, Trash2, Bot, User, Circle, AlertCircle, ArrowLeft } from "lucide-react";
-import Link from "next/link";
+import { Send, Trash2, Bot, Circle } from "lucide-react";
 
 export default function ChatInterface({ blogContext }) {
   const [messages, setMessages] = useState([]);
@@ -10,24 +9,28 @@ export default function ChatInterface({ blogContext }) {
   const [mounted, setMounted] = useState(false);
   const scrollRef = useRef(null);
 
-  // 1. MOUNT & RESET
   useEffect(() => {
     setMounted(true);
-    // We intentionally DO NOT load old history automatically right now 
-    // to prevent the crash from corrupted data.
-    setMessages([{ 
-      id: "init", 
-      role: "assistant", 
-      content: "System Online. I am ready to assist." 
+    setMessages([{
+      id: "init",
+      role: "assistant",
+      content: "System Online. I am Bolu's Digital Twin. Ask me anything."
     }]);
   }, []);
 
-  // 2. AUTO-SCROLL
   useEffect(() => {
     if (mounted) {
       scrollRef.current?.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages, mounted]);
+
+  // SAFE RENDER HELPER
+  const renderContent = (content) => {
+    if (typeof content === 'string') return content;
+    if (content?.text) return content.text;
+    if (content?.message) return content.message;
+    return "Error: Could not display message.";
+  };
 
   const handleSend = async (e) => {
     e.preventDefault();
@@ -35,8 +38,7 @@ export default function ChatInterface({ blogContext }) {
 
     const userText = input.trim();
     setInput("");
-    
-    // Add User Message
+
     const userMsg = { id: Date.now(), role: "user", content: userText };
     setMessages(prev => [...prev, userMsg]);
     setIsLoading(true);
@@ -45,38 +47,39 @@ export default function ChatInterface({ blogContext }) {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           messages: [...messages, userMsg],
-          context: blogContext 
+          context: blogContext
         }),
       });
 
       const data = await res.json();
-      
-      if (res.ok && data.reply) {
-        // Add AI Message (Instant Render - No Typing Animation to prevent crash)
-        setMessages(prev => [...prev, { 
-          id: Date.now() + 1, 
-          role: "assistant", 
-          content: data.reply 
+
+      if (res.ok && data.reply && typeof data.reply === 'string') {
+        setMessages(prev => [...prev, {
+          id: Date.now() + 1,
+          role: "assistant",
+          content: data.reply
         }]);
       } else {
-        throw new Error(data.error || "Unknown error");
+        throw new Error(data.error || "Invalid response");
       }
 
     } catch (err) {
-      setMessages(prev => [...prev, { 
-        id: Date.now() + 1, 
-        role: "assistant", 
-        content: "Connection interrupted. Please try again.",
-        isError: true 
+      setMessages(prev => [...prev, {
+        id: Date.now() + 1,
+        role: "assistant",
+        content: err.message || "Connection interrupted. Please try again.",
+        isError: true
       }]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  if (!mounted) return <div className="h-[70vh] w-full bg-slate-900/50 rounded-3xl animate-pulse"></div>;
+  if (!mounted) {
+    return <div className="h-[70vh] w-full bg-slate-900/50 rounded-3xl animate-pulse"></div>;
+  }
 
   return (
     <div className="flex flex-col h-[75vh] w-full bg-slate-900/80 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl overflow-hidden">
@@ -94,9 +97,10 @@ export default function ChatInterface({ blogContext }) {
             </p>
           </div>
         </div>
-        <button 
-          onClick={() => setMessages([{ id: Date.now(), role: "assistant", content: "Memory cleared." }])} 
+        <button
+          onClick={() => setMessages([{ id: Date.now(), role: "assistant", content: "Memory cleared. How can I help?" }])}
           className="p-2 text-slate-500 hover:text-red-400 transition-colors"
+          aria-label="Clear chat"
         >
           <Trash2 size={18} />
         </button>
@@ -105,7 +109,7 @@ export default function ChatInterface({ blogContext }) {
       {/* Chat Area */}
       <div className="flex-1 overflow-y-auto p-6 space-y-6">
         {messages.map((msg) => (
-          <div 
+          <div
             key={msg.id}
             className={`flex gap-4 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
           >
@@ -114,19 +118,19 @@ export default function ChatInterface({ blogContext }) {
                 <Bot size={14} className="text-amber-400" />
               </div>
             )}
-            
+
             <div className={`max-w-[85%] p-4 rounded-2xl text-sm leading-relaxed shadow-lg ${
-              msg.role === 'user' 
-                ? 'bg-indigo-600 text-white rounded-tr-none' 
+              msg.role === 'user'
+                ? 'bg-indigo-600 text-white rounded-tr-none'
                 : msg.isError
                   ? 'bg-red-900/20 text-red-200 border border-red-500/20'
                   : 'bg-slate-800 text-slate-200 border border-white/5 rounded-tl-none'
             }`}>
-              {msg.content}
+              {renderContent(msg.content)}
             </div>
           </div>
         ))}
-        
+
         {isLoading && (
           <div className="flex gap-4">
             <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center shrink-0">
@@ -134,8 +138,8 @@ export default function ChatInterface({ blogContext }) {
             </div>
             <div className="bg-slate-800 px-4 py-3 rounded-2xl rounded-tl-none flex gap-1 items-center border border-white/5">
               <span className="w-1.5 h-1.5 bg-slate-500 rounded-full animate-bounce"></span>
-              <span className="w-1.5 h-1.5 bg-slate-500 rounded-full animate-bounce delay-100"></span>
-              <span className="w-1.5 h-1.5 bg-slate-500 rounded-full animate-bounce delay-200"></span>
+              <span className="w-1.5 h-1.5 bg-slate-500 rounded-full animate-bounce [animation-delay:0.1s]"></span>
+              <span className="w-1.5 h-1.5 bg-slate-500 rounded-full animate-bounce [animation-delay:0.2s]"></span>
             </div>
           </div>
         )}
@@ -145,15 +149,15 @@ export default function ChatInterface({ blogContext }) {
       {/* Input */}
       <div className="p-4 bg-black/40 border-t border-white/5">
         <form onSubmit={handleSend} className="relative flex items-center gap-2 bg-slate-800/50 rounded-full p-1.5 border border-white/10 focus-within:border-indigo-500/50 transition-colors shadow-lg">
-          <input 
-            type="text" 
+          <input
+            type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Ask me anything..."
             className="flex-1 bg-transparent text-white placeholder-slate-500 px-4 py-3 outline-none text-sm"
           />
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             disabled={!input.trim() || isLoading}
             className="p-3 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
           >
