@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
-import { Printer, PenTool, ArrowLeft, Eye, X, FileText } from "lucide-react";
+import { Printer, PenTool, ArrowLeft, Eye, X } from "lucide-react";
 import Link from "next/link";
 
 export default function ContractForge() {
@@ -28,19 +28,17 @@ Payment shall be made in milestones as agreed upon.
 *Drafted via The Forge*`);
 
   const handlePrint = () => {
-    // Small timeout to ensure styles are applied before printing
     setTimeout(() => {
       window.print();
     }, 100);
   };
 
-  // The Document Component (Reused for Preview and Print)
+  // The Document Component
   const DocumentPaper = () => (
     <div 
       className="bg-white text-slate-900 w-full max-w-[210mm] min-h-[297mm] p-[20mm] shadow-2xl relative flex flex-col justify-between mx-auto"
       style={{ fontFamily: 'serif' }} 
     >
-      {/* HEADER */}
       <header className="border-b-2 border-slate-900 pb-6 mb-8 flex justify-between items-end">
         <div>
           <h1 className="text-4xl font-bold tracking-tight uppercase leading-none text-black">Boluwatife<br/>Adeoye</h1>
@@ -51,12 +49,10 @@ Payment shall be made in milestones as agreed upon.
         </div>
       </header>
 
-      {/* BODY */}
       <div className="flex-1 prose prose-slate max-w-none prose-p:text-justify prose-headings:uppercase prose-headings:tracking-wide prose-li:marker:text-black text-black">
         <ReactMarkdown>{content}</ReactMarkdown>
       </div>
 
-      {/* FOOTER */}
       <footer className="mt-16 pt-8 border-t border-slate-200 flex justify-between items-end">
         <div className="flex flex-col gap-2">
           <div className="font-serif italic text-3xl text-slate-800 transform -rotate-2 text-black">
@@ -76,7 +72,12 @@ Payment shall be made in milestones as agreed upon.
   return (
     <main className="min-h-screen bg-[#050505] text-white font-sans">
       
-      {/* === 1. EDITOR SECTION (Visible by default) === */}
+      {/* === HIDE GLOBAL HEADER === */}
+      <style jsx global>{`
+        header { display: none !important; }
+      `}</style>
+      
+      {/* === 1. EDITOR SECTION === */}
       <div className={`flex flex-col h-screen ${showPreview ? 'hidden md:flex' : 'flex'} md:flex-row`}>
         
         {/* LEFT: INPUT */}
@@ -115,7 +116,6 @@ Payment shall be made in milestones as agreed upon.
             placeholder="# Start typing..."
           />
           
-          {/* Mobile Hint */}
           <div className="md:hidden p-2 text-center text-[10px] text-slate-600 bg-slate-900">
             Tip: Click Export, then select "Save as PDF"
           </div>
@@ -136,14 +136,14 @@ Payment shall be made in milestones as agreed upon.
         </div>
       </div>
 
-      {/* === 2. MOBILE PREVIEW MODAL (Overlay) === */}
+      {/* === 2. MOBILE PREVIEW MODAL === */}
       {showPreview && (
         <div className="fixed inset-0 z-50 bg-slate-900 flex flex-col md:hidden">
           <div className="h-16 border-b border-white/10 flex items-center justify-between px-4 bg-slate-900 shrink-0">
             <button onClick={() => setShowPreview(false)} className="text-slate-400 flex items-center gap-2 text-xs font-bold uppercase">
-              <X size={16} /> Close
+              <X size={16} /> Edit
             </button>
-            <span className="text-white font-bold text-sm">Document Preview</span>
+            <span className="text-white font-bold text-sm">Preview</span>
             <button 
               onClick={handlePrint} 
               className="px-3 py-1.5 rounded bg-amber-500 text-black text-xs font-bold uppercase shadow-lg"
@@ -159,7 +159,7 @@ Payment shall be made in milestones as agreed upon.
         </div>
       )}
 
-      {/* === 3. PRINT LAYER (Hidden normally, Visible on Print) === */}
+      {/* === 3. PRINT LAYER === */}
       <div className="hidden print:block print:absolute print:top-0 print:left-0 print:w-full print:z-[9999] print:bg-white">
         <DocumentPaper />
       </div>
