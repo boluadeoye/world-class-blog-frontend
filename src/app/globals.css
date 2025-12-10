@@ -139,3 +139,32 @@ header {
     margin: 0mm;
   }
 }
+
+/* === STRICT PRINT RULES === */
+@media print {
+  /* Hide everything by default */
+  body * {
+    visibility: hidden;
+  }
+  
+  /* Show only the print layer */
+  .print\:block, .print\:block * {
+    visibility: visible;
+  }
+  
+  /* Position the print layer at the top */
+  .print\:absolute {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Reset background */
+  body {
+    background: white !important;
+    color: black !important;
+  }
+}
