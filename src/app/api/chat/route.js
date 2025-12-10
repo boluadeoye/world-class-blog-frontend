@@ -1,5 +1,3 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
-
 export async function POST(req) {
   try {
     const { messages, context } = await req.json();
@@ -9,45 +7,52 @@ export async function POST(req) {
       return new Response(JSON.stringify({ error: "Configuration Error: GEMINI_API_KEY is missing in Vercel." }), { status: 500 });
     }
 
-    const genAI = new GoogleGenerativeAI(apiKey);
-    
-    // USE STABLE MODEL (1.5 Flash)
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
-    const systemPrompt = `
+    // System Prompt
+    const systemInstruction = `
       You are the Digital Twin of Boluwatife Adeoye.
       Context: ${context || "General tech knowledge."}
       Keep answers under 3 sentences. Be professional yet witty.
     `;
 
-    // Sanitize History (Remove empty/broken messages)
-    const validHistory = messages
-      .filter(m => m.content && typeof m.content === 'string' && m.content.trim() !== "")
-      .map(m => ({
+    // Format for Gemini REST API
+    const contents = [
+      { role: "user", parts: [{ text: systemInstruction }] },
+      ...messages.map(m => ({
         role: m.role === 'user' ? 'user' : 'model',
         parts: [{ text: m.content }]
-      }));
+      }))
+    ];
 
-    const chat = model.startChat({
-      history: [
-        { role: "user", parts: [{ text: "System Initialization" }] },
-        { role: "model", parts: [{ text: systemPrompt }] },
-        ...validHistory.slice(0, -1) // Previous messages
-      ],
-    });
+    // Direct Fetch to Gemini 2.0 Flash
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contents })
+      }
+    );
 
-    const lastMessage = validHistory[validHistory.length - 1].parts[0].text;
-    
-    const result = await chat.sendMessage(lastMessage);
-    const response = result.response.text();
+    const data = await response.json();
 
-    return new Response(JSON.stringify({ reply: response }), { status: 200 });
+    // Handle Google Errors
+    if (!response.ok) {
+      console.error("Google API Error:", data);
+      const googleError = data.error?.message || "Unknown Google Error";
+      return new Response(JSON.stringify({ error: `Google says: ${googleError}` }), { status: 500 });
+    }
+
+    // Extract Text
+    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+    if (!reply) {
+      return new Response(JSON.stringify({ error: "AI returned an empty response." }), { status: 500 });
+    }
+
+    return new Response(JSON.stringify({ reply }), { status: 200 });
 
   } catch (error) {
-    console.error("AI Error:", error);
-    // Return the ACTUAL error so we can debug
-    return new Response(JSON.stringify({ 
-      error: `Google Error: ${error.message}` 
-    }), { status: 500 });
+    console.error("Server Error:", error);
+    return new Response(JSON.stringify({ error: `Server Error: ${error.message}` }), { status: 500 });
   }
 }
