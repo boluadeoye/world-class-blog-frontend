@@ -1,15 +1,19 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import { Send, Trash2, Sparkles, Bot, User, Circle, AlertCircle } from "lucide-react";
+import { Send, Trash2, Sparkles, Bot, User, Circle, AlertCircle, ArrowLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
 
 export default function ChatInterface({ blogContext }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const scrollRef = useRef(null);
 
+  // 1. HYDRATION FIX: Only load storage after mount
   useEffect(() => {
+    setMounted(true);
     const saved = localStorage.getItem("bolu_chat_history");
     if (saved) {
       try { setMessages(JSON.parse(saved)); } catch (e) {}
@@ -23,18 +27,17 @@ export default function ChatInterface({ blogContext }) {
   }, []);
 
   useEffect(() => {
-    if (messages.length > 0) {
+    if (mounted && messages.length > 0) {
       localStorage.setItem("bolu_chat_history", JSON.stringify(messages));
       scrollToBottom();
     }
-  }, [messages]);
+  }, [messages, mounted]);
 
   const scrollToBottom = () => {
     setTimeout(() => scrollRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
   };
 
   const simulateTyping = async (text) => {
-    // Add the message placeholder
     const tempId = Date.now();
     setMessages(prev => [...prev, { id: tempId, role: "assistant", content: "" }]);
     
@@ -44,7 +47,7 @@ export default function ChatInterface({ blogContext }) {
     for (let i = 0; i < words.length; i++) {
       currentText += words[i] + " ";
       setMessages(prev => prev.map(msg => msg.id === tempId ? { ...msg, content: currentText } : msg));
-      await new Promise(r => setTimeout(r, 30));
+      await new Promise(r => setTimeout(r, 20)); // Faster typing
     }
   };
 
@@ -92,25 +95,33 @@ export default function ChatInterface({ blogContext }) {
     setMessages([{ id: Date.now(), role: "assistant", content: "Memory cleared." }]);
   };
 
+  // Prevent Hydration Mismatch
+  if (!mounted) return <div className="h-[70vh] w-full bg-slate-900/50 rounded-3xl animate-pulse border border-white/5"></div>;
+
   return (
-    <div className="flex flex-col h-[85vh] max-w-3xl mx-auto bg-slate-900/50 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl overflow-hidden">
+    <div className="flex flex-col h-[75vh] w-full bg-slate-900/50 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl overflow-hidden">
       
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 bg-slate-950/80 border-b border-white/5">
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 p-[1px]">
-              <div className="w-full h-full bg-slate-900 rounded-full flex items-center justify-center">
-                <Bot size={20} className="text-indigo-400" />
+        <div className="flex items-center gap-4">
+          <Link href="/" className="p-2 -ml-2 text-slate-400 hover:text-white transition-colors">
+            <ArrowLeft size={20} />
+          </Link>
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 p-[1px]">
+                <div className="w-full h-full bg-slate-900 rounded-full flex items-center justify-center">
+                  <Bot size={20} className="text-indigo-400" />
+                </div>
               </div>
+              <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-slate-900 animate-pulse"></div>
             </div>
-            <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-slate-900 animate-pulse"></div>
-          </div>
-          <div>
-            <h3 className="font-bold text-white text-sm">Bolu's Digital Twin</h3>
-            <p className="text-[10px] text-emerald-400 font-mono uppercase tracking-wider flex items-center gap-1">
-              <Circle size={6} fill="currentColor" /> Systems Online
-            </p>
+            <div>
+              <h3 className="font-bold text-white text-sm">Digital Twin</h3>
+              <p className="text-[10px] text-emerald-400 font-mono uppercase tracking-wider flex items-center gap-1">
+                <Circle size={6} fill="currentColor" /> Online
+              </p>
+            </div>
           </div>
         </div>
         <button onClick={clearChat} className="p-2 text-slate-500 hover:text-red-400 transition-colors">
@@ -134,12 +145,12 @@ export default function ChatInterface({ blogContext }) {
                 </div>
               )}
               
-              <div className={`max-w-[80%] p-4 rounded-2xl text-sm leading-relaxed ${
+              <div className={`max-w-[85%] p-4 rounded-2xl text-sm leading-relaxed shadow-lg ${
                 msg.role === 'user' 
                   ? 'bg-indigo-600 text-white rounded-tr-none' 
                   : msg.isError 
                     ? 'bg-red-900/20 text-red-200 border border-red-500/20 rounded-tl-none'
-                    : 'bg-slate-800/80 text-slate-200 border border-white/5 rounded-tl-none'
+                    : 'bg-slate-800 text-slate-200 border border-white/5 rounded-tl-none'
               }`}>
                 {msg.content}
               </div>
@@ -153,13 +164,12 @@ export default function ChatInterface({ blogContext }) {
           ))}
         </AnimatePresence>
         
-        {/* Typing Indicator (Separate from messages) */}
         {isTyping && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-4">
             <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center shrink-0">
               <Sparkles size={14} className="text-amber-400" />
             </div>
-            <div className="bg-slate-800/50 px-4 py-3 rounded-2xl rounded-tl-none flex gap-1 items-center">
+            <div className="bg-slate-800 px-4 py-3 rounded-2xl rounded-tl-none flex gap-1 items-center border border-white/5">
               <span className="w-1.5 h-1.5 bg-slate-500 rounded-full animate-bounce"></span>
               <span className="w-1.5 h-1.5 bg-slate-500 rounded-full animate-bounce delay-100"></span>
               <span className="w-1.5 h-1.5 bg-slate-500 rounded-full animate-bounce delay-200"></span>
@@ -171,18 +181,18 @@ export default function ChatInterface({ blogContext }) {
 
       {/* Input */}
       <div className="p-4 bg-slate-950 border-t border-white/5">
-        <form onSubmit={handleSend} className="relative flex items-center gap-2 bg-slate-900 rounded-full p-1.5 border border-white/10 focus-within:border-indigo-500/50 transition-colors">
+        <form onSubmit={handleSend} className="relative flex items-center gap-2 bg-slate-900 rounded-full p-1.5 border border-white/10 focus-within:border-indigo-500/50 transition-colors shadow-lg">
           <input 
             type="text" 
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask me about Bolu's work..."
-            className="flex-1 bg-transparent text-white placeholder-slate-500 px-4 py-2 outline-none text-sm"
+            placeholder="Ask me anything..."
+            className="flex-1 bg-transparent text-white placeholder-slate-500 px-4 py-3 outline-none text-sm"
           />
           <button 
             type="submit" 
             disabled={!input.trim() || isTyping}
-            className="p-3 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="p-3 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
           >
             <Send size={16} />
           </button>

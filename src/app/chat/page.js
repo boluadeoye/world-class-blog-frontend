@@ -10,24 +10,28 @@ export default async function ChatPage() {
   let blogContext = "";
 
   try {
-    // Safely fetch posts
-    const posts = await fetchLatestArticles(50);
+    // Safely fetch posts with a timeout or fallback
+    const posts = await fetchLatestArticles(50).catch(() => []);
     
-    if (Array.isArray(posts)) {
+    if (Array.isArray(posts) && posts.length > 0) {
       blogContext = posts.map(p => 
         `Title: ${p.title}\nSummary: ${p.excerpt}\nCategory: ${p.meta?.category}`
       ).join("\n\n");
     } else {
-      console.warn("ChatPage: fetchLatestArticles did not return an array.");
+      blogContext = "No specific blog posts found. Answer based on general software engineering knowledge.";
     }
   } catch (error) {
-    console.error("ChatPage Error: Failed to load blog context.", error);
-    // Fallback context so the chat still works
-    blogContext = "The blog data is currently unavailable, but I can still answer general technical questions.";
+    console.error("Chat Context Error:", error);
+    blogContext = "System maintenance mode. Answer general questions.";
   }
 
   return (
-    <main className="min-h-screen bg-[#020617] text-white pt-24 pb-12 px-4 md:px-8 selection:bg-indigo-500/30">
+    <main className="min-h-screen bg-[#020617] text-white pt-8 pb-4 px-4 md:px-8 selection:bg-indigo-500/30 flex flex-col">
+      
+      {/* === HIDE GLOBAL HEADER === */}
+      <style>{`
+        header { display: none !important; }
+      `}</style>
       
       {/* Background */}
       <div className="fixed inset-0 z-0 pointer-events-none">
@@ -36,10 +40,10 @@ export default async function ChatPage() {
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.04]"></div>
       </div>
 
-      <div className="relative z-10">
-        <div className="text-center mb-8">
-          <h1 className="font-serif text-4xl md:text-5xl font-medium mb-3">Intelligence Hub</h1>
-          <p className="text-slate-400 text-sm">Powered by Gemini • Always Online</p>
+      <div className="relative z-10 flex-1 flex flex-col max-w-5xl mx-auto w-full">
+        <div className="text-center mb-6">
+          <h1 className="font-serif text-3xl md:text-4xl font-medium mb-2 text-white">Intelligence Hub</h1>
+          <p className="text-slate-400 text-xs uppercase tracking-widest">Digital Twin • Online</p>
         </div>
 
         <ChatInterface blogContext={blogContext} />
