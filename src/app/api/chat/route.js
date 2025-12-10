@@ -3,38 +3,46 @@ export async function POST(req) {
     const { messages, context } = await req.json();
     const apiKey = process.env.GEMINI_API_KEY;
 
-    if (!apiKey) return Response.json({ reply: "System Error: API Key missing." });
+    if (!apiKey) return Response.json({ reply: "System Error: GEMINI_API_KEY is missing in .env" });
 
-    // SWITCHED TO STABLE MODEL: gemini-1.5-flash
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ 
-            role: "user", 
-            parts: [{ text: `System: You are Bolu's Digital Twin. Context: ${context?.slice(0, 5000) || "Tech Portfolio"}. Keep it witty and short.\n\nUser: ${messages[messages.length - 1].content}` }] 
-          }]
-        })
-      }
-    );
+    // Helper function to try a specific model
+    async function tryModel(modelName) {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ 
+              role: "user", 
+              parts: [{ text: `System: You are Bolu's Digital Twin. Context: ${context?.slice(0, 3000) || "Tech Portfolio"}.\n\nUser: ${messages[messages.length - 1].content}` }] 
+            }]
+          })
+        }
+      );
+      return await response.json();
+    }
 
-    const data = await response.json();
-    
-    // Handle Rate Limits Gracefully
+    // ATTEMPT 1: Gemini 1.5 Flash (Preferred)
+    let data = await tryModel("gemini-1.5-flash");
+
+    // If 1.5 Flash fails, try ATTEMPT 2: Gemini Pro (Legacy/Stable)
     if (data.error) {
-      console.error("Gemini API Error:", data.error);
-      if (data.error.message.includes("quota") || data.error.code === 429) {
-        return Response.json({ reply: "I'm receiving too many messages right now (Rate Limit). Please wait 10 seconds and try again." });
-      }
-      return Response.json({ reply: "My brain is offline temporarily. (API Error)" });
+      console.error("Gemini 1.5 Flash Failed:", data.error);
+      data = await tryModel("gemini-pro");
+    }
+
+    // If BOTH fail, return the specific error message to the user
+    if (data.error) {
+      console.error("Gemini Pro Failed:", data.error);
+      const errorMsg = data.error.message || "Unknown API Error";
+      return Response.json({ reply: `API Error: ${errorMsg} (Code: ${data.error.code})` });
     }
 
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    return Response.json({ reply: text || "I couldn't think of a response." });
+    return Response.json({ reply: text || "I'm here, but I couldn't generate a response." });
 
   } catch (error) {
-    return Response.json({ reply: "Connection failed. Please check your internet." });
+    return Response.json({ reply: `Server Exception: ${error.message}` });
   }
 }
