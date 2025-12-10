@@ -8,44 +8,29 @@ export const metadata = {
 
 export default async function ChatPage() {
   let blogContext = "";
-
   try {
-    // Safely fetch posts with a timeout or fallback
     const posts = await fetchLatestArticles(50).catch(() => []);
-    
-    if (Array.isArray(posts) && posts.length > 0) {
-      blogContext = posts.map(p => 
-        `Title: ${p.title}\nSummary: ${p.excerpt}\nCategory: ${p.meta?.category}`
-      ).join("\n\n");
-    } else {
-      blogContext = "No specific blog posts found. Answer based on general software engineering knowledge.";
+    if (Array.isArray(posts)) {
+      blogContext = posts.map(p => `Title: ${p.title}\nSummary: ${p.excerpt}`).join("\n\n");
     }
-  } catch (error) {
-    console.error("Chat Context Error:", error);
-    blogContext = "System maintenance mode. Answer general questions.";
-  }
+  } catch (e) {}
 
   return (
-    <main className="min-h-screen bg-[#020617] text-white pt-8 pb-4 px-4 md:px-8 selection:bg-indigo-500/30 flex flex-col">
-      
-      {/* === HIDE GLOBAL HEADER === */}
-      <style>{`
-        header { display: none !important; }
-      `}</style>
+    // Z-INDEX 100 forces it above the global header
+    <main className="fixed inset-0 z-[100] bg-[#020617] text-white flex flex-col">
       
       {/* Background */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
+      <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] bg-indigo-600/10 blur-[120px] rounded-full"></div>
         <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-amber-600/5 blur-[100px] rounded-full"></div>
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.04]"></div>
       </div>
 
-      <div className="relative z-10 flex-1 flex flex-col max-w-5xl mx-auto w-full">
-        <div className="text-center mb-6">
-          <h1 className="font-serif text-3xl md:text-4xl font-medium mb-2 text-white">Intelligence Hub</h1>
-          <p className="text-slate-400 text-xs uppercase tracking-widest">Digital Twin • Online</p>
+      {/* Content */}
+      <div className="relative z-10 flex-1 flex flex-col max-w-5xl mx-auto w-full p-4 md:p-8">
+        <div className="mb-4">
+           <a href="/" className="text-slate-500 hover:text-white text-xs font-bold uppercase tracking-widest">← Back to Portfolio</a>
         </div>
-
         <ChatInterface blogContext={blogContext} />
       </div>
 
