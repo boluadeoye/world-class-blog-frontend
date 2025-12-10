@@ -1,57 +1,50 @@
 export async function POST(req) {
   try {
     const { messages, context } = await req.json();
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.GROQ_API_KEY;
 
-    if (!apiKey) return Response.json({ reply: "System Error: API Key is missing." });
-
-    // HELPER: Try a model and return result or null if failed
-    async function tryModel(modelName) {
-      try {
-        const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              contents: [{ 
-                role: "user", 
-                parts: [{ text: `System: You are Bolu's Digital Twin. Context: ${context?.slice(0, 5000) || "Tech Portfolio"}. Keep it witty and short.\n\nUser: ${messages[messages.length - 1].content}` }] 
-              }]
-            })
-          }
-        );
-        const data = await response.json();
-        if (data.error) return { error: data.error };
-        return { text: data.candidates?.[0]?.content?.parts?.[0]?.text };
-      } catch (e) {
-        return { error: e.message };
-      }
+    if (!apiKey) {
+      return Response.json({ reply: "System Error: GROQ_API_KEY is missing. Please add it to Vercel." });
     }
 
-    // ATTEMPT 1: gemini-flash-latest (The safest generic alias)
-    let result = await tryModel("gemini-flash-latest");
+    // System Prompt
+    const systemPrompt = `You are Bolu's Digital Twin. 
+    Context: ${context?.slice(0, 4000) || "Tech Portfolio"}. 
+    Style: Professional, witty, concise (under 3 sentences).
+    If asked about your tech stack, mention you are running on Llama 3 via Groq.`;
 
-    // ATTEMPT 2: gemini-pro-latest (Fallback if Flash is restricted)
-    if (result.error) {
-      console.log("Flash Latest failed, trying Pro Latest...");
-      result = await tryModel("gemini-pro-latest");
+    // Prepare messages for Groq (OpenAI compatible format)
+    const apiMessages = [
+      { role: "system", content: systemPrompt },
+      ...messages.map(m => ({
+        role: m.role === 'assistant' ? 'assistant' : 'user',
+        content: m.content
+      }))
+    ];
+
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: "llama3-8b-8192", // Very fast, very smart, free
+        messages: apiMessages,
+        temperature: 0.7,
+        max_tokens: 200
+      })
+    });
+
+    const data = await response.json();
+
+    if (data.error) {
+      console.error("Groq API Error:", data.error);
+      return Response.json({ reply: `System Error: ${data.error.message}` });
     }
 
-    // FINAL CHECK
-    if (result.error) {
-      console.error("All Models Failed:", result.error);
-      
-      if (result.error.message?.includes("limit: 0")) {
-        return Response.json({ 
-          reply: "CRITICAL ACCOUNT ERROR: Your Google API Key has a 'Limit of 0'. This means your Google Cloud Project is not allowed to use Gemini Free Tier. \n\nSOLUTION: Go to aistudio.google.com, create a NEW Project, and generate a NEW API Key." 
-        });
-      }
-      
-      return Response.json({ reply: `System Error: ${result.error.message || "Unknown"}` });
-    }
-
-    return Response.json({ reply: result.text || "I'm online, but I couldn't generate a response." });
+    const reply = data.choices?.[0]?.message?.content;
+    return Response.json({ reply: reply || "I'm online, but silent." });
 
   } catch (error) {
     return Response.json({ reply: "Connection failed. Please check your internet." });
