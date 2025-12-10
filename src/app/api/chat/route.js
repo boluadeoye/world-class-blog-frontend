@@ -1,62 +1,55 @@
-import { NextResponse } from "next/server";
-import { getSystemPrompt } from "../../../lib/brain";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export async function POST(req) {
   try {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) return NextResponse.json({ reply: "System Error: Neural Link Severed (Missing Key)." });
+    const { messages, context } = await req.json();
+    const apiKey = process.env.GOOGLE_API_KEY;
 
-    // 1. LOAD THE BRAIN
-    const brainData = getSystemPrompt();
+    if (!apiKey) {
+      return new Response(JSON.stringify({ error: "Brain missing (API Key)" }), { status: 500 });
+    }
 
-    // 2. PARSE INPUT
-    let body = {};
-    try { body = await req.json(); } catch {}
-    const history = Array.isArray(body?.messages) ? body.messages : [];
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
-    // 3. CONSTRUCT THE NEURAL PATHWAY
-    const preface = `
-      SYSTEM IDENTITY:
-      ${brainData}
+    // === THE PERSONA ===
+    const systemPrompt = `
+      ROLE: You are the "Digital Twin" of Boluwatife Adeoye, a Full-Stack Engineer & Technical Writer.
       
-      CURRENT OBJECTIVE:
-      Engage with the visitor as the sophisticated digital architect of this platform.
+      TONE: Professional but witty, kind, and efficient. You are "tech-savvy" and "always online."
+      
+      KNOWLEDGE BASE:
+      You have access to Bolu's blog posts. Here is the summary of his work:
+      ${context || "No specific posts loaded yet, but I know general tech."}
+      
+      INSTRUCTIONS:
+      1. If asked about Bolu, answer as if you represent him directly.
+      2. If asked about technical topics, use the context provided to give accurate answers based on his writing.
+      3. Keep responses concise and chatty, not like a robot.
+      4. If you don't know something, say: "That's outside my current cache, but I can ask the real Bolu for you."
     `;
 
-    const contents = [{ role: "user", parts: [{ text: preface }] }];
-    for (const m of history) {
-      const role = m.role === "assistant" ? "model" : "user";
-      const text = String(m.content || "").slice(0, 8000);
-      if (text) contents.push({ role, parts: [{ text }] });
-    }
-    if (contents.length === 1) contents.push({ role: "user", parts: [{ text: "Initialize connection." }] });
+    // Format history for Gemini
+    const chatHistory = messages.map(m => ({
+      role: m.role === 'user' ? 'user' : 'model',
+      parts: [{ text: m.content }]
+    }));
 
-    // 4. EXECUTE MODEL (Unkillable List)
-    const candidateModels = [
-      "gemini-2.0-flash",
-      "gemini-2.5-flash",
-      "gemini-flash-latest",
-      "gemini-pro"
-    ];
+    const chat = model.startChat({
+      history: [
+        { role: "user", parts: [{ text: "System Initialization" }] },
+        { role: "model", parts: [{ text: systemPrompt }] },
+        ...chatHistory
+      ],
+    });
 
-    for (const model of candidateModels) {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-      const r = await fetch(url, { 
-        method: "POST", 
-        headers: { "Content-Type": "application/json" }, 
-        body: JSON.stringify({ contents }) 
-      });
+    const result = await chat.sendMessage(messages[messages.length - 1].content);
+    const response = result.response.text();
 
-      const json = await r.json();
-      if (r.ok) {
-        const reply = json.candidates?.[0]?.content?.parts?.[0]?.text;
-        return NextResponse.json({ reply: reply || "Signal received, but data is empty." });
-      }
-    }
-
-    return NextResponse.json({ reply: "Neural Network Unreachable. All models offline." });
+    return new Response(JSON.stringify({ reply: response }), { status: 200 });
 
   } catch (error) {
-    return NextResponse.json({ reply: "Critical System Failure." });
+    console.error(error);
+    return new Response(JSON.stringify({ error: "Connection lost with the mothership." }), { status: 500 });
   }
 }
