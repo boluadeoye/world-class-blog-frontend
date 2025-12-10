@@ -15,10 +15,15 @@ export async function POST(req) {
       Instructions: Answer as Bolu. Keep it under 3 sentences.
     `;
 
-    // Format messages for Gemini REST API
+    // === CRITICAL FIX: SANITIZE HISTORY ===
+    // 1. Filter out empty messages
+    // 2. Ensure role is correct
+    // 3. Ensure text is a string
+    const validMessages = messages.filter(m => m.content && typeof m.content === 'string' && m.content.trim() !== "");
+
     const contents = [
       { role: "user", parts: [{ text: systemInstruction }] },
-      ...messages.map(m => ({
+      ...validMessages.map(m => ({
         role: m.role === 'user' ? 'user' : 'model',
         parts: [{ text: m.content }]
       }))
@@ -37,10 +42,11 @@ export async function POST(req) {
     const data = await response.json();
 
     if (!response.ok) {
+      // Log the full error for debugging
+      console.error("Google API Error Details:", JSON.stringify(data, null, 2));
       throw new Error(data.error?.message || "Google API Error");
     }
 
-    // Extract text safely
     const reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
 
     if (!reply) {

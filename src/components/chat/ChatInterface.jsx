@@ -15,7 +15,22 @@ export default function ChatInterface({ blogContext }) {
     setMounted(true);
     const saved = localStorage.getItem("bolu_chat_history");
     if (saved) {
-      try { setMessages(JSON.parse(saved)); } catch (e) {}
+      try { 
+        const parsed = JSON.parse(saved);
+        // FIX: Filter out empty/broken messages on load
+        const cleanMessages = parsed.filter(m => m.content && typeof m.content === 'string' && m.content.trim() !== "");
+        setMessages(cleanMessages.length > 0 ? cleanMessages : [{
+          id: "init",
+          role: "assistant",
+          content: "Hello! I’m Bolu's digital twin. I'm online and ready to chat."
+        }]);
+      } catch (e) {
+        setMessages([{
+          id: "init",
+          role: "assistant",
+          content: "Hello! I’m Bolu's digital twin. I'm online and ready to chat."
+        }]);
+      }
     } else {
       setMessages([{
         id: "init",
@@ -27,7 +42,9 @@ export default function ChatInterface({ blogContext }) {
 
   useEffect(() => {
     if (mounted && messages.length > 0) {
-      localStorage.setItem("bolu_chat_history", JSON.stringify(messages));
+      // Only save valid messages
+      const validToSave = messages.filter(m => m.content && m.content.trim() !== "");
+      localStorage.setItem("bolu_chat_history", JSON.stringify(validToSave));
       scrollToBottom();
     }
   }, [messages, mounted]);
@@ -37,8 +54,7 @@ export default function ChatInterface({ blogContext }) {
   };
 
   const simulateTyping = async (text) => {
-    if (!text || typeof text !== 'string') return; // CRASH PREVENTION
-    
+    if (!text) return;
     const tempId = Date.now();
     setMessages(prev => [...prev, { id: tempId, role: "assistant", content: "" }]);
     
@@ -66,7 +82,7 @@ export default function ChatInterface({ blogContext }) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
-          messages: [...messages, userMsg].map(m => ({ role: m.role, content: m.content })),
+          messages: [...messages, userMsg], // Send full history
           context: blogContext 
         }),
       });
@@ -77,30 +93,24 @@ export default function ChatInterface({ blogContext }) {
       if (res.ok && data.reply) {
         await simulateTyping(data.reply);
       } else {
-        // CRASH PREVENTION: Ensure error is a string
-        const errorMsg = typeof data.error === 'string' ? data.error : JSON.stringify(data.error || "Unknown error");
+        const errorMsg = typeof data.error === 'string' ? data.error : "Unknown error occurred.";
         setMessages(prev => [...prev, { 
           id: Date.now(), 
           role: "assistant", 
-          content: `System Error: ${errorMsg}`,
+          content: errorMsg,
           isError: true
         }]);
       }
 
     } catch (err) {
       setIsTyping(false);
-      setMessages(prev => [...prev, { 
-        id: Date.now(), 
-        role: "assistant", 
-        content: "Network Error. Please check your connection.", 
-        isError: true 
-      }]);
+      setMessages(prev => [...prev, { id: Date.now(), role: "assistant", content: "Network Error. Please check your connection.", isError: true }]);
     }
   };
 
   const clearChat = () => {
     localStorage.removeItem("bolu_chat_history");
-    setMessages([{ id: Date.now(), role: "assistant", content: "Memory cleared." }]);
+    setMessages([{ id: Date.now(), role: "assistant", content: "Memory cleared. Ready to chat." }]);
   };
 
   if (!mounted) return <div className="h-[70vh] w-full bg-slate-900/50 rounded-3xl animate-pulse border border-white/5"></div>;
@@ -159,7 +169,6 @@ export default function ChatInterface({ blogContext }) {
                     ? 'bg-red-900/20 text-red-200 border border-red-500/20 rounded-tl-none'
                     : 'bg-slate-800 text-slate-200 border border-white/5 rounded-tl-none'
               }`}>
-                {/* CRASH PREVENTION: Force string conversion */}
                 {String(msg.content)}
               </div>
 
