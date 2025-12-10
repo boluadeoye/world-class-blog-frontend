@@ -115,3 +115,27 @@ header {
   backdrop-filter: none !important;
   border-bottom: none !important;
 }
+
+/* === PRINT STYLES === */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  /* Only show the printable area */
+  #printable-content, #printable-content * {
+    visibility: visible;
+  }
+  /* Reset background colors for printing */
+  body {
+    background: white;
+    color: black;
+  }
+  /* Hide scrollbars and UI */
+  ::-webkit-scrollbar {
+    display: none;
+  }
+  @page {
+    size: auto;
+    margin: 0mm;
+  }
+}
