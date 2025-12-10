@@ -15,13 +15,13 @@ Boluwatife Adeoye (Lead Engineer)
 AND
 [Client Name]
 
-## 1. Scope of Work
+# 1. SCOPE OF WORK
 The Engineer agrees to provide high-performance software architecture, full-stack development, and system design services.
 
-## 2. Terms
+# 2. TERMS
 This contract ensures world-class delivery standards. All code remains the intellectual property of the client upon final payment.
 
-## 3. Payment
+# 3. PAYMENT
 Payment shall be made in milestones as agreed upon.
 
 ---
@@ -33,37 +33,89 @@ Payment shall be made in milestones as agreed upon.
     }, 100);
   };
 
-  // The Document Component
+  // === THE AUTHORITATIVE DOCUMENT ===
   const DocumentPaper = () => (
     <div 
-      className="bg-white text-slate-900 w-full max-w-[210mm] min-h-[297mm] p-[20mm] shadow-2xl relative flex flex-col justify-between mx-auto"
-      style={{ fontFamily: 'serif' }} 
+      className="bg-white text-black w-full max-w-[210mm] min-h-[297mm] p-[20mm] shadow-2xl relative flex flex-col justify-between mx-auto overflow-hidden"
+      style={{ fontFamily: 'var(--font-serif)' }} 
     >
-      <header className="border-b-2 border-slate-900 pb-6 mb-8 flex justify-between items-end">
-        <div>
-          <h1 className="text-4xl font-bold tracking-tight uppercase leading-none text-black">Boluwatife<br/>Adeoye</h1>
-          <p className="text-xs font-bold tracking-[0.3em] uppercase mt-3 text-slate-500">Lead Software Engineer</p>
+      {/* WATERMARK */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[400px] font-bold text-slate-50 opacity-[0.04] pointer-events-none select-none z-0">
+        BA
+      </div>
+
+      {/* HEADER */}
+      <header className="relative z-10 border-b-4 border-black pb-8 mb-10 flex justify-between items-start">
+        <div className="flex flex-col">
+          <h1 className="text-5xl font-black tracking-tighter uppercase leading-[0.9]">
+            Boluwatife<br/>Adeoye
+          </h1>
+          <div className="flex items-center gap-3 mt-3">
+            <div className="h-1 w-12 bg-black"></div>
+            <p className="text-xs font-bold tracking-[0.4em] uppercase">Lead Engineer</p>
+          </div>
         </div>
-        <div className="w-14 h-14 border-2 border-slate-900 rounded-full flex items-center justify-center font-bold text-xl tracking-tighter text-black">
-          BA
+        
+        {/* THE BOLD HERO LOGO */}
+        <div className="w-24 h-24 border-[6px] border-black flex items-center justify-center">
+          <span className="text-5xl font-black tracking-tighter">BA</span>
         </div>
       </header>
 
-      <div className="flex-1 prose prose-slate max-w-none prose-p:text-justify prose-headings:uppercase prose-headings:tracking-wide prose-li:marker:text-black text-black">
-        <ReactMarkdown>{content}</ReactMarkdown>
+      {/* BODY (Intelligent Rendering) */}
+      <div className="relative z-10 flex-1">
+        <ReactMarkdown
+          components={{
+            // H1: Section Headers (Massive, Uppercase, Underlined)
+            h1: ({node, ...props}) => (
+              <h1 className="text-2xl font-black uppercase tracking-wide border-b-2 border-black pb-2 mt-8 mb-4" {...props} />
+            ),
+            // H2: Sub-headers (Bold, Serif)
+            h2: ({node, ...props}) => (
+              <h2 className="text-xl font-bold uppercase mt-6 mb-3 text-slate-800" {...props} />
+            ),
+            // P: Justified, Medium Weight for readability
+            p: ({node, ...props}) => (
+              <p className="text-justify text-[11pt] leading-[1.6] font-medium mb-4 text-slate-900" {...props} />
+            ),
+            // Strong: Heavy Black & Uppercase for defined terms
+            strong: ({node, ...props}) => (
+              <strong className="font-black text-black uppercase" {...props} />
+            ),
+            // Lists: Custom Square Bullets
+            ul: ({node, ...props}) => <ul className="list-none pl-0 mb-4" {...props} />,
+            li: ({node, ...props}) => (
+              <li className="flex items-start gap-3 mb-2 text-[11pt] font-medium">
+                <span className="mt-1.5 w-1.5 h-1.5 bg-black shrink-0"></span>
+                <span>{props.children}</span>
+              </li>
+            ),
+            // Blockquote: Legal Note style
+            blockquote: ({node, ...props}) => (
+              <blockquote className="border-l-4 border-black pl-4 py-2 my-6 italic font-medium text-slate-700 bg-slate-50" {...props} />
+            ),
+          }}
+        >
+          {content}
+        </ReactMarkdown>
       </div>
 
-      <footer className="mt-16 pt-8 border-t border-slate-200 flex justify-between items-end">
-        <div className="flex flex-col gap-2">
-          <div className="font-serif italic text-3xl text-slate-800 transform -rotate-2 text-black">
-            Boluwatife Adeoye
+      {/* FOOTER */}
+      <footer className="relative z-10 mt-16 pt-8 border-t border-slate-300 flex justify-between items-end">
+        <div className="flex flex-col gap-4">
+          {/* Signature Line */}
+          <div className="flex flex-col">
+            <div className="font-serif italic text-4xl text-black transform -rotate-2 mb-1">
+              Boluwatife Adeoye
+            </div>
+            <div className="h-0.5 w-64 bg-black"></div>
+            <p className="text-[9px] uppercase tracking-[0.2em] font-bold mt-2">Authorized Signature</p>
           </div>
-          <div className="h-px w-48 bg-black"></div>
-          <p className="text-[10px] uppercase tracking-widest font-bold text-slate-500">Authorized Signature</p>
         </div>
+
         <div className="text-right">
-          <p className="text-sm font-bold text-black">boluadeoye.com.ng</p>
-          <p className="text-[10px] text-slate-500 uppercase tracking-wider">Engineering & Strategy</p>
+          <p className="text-sm font-black text-black tracking-tight">BOLUADEOYE.COM.NG</p>
+          <p className="text-[8px] font-bold text-slate-500 uppercase tracking-widest mt-1">Engineering & Strategy</p>
         </div>
       </footer>
     </div>
@@ -143,7 +195,7 @@ Payment shall be made in milestones as agreed upon.
             <button onClick={() => setShowPreview(false)} className="text-slate-400 flex items-center gap-2 text-xs font-bold uppercase">
               <X size={16} /> Edit
             </button>
-            <span className="text-white font-bold text-sm">Preview</span>
+            <span className="text-white font-bold text-sm">Document Preview</span>
             <button 
               onClick={handlePrint} 
               className="px-3 py-1.5 rounded bg-amber-500 text-black text-xs font-bold uppercase shadow-lg"
