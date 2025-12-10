@@ -3,16 +3,19 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 export async function POST(req) {
   try {
     const { messages, context } = await req.json();
-    const apiKey = process.env.GOOGLE_API_KEY;
+    
+    // FIX: Use the correct Environment Variable
+    const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
-      return new Response(JSON.stringify({ error: "Brain missing (API Key)" }), { status: 500 });
+      return new Response(JSON.stringify({ error: "Server Error: GEMINI_API_KEY is missing." }), { status: 500 });
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    
+    // FIX: Use Gemini 2.0 Flash (Experimental Preview)
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
 
-    // === THE PERSONA ===
     const systemPrompt = `
       ROLE: You are the "Digital Twin" of Boluwatife Adeoye, a Full-Stack Engineer & Technical Writer.
       
@@ -29,17 +32,14 @@ export async function POST(req) {
       4. If you don't know something, say: "That's outside my current cache, but I can ask the real Bolu for you."
     `;
 
-    // Format history for Gemini
-    const chatHistory = messages.map(m => ({
-      role: m.role === 'user' ? 'user' : 'model',
-      parts: [{ text: m.content }]
-    }));
-
     const chat = model.startChat({
       history: [
         { role: "user", parts: [{ text: "System Initialization" }] },
         { role: "model", parts: [{ text: systemPrompt }] },
-        ...chatHistory
+        ...messages.map(m => ({
+          role: m.role === 'user' ? 'user' : 'model',
+          parts: [{ text: m.content }]
+        }))
       ],
     });
 
@@ -49,7 +49,7 @@ export async function POST(req) {
     return new Response(JSON.stringify({ reply: response }), { status: 200 });
 
   } catch (error) {
-    console.error(error);
-    return new Response(JSON.stringify({ error: "Connection lost with the mothership." }), { status: 500 });
+    console.error("AI Error:", error);
+    return new Response(JSON.stringify({ error: error.message || "AI Service Error" }), { status: 500 });
   }
 }
