@@ -15,7 +15,7 @@ export default function ChatInterface({ blogContext }) {
   const [mounted, setMounted] = useState(false);
   const scrollRef = useRef(null);
 
-  // 1. Load Chat from LocalStorage on Mount
+  // 1. Load Chat from LocalStorage
   useEffect(() => {
     setMounted(true);
     const saved = localStorage.getItem("bolu_chat_history");
@@ -30,7 +30,7 @@ export default function ChatInterface({ blogContext }) {
     }
   }, []);
 
-  // 2. Save Chat to LocalStorage on Update
+  // 2. Save Chat to LocalStorage
   useEffect(() => {
     if (mounted && messages.length > 0) {
       localStorage.setItem("bolu_chat_history", JSON.stringify(messages));
@@ -42,7 +42,7 @@ export default function ChatInterface({ blogContext }) {
     setMessages([{
       id: "init",
       role: "assistant",
-      content: "Hi there! I'm Bolu's Digital Twin. I can answer questions about my blog posts, projects, or how to hire me. What's on your mind?"
+      content: "Hi! I'm Bolu's Digital Twin. I can help you navigate my portfolio or get in touch directly. What do you need?"
     }]);
   };
 
@@ -83,7 +83,7 @@ export default function ChatInterface({ blogContext }) {
       setMessages(prev => [...prev, {
         id: Date.now() + 1,
         role: "assistant",
-        content: "My connection is a bit unstable. Could you try again?",
+        content: "Connection unstable. Please try again.",
         isError: true
       }]);
     } finally {
@@ -91,30 +91,41 @@ export default function ChatInterface({ blogContext }) {
     }
   };
 
-  // Helper to render links (basic detection)
+  // --- SMART LINK RENDERER ---
+  // This detects URLs and Emails and turns them into clickable links
   const renderMessage = (text) => {
-    // Simple regex to detect URLs and make them clickable
-    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    if (!text) return "";
+    
+    // Regex to find URLs (http/https) and Emails
+    const urlRegex = /((https?:\/\/[^\s]+)|([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+))/g;
+    
     const parts = text.split(urlRegex);
     
-    return parts.map((part, i) => 
-      urlRegex.test(part) ? (
-        <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-amber-400 underline hover:text-amber-300 break-all">
-          {part}
-        </a>
-      ) : (
-        <span key={i}>{part}</span>
-      )
-    );
+    return parts.map((part, i) => {
+      if (part?.match(/^https?:\/\//)) {
+        return (
+          <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-amber-400 underline font-medium hover:text-amber-300 break-all">
+            {part}
+          </a>
+        );
+      } else if (part?.match(/@[a-zA-Z0-9._-]+\./)) {
+        return (
+          <a key={i} href={`mailto:${part}`} className="text-amber-400 underline font-medium hover:text-amber-300 break-all">
+            {part}
+          </a>
+        );
+      }
+      return <span key={i}>{part}</span>;
+    });
   };
 
-  if (!mounted) return <div className="h-[600px] w-full bg-slate-900/50 rounded-3xl animate-pulse"></div>;
+  if (!mounted) return <div className="h-[75vh] w-full bg-slate-900/50 rounded-3xl animate-pulse"></div>;
 
   return (
-    <div className="flex flex-col h-[650px] w-full bg-slate-950/90 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-2xl overflow-hidden relative font-sans">
+    <div className="flex flex-col h-[75vh] w-full bg-slate-950/90 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-2xl overflow-hidden relative font-sans">
       
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 bg-white/5 border-b border-white/5 z-10">
+      <div className="flex items-center justify-between px-5 py-4 bg-white/5 border-b border-white/5 z-10">
         <div className="flex items-center gap-3">
           <div className="relative">
             <div className="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
@@ -125,7 +136,7 @@ export default function ChatInterface({ blogContext }) {
           <div>
             <h3 className="font-bold text-white text-sm tracking-wide">Bolu AI</h3>
             <p className="text-[10px] text-slate-400 font-medium flex items-center gap-1">
-              <Sparkles size={8} className="text-amber-400" /> Online & Ready
+              <Sparkles size={8} className="text-amber-400" /> Online
             </p>
           </div>
         </div>
@@ -139,11 +150,11 @@ export default function ChatInterface({ blogContext }) {
       </div>
 
       {/* Chat Area */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+      <div className="flex-1 overflow-y-auto p-5 space-y-6 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
         {messages.map((msg) => (
           <div
             key={msg.id}
-            className={`flex gap-4 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+            className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             {msg.role === 'assistant' && (
               <div className="w-8 h-8 rounded-full bg-slate-800 border border-white/10 flex items-center justify-center shrink-0 mt-1">
@@ -151,7 +162,7 @@ export default function ChatInterface({ blogContext }) {
               </div>
             )}
             
-            <div className={`max-w-[85%] p-4 rounded-2xl text-sm leading-relaxed shadow-lg backdrop-blur-sm ${
+            <div className={`max-w-[85%] p-3.5 rounded-2xl text-sm leading-relaxed shadow-lg backdrop-blur-sm ${
               msg.role === 'user'
                 ? 'bg-indigo-600 text-white rounded-tr-none shadow-indigo-500/10'
                 : msg.isError
