@@ -1,43 +1,48 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import { Send, Trash2, Bot, Circle } from "lucide-react";
+import { Send, Trash2, Bot, Circle, AlertTriangle } from "lucide-react";
 
 export default function ChatInterface({ blogContext }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [debugError, setDebugError] = useState(null); // For on-screen debugging
   const scrollRef = useRef(null);
+
+  // Safe ID Generator
+  const generateId = () => `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
   useEffect(() => {
     setMounted(true);
     setMessages([{
-      id: "init",
+      id: "init-001",
       role: "assistant",
-      content: "System Online. I am Bolu's Digital Twin. Ask me anything."
+      content: "System Online. I am Bolu's Digital Twin (v2.1). Ask me anything."
     }]);
   }, []);
 
   useEffect(() => {
-    if (mounted) {
-      scrollRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (mounted && !debugError) {
+      // Only scroll if no error to prevent layout thrashing
+      requestAnimationFrame(() => {
+        scrollRef.current?.scrollIntoView({ behavior: "smooth" });
+      });
     }
-  }, [messages, mounted]);
+  }, [messages, mounted, debugError]);
 
-  // --- CRASH FIX: BULLETPROOF RENDERER ---
+  // --- PARANOID RENDERER ---
   const renderContent = (content) => {
     try {
-      if (!content) return "";
+      if (content === null || content === undefined) return "";
       if (typeof content === 'string') return content;
+      if (typeof content === 'number') return String(content);
       if (typeof content === 'object') {
-        // If it's an object, try to find text, otherwise stringify it
-        if (content.text) return String(content.text);
-        if (content.message) return String(content.message);
-        return JSON.stringify(content); 
+        return JSON.stringify(content);
       }
       return String(content);
     } catch (e) {
-      return "Message format error.";
+      return "Error displaying content.";
     }
   };
 
@@ -47,48 +52,62 @@ export default function ChatInterface({ blogContext }) {
 
     const userText = input.trim();
     setInput("");
+    setDebugError(null); // Clear previous errors
 
-    // Create user message
-    const userMsg = { id: Date.now(), role: "user", content: userText };
+    const userMsg = { id: generateId(), role: "user", content: userText };
     
     // Optimistic update
-    setMessages(prev => [...prev, userMsg]);
+    const newHistory = [...messages, userMsg];
+    setMessages(newHistory);
     setIsLoading(true);
 
     try {
-      // Prepare payload with current history + new message
-      const payloadMessages = [...messages, userMsg];
-      
+      // 1. Truncate Context to prevent "Payload Too Large" (413) errors
+      const safeContext = typeof blogContext === 'string' 
+        ? blogContext.slice(0, 10000) // Limit to ~10k chars
+        : "General Tech Context";
+
+      // 2. Send Request
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages: payloadMessages,
-          context: blogContext || "General Tech Context"
+          messages: newHistory.map(m => ({ role: m.role, content: m.content })), // Send clean data
+          context: safeContext
         }),
       });
+
+      // 3. Handle Non-JSON Responses (e.g., Vercel 504/500 HTML pages)
+      const contentType = res.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        const text = await res.text();
+        console.error("Non-JSON Response:", text);
+        throw new Error(`Server returned ${res.status}. Likely a timeout or payload limit.`);
+      }
 
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Server error");
+        throw new Error(data.error || `Server Error: ${res.status}`);
       }
 
-      // Validate response strictly
-      const replyText = typeof data.reply === 'string' ? data.reply : JSON.stringify(data.reply);
+      // 4. Validate Reply
+      const replyText = data.reply ? String(data.reply) : "No response received.";
 
       setMessages(prev => [...prev, {
-        id: Date.now() + 1,
+        id: generateId(),
         role: "assistant",
         content: replyText
       }]);
 
     } catch (err) {
-      console.error("Chat Error:", err);
+      console.error("Chat Critical Failure:", err);
+      setDebugError(err.message); // Show error on screen
+      
       setMessages(prev => [...prev, {
-        id: Date.now() + 1,
+        id: generateId(),
         role: "assistant",
-        content: "Connection interrupted. Please try again.",
+        content: "I encountered a connection error. Please check the debug log below.",
         isError: true
       }]);
     } finally {
@@ -110,16 +129,15 @@ export default function ChatInterface({ blogContext }) {
             <Bot size={20} className="text-white" />
           </div>
           <div>
-            <h3 className="font-bold text-white text-sm">Digital Twin</h3>
+            <h3 className="font-bold text-white text-sm">Digital Twin <span className="text-xs opacity-50">(v2.1)</span></h3>
             <p className="text-[10px] text-emerald-400 font-mono uppercase tracking-wider flex items-center gap-1">
               <Circle size={6} fill="currentColor" /> Online
             </p>
           </div>
         </div>
         <button
-          onClick={() => setMessages([{ id: Date.now(), role: "assistant", content: "Memory cleared. How can I help?" }])}
+          onClick={() => setMessages([{ id: generateId(), role: "assistant", content: "Memory cleared." }])}
           className="p-2 text-slate-500 hover:text-red-400 transition-colors"
-          aria-label="Clear chat"
         >
           <Trash2 size={18} />
         </button>
@@ -161,6 +179,20 @@ export default function ChatInterface({ blogContext }) {
             </div>
           </div>
         )}
+        
+        {/* ON-SCREEN DEBUGGER */}
+        {debugError && (
+          <div className="w-full p-3 mt-4 bg-red-950/50 border border-red-500/30 rounded-lg">
+            <div className="flex items-center gap-2 text-red-400 mb-1">
+              <AlertTriangle size={14} />
+              <span className="text-xs font-bold uppercase">Debug Error Log</span>
+            </div>
+            <code className="text-[10px] text-red-200 font-mono break-all block">
+              {debugError}
+            </code>
+          </div>
+        )}
+
         <div ref={scrollRef} />
       </div>
 
