@@ -5,9 +5,12 @@ export async function POST(req) {
 
     if (!apiKey) return Response.json({ reply: "System Error: API Key is missing." });
 
-    // We stick to the most stable model: gemini-1.5-flash
+    // 1. Try the specific version: gemini-1.5-flash-latest
+    // (Sometimes the alias 'gemini-1.5-flash' is missing in some regions)
+    const modelToUse = "gemini-1.5-flash-latest";
+    
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${modelToUse}:generateContent?key=${apiKey}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -22,27 +25,38 @@ export async function POST(req) {
 
     const data = await response.json();
     
-    // Handle Errors Gracefully
+    // 2. If it fails, DIAGNOSE the issue
     if (data.error) {
       console.error("Gemini API Error:", data.error);
-      
-      // Check for Quota/Rate Limit
-      if (data.error.code === 429 || data.error.message.includes("quota")) {
-        return Response.json({ reply: "I'm receiving too many messages. Please wait 1 minute and try again." });
-      }
-      
-      // Check for "Not Found" or "User Location" errors
-      if (data.error.code === 404 || data.error.message.includes("not found")) {
-        return Response.json({ reply: "System Error: My AI model is currently unavailable in this region or for this API Key." });
+
+      // If 404 (Model Not Found), let's ask Google what models ARE available
+      if (data.error.code === 404 || data.error.status === "NOT_FOUND") {
+        try {
+          const listRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+          const listData = await listRes.json();
+          
+          if (listData.models) {
+            const availableModels = listData.models
+              .map(m => m.name.replace('models/', '')) // Clean up names
+              .filter(name => name.includes('gemini')) // Only show Gemini models
+              .join(', ');
+              
+            return Response.json({ 
+              reply: `DEBUG: The model '${modelToUse}' was not found. \n\nYOUR AVAILABLE MODELS: \n${availableModels || "None"}. \n\nPlease tell the developer to switch to one of these.` 
+            });
+          }
+        } catch (e) {
+          return Response.json({ reply: "DEBUG: Could not list models. Your API Key might be invalid." });
+        }
       }
 
-      return Response.json({ reply: `System Error: ${data.error.message}` });
+      return Response.json({ reply: `API Error: ${data.error.message}` });
     }
 
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    return Response.json({ reply: text || "I'm online, but I couldn't generate a response." });
+    return Response.json({ reply: text || "No response generated." });
 
   } catch (error) {
-    return Response.json({ reply: "Connection failed. Please check your internet." });
+    return Response.json({ reply: `Server Exception: ${error.message}` });
   }
 }
