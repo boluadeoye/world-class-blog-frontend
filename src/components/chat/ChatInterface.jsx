@@ -1,20 +1,26 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import { Send, Trash2, Sparkles, Bot, User, Circle } from "lucide-react";
+import { Send, Trash2, Sparkles, Bot, User, Circle, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function ChatInterface({ blogContext }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [mounted, setMounted] = useState(false); // Hydration fix
   const scrollRef = useRef(null);
 
-  // 1. Load History on Mount
+  // 1. Handle Hydration & Load History
   useEffect(() => {
+    setMounted(true);
     const saved = localStorage.getItem("bolu_chat_history");
-    if (saved) setMessages(JSON.parse(saved));
-    else {
-      // Initial Greeting
+    if (saved) {
+      try {
+        setMessages(JSON.parse(saved));
+      } catch (e) {
+        console.error("Failed to parse chat history");
+      }
+    } else {
       setMessages([{
         id: "init",
         role: "assistant",
@@ -23,37 +29,34 @@ export default function ChatInterface({ blogContext }) {
     }
   }, []);
 
-  // 2. Save History on Change
+  // 2. Save History
   useEffect(() => {
-    if (messages.length > 0) {
+    if (mounted && messages.length > 0) {
       localStorage.setItem("bolu_chat_history", JSON.stringify(messages));
       scrollToBottom();
     }
-  }, [messages]);
+  }, [messages, mounted]);
 
   const scrollToBottom = () => {
-    scrollRef.current?.scrollIntoView({ behavior: "smooth" });
+    // Small timeout to ensure DOM is updated
+    setTimeout(() => {
+      scrollRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
   };
 
-  // 3. Typing Simulation Engine
   const simulateTyping = async (text) => {
     setIsTyping(true);
     const words = text.split(" ");
     let currentText = "";
-    
-    // Create a temporary ID for the streaming message
     const tempId = Date.now();
     
     setMessages(prev => [...prev, { id: tempId, role: "assistant", content: "" }]);
 
     for (let i = 0; i < words.length; i++) {
       currentText += words[i] + " ";
-      // Update the last message
-      setMessages(prev => prev.map(msg => 
-        msg.id === tempId ? { ...msg, content: currentText } : msg
-      ));
-      // Random typing delay for realism
-      await new Promise(r => setTimeout(r, Math.random() * 30 + 20));
+      setMessages(prev => prev.map(msg => msg.id === tempId ? { ...msg, content: currentText } : msg));
+      // Faster typing for better UX
+      await new Promise(r => setTimeout(r, 20));
     }
     setIsTyping(false);
   };
@@ -68,7 +71,6 @@ export default function ChatInterface({ blogContext }) {
     setIsTyping(true);
 
     try {
-      // Send context (blog posts) along with the message
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -80,16 +82,22 @@ export default function ChatInterface({ blogContext }) {
 
       const data = await res.json();
       
-      // Remove the "Typing..." state visually by overwriting with the simulation
       setIsTyping(false); 
-      if (data.reply) {
+      
+      if (res.ok && data.reply) {
         await simulateTyping(data.reply);
       } else {
-        setMessages(prev => [...prev, { id: Date.now(), role: "assistant", content: "My brain is offline momentarily. Try again?" }]);
+        setMessages(prev => [...prev, { 
+          id: Date.now(), 
+          role: "assistant", 
+          content: `Error: ${data.error || "System malfunction."}`,
+          isError: true
+        }]);
       }
 
     } catch (err) {
       setIsTyping(false);
+      setMessages(prev => [...prev, { id: Date.now(), role: "assistant", content: "Network Error: Could not reach the server." }]);
     }
   };
 
@@ -102,10 +110,12 @@ export default function ChatInterface({ blogContext }) {
     }]);
   };
 
+  // Prevent Hydration Mismatch by not rendering until mounted
+  if (!mounted) return <div className="h-[85vh] max-w-3xl mx-auto bg-slate-900/50 rounded-3xl animate-pulse"></div>;
+
   return (
     <div className="flex flex-col h-[85vh] max-w-3xl mx-auto bg-slate-900/50 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl overflow-hidden">
       
-      {/* === HEADER === */}
       <div className="flex items-center justify-between px-6 py-4 bg-slate-950/80 border-b border-white/5">
         <div className="flex items-center gap-3">
           <div className="relative">
@@ -114,7 +124,6 @@ export default function ChatInterface({ blogContext }) {
                 <Bot size={20} className="text-indigo-400" />
               </div>
             </div>
-            {/* Live Indicator */}
             <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-slate-900 animate-pulse"></div>
           </div>
           <div>
@@ -129,7 +138,6 @@ export default function ChatInterface({ blogContext }) {
         </button>
       </div>
 
-      {/* === CHAT AREA === */}
       <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
         <AnimatePresence>
           {messages.map((msg) => (
@@ -141,14 +149,16 @@ export default function ChatInterface({ blogContext }) {
             >
               {msg.role === 'assistant' && (
                 <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center shrink-0 mt-1">
-                  <Sparkles size={14} className="text-amber-400" />
+                  {msg.isError ? <AlertCircle size={14} className="text-red-500" /> : <Sparkles size={14} className="text-amber-400" />}
                 </div>
               )}
               
               <div className={`max-w-[80%] p-4 rounded-2xl text-sm leading-relaxed ${
                 msg.role === 'user' 
                   ? 'bg-indigo-600 text-white rounded-tr-none' 
-                  : 'bg-slate-800/80 text-slate-200 border border-white/5 rounded-tl-none'
+                  : msg.isError 
+                    ? 'bg-red-900/20 text-red-200 border border-red-500/20 rounded-tl-none'
+                    : 'bg-slate-800/80 text-slate-200 border border-white/5 rounded-tl-none'
               }`}>
                 {msg.content}
               </div>
@@ -162,7 +172,7 @@ export default function ChatInterface({ blogContext }) {
           ))}
         </AnimatePresence>
         
-        {isTyping && !messages[messages.length-1]?.content && (
+        {isTyping && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-4">
             <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center shrink-0">
               <Sparkles size={14} className="text-amber-400" />
@@ -177,7 +187,6 @@ export default function ChatInterface({ blogContext }) {
         <div ref={scrollRef} />
       </div>
 
-      {/* === INPUT === */}
       <div className="p-4 bg-slate-950 border-t border-white/5">
         <form onSubmit={handleSend} className="relative flex items-center gap-2 bg-slate-900 rounded-full p-1.5 border border-white/10 focus-within:border-indigo-500/50 transition-colors">
           <input 

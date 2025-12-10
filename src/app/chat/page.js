@@ -7,13 +7,24 @@ export const metadata = {
 };
 
 export default async function ChatPage() {
-  // Fetch all posts to feed the AI's brain
-  const posts = await fetchLatestArticles(50);
-  
-  // Format context for the AI
-  const blogContext = posts.map(p => 
-    `Title: ${p.title}\nSummary: ${p.excerpt}\nCategory: ${p.meta?.category}`
-  ).join("\n\n");
+  let blogContext = "";
+
+  try {
+    // Safely fetch posts
+    const posts = await fetchLatestArticles(50);
+    
+    if (Array.isArray(posts)) {
+      blogContext = posts.map(p => 
+        `Title: ${p.title}\nSummary: ${p.excerpt}\nCategory: ${p.meta?.category}`
+      ).join("\n\n");
+    } else {
+      console.warn("ChatPage: fetchLatestArticles did not return an array.");
+    }
+  } catch (error) {
+    console.error("ChatPage Error: Failed to load blog context.", error);
+    // Fallback context so the chat still works
+    blogContext = "The blog data is currently unavailable, but I can still answer general technical questions.";
+  }
 
   return (
     <main className="min-h-screen bg-[#020617] text-white pt-24 pb-12 px-4 md:px-8 selection:bg-indigo-500/30">
@@ -28,7 +39,7 @@ export default async function ChatPage() {
       <div className="relative z-10">
         <div className="text-center mb-8">
           <h1 className="font-serif text-4xl md:text-5xl font-medium mb-3">Intelligence Hub</h1>
-          <p className="text-slate-400 text-sm">Powered by Gemini 2.0 Flash • Trained on 50+ Articles</p>
+          <p className="text-slate-400 text-sm">Powered by Gemini • Always Online</p>
         </div>
 
         <ChatInterface blogContext={blogContext} />
