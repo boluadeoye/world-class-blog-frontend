@@ -1,47 +1,53 @@
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
 export async function POST(req) {
   try {
-    const body = await req.json();
-    const messages = body.messages || [];
-    const context = body.context || "";
+    const { messages, context } = await req.json();
     const apiKey = process.env.GEMINI_API_KEY;
 
-    if (!apiKey) return new Response(JSON.stringify({ reply: "System Error: API Key missing." }), { status: 200 });
+    if (!apiKey) {
+      return new Response(JSON.stringify({ error: "Configuration Error: GEMINI_API_KEY is missing in Vercel." }), { status: 500 });
+    }
 
-    const systemInstruction = `
+    const genAI = new GoogleGenerativeAI(apiKey);
+    
+    // USE STABLE MODEL (1.5 Flash)
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+    const systemPrompt = `
       You are the Digital Twin of Boluwatife Adeoye.
-      Context: ${context}
+      Context: ${context || "General tech knowledge."}
       Keep answers under 3 sentences. Be professional yet witty.
     `;
 
-    const contents = [
-      { role: "user", parts: [{ text: systemInstruction }] },
-      ...messages.map(m => ({
+    // Sanitize History (Remove empty/broken messages)
+    const validHistory = messages
+      .filter(m => m.content && typeof m.content === 'string' && m.content.trim() !== "")
+      .map(m => ({
         role: m.role === 'user' ? 'user' : 'model',
-        parts: [{ text: String(m.content || "") }]
-      }))
-    ];
+        parts: [{ text: m.content }]
+      }));
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contents })
-      }
-    );
+    const chat = model.startChat({
+      history: [
+        { role: "user", parts: [{ text: "System Initialization" }] },
+        { role: "model", parts: [{ text: systemPrompt }] },
+        ...validHistory.slice(0, -1) // Previous messages
+      ],
+    });
 
-    const data = await response.json();
+    const lastMessage = validHistory[validHistory.length - 1].parts[0].text;
+    
+    const result = await chat.sendMessage(lastMessage);
+    const response = result.response.text();
 
-    if (!response.ok) {
-      console.error("Google API Error:", data);
-      return new Response(JSON.stringify({ reply: "I am currently experiencing high traffic. Please try again." }), { status: 200 });
-    }
-
-    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "No response generated.";
-    return new Response(JSON.stringify({ reply }), { status: 200 });
+    return new Response(JSON.stringify({ reply: response }), { status: 200 });
 
   } catch (error) {
-    console.error("Server Error:", error);
-    return new Response(JSON.stringify({ reply: "Connection interrupted. Please retry." }), { status: 200 });
+    console.error("AI Error:", error);
+    // Return the ACTUAL error so we can debug
+    return new Response(JSON.stringify({ 
+      error: `Google Error: ${error.message}` 
+    }), { status: 500 });
   }
 }
