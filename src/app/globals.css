@@ -4,167 +4,50 @@
 
 :root {
   --foreground-rgb: 255, 255, 255;
-  --background-start-rgb: 2, 6, 23; /* Slate 950 */
-  --background-end-rgb: 0, 0, 0;
+  --background-start-rgb: 2, 6, 23;
+  --background-end-rgb: 15, 23, 42;
 }
 
-/* === PREMIUM FONT RENDERING === */
 body {
-  font-family: var(--font-sans);
-  background: rgb(var(--background-start-rgb));
   color: rgb(var(--foreground-rgb));
-  
-  /* Make text look sharper and thinner */
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
 }
 
-/* Luxury Headings */
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-serif);
-  letter-spacing: -0.02em; /* Tighten for elegance */
+/* Custom Scrollbar for Chat */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
 }
 
-/* === ANIMATIONS === */
-@keyframes beam-sweep {
-  0% { transform: translateX(-150%) skewX(-20deg); }
-  20% { transform: translateX(150%) skewX(-20deg); }
-  100% { transform: translateX(150%) skewX(-20deg); }
+/* Hide scrollbar for suggestions but keep functionality */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
 }
 
-.animate-beam::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 50%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-  transform: translateX(-150%);
-  animation: beam-sweep 4s infinite ease-in-out;
-  pointer-events: none;
-}
-
-@keyframes border-pulse {
-  0% { border-color: rgba(255,255,255,0.1); box-shadow: 0 0 0 rgba(16,185,129,0); }
-  50% { border-color: rgba(16,185,129,0.5); box-shadow: 0 0 15px rgba(16,185,129,0.2); }
-  100% { border-color: rgba(255,255,255,0.1); box-shadow: 0 0 0 rgba(16,185,129,0); }
-}
-
-.animate-border-pulse {
-  animation: border-pulse 3s infinite ease-in-out;
-}
-
-@keyframes finger-tap {
-  0% { transform: translate(10px, 10px) scale(1); opacity: 0.8; }
-  40% { transform: translate(0, 0) scale(1); opacity: 1; }
-  50% { transform: translate(0, 0) scale(0.9); }
-  60% { transform: translate(0, 0) scale(1); }
-  100% { transform: translate(10px, 10px) scale(1); opacity: 0.8; }
-}
-
-.animate-finger {
-  animation: finger-tap 2s infinite ease-in-out;
-  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
-}
-
-@keyframes shimmer {
-  100% { transform: translateX(100%); }
-}
-
-/* === HIDE HEADER ON HOME === */
-body:has(.hero-section) header {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  backdrop-filter: none !important;
-  pointer-events: none;
-}
-body:has(.hero-section) header > *:not(button):not(.mobile-menu-trigger) {
-  display: none !important;
-}
-body:has(.hero-section) header button,
-body:has(.hero-section) header .mobile-menu-trigger {
-  display: flex !important;
-  pointer-events: auto;
-  position: fixed !important;
-  top: 24px !important;
-  right: 24px !important;
-  z-index: 100 !important;
-  width: 50px;
-  height: 50px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 9999px;
-  background: rgba(15, 23, 42, 0.6) !important;
-  backdrop-filter: blur(12px);
+/* Glassmorphism Utilities */
+.glass {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-  color: white !important;
-}
-
-/* === UNSTICK HEADER === */
-/* Forces the navbar to scroll away with the page */
-header {
-  position: absolute !important;
-  top: 0;
-  width: 100%;
-  z-index: 50;
-  background: transparent !important;
-  backdrop-filter: none !important;
-  border-bottom: none !important;
-}
-
-/* === PRINT STYLES === */
-@media print {
-  body * {
-    visibility: hidden;
-  }
-  /* Only show the printable area */
-  #printable-content, #printable-content * {
-    visibility: visible;
-  }
-  /* Reset background colors for printing */
-  body {
-    background: white;
-    color: black;
-  }
-  /* Hide scrollbars and UI */
-  ::-webkit-scrollbar {
-    display: none;
-  }
-  @page {
-    size: auto;
-    margin: 0mm;
-  }
-}
-
-/* === STRICT PRINT RULES === */
-@media print {
-  /* Hide everything by default */
-  body * {
-    visibility: hidden;
-  }
-  
-  /* Show only the print layer */
-  .print\:block, .print\:block * {
-    visibility: visible;
-  }
-  
-  /* Position the print layer at the top */
-  .print\:absolute {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    margin: 0;
-    padding: 0;
-  }
-
-  /* Reset background */
-  body {
-    background: white !important;
-    color: black !important;
-  }
 }
