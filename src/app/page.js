@@ -24,7 +24,8 @@ export default async function Page() {
   const subFeatures = featuredPosts?.slice(1, 3) || latest?.slice(1, 3);
 
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-200 selection:bg-amber-500/30 overflow-x-hidden">
+    // FIXED: Added 'fixed inset-0 z-[100] overflow-y-auto' to cover the global header
+    <main className="fixed inset-0 z-[100] overflow-y-auto bg-slate-950 text-slate-200 selection:bg-amber-500/30">
       
       <ModernHero />
 
@@ -68,7 +69,7 @@ export default async function Page() {
                 </ScrollReveal>
               </div>
             )}
-            
+
             <div className="md:col-span-4 flex flex-col gap-6">
               {subFeatures.map((post, idx) => (
                 <ScrollReveal key={post.slug} delay={0.2 + (idx * 0.1)}>
@@ -94,8 +95,6 @@ export default async function Page() {
       {/* === 3. SERVICES & VIDEO === */}
       <section className="px-6 md:px-12 py-12 bg-slate-900/30 border-t border-slate-800/50">
         <div className="max-w-7xl mx-auto">
-          
-          {/* REPLACED EMPTY LIST WITH SERVICE DECK */}
           <ScrollReveal>
             <ServiceDeck />
           </ScrollReveal>
@@ -135,7 +134,6 @@ export default async function Page() {
 
       {/* === 5. NEWSLETTER === */}
       <Newsletter />
-
     </main>
   );
 }
