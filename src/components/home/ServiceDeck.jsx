@@ -1,115 +1,118 @@
 "use client";
-import Link from "next/link";
-import { ArrowRight, Code2, Brain, Database, Layout, Smartphone, Terminal, LineChart } from "lucide-react";
+import { motion } from "framer-motion";
+import { Code, Bot, Database, PenTool, ArrowUpRight, Terminal } from "lucide-react";
 
 const services = [
   {
+    id: "01",
+    title: "AI Agents & Chatbots",
+    description: "Intelligent WhatsApp Bots & Custom Agents. I build systems that handle sales, support, and transactions 24/7 using Llama 3 & Groq.",
+    icon: Bot,
+    color: "from-emerald-400 to-cyan-500",
+    bg: "group-hover:bg-emerald-500/5",
+    border: "group-hover:border-emerald-500/50"
+  },
+  {
+    id: "02",
     title: "Premium Web Engineering",
-    desc: "High-performance, SEO-optimized corporate platforms that convert visitors into loyal customers.",
-    icon: <Layout size={24} className="text-indigo-300" />,
-    bg: "from-indigo-500/20 to-purple-900/20"
+    description: "High-performance, SEO-optimized corporate platforms built on Next.js 14. Pixel-perfect implementations of complex designs.",
+    icon: Code,
+    color: "from-indigo-400 to-purple-500",
+    bg: "group-hover:bg-indigo-500/5",
+    border: "group-hover:border-indigo-500/50"
   },
   {
-    title: "AI & Neural Systems",
-    desc: "Custom RAG chatbots and automation agents trained on your specific business data.",
-    icon: <Brain size={24} className="text-amber-300" />,
-    bg: "from-amber-500/20 to-orange-900/20"
-  },
-  {
+    id: "03",
     title: "SaaS Architecture",
-    desc: "Scalable, multi-tenant web applications with secure authentication and complex databases.",
-    icon: <Code2 size={24} className="text-emerald-300" />,
-    bg: "from-emerald-500/20 to-teal-900/20"
+    description: "Scalable backend systems using Supabase and PostgreSQL. Secure authentication, real-time databases, and edge functions.",
+    icon: Database,
+    color: "from-amber-400 to-orange-500",
+    bg: "group-hover:bg-amber-500/5",
+    border: "group-hover:border-amber-500/50"
   },
   {
-    title: "Mobile App Development",
-    desc: "Native-feel mobile experiences using React Native. iOS and Android from a single codebase.",
-    icon: <Smartphone size={24} className="text-rose-300" />,
-    bg: "from-rose-500/20 to-pink-900/20"
-  },
-  {
-    title: "API & Backend Systems",
-    desc: "Robust, type-safe API design (REST/GraphQL) to power your entire digital ecosystem.",
-    icon: <Database size={24} className="text-cyan-300" />,
-    bg: "from-cyan-500/20 to-blue-900/20"
-  },
-  {
-    title: "Technical Consultancy",
-    desc: "Strategic guidance on tech stacks, system design, and hiring for non-technical founders.",
-    icon: <LineChart size={24} className="text-violet-300" />,
-    bg: "from-violet-500/20 to-fuchsia-900/20"
+    id: "04",
+    title: "Technical Writing",
+    description: "Clear, compelling technical documentation and articles that bridge the gap between complex code and human understanding.",
+    icon: PenTool,
+    color: "from-pink-400 to-rose-500",
+    bg: "group-hover:bg-pink-500/5",
+    border: "group-hover:border-pink-500/50"
   }
 ];
 
 export default function ServiceDeck() {
   return (
-    <section className="py-20 relative z-10">
-      <div className="max-w-7xl mx-auto px-6 md:px-12">
-        
-        {/* Header */}
-        <div className="flex items-center gap-4 mb-10">
-          <div className="p-2.5 rounded-xl bg-white/5 border border-white/10 shadow-inner">
-            <Terminal size={20} className="text-white" />
-          </div>
-          <div>
-            <h3 className="font-serif text-3xl md:text-4xl text-white tracking-tight leading-none">Services & Solutions</h3>
-            <p className="font-sans text-[10px] font-bold text-slate-500 tracking-[0.2em] uppercase mt-1">
-              Engineering Excellence
-            </p>
-          </div>
+    <section className="py-10">
+      {/* Section Header */}
+      <div className="flex flex-col md:flex-row justify-between items-end mb-12">
+        <div>
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            className="flex items-center gap-3 mb-4"
+          >
+            <div className="p-2 bg-slate-800/50 rounded-lg border border-slate-700/50 backdrop-blur-sm">
+              <Terminal size={18} className="text-indigo-400" />
+            </div>
+            <span className="text-indigo-400 font-mono text-xs md:text-sm tracking-widest uppercase font-bold">Engineering Excellence</span>
+          </motion.div>
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-4xl md:text-5xl font-serif text-white"
+          >
+            Services & <span className="italic text-slate-500">Solutions</span>
+          </motion.h2>
         </div>
+      </div>
 
-        {/* Horizontal Scroll Container */}
-        <div className="flex gap-6 overflow-x-auto pb-12 snap-x scrollbar-hide -mx-6 px-6 md:mx-0 md:px-0">
-          {services.map((s, i) => (
-            <Link 
-              key={i} 
-              href="/chat"
-              className="group relative min-w-[280px] md:min-w-[320px] h-[360px] snap-start"
-            >
-              {/* Card Container */}
-              <div className="absolute inset-0 rounded-[2rem] bg-slate-950 border border-white/10 overflow-hidden transition-all duration-500 group-hover:border-white/20 group-hover:shadow-2xl group-hover:-translate-y-2">
-                
-                {/* Dynamic Background Gradient */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${s.bg} opacity-0 group-hover:opacity-100 transition-opacity duration-700`}></div>
-                
-                {/* Noise Texture */}
-                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03]"></div>
+      {/* Cards Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {services.map((service, index) => (
+          <motion.div
+            key={service.id}
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ delay: index * 0.1, duration: 0.5 }}
+            className={`group relative p-8 rounded-[2rem] bg-slate-900/40 border border-white/5 backdrop-blur-md overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl ${service.border}`}
+          >
+            {/* Hover Glow Background */}
+            <div className={`absolute inset-0 opacity-0 transition-opacity duration-700 ${service.bg}`} />
 
-                {/* Content */}
-                <div className="relative z-10 h-full p-8 flex flex-col justify-between">
-                  <div>
-                    {/* Icon Box */}
-                    <div className="mb-6 p-4 rounded-2xl bg-white/5 border border-white/10 w-fit shadow-lg group-hover:scale-110 transition-transform duration-500 backdrop-blur-md">
-                      {s.icon}
-                    </div>
-                    
-                    {/* Title */}
-                    <h4 className="font-serif text-3xl text-white leading-[1.1] mb-4 group-hover:text-white/90 transition-colors">
-                      {s.title}
-                    </h4>
-                    
-                    {/* Description */}
-                    <p className="font-sans text-sm text-slate-400 leading-relaxed group-hover:text-slate-300 transition-colors">
-                      {s.desc}
-                    </p>
-                  </div>
+            {/* Shiny Gradient Overlay */}
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-700 bg-gradient-to-br from-white via-transparent to-transparent pointer-events-none" />
 
-                  {/* Footer Action */}
-                  <div className="flex items-center justify-between pt-6 border-t border-white/5 group-hover:border-white/10 transition-colors">
-                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-white transition-colors">
-                      Initiate
-                    </span>
-                    <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-white group-hover:text-black transition-all duration-300">
-                      <ArrowRight size={14} />
-                    </div>
-                  </div>
+            <div className="relative z-10 flex flex-col h-full justify-between gap-8">
+              {/* Icon & ID */}
+              <div className="flex justify-between items-start">
+                <div className={`p-4 rounded-2xl bg-slate-950 border border-white/10 shadow-xl group-hover:scale-110 transition-transform duration-500`}>
+                  <service.icon size={32} className={`bg-gradient-to-br ${service.color} bg-clip-text text-transparent`} />
                 </div>
+                <span className="font-mono text-slate-700 text-xl font-bold group-hover:text-slate-500 transition-colors">{service.id}</span>
               </div>
-            </Link>
-          ))}
-        </div>
 
+              {/* Content */}
+              <div>
+                <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-slate-400 transition-all">
+                  {service.title}
+                </h3>
+                <p className="text-slate-400 leading-relaxed group-hover:text-slate-300 transition-colors">
+                  {service.description}
+                </p>
+              </div>
+
+              {/* Action Link */}
+              <div className="flex items-center gap-2 text-xs font-bold tracking-widest uppercase text-slate-600 group-hover:text-white transition-colors">
+                <span>Initiate Protocol</span>
+                <ArrowUpRight size={14} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+              </div>
+            </div>
+          </motion.div>
+        ))}
       </div>
     </section>
   );
