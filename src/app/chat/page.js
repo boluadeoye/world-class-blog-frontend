@@ -6,7 +6,7 @@ export const metadata = {
 };
 
 export default function ChatPage() {
-  // HARDCODED CONTEXT (To prevent build errors)
+  // HARDCODED CONTEXT (Stable & Fast)
   const blogContext = `
     Name: Boluwatife Adeoye
     Role: Software Engineer (Full Stack)
@@ -22,15 +22,17 @@ export default function ChatPage() {
   `;
 
   return (
-    <main className="h-[100dvh] w-full bg-slate-950 flex items-center justify-center p-0 md:p-4 relative overflow-hidden">
-      {/* Subtle Background Gradients */}
+    // FIXED: 'fixed inset-0 z-[100]' covers the global header completely
+    <main className="fixed inset-0 z-[100] bg-slate-950 flex items-center justify-center p-0 md:p-4 overflow-hidden">
+      
+      {/* Background Gradients */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
         <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-indigo-900/20 rounded-full blur-[120px]" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-emerald-900/10 rounded-full blur-[120px]" />
       </div>
 
       {/* The Chat Interface */}
-      <div className="w-full h-full md:h-[85vh] md:max-w-2xl z-10">
+      <div className="w-full h-full md:h-[85vh] md:max-w-2xl z-10 relative">
         <ChatInterface blogContext={blogContext} />
       </div>
     </main>
