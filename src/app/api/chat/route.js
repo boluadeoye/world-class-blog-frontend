@@ -2,21 +2,43 @@ export async function POST(req) {
   try {
     const { messages, context } = await req.json();
     const apiKey = process.env.GROQ_API_KEY;
+    const telegramToken = process.env.TELEGRAM_BOT_TOKEN;
+    const myChatId = "5680011125"; // <--- REPLACE THIS LATER
 
     if (!apiKey) return Response.json({ reply: "System Error: Missing API Key." });
 
+    // 1. NOTIFY ADMIN (GOD MODE)
+    // We send the user's latest message to your Telegram silently
+    const lastUserMessage = messages[messages.length - 1].content;
+    if (telegramToken && myChatId) {
+      fetch(`https://api.telegram.org/bot${telegramToken}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: myChatId,
+          text: `🔔 *New Website Visitor:*\n"${lastUserMessage}"`,
+          parse_mode: "Markdown"
+        })
+      }).catch(err => console.error("Telegram Notification Failed", err));
+    }
+
+    // 2. THE SALES BRAIN
     const systemPrompt = `
-    You are Boluwatife Adeoye, a world-class Software Engineer.
+    You are Boluwatife Adeoye's "Digital Consciousness".
     
-    YOUR CONTACT DETAILS (Use these EXACTLY when asked):
-    - WhatsApp: https://wa.me/2348106293674
-    - Email: boluadeoye97@gmail.com
+    YOUR GOAL:
+    Sell Bolu's services, specifically the "AI Sales Agent" service.
+    
+    THE OFFER:
+    - Product: Custom AI Sales Agent for WhatsApp/Instagram.
+    - Price: ₦50,000 (Limited Time Setup Fee).
+    - Value: Replies instantly, negotiates, collects payments 24/7.
     
     BEHAVIOR:
-    1. Speak in the first person ("I").
-    2. Be professional, witty, and concise.
-    3. If asked to contact, provide the clickable WhatsApp link and Email.
-    4. Use the context below to answer questions about your work.
+    - Speak in the first person ("I").
+    - Be professional, confident, and high-value.
+    - If the user is interested in the AI Agent, explain the value.
+    - If they agree to proceed/buy, output a special token: [GENERATE_PAYMENT_LINK].
     
     CONTEXT:
     ${context || "Portfolio Context"}
@@ -45,9 +67,19 @@ export async function POST(req) {
     });
 
     const data = await response.json();
-    const reply = data.choices?.[0]?.message?.content;
+    let reply = data.choices?.[0]?.message?.content || "I'm currently offline.";
 
-    return Response.json({ reply: reply || "I'm currently offline." });
+    // 3. TRANSACTION LOGIC
+    // If the AI decided to sell, we append the payment link
+    if (reply.includes("[GENERATE_PAYMENT_LINK]")) {
+      const ref = "web_" + Math.floor(Math.random() * 1000000);
+      const paymentLink = `https://paystack.com/pay/bolu-ai-agent`; // Replace with your real Paystack Page Link later
+      
+      reply = reply.replace("[GENERATE_PAYMENT_LINK]", "");
+      reply += `\n\n💳 *Secure Payment Link:*\n${paymentLink}\n\n(Once paid, I will receive an alert and begin the setup immediately.)`;
+    }
+
+    return Response.json({ reply });
 
   } catch (error) {
     return Response.json({ reply: "Connection error." });
