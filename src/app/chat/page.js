@@ -1,39 +1,34 @@
-import ChatInterface from "../../components/chat/ChatInterface";
-import { fetchLatestArticles } from "../../lib/homeData";
+import ChatInterface from "@/components/chat/ChatInterface";
+import { homeData } from "@/lib/homeData";
 
 export const metadata = {
-  title: "Chat with Bolu's AI",
-  description: "An intelligent digital twin of Boluwatife Adeoye.",
+  title: "Chat with Bolu | Digital Twin",
+  description: "Ask my AI digital twin about my projects, skills, and experience.",
 };
 
-export default async function ChatPage() {
-  let blogContext = "";
-  try {
-    const posts = await fetchLatestArticles(50).catch(() => []);
-    if (Array.isArray(posts)) {
-      blogContext = posts.map(p => `Title: ${p.title}\nSummary: ${p.excerpt}`).join("\n\n");
-    }
-  } catch (e) {}
+export default function ChatPage() {
+  // Prepare context
+  const blogContext = `
+    Name: Boluwatife Adeoye
+    Role: ${homeData.hero.role}
+    Bio: ${homeData.hero.description}
+    Tech Stack: ${homeData.skills.map(s => s.name).join(", ")}
+    Projects: ${homeData.projects.map(p => `${p.title} (${p.tech})`).join("; ")}
+    Contact: Email: boluadeoye97@gmail.com, Phone: 08106293674
+  `;
 
   return (
-    // Z-INDEX 100 forces it above the global header
-    <main className="fixed inset-0 z-[100] bg-[#020617] text-white flex flex-col">
-      
-      {/* Background */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] bg-indigo-600/10 blur-[120px] rounded-full"></div>
-        <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-amber-600/5 blur-[100px] rounded-full"></div>
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.04]"></div>
+    <main className="h-[100dvh] w-full bg-slate-950 flex items-center justify-center p-0 md:p-4 relative overflow-hidden">
+      {/* Subtle Background Gradients */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-indigo-900/20 rounded-full blur-[120px]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-emerald-900/10 rounded-full blur-[120px]" />
       </div>
 
-      {/* Content */}
-      <div className="relative z-10 flex-1 flex flex-col max-w-5xl mx-auto w-full p-4 md:p-8">
-        <div className="mb-4">
-           <a href="/" className="text-slate-500 hover:text-white text-xs font-bold uppercase tracking-widest">← Back to Portfolio</a>
-        </div>
+      {/* The Chat Interface - Full Height on Mobile, Boxed on Desktop */}
+      <div className="w-full h-full md:h-[85vh] md:max-w-2xl z-10">
         <ChatInterface blogContext={blogContext} />
       </div>
-
     </main>
   );
 }
