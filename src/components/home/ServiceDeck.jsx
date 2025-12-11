@@ -1,118 +1,114 @@
 "use client";
 import { motion } from "framer-motion";
-import { Code, Bot, Database, PenTool, ArrowUpRight, Terminal } from "lucide-react";
+import { Bot, Code, Database, PenTool, ArrowRight } from "lucide-react";
 
 const services = [
   {
     id: "01",
     title: "AI Agents & Chatbots",
-    description: "Flagship Service. Intelligent WhatsApp Bots & Custom Agents that handle sales, support, and transactions 24/7 using Llama 3 & Groq.",
+    desc: "Intelligent WhatsApp Bots & Custom Agents handling sales & support 24/7.",
     icon: Bot,
-    color: "from-emerald-400 to-cyan-500",
-    bg: "group-hover:bg-emerald-500/5",
-    border: "group-hover:border-emerald-500/50"
+    accent: "text-emerald-400",
+    gradient: "from-emerald-500/20 to-cyan-500/5",
+    pattern: (
+      <svg className="absolute right-0 bottom-0 w-32 h-32 opacity-20" viewBox="0 0 100 100">
+        <path d="M10 90 Q 50 10 90 90" fill="none" stroke="currentColor" strokeWidth="2" className="text-emerald-500" />
+        <circle cx="50" cy="50" r="20" fill="none" stroke="currentColor" strokeWidth="2" className="text-emerald-500" />
+        <circle cx="50" cy="50" r="10" fill="currentColor" className="text-emerald-500" />
+      </svg>
+    )
   },
   {
     id: "02",
-    title: "Premium Web Engineering",
-    description: "High-performance, SEO-optimized corporate platforms built on Next.js 14. Pixel-perfect implementations of complex designs.",
+    title: "Web Engineering",
+    desc: "High-performance, SEO-optimized corporate platforms built on Next.js 14.",
     icon: Code,
-    color: "from-indigo-400 to-purple-500",
-    bg: "group-hover:bg-indigo-500/5",
-    border: "group-hover:border-indigo-500/50"
+    accent: "text-indigo-400",
+    gradient: "from-indigo-500/20 to-purple-500/5",
+    pattern: (
+      <svg className="absolute right-0 bottom-0 w-32 h-32 opacity-20" viewBox="0 0 100 100">
+        <rect x="20" y="20" width="60" height="60" rx="8" fill="none" stroke="currentColor" strokeWidth="2" className="text-indigo-500" />
+        <path d="M20 50 H 80 M 50 20 V 80" stroke="currentColor" strokeWidth="2" className="text-indigo-500" />
+      </svg>
+    )
   },
   {
     id: "03",
     title: "SaaS Architecture",
-    description: "Scalable backend systems using Supabase and PostgreSQL. Secure authentication, real-time databases, and edge functions.",
+    desc: "Scalable backend systems using Supabase. Secure auth & real-time databases.",
     icon: Database,
-    color: "from-amber-400 to-orange-500",
-    bg: "group-hover:bg-amber-500/5",
-    border: "group-hover:border-amber-500/50"
+    accent: "text-amber-400",
+    gradient: "from-amber-500/20 to-orange-500/5",
+    pattern: (
+      <svg className="absolute right-0 bottom-0 w-32 h-32 opacity-20" viewBox="0 0 100 100">
+        <path d="M10 50 L 30 20 L 70 20 L 90 50 L 70 80 L 30 80 Z" fill="none" stroke="currentColor" strokeWidth="2" className="text-amber-500" />
+        <circle cx="50" cy="50" r="15" fill="currentColor" className="text-amber-500/50" />
+      </svg>
+    )
   },
   {
     id: "04",
     title: "Technical Writing",
-    description: "Clear, compelling technical documentation and articles that bridge the gap between complex code and human understanding.",
+    desc: "Compelling documentation bridging complex code and human understanding.",
     icon: PenTool,
-    color: "from-pink-400 to-rose-500",
-    bg: "group-hover:bg-pink-500/5",
-    border: "group-hover:border-pink-500/50"
+    accent: "text-pink-400",
+    gradient: "from-pink-500/20 to-rose-500/5",
+    pattern: (
+      <svg className="absolute right-0 bottom-0 w-32 h-32 opacity-20" viewBox="0 0 100 100">
+        <path d="M20 80 C 20 40, 80 40, 80 20" fill="none" stroke="currentColor" strokeWidth="2" className="text-pink-500" />
+        <path d="M20 90 H 80" stroke="currentColor" strokeWidth="2" className="text-pink-500" />
+      </svg>
+    )
   }
 ];
 
 export default function ServiceDeck() {
   return (
-    <section className="py-20 relative z-10">
-      {/* Section Header */}
-      <div className="flex flex-col md:flex-row justify-between items-end mb-12">
+    <section className="py-8 relative z-20">
+      <div className="max-w-7xl mx-auto px-6 md:px-12 mb-6 flex justify-between items-end">
         <div>
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            className="flex items-center gap-3 mb-4"
-          >
-            <div className="p-2 bg-slate-800/50 rounded-lg border border-slate-700/50 backdrop-blur-sm">
-              <Terminal size={18} className="text-indigo-400" />
-            </div>
-            <span className="text-indigo-400 font-mono text-xs md:text-sm tracking-widest uppercase font-bold">Engineering Excellence</span>
-          </motion.div>
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-serif text-white"
-          >
+          <h2 className="font-serif text-2xl md:text-3xl text-white">
             Services & <span className="italic text-slate-500">Solutions</span>
-          </motion.h2>
+          </h2>
+        </div>
+        <div className="hidden md:flex text-xs font-mono text-slate-500 gap-2">
+          <span>SCROLL</span> <ArrowRight size={14} />
         </div>
       </div>
 
-      {/* Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {services.map((service, index) => (
+      {/* Horizontal Scroll Container */}
+      <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 px-6 md:px-12 pb-8 scrollbar-none">
+        {services.map((s) => (
           <motion.div
-            key={service.id}
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-50px" }}
-            transition={{ delay: index * 0.1, duration: 0.5 }}
-            className={`group relative p-8 rounded-[2rem] bg-slate-900/40 border border-white/5 backdrop-blur-md overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl ${service.border}`}
+            key={s.id}
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            className="snap-center shrink-0 w-[85vw] md:w-[350px] h-[220px] relative rounded-3xl bg-slate-900/60 backdrop-blur-xl border border-white/5 overflow-hidden group hover:border-white/10 transition-all"
           >
-            {/* Hover Glow Background */}
-            <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 ${service.bg}`} />
+            {/* Gradient Background */}
+            <div className={`absolute inset-0 bg-gradient-to-br ${s.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+            
+            {/* Abstract SVG Pattern */}
+            {s.pattern}
 
-            {/* Shiny Gradient Overlay */}
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-700 bg-gradient-to-br from-white/5 via-transparent to-transparent pointer-events-none" />
-
-            <div className="relative z-10 flex flex-col h-full justify-between gap-8">
-              {/* Icon & ID */}
+            <div className="relative z-10 p-6 flex flex-col h-full justify-between">
               <div className="flex justify-between items-start">
-                <div className={`p-4 rounded-2xl bg-slate-950 border border-white/10 shadow-xl group-hover:scale-110 transition-transform duration-500`}>
-                  <service.icon size={32} className={`bg-gradient-to-br ${service.color} bg-clip-text text-transparent`} />
+                <div className={`p-3 rounded-xl bg-slate-950/50 border border-white/10 ${s.accent}`}>
+                  <s.icon size={24} />
                 </div>
-                <span className="font-mono text-slate-700 text-xl font-bold group-hover:text-slate-500 transition-colors">{service.id}</span>
+                <span className="font-mono text-3xl font-bold text-white/5 group-hover:text-white/10 transition-colors">{s.id}</span>
               </div>
 
-              {/* Content */}
               <div>
-                <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-slate-400 transition-all">
-                  {service.title}
-                </h3>
-                <p className="text-slate-400 leading-relaxed group-hover:text-slate-300 transition-colors">
-                  {service.description}
-                </p>
-              </div>
-
-              {/* Action Link */}
-              <div className="flex items-center gap-2 text-xs font-bold tracking-widest uppercase text-slate-600 group-hover:text-white transition-colors">
-                <span>Initiate Protocol</span>
-                <ArrowUpRight size={14} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                <h3 className="text-lg font-bold text-white mb-2">{s.title}</h3>
+                <p className="text-sm text-slate-400 leading-relaxed line-clamp-2">{s.desc}</p>
               </div>
             </div>
           </motion.div>
         ))}
+        {/* Spacer for end of scroll */}
+        <div className="w-6 shrink-0" />
       </div>
     </section>
   );

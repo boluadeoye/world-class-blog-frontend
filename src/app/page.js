@@ -24,16 +24,19 @@ export default async function Page() {
   const subFeatures = featuredPosts?.slice(1, 3) || latest?.slice(1, 3);
 
   return (
-    // FIXED: z-[9999] guarantees this covers the global header
     <main className="fixed inset-0 z-[9999] overflow-y-auto bg-slate-950 text-slate-200 selection:bg-amber-500/30">
       
+      {/* 1. HERO SECTION */}
       <ModernHero />
+
+      {/* 2. SERVICES (Moved Up & Horizontal) */}
+      <ServiceDeck />
 
       <div className="w-full max-w-7xl mx-auto px-6 md:px-12 mb-12">
         <div className="h-px w-full bg-gradient-to-r from-transparent via-slate-700 to-transparent opacity-50"></div>
       </div>
 
-      {/* EDITOR'S PICKS */}
+      {/* 3. EDITOR'S PICKS */}
       <section className="px-6 md:px-12 pb-12 relative z-10">
         <div className="max-w-7xl mx-auto">
           <ScrollReveal>
@@ -92,47 +95,40 @@ export default async function Page() {
         </div>
       </section>
 
-      {/* === 3. SERVICES & VIDEO === */}
+      {/* === 4. VIDEO SECTION (Services removed from here) === */}
       <section className="px-6 md:px-12 py-12 bg-slate-900/30 border-t border-slate-800/50">
         <div className="max-w-7xl mx-auto">
-          <ScrollReveal>
-            <ServiceDeck />
-          </ScrollReveal>
-
-          {/* VIDEO SECTION */}
-          <div className="mt-20">
-            <ScrollReveal delay={0.2}>
-              <h3 className="font-serif text-3xl text-slate-100 mb-8 flex items-center gap-3">
-                <Play className="text-red-500" size={28} /> On Air
-              </h3>
-              {featuredVideo && featuredVideo.id ? (
-                <div className="relative group rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 shadow-2xl max-w-4xl mx-auto">
-                  <div className="aspect-video relative">
-                    <iframe
-                      src={`https://www.youtube-nocookie.com/embed/${featuredVideo.id}?rel=0`}
-                      title="YouTube video player"
-                      className="absolute inset-0 w-full h-full"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    ></iframe>
-                  </div>
-                  <div className="p-6">
-                    <h4 className="font-bold text-white text-xl">{featuredVideo.title}</h4>
-                    <p className="text-sm text-slate-500 mt-1">Watch on YouTube</p>
-                  </div>
+          <ScrollReveal delay={0.2}>
+            <h3 className="font-serif text-3xl text-slate-100 mb-8 flex items-center gap-3">
+              <Play className="text-red-500" size={28} /> On Air
+            </h3>
+            {featuredVideo && featuredVideo.id ? (
+              <div className="relative group rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 shadow-2xl max-w-4xl mx-auto">
+                <div className="aspect-video relative">
+                  <iframe
+                    src={`https://www.youtube-nocookie.com/embed/${featuredVideo.id}?rel=0`}
+                    title="YouTube video player"
+                    className="absolute inset-0 w-full h-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  ></iframe>
                 </div>
-              ) : (
-                <div className="p-8 border border-slate-800 rounded-2xl text-slate-500 text-center">No video available.</div>
-              )}
-            </ScrollReveal>
-          </div>
+                <div className="p-6">
+                  <h4 className="font-bold text-white text-xl">{featuredVideo.title}</h4>
+                  <p className="text-sm text-slate-500 mt-1">Watch on YouTube</p>
+                </div>
+              </div>
+            ) : (
+              <div className="p-8 border border-slate-800 rounded-2xl text-slate-500 text-center">No video available.</div>
+            )}
+          </ScrollReveal>
         </div>
       </section>
 
-      {/* === 4. REAL-TIME UPDATES === */}
+      {/* === 5. REAL-TIME UPDATES === */}
       <NewsUpdates />
 
-      {/* === 5. NEWSLETTER === */}
+      {/* === 6. NEWSLETTER === */}
       <Newsletter />
     </main>
   );
