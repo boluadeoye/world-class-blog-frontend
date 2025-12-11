@@ -6,7 +6,7 @@ const services = [
   {
     id: "01",
     title: "AI Agents & Chatbots",
-    description: "Intelligent WhatsApp Bots & Custom Agents. I build systems that handle sales, support, and transactions 24/7 using Llama 3 & Groq.",
+    description: "Flagship Service. Intelligent WhatsApp Bots & Custom Agents that handle sales, support, and transactions 24/7 using Llama 3 & Groq.",
     icon: Bot,
     color: "from-emerald-400 to-cyan-500",
     bg: "group-hover:bg-emerald-500/5",
@@ -43,7 +43,7 @@ const services = [
 
 export default function ServiceDeck() {
   return (
-    <section className="py-10">
+    <section className="py-20 relative z-10">
       {/* Section Header */}
       <div className="flex flex-col md:flex-row justify-between items-end mb-12">
         <div>
@@ -81,10 +81,10 @@ export default function ServiceDeck() {
             className={`group relative p-8 rounded-[2rem] bg-slate-900/40 border border-white/5 backdrop-blur-md overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl ${service.border}`}
           >
             {/* Hover Glow Background */}
-            <div className={`absolute inset-0 opacity-0 transition-opacity duration-700 ${service.bg}`} />
+            <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 ${service.bg}`} />
 
             {/* Shiny Gradient Overlay */}
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-700 bg-gradient-to-br from-white via-transparent to-transparent pointer-events-none" />
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-700 bg-gradient-to-br from-white/5 via-transparent to-transparent pointer-events-none" />
 
             <div className="relative z-10 flex flex-col h-full justify-between gap-8">
               {/* Icon & ID */}

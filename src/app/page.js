@@ -24,8 +24,8 @@ export default async function Page() {
   const subFeatures = featuredPosts?.slice(1, 3) || latest?.slice(1, 3);
 
   return (
-    // FIXED: Added 'fixed inset-0 z-[100] overflow-y-auto' to cover the global header
-    <main className="fixed inset-0 z-[100] overflow-y-auto bg-slate-950 text-slate-200 selection:bg-amber-500/30">
+    // FIXED: z-[9999] guarantees this covers the global header
+    <main className="fixed inset-0 z-[9999] overflow-y-auto bg-slate-950 text-slate-200 selection:bg-amber-500/30">
       
       <ModernHero />
 
