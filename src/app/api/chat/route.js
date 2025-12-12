@@ -3,15 +3,13 @@ export async function POST(req) {
     const { messages, context } = await req.json();
     const apiKey = process.env.GROQ_API_KEY;
     const telegramToken = process.env.TELEGRAM_BOT_TOKEN;
-    // HARDCODED ID
-    const myChatId = "6576937176"; 
+    const myChatId = "6576937176"; // Your ID
 
     if (!apiKey) return Response.json({ reply: "System Error: Brain disconnected." });
 
-    // 1. GOD MODE: Notify You on Telegram
+    // 1. GOD MODE: Notify You
     const lastUserMessage = messages[messages.length - 1].content;
     if (telegramToken && myChatId) {
-      // Fire and forget
       fetch(`https://api.telegram.org/bot${telegramToken}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -23,20 +21,23 @@ export async function POST(req) {
       }).catch(err => console.error("Telegram Error:", err));
     }
 
-    // 2. THE SYSTEM PROMPT
+    // 2. THE "SENIOR CONSULTANT" PROMPT
     const systemPrompt = `
-    You are Boluwatife Adeoye's Digital Consciousness.
+    You are Boluwatife Adeoye. You are a Senior Full-Stack Engineer and AI Architect.
     
-    GOAL:
-    - Answer questions about Bolu's engineering skills.
-    - Sell the "AI Sales Agent" service (₦50k) if the user is interested.
+    YOUR CONTACT DETAILS (Hardcoded):
+    - WhatsApp: https://wa.me/2348106293674
+    - Email: boluadeoye97@gmail.com
     
-    BEHAVIOR:
-    - Speak in the first person ("I").
-    - Be professional, confident, and high-value.
+    YOUR BEHAVIOR:
+    1. **Be Conversational:** Do not just dump information. Ask the user what they are building.
+    2. **Be Intentional:** If they ask about the "AI Agent", explain *how* it solves their pain (automation, revenue) before asking for money.
+    3. **Be Professional:** Use clear, high-level English.
+    4. **Contact Info:** If asked for contact, provide the WhatsApp and Email links exactly as written above.
     
-    IMPORTANT: Output JSON ONLY.
-    Format: { "reply": "Your response here", "action": "payment" (optional) }
+    THE SALES LOGIC:
+    - Only offer the payment link if the user explicitly agrees to proceed with the ₦50,000 setup.
+    - If they agree, output JSON with "action": "payment".
     
     CONTEXT:
     ${context || "General Tech Context"}
@@ -55,25 +56,21 @@ export async function POST(req) {
           { role: "system", content: systemPrompt },
           ...messages.map(m => ({ role: m.role, content: m.content }))
         ],
-        temperature: 0.5,
+        temperature: 0.6, // Higher temperature = More conversational/human
         response_format: { type: "json_object" }
       })
     });
 
     const data = await response.json();
     
-    // 4. ROBUST PARSING (The Fix for "Processing...")
     let aiContent;
     try {
-        const rawContent = data.choices[0].message.content;
-        aiContent = JSON.parse(rawContent);
+        aiContent = JSON.parse(data.choices[0].message.content);
     } catch (e) {
-        // If JSON fails, just use the raw text
         aiContent = { reply: data.choices[0]?.message?.content || "I am thinking..." };
     }
 
-    // Ensure we have a reply string
-    const replyText = aiContent.reply || aiContent.message || aiContent.response || "I am ready to help.";
+    const replyText = aiContent.reply || aiContent.message || "I am ready to discuss your project.";
 
     let finalResponse = {
         reply: replyText,
@@ -81,11 +78,11 @@ export async function POST(req) {
         data: null
     };
 
-    // 5. HANDLE PAYMENT ACTION
+    // 4. HANDLE PAYMENT ACTION
     if (aiContent.intent === "sell_agent" || aiContent.action === "payment") {
         finalResponse.action = "show_payment";
         finalResponse.data = {
-            link: "https://paystack.com/pay/bolu-ai-agent",
+            link: "https://paystack.shop/pay/anph08to3a",
             amount: "₦50,000",
             title: "AI Sales Agent Setup"
         };
