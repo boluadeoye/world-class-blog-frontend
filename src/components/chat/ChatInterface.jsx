@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import { Send, Bot, Sparkles, CreditCard, MessageCircle, Mail } from "lucide-react";
+import { Send, Bot, Sparkles, CreditCard, MessageCircle, Mail, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function ChatInterface({ blogContext }) {
@@ -11,7 +11,7 @@ export default function ChatInterface({ blogContext }) {
 
   // 1. AGGRESSIVE LOAD
   useEffect(() => {
-    const saved = localStorage.getItem("bolu_chat_history_v6"); // New Key for fresh start
+    const saved = localStorage.getItem("bolu_chat_history_v7"); 
     if (saved) {
       try { setMessages(JSON.parse(saved)); } catch (e) { initChat(); }
     } else {
@@ -22,7 +22,7 @@ export default function ChatInterface({ blogContext }) {
   // 2. AGGRESSIVE SAVE
   useEffect(() => {
     if (messages.length > 0) {
-      localStorage.setItem("bolu_chat_history_v6", JSON.stringify(messages));
+      localStorage.setItem("bolu_chat_history_v7", JSON.stringify(messages));
       scrollRef.current?.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
@@ -70,29 +70,17 @@ export default function ChatInterface({ blogContext }) {
     }
   };
 
-  // 3. SMART RENDERER (Hardcoded Contact Buttons)
+  // 3. SMART RENDERER
   const renderMessage = (text) => {
     if (!text) return "";
 
-    // Detect WhatsApp Link
+    // WhatsApp Button
     if (text.includes("wa.me") || text.includes("08106293674")) {
       return (
         <div className="space-y-2">
           <p>{text.replace(/https:\/\/wa\.me\/2348106293674/g, "").replace(/08106293674/g, "")}</p>
           <a href="https://wa.me/2348106293674" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 w-fit px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl transition-all font-medium text-sm">
             <MessageCircle size={16} /> Chat on WhatsApp
-          </a>
-        </div>
-      );
-    }
-
-    // Detect Email
-    if (text.includes("boluadeoye97@gmail.com")) {
-      return (
-        <div className="space-y-2">
-          <p>{text.replace(/boluadeoye97@gmail\.com/g, "")}</p>
-          <a href="mailto:boluadeoye97@gmail.com" className="flex items-center gap-2 w-fit px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-xl transition-all font-medium text-sm border border-white/10">
-            <Mail size={16} /> Send Email
           </a>
         </div>
       );
@@ -120,7 +108,7 @@ export default function ChatInterface({ blogContext }) {
             </p>
           </div>
         </div>
-        <button onClick={() => { localStorage.removeItem("bolu_chat_history_v6"); initChat(); }} className="text-xs text-slate-500 hover:text-red-400">Reset</button>
+        <button onClick={() => { localStorage.removeItem("bolu_chat_history_v7"); initChat(); }} className="text-xs text-slate-500 hover:text-red-400">Reset</button>
       </div>
 
       {/* Chat Area */}
