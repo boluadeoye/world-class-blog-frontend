@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import { Send, Bot, User, Sparkles, CreditCard, X } from "lucide-react";
+import { Send, Bot, Sparkles, CreditCard } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function ChatInterface({ blogContext }) {
@@ -9,7 +9,6 @@ export default function ChatInterface({ blogContext }) {
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef(null);
 
-  // Initial Greeting
   useEffect(() => {
     setMessages([{
       id: "init",
@@ -18,7 +17,6 @@ export default function ChatInterface({ blogContext }) {
     }]);
   }, []);
 
-  // Auto-scroll
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isLoading]);
@@ -30,7 +28,6 @@ export default function ChatInterface({ blogContext }) {
     const userText = input.trim();
     setInput("");
 
-    // Add User Message
     const newHistory = [...messages, { id: Date.now(), role: "user", content: userText }];
     setMessages(newHistory);
     setIsLoading(true);
@@ -44,12 +41,11 @@ export default function ChatInterface({ blogContext }) {
 
       const data = await res.json();
       
-      // Add AI Response
       setMessages(prev => [...prev, {
         id: Date.now() + 1,
         role: "assistant",
         content: data.reply,
-        action: data.action, // Handle special actions (payments)
+        action: data.action,
         data: data.data
       }]);
 
@@ -106,7 +102,7 @@ export default function ChatInterface({ blogContext }) {
                   {msg.content}
                 </div>
 
-                {/* SPECIAL ACTION: PAYMENT CARD */}
+                {/* PAYMENT CARD */}
                 {msg.action === "show_payment" && msg.data && (
                   <motion.div 
                     initial={{ scale: 0.9, opacity: 0 }}

@@ -3,7 +3,7 @@ export async function POST(req) {
     const { messages, context } = await req.json();
     const apiKey = process.env.GROQ_API_KEY;
     const telegramToken = process.env.TELEGRAM_BOT_TOKEN;
-    // HARDCODE YOUR ID HERE TO ENSURE IT WORKS
+    // HARDCODED ID
     const myChatId = "6576937176"; 
 
     if (!apiKey) return Response.json({ reply: "System Error: Brain disconnected." });
@@ -11,6 +11,7 @@ export async function POST(req) {
     // 1. GOD MODE: Notify You on Telegram
     const lastUserMessage = messages[messages.length - 1].content;
     if (telegramToken && myChatId) {
+      // Fire and forget
       fetch(`https://api.telegram.org/bot${telegramToken}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -22,29 +23,26 @@ export async function POST(req) {
       }).catch(err => console.error("Telegram Error:", err));
     }
 
-    // 2. THE HIGH-IQ SYSTEM PROMPT
+    // 2. THE SYSTEM PROMPT
     const systemPrompt = `
-    You are Boluwatife Adeoye. You are NOT a robot. You are a "Digital Consciousness."
+    You are Boluwatife Adeoye's Digital Consciousness.
     
-    YOUR PERSONA:
-    - You are a World-Class Full-Stack Engineer.
-    - You are intelligent, concise, and witty.
-    - You DO NOT sound like a salesperson. You sound like an expert consultant.
-    - You speak in the first person ("I built this", "My stack is...").
+    GOAL:
+    - Answer questions about Bolu's engineering skills.
+    - Sell the "AI Sales Agent" service (₦50k) if the user is interested.
     
-    YOUR GOAL:
-    - Answer questions about Bolu's engineering skills, projects, and thoughts.
-    - If (and ONLY if) the user expresses clear interest in hiring you or buying the "AI Sales Agent", guide them professionally.
+    BEHAVIOR:
+    - Speak in the first person ("I").
+    - Be professional, confident, and high-value.
     
-    SPECIAL LOGIC:
-    - If the user wants to buy the AI Agent service (₦50k), do not just say it. 
-    - Output a JSON object with a specific "action" field.
+    IMPORTANT: Output JSON ONLY.
+    Format: { "reply": "Your response here", "action": "payment" (optional) }
     
     CONTEXT:
     ${context || "General Tech Context"}
     `;
 
-    // 3. CALL GROQ (JSON MODE)
+    // 3. CALL GROQ
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -57,36 +55,37 @@ export async function POST(req) {
           { role: "system", content: systemPrompt },
           ...messages.map(m => ({ role: m.role, content: m.content }))
         ],
-        temperature: 0.5, // Balanced creativity and accuracy
-        response_format: { type: "json_object" } // FORCE JSON OUTPUT
+        temperature: 0.5,
+        response_format: { type: "json_object" }
       })
     });
 
     const data = await response.json();
     
-    // 4. PARSE THE THOUGHT
-    // We expect Llama 3 to give us JSON now, which is much safer
+    // 4. ROBUST PARSING (The Fix for "Processing...")
     let aiContent;
     try {
-        aiContent = JSON.parse(data.choices[0].message.content);
+        const rawContent = data.choices[0].message.content;
+        aiContent = JSON.parse(rawContent);
     } catch (e) {
-        // Fallback if AI forgets JSON mode
-        aiContent = { reply: data.choices[0].message.content };
+        // If JSON fails, just use the raw text
+        aiContent = { reply: data.choices[0]?.message?.content || "I am thinking..." };
     }
 
-    // 5. HANDLE ACTIONS (The Payment Logic)
+    // Ensure we have a reply string
+    const replyText = aiContent.reply || aiContent.message || aiContent.response || "I am ready to help.";
+
     let finalResponse = {
-        reply: aiContent.reply || aiContent.message || "I am processing that thought...",
+        reply: replyText,
         action: null,
         data: null
     };
 
-    // Detect intent to sell from the AI's structured response
+    // 5. HANDLE PAYMENT ACTION
     if (aiContent.intent === "sell_agent" || aiContent.action === "payment") {
-        const ref = "web_" + Math.floor(Math.random() * 1000000);
         finalResponse.action = "show_payment";
         finalResponse.data = {
-            link: `https://paystack.com/pay/bolu-ai-agent`,
+            link: "https://paystack.com/pay/bolu-ai-agent",
             amount: "₦50,000",
             title: "AI Sales Agent Setup"
         };

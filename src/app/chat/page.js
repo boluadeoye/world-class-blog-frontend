@@ -5,7 +5,6 @@ export const metadata = {
 };
 
 export default function ChatPage() {
-  // Simplified Context for the AI
   const blogContext = `
     Name: Boluwatife Adeoye
     Role: Full-Stack Engineer & AI Architect
