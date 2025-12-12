@@ -1,38 +1,25 @@
 import ChatInterface from "@/components/chat/ChatInterface";
 
 export const metadata = {
-  title: "Chat with Bolu | Digital Twin",
-  description: "Ask my AI digital twin about my projects, skills, and experience.",
+  title: "Chat with Bolu | Digital Consciousness",
 };
 
 export default function ChatPage() {
-  // HARDCODED CONTEXT (Stable & Fast)
+  // Simplified Context for the AI
   const blogContext = `
     Name: Boluwatife Adeoye
-    Role: Software Engineer (Full Stack)
-    Contact Email: boluadeoye97@gmail.com
-    Contact Phone: 08106293674
-    WhatsApp: https://wa.me/2348106293674
-    
-    Bio: I am a skilled Software Engineer specializing in modern web technologies like Next.js, React, and AI integrations.
-    
-    Tech Stack: JavaScript, React, Next.js, Node.js, Tailwind CSS, AI Engineering (Groq, Llama 3), Supabase, PostgreSQL.
-    
-    Focus: Building high-performance, scalable web applications and intelligent AI agents.
+    Role: Full-Stack Engineer & AI Architect
+    Skills: Next.js, React, Node.js, AI Agents (Llama 3, Groq), Supabase.
+    Services: 
+    1. Custom AI Sales Agents (₦50k Setup).
+    2. Premium Web Development.
+    3. Technical Consultation.
+    Contact: boluadeoye97@gmail.com
   `;
 
   return (
-    // FIXED: 'fixed inset-0 z-[100]' covers the global header completely
-    <main className="fixed inset-0 z-[100] bg-slate-950 flex items-center justify-center p-0 md:p-4 overflow-hidden">
-      
-      {/* Background Gradients */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-indigo-900/20 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-emerald-900/10 rounded-full blur-[120px]" />
-      </div>
-
-      {/* The Chat Interface */}
-      <div className="w-full h-full md:h-[85vh] md:max-w-2xl z-10 relative">
+    <main className="fixed inset-0 z-[9999] bg-slate-950 flex items-center justify-center">
+      <div className="w-full h-full md:max-w-md md:h-[85vh] md:rounded-3xl md:border md:border-white/10 md:shadow-2xl overflow-hidden bg-slate-950">
         <ChatInterface blogContext={blogContext} />
       </div>
     </main>

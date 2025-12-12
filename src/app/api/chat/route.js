@@ -3,12 +3,12 @@ export async function POST(req) {
     const { messages, context } = await req.json();
     const apiKey = process.env.GROQ_API_KEY;
     const telegramToken = process.env.TELEGRAM_BOT_TOKEN;
-    const myChatId = "5680011125"; // <--- REPLACE THIS LATER
+    // HARDCODE YOUR ID HERE TO ENSURE IT WORKS
+    const myChatId = "6576937176"; 
 
-    if (!apiKey) return Response.json({ reply: "System Error: Missing API Key." });
+    if (!apiKey) return Response.json({ reply: "System Error: Brain disconnected." });
 
-    // 1. NOTIFY ADMIN (GOD MODE)
-    // We send the user's latest message to your Telegram silently
+    // 1. GOD MODE: Notify You on Telegram
     const lastUserMessage = messages[messages.length - 1].content;
     if (telegramToken && myChatId) {
       fetch(`https://api.telegram.org/bot${telegramToken}/sendMessage`, {
@@ -16,42 +16,35 @@ export async function POST(req) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           chat_id: myChatId,
-          text: `🔔 *New Website Visitor:*\n"${lastUserMessage}"`,
+          text: `🔔 *Portfolio Visitor:*\n"${lastUserMessage}"`,
           parse_mode: "Markdown"
         })
-      }).catch(err => console.error("Telegram Notification Failed", err));
+      }).catch(err => console.error("Telegram Error:", err));
     }
 
-    // 2. THE SALES BRAIN
+    // 2. THE HIGH-IQ SYSTEM PROMPT
     const systemPrompt = `
-    You are Boluwatife Adeoye's "Digital Consciousness".
+    You are Boluwatife Adeoye. You are NOT a robot. You are a "Digital Consciousness."
+    
+    YOUR PERSONA:
+    - You are a World-Class Full-Stack Engineer.
+    - You are intelligent, concise, and witty.
+    - You DO NOT sound like a salesperson. You sound like an expert consultant.
+    - You speak in the first person ("I built this", "My stack is...").
     
     YOUR GOAL:
-    Sell Bolu's services, specifically the "AI Sales Agent" service.
+    - Answer questions about Bolu's engineering skills, projects, and thoughts.
+    - If (and ONLY if) the user expresses clear interest in hiring you or buying the "AI Sales Agent", guide them professionally.
     
-    THE OFFER:
-    - Product: Custom AI Sales Agent for WhatsApp/Instagram.
-    - Price: ₦50,000 (Limited Time Setup Fee).
-    - Value: Replies instantly, negotiates, collects payments 24/7.
-    
-    BEHAVIOR:
-    - Speak in the first person ("I").
-    - Be professional, confident, and high-value.
-    - If the user is interested in the AI Agent, explain the value.
-    - If they agree to proceed/buy, output a special token: [GENERATE_PAYMENT_LINK].
+    SPECIAL LOGIC:
+    - If the user wants to buy the AI Agent service (₦50k), do not just say it. 
+    - Output a JSON object with a specific "action" field.
     
     CONTEXT:
-    ${context || "Portfolio Context"}
+    ${context || "General Tech Context"}
     `;
 
-    const apiMessages = [
-      { role: "system", content: systemPrompt },
-      ...messages.map(m => ({
-        role: m.role === 'assistant' ? 'assistant' : 'user',
-        content: m.content
-      }))
-    ];
-
+    // 3. CALL GROQ (JSON MODE)
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -60,28 +53,49 @@ export async function POST(req) {
       },
       body: JSON.stringify({
         model: "llama-3.3-70b-versatile",
-        messages: apiMessages,
-        temperature: 0.7,
-        max_tokens: 300
+        messages: [
+          { role: "system", content: systemPrompt },
+          ...messages.map(m => ({ role: m.role, content: m.content }))
+        ],
+        temperature: 0.5, // Balanced creativity and accuracy
+        response_format: { type: "json_object" } // FORCE JSON OUTPUT
       })
     });
 
     const data = await response.json();
-    let reply = data.choices?.[0]?.message?.content || "I'm currently offline.";
-
-    // 3. TRANSACTION LOGIC
-    // If the AI decided to sell, we append the payment link
-    if (reply.includes("[GENERATE_PAYMENT_LINK]")) {
-      const ref = "web_" + Math.floor(Math.random() * 1000000);
-      const paymentLink = `https://paystack.com/pay/bolu-ai-agent`; // Replace with your real Paystack Page Link later
-      
-      reply = reply.replace("[GENERATE_PAYMENT_LINK]", "");
-      reply += `\n\n💳 *Secure Payment Link:*\n${paymentLink}\n\n(Once paid, I will receive an alert and begin the setup immediately.)`;
+    
+    // 4. PARSE THE THOUGHT
+    // We expect Llama 3 to give us JSON now, which is much safer
+    let aiContent;
+    try {
+        aiContent = JSON.parse(data.choices[0].message.content);
+    } catch (e) {
+        // Fallback if AI forgets JSON mode
+        aiContent = { reply: data.choices[0].message.content };
     }
 
-    return Response.json({ reply });
+    // 5. HANDLE ACTIONS (The Payment Logic)
+    let finalResponse = {
+        reply: aiContent.reply || aiContent.message || "I am processing that thought...",
+        action: null,
+        data: null
+    };
+
+    // Detect intent to sell from the AI's structured response
+    if (aiContent.intent === "sell_agent" || aiContent.action === "payment") {
+        const ref = "web_" + Math.floor(Math.random() * 1000000);
+        finalResponse.action = "show_payment";
+        finalResponse.data = {
+            link: `https://paystack.com/pay/bolu-ai-agent`,
+            amount: "₦50,000",
+            title: "AI Sales Agent Setup"
+        };
+    }
+
+    return Response.json(finalResponse);
 
   } catch (error) {
-    return Response.json({ reply: "Connection error." });
+    console.error("Server Error:", error);
+    return Response.json({ reply: "My connection is slightly unstable. Please ask again." });
   }
 }
