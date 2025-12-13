@@ -6,6 +6,7 @@ import ScrollReveal from "../components/ui/ScrollReveal";
 import NewsUpdates from "../components/home/NewsUpdates";
 import Newsletter from "../components/home/Newsletter";
 import ServiceDeck from "../components/home/ServiceDeck";
+import WhatsAppWidget from "../components/home/WhatsAppWidget";
 
 export const revalidate = 3600;
 
@@ -29,7 +30,7 @@ export default async function Page() {
       {/* 1. HERO SECTION */}
       <ModernHero />
 
-      {/* 2. SERVICES (Moved Up & Horizontal) */}
+      {/* 2. SERVICES */}
       <ServiceDeck />
 
       <div className="w-full max-w-7xl mx-auto px-6 md:px-12 mb-12">
@@ -72,7 +73,7 @@ export default async function Page() {
                 </ScrollReveal>
               </div>
             )}
-
+            
             <div className="md:col-span-4 flex flex-col gap-6">
               {subFeatures.map((post, idx) => (
                 <ScrollReveal key={post.slug} delay={0.2 + (idx * 0.1)}>
@@ -95,7 +96,7 @@ export default async function Page() {
         </div>
       </section>
 
-      {/* === 4. VIDEO SECTION (Services removed from here) === */}
+      {/* 4. VIDEO SECTION */}
       <section className="px-6 md:px-12 py-12 bg-slate-900/30 border-t border-slate-800/50">
         <div className="max-w-7xl mx-auto">
           <ScrollReveal delay={0.2}>
@@ -125,11 +126,15 @@ export default async function Page() {
         </div>
       </section>
 
-      {/* === 5. REAL-TIME UPDATES === */}
+      {/* 5. REAL-TIME UPDATES */}
       <NewsUpdates />
 
-      {/* === 6. NEWSLETTER === */}
+      {/* 6. NEWSLETTER */}
       <Newsletter />
+
+      {/* 7. WHATSAPP WIDGET */}
+      <WhatsAppWidget />
+
     </main>
   );
 }
