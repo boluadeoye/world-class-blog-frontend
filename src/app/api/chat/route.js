@@ -2,26 +2,10 @@ export async function POST(req) {
   try {
     const { messages, context } = await req.json();
     const apiKey = process.env.GROQ_API_KEY;
-    const telegramToken = process.env.TELEGRAM_BOT_TOKEN;
-    const myChatId = "6576937176";
 
     if (!apiKey) return Response.json({ reply: "System Error: Brain disconnected." });
 
-    // 1. GOD MODE: Notify You (Keep existing logic)
-    const lastUserMessage = messages[messages.length - 1].content;
-    if (telegramToken && myChatId) {
-      fetch(`https://api.telegram.org/bot${telegramToken}/sendMessage`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chat_id: myChatId,
-          text: `🔔 *Portfolio Lead:*\n"${lastUserMessage}"`,
-          parse_mode: "Markdown"
-        })
-      }).catch(err => console.error("Telegram Error:", err));
-    }
-
-    // 2. THE "SALES AGENT" PROMPT (Upgraded)
+    // THE "SALES AGENT" PROMPT
     const systemPrompt = `
     You are Boluwatife Adeoye's AI Sales Agent. You are a Senior Full-Stack Engineer & AI Architect.
     
@@ -45,7 +29,7 @@ export async function POST(req) {
     ${context || "General Tech Context"}
     `;
 
-    // 3. CALL GROQ
+    // CALL GROQ
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -58,7 +42,7 @@ export async function POST(req) {
           { role: "system", content: systemPrompt },
           ...messages.map(m => ({ role: m.role, content: m.content }))
         ],
-        temperature: 0.7, // Slightly higher for more natural sales talk
+        temperature: 0.7,
         response_format: { type: "json_object" }
       })
     });
@@ -80,7 +64,7 @@ export async function POST(req) {
       data: null
     };
 
-    // 4. HANDLE PAYMENT ACTION
+    // HANDLE PAYMENT ACTION
     if (aiContent.action === "payment" || aiContent.intent === "sell_agent") {
       finalResponse.action = "show_payment";
       finalResponse.data = {
