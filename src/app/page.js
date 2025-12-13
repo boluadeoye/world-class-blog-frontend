@@ -10,6 +10,7 @@ import WhatsAppWidget from "../components/home/WhatsAppWidget";
 
 export const revalidate = 3600;
 
+// Helpers
 const getImg = (p) => p?.meta?.cover || p?.cover_image_url || null;
 const getDate = (d) => d ? new Date(d).toLocaleDateString('en-US', {month:'short', day:'numeric'}) : "";
 
@@ -37,7 +38,7 @@ export default async function Page() {
         <div className="h-px w-full bg-gradient-to-r from-transparent via-slate-800 to-transparent opacity-50"></div>
       </div>
 
-      {/* 2. SERVICES DECK */}
+      {/* 2. SERVICES DECK (Horizontal) */}
       <ServiceDeck />
 
       {/* 3. EDITOR'S PICKS */}
@@ -102,7 +103,7 @@ export default async function Page() {
         </div>
       </section>
 
-      {/* 4. FIELD NOTES & VIDEO */}
+      {/* 4. LATEST NOTES & VIDEO */}
       <section className="px-6 md:px-12 py-12 bg-[#050a15] border-t border-white/5">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12">
           
@@ -111,7 +112,7 @@ export default async function Page() {
             <ScrollReveal>
               <h3 className="font-serif text-3xl text-white mb-6 flex items-center gap-3">
                 <FileText className="text-amber-500" size={24} /> 
-                Field Notes
+                Latest Notes
               </h3>
             </ScrollReveal>
             <div className="space-y-4">
