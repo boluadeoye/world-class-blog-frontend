@@ -1,26 +1,36 @@
-import ChatInterface from "@/components/chat/ChatInterface";
+import ChatInterface from "../../components/chat/ChatInterface";
+import { fetchLatestArticles } from "../../lib/homeData";
 
 export const metadata = {
-  title: "Chat with Bolu | Digital Consciousness",
+  title: "Neural Core | Bolu Adeoye",
+  description: "Interactive AI Digital Twin.",
 };
 
-export default function ChatPage() {
-  const blogContext = `
-    Name: Boluwatife Adeoye
-    Role: Full-Stack Engineer & AI Architect
-    Skills: Next.js, React, Node.js, AI Agents (Llama 3, Groq), Supabase.
-    Services: 
-    1. Custom AI Sales Agents (₦50k Setup).
-    2. Premium Web Development.
-    3. Technical Consultation.
-    Contact: boluadeoye97@gmail.com
-  `;
+export default async function ChatPage() {
+  let blogContext = "";
+  try {
+    const posts = await fetchLatestArticles(50).catch(() => []);
+    if (Array.isArray(posts)) {
+      blogContext = posts.map(p => `Title: ${p.title}\nSummary: ${p.excerpt}`).join("\n\n");
+    }
+  } catch (e) {}
 
   return (
-    <main className="fixed inset-0 z-[9999] bg-slate-950 flex items-center justify-center">
-      <div className="w-full h-full md:max-w-md md:h-[85vh] md:rounded-3xl md:border md:border-white/10 md:shadow-2xl overflow-hidden bg-slate-950">
+    // Z-INDEX 9999 forces this page to cover the global header
+    <main className="fixed inset-0 z-[9999] bg-[#020617] text-white flex flex-col overflow-hidden">
+      
+      {/* === BACKGROUND BEAMS === */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <div className="absolute top-[-20%] left-[-10%] w-[800px] h-[800px] bg-indigo-600/10 blur-[150px] rounded-full mix-blend-screen animate-pulse duration-[8s]"></div>
+        <div className="absolute bottom-[-20%] right-[-10%] w-[600px] h-[600px] bg-amber-600/5 blur-[150px] rounded-full mix-blend-screen animate-pulse duration-[10s]"></div>
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.04]"></div>
+      </div>
+
+      {/* === CONTENT === */}
+      <div className="relative z-10 flex-1 flex flex-col max-w-4xl mx-auto w-full h-full md:py-8 md:px-6">
         <ChatInterface blogContext={blogContext} />
       </div>
+
     </main>
   );
 }
