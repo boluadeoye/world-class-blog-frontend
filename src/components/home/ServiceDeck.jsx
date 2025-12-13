@@ -29,12 +29,12 @@ const services = [
 
 export default function ServiceDeck() {
   return (
-    <section className="py-12 px-6 relative z-10">
+    <section className="py-16 px-6 relative z-10">
       <div className="max-w-7xl mx-auto">
         
         {/* Header */}
         <ScrollReveal>
-          <div className="flex items-end justify-between mb-8 border-b border-white/5 pb-4">
+          <div className="flex items-end justify-between mb-12 border-b border-white/5 pb-4">
             <div>
               <h2 className="font-serif text-2xl md:text-3xl text-white mb-1">Expertise</h2>
               <p className="font-sans text-[10px] font-bold text-slate-500 tracking-[0.2em] uppercase">
