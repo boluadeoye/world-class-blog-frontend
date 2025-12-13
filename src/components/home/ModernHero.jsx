@@ -39,7 +39,12 @@ export default function ModernHero() {
   return (
     <section className="hero-section relative min-h-[90vh] flex flex-col justify-center px-4 md:px-8 pt-4 pb-12 overflow-hidden">
       
-      {/* === 1. BACKLIGHT STAGE === */}
+      {/* === CRITICAL: FORCE HIDE GLOBAL HEADER === */}
+      <style jsx global>{`
+        header { display: none !important; }
+      `}</style>
+
+      {/* === 1. BRIGHTER BACKLIGHT STAGE === */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute inset-0 bg-[#050b14]"></div>
         <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[140%] h-[90%] bg-indigo-600/30 blur-[120px] rounded-full mix-blend-screen animate-pulse"></div>
@@ -114,12 +119,12 @@ export default function ModernHero() {
                 </h2>
               </motion.div>
 
-              {/* === DESCRIPTION === */}
+              {/* === PREMIUM GRADIENT TYPOGRAPHY === */}
               <motion.p 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 1, delay: 0.4 }}
-                className="font-sans text-lg md:text-2xl text-slate-300 max-w-3xl leading-loose mb-10 font-light"
+                className="font-sans text-lg md:text-2xl text-slate-300 max-w-3xl leading-relaxed mb-10 font-light"
               >
                 Architecting high-performance digital ecosystems. Specializing in{" "}
                 <span className="font-serif italic text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-yellow-500 font-medium">
@@ -140,17 +145,14 @@ export default function ModernHero() {
                 transition={{ duration: 0.8, delay: 0.5 }}
                 className="flex flex-wrap gap-6 items-center"
               >
-                {/* === BUTTON WRAPPER (Finger Outside) === */}
+                {/* Modern Chip Button */}
                 <div className="relative group inline-block">
-                  {/* The Button */}
                   <Link href="/chat" className="relative z-10 flex items-center gap-2 px-8 py-4 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold tracking-wide shadow-[0_0_20px_rgba(79,70,229,0.4)] hover:shadow-[0_0_30px_rgba(79,70,229,0.6)] hover:scale-105 transition-all duration-300 border border-white/10 overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-[shimmer_2s_infinite]"></div>
                     <span>Let's Talk</span>
                     <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                   </Link>
-                  
-                  {/* The Finger (Positioned Absolutely OUTSIDE the button) */}
-                  <span className="absolute -bottom-4 -right-4 text-4xl animate-finger z-20 pointer-events-none drop-shadow-xl">
+                  <span className="absolute -bottom-3 -right-3 text-3xl animate-finger z-20 pointer-events-none drop-shadow-lg">
                     👆
                   </span>
                 </div>
