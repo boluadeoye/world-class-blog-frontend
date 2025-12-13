@@ -29,18 +29,18 @@ export default async function Page() {
   return (
     <main className="min-h-screen bg-[#020617] text-slate-200 selection:bg-amber-500/30 overflow-x-hidden font-sans">
       
-      {/* 1. HERO SECTION (Untouched) */}
+      {/* 1. HERO SECTION */}
       <ModernHero />
 
-      {/* Separator - Tightened */}
+      {/* Separator */}
       <div className="w-full max-w-7xl mx-auto px-6 md:px-12 mb-8">
         <div className="h-px w-full bg-gradient-to-r from-transparent via-slate-800 to-transparent opacity-50"></div>
       </div>
 
-      {/* 2. SERVICES DECK (Tightened) */}
+      {/* 2. SERVICES DECK */}
       <ServiceDeck />
 
-      {/* 3. EDITOR'S PICKS (Premium Borders) */}
+      {/* 3. EDITOR'S PICKS */}
       <section className="px-6 md:px-12 pb-12 relative z-10">
         <div className="max-w-7xl mx-auto">
           <ScrollReveal>
@@ -53,7 +53,7 @@ export default async function Page() {
           </ScrollReveal>
 
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-            {/* Main Feature - Shiny Border Added */}
+            {/* Main Feature */}
             {heroPost && (
               <div className="md:col-span-8">
                 <ScrollReveal delay={0.1}>
@@ -79,7 +79,7 @@ export default async function Page() {
               </div>
             )}
             
-            {/* Sub Features - Shiny Borders Added */}
+            {/* Sub Features */}
             <div className="md:col-span-4 flex flex-col gap-6">
               {subFeatures.map((post, idx) => (
                 <ScrollReveal key={post.slug} delay={0.2 + (idx * 0.1)}>
@@ -102,7 +102,7 @@ export default async function Page() {
         </div>
       </section>
 
-      {/* 4. LATEST NOTES & VIDEO (Tightened & Shiny) */}
+      {/* 4. LATEST NOTES & VIDEO */}
       <section className="px-6 md:px-12 py-12 bg-[#050a15] border-t border-white/5">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12">
           
@@ -130,7 +130,7 @@ export default async function Page() {
             </div>
           </div>
 
-          {/* Video - Shiny Border */}
+          {/* Video */}
           <div>
             <ScrollReveal delay={0.2}>
               <h3 className="font-serif text-3xl text-white mb-6 flex items-center gap-3">
@@ -165,10 +165,14 @@ export default async function Page() {
       </section>
 
       {/* 5. TECH FEED */}
-      <NewsUpdates />
+      <ScrollReveal>
+        <NewsUpdates />
+      </ScrollReveal>
 
       {/* 6. NEWSLETTER */}
-      <Newsletter />
+      <ScrollReveal>
+        <Newsletter />
+      </ScrollReveal>
 
       {/* 7. WHATSAPP WIDGET */}
       <WhatsAppWidget />
