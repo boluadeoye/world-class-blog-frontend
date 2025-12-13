@@ -102,7 +102,7 @@ export default async function Page() {
         </div>
       </section>
 
-      {/* 4. LATEST NOTES & VIDEO */}
+      {/* 4. FIELD NOTES & VIDEO */}
       <section className="px-6 md:px-12 py-12 bg-[#050a15] border-t border-white/5">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12">
           
@@ -111,7 +111,7 @@ export default async function Page() {
             <ScrollReveal>
               <h3 className="font-serif text-3xl text-white mb-6 flex items-center gap-3">
                 <FileText className="text-amber-500" size={24} /> 
-                Latest Notes
+                Field Notes
               </h3>
             </ScrollReveal>
             <div className="space-y-4">
@@ -165,14 +165,10 @@ export default async function Page() {
       </section>
 
       {/* 5. TECH FEED */}
-      <ScrollReveal>
-        <NewsUpdates />
-      </ScrollReveal>
+      <NewsUpdates />
 
       {/* 6. NEWSLETTER */}
-      <ScrollReveal>
-        <Newsletter />
-      </ScrollReveal>
+      <Newsletter />
 
       {/* 7. WHATSAPP WIDGET */}
       <WhatsAppWidget />
