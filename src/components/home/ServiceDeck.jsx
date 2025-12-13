@@ -29,11 +29,11 @@ const services = [
 
 export default function ServiceDeck() {
   return (
-    <section className="py-16 px-6 relative z-10">
+    <section className="py-12 px-6 relative z-10">
       <div className="max-w-7xl mx-auto">
         
-        {/* Header (Compact) */}
-        <div className="flex items-end justify-between mb-10 border-b border-white/5 pb-4">
+        {/* Header */}
+        <div className="flex items-end justify-between mb-8 border-b border-white/5 pb-4">
           <div>
             <h2 className="font-serif text-2xl md:text-3xl text-white mb-1">Expertise</h2>
             <p className="font-sans text-[10px] font-bold text-slate-500 tracking-[0.2em] uppercase">
@@ -45,7 +45,7 @@ export default function ServiceDeck() {
           </Link>
         </div>
 
-        {/* The Deck (Horizontal Grid) */}
+        {/* The Deck */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {services.map((service, i) => (
             <motion.div
@@ -54,10 +54,10 @@ export default function ServiceDeck() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className="group relative p-6 rounded-2xl bg-slate-900/40 border border-white/5 hover:border-amber-500/30 transition-all duration-500 hover:bg-slate-900/80 hover:shadow-xl hover:shadow-amber-900/10 flex flex-col h-full"
+              className="group relative p-6 rounded-[2rem] bg-slate-900/60 border border-white/10 hover:border-amber-500/40 transition-all duration-500 hover:bg-slate-900 hover:shadow-2xl hover:shadow-amber-900/10 flex flex-col h-full"
             >
               {/* Icon */}
-              <div className="mb-6 inline-flex p-3 rounded-xl bg-white/5 border border-white/5 text-slate-300 group-hover:text-amber-400 group-hover:scale-110 transition-all duration-500 w-fit">
+              <div className="mb-6 inline-flex p-3 rounded-xl bg-white/5 border border-white/5 text-slate-300 group-hover:text-amber-400 group-hover:scale-110 transition-all duration-500 w-fit shadow-inner">
                 {service.icon}
               </div>
 
@@ -79,7 +79,7 @@ export default function ServiceDeck() {
               </div>
 
               {/* Hover Gradient */}
-              <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl pointer-events-none"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-[2rem] pointer-events-none"></div>
             </motion.div>
           ))}
         </div>
