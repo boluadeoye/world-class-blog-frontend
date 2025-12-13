@@ -17,7 +17,7 @@ export default async function ChatPage() {
 
   return (
     // FIXED FULL SCREEN (Mobile Safe)
-    <main className="fixed inset-0 z-[9999] bg-[#050505] flex flex-col h-dvh w-full">
+    <main className="fixed inset-0 z-[9999] bg-black flex flex-col h-dvh w-full">
       <ChatInterface blogContext={blogContext} />
     </main>
   );

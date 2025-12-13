@@ -20,7 +20,7 @@ export default function ChatInterface({ blogContext }) {
       setMessages([{ 
         id: "init", 
         role: "assistant", 
-        content: "I am online. Ask me anything about Bolu's work, code, or ideas." 
+        content: "Neural Link Established. I am ready." 
       }]);
     }
   }, []);
@@ -103,10 +103,10 @@ export default function ChatInterface({ blogContext }) {
   if (!mounted) return null;
 
   return (
-    <div className="flex flex-col h-full w-full bg-[#0a0a0a] relative z-20">
+    <div className="flex flex-col h-full w-full bg-black relative z-20">
       
       {/* === HEADER (Solid & Visible) === */}
-      <div className="flex items-center justify-between px-4 py-4 bg-slate-900 border-b border-white/10 shadow-md pt-8 md:pt-4">
+      <div className="shrink-0 flex items-center justify-between px-4 py-3 bg-slate-900 border-b border-white/10 shadow-md">
         <div className="flex items-center gap-3">
           <Link href="/" className="p-2 -ml-2 text-slate-400 hover:text-white transition-colors">
             <ArrowLeft size={20} />
@@ -137,7 +137,7 @@ export default function ChatInterface({ blogContext }) {
       </div>
 
       {/* === CHAT STREAM === */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#050505]">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-black">
         <AnimatePresence initial={false}>
           {messages.map((msg) => (
             <motion.div 
@@ -171,7 +171,7 @@ export default function ChatInterface({ blogContext }) {
       </div>
 
       {/* === INPUT DECK (Solid Bottom) === */}
-      <div className="p-4 bg-slate-900 border-t border-white/10">
+      <div className="shrink-0 p-4 bg-slate-900 border-t border-white/10">
         <form onSubmit={handleSend} className="flex items-center gap-3">
           <input 
             type="text" 
