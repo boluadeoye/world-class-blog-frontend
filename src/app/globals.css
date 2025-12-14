@@ -51,3 +51,26 @@ body {
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
+
+/* === RESUME PRINT OVERRIDES === */
+@media print {
+  @page {
+    margin: 0;
+    size: auto;
+  }
+  body {
+    background: white !important;
+    color: black !important;
+    -webkit-print-color-adjust: exact;
+  }
+  /* Hide all floating elements */
+  header, nav, .fixed {
+    display: none !important;
+  }
+  /* Ensure the resume container is visible */
+  main {
+    display: block !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+}
