@@ -1,182 +1,172 @@
 "use client";
-import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Phone, ShieldAlert, Zap, BrainCircuit, MessageCircle, CheckCircle, ArrowRight } from "lucide-react";
+import { Phone, ShieldCheck, Zap, BrainCircuit, MessageCircle, ArrowRight, Building2, Truck, ShoppingBag, Check } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
+
+// Animation Variants
+const fadeInUp = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
+};
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+};
 
 export default function AIOfferPage() {
-  // Simulated Chat Animation State
-  const [chatStep, setChatStep] = useState(0);
-  
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setChatStep((prev) => (prev + 1) % 4);
-    }, 2000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const chatMessages = [
-    { role: "user", text: "How much is the iPhone 15?" },
-    { role: "bot", text: "It's ₦1.2M. But I can give you a 5% discount if you pay now." },
-    { role: "user", text: "Okay, send account details." },
-    { role: "bot", text: "Sent! I'm verifying your payment..." }
-  ];
-
   return (
-    // Z-INDEX 9999 forces this page to cover the global header/footer (Leaky Bucket Rule)
-    <main className="fixed inset-0 z-[9999] bg-[#050505] text-white overflow-y-auto font-sans selection:bg-green-500/30">
+    // Z-INDEX 9999 forces this page to cover the global header/footer
+    <main className="fixed inset-0 z-[9999] bg-[#020617] text-slate-200 overflow-y-auto font-sans selection:bg-amber-500/30">
       
-      {/* === SECTION A: MINIMALIST HEADER === */}
-      <nav className="sticky top-0 z-50 bg-[#050505]/90 backdrop-blur-md border-b border-white/10 px-6 py-4 flex justify-between items-center">
-        <div className="font-bold text-xl tracking-tighter">Bolu.Dev</div>
-        <a href="tel:+2348106293674" className="flex items-center gap-2 text-sm font-bold text-green-400 bg-green-400/10 px-4 py-2 rounded-full hover:bg-green-400/20 transition-colors">
-          <Phone size={16} /> 0810 629 3674
+      {/* === 1. MINIMALIST LUXURY HEADER === */}
+      <nav className="sticky top-0 z-50 bg-[#020617]/90 backdrop-blur-xl border-b border-white/5 px-6 py-4 flex justify-between items-center">
+        <div className="font-serif text-xl font-bold tracking-tight text-white">Bolu.Dev</div>
+        <a href="https://wa.me/2348106293674" className="flex items-center gap-2 text-xs font-bold text-amber-400 bg-amber-400/10 px-4 py-2 rounded-full border border-amber-400/20 hover:bg-amber-400/20 transition-colors uppercase tracking-widest">
+          <Phone size={12} /> Book Strategy
         </a>
       </nav>
 
-      {/* === SECTION B: HERO (THE HOOK) === */}
-      <section className="px-6 pt-16 pb-20 text-center max-w-4xl mx-auto">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }} 
-          animate={{ opacity: 1, y: 0 }}
-          className="inline-block px-3 py-1 mb-6 rounded-full border border-red-500/30 bg-red-500/10 text-red-400 text-xs font-bold uppercase tracking-widest"
-        >
-          ⚠️ Attention Business Owners
-        </motion.div>
+      {/* === 2. HERO: THE PROMISE === */}
+      <section className="px-6 pt-20 pb-24 text-center max-w-4xl mx-auto relative overflow-hidden">
+        {/* Background Glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-amber-600/10 blur-[120px] rounded-full pointer-events-none"></div>
         
-        <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6">
-          Stop Losing Sales <br/>
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600">While You Sleep.</span>
-        </h1>
-        
-        <p className="text-slate-400 text-lg md:text-xl mb-10 max-w-2xl mx-auto">
-          I build Custom AI Sales Agents that answer questions, negotiate prices, and verify payments 24/7.
-        </p>
-
-        {/* Simulated Chat Visual */}
-        <div className="max-w-sm mx-auto bg-slate-900 rounded-2xl border border-white/10 p-4 mb-10 shadow-2xl shadow-green-900/20">
-          <div className="space-y-3 text-left text-sm">
-            {chatMessages.map((msg, i) => (
-              <motion.div 
-                key={i}
-                initial={{ opacity: 0, x: msg.role === 'user' ? 20 : -20 }}
-                animate={{ opacity: i <= chatStep ? 1 : 0.3, x: 0 }}
-                className={`p-3 rounded-xl max-w-[85%] ${msg.role === 'user' ? 'bg-slate-800 ml-auto text-slate-200' : 'bg-green-600 text-white mr-auto'}`}
-              >
-                {msg.text}
-              </motion.div>
-            ))}
-          </div>
-        </div>
-
-        <a href="#contact" className="inline-flex items-center gap-2 px-8 py-4 bg-white text-black rounded-full font-bold text-lg hover:scale-105 transition-transform shadow-[0_0_30px_rgba(255,255,255,0.3)]">
-          Get Your AI Proposal (Free) <ArrowRight size={20} />
-        </a>
-      </section>
-
-      {/* === SECTION C: PAIN & SOLUTION === */}
-      <section className="px-6 py-20 bg-slate-900/50 border-y border-white/5">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+        <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="relative z-10">
+          <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 px-3 py-1 mb-8 rounded-full border border-white/10 bg-white/5 text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em]">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            Accepting New Clients
+          </motion.div>
           
-          {/* Card 1 */}
-          <div className="p-8 rounded-3xl bg-slate-950 border border-white/5 hover:border-red-500/30 transition-colors">
-            <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center text-red-500 mb-6">
-              <ShieldAlert size={24} />
-            </div>
-            <h3 className="text-xl font-bold mb-3">Tired of Fake Alerts?</h3>
-            <p className="text-slate-400 leading-relaxed">
-              My AI integrates with your wallet to verify payments <span className="text-white font-bold">before</span> releasing products. Stop getting scammed.
-            </p>
-          </div>
+          <motion.h1 variants={fadeInUp} className="font-serif text-5xl md:text-7xl font-medium text-white leading-[1.05] mb-8 tracking-tight">
+            The Digital Employee <br/>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-amber-500">That Never Sleeps.</span>
+          </motion.h1>
+          
+          <motion.p variants={fadeInUp} className="text-slate-400 text-lg md:text-xl mb-12 max-w-2xl mx-auto leading-relaxed font-light">
+            Automate your customer support, sales negotiation, and payment verification with a custom AI Architect.
+          </motion.p>
 
-          {/* Card 2 */}
-          <div className="p-8 rounded-3xl bg-slate-950 border border-white/5 hover:border-amber-500/30 transition-colors">
-            <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-500 mb-6">
-              <Zap size={24} />
-            </div>
-            <h3 className="text-xl font-bold mb-3">Missed DM = Missed Sale</h3>
-            <p className="text-slate-400 leading-relaxed">
-              My AI replies in 1 second, day or night. Never lose a customer to a slow response again. Speed kills competition.
-            </p>
-          </div>
+          <motion.div variants={fadeInUp}>
+            <a href="#contact" className="inline-flex items-center gap-3 px-8 py-4 bg-white text-black rounded-full font-bold text-sm tracking-widest uppercase hover:scale-105 transition-transform shadow-[0_0_30px_rgba(255,255,255,0.15)]">
+              Get Your Proposal <ArrowRight size={16} />
+            </a>
+          </motion.div>
+        </motion.div>
+      </section>
 
-          {/* Card 3 */}
-          <div className="p-8 rounded-3xl bg-slate-950 border border-white/5 hover:border-green-500/30 transition-colors">
-            <div className="w-12 h-12 rounded-full bg-green-500/10 flex items-center justify-center text-green-500 mb-6">
-              <BrainCircuit size={24} />
+      {/* === 3. THE COMPARISON (PAIN VS GAIN) === */}
+      <section className="px-6 py-20 bg-slate-900/30 border-y border-white/5">
+        <div className="max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            
+            {/* The Old Way */}
+            <div className="p-8 rounded-3xl bg-red-900/5 border border-red-500/10">
+              <h3 className="text-red-400 font-bold uppercase tracking-widest text-xs mb-6 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-red-500"></span> Manual Operations
+              </h3>
+              <ul className="space-y-4 text-slate-400">
+                <li className="flex items-start gap-3"><span className="text-red-500">✕</span> Missed DMs at night = Lost Revenue.</li>
+                <li className="flex items-start gap-3"><span className="text-red-500">✕</span> Slow responses kill customer interest.</li>
+                <li className="flex items-start gap-3"><span className="text-red-500">✕</span> Risk of fake alerts & payment fraud.</li>
+              </ul>
             </div>
-            <h3 className="text-xl font-bold mb-3">Your Digital Salesman</h3>
-            <p className="text-slate-400 leading-relaxed">
-              Not just a chatbot. It knows your inventory, your prices, and can negotiate deals based on your rules.
-            </p>
-          </div>
 
+            {/* The New Way */}
+            <div className="p-8 rounded-3xl bg-emerald-900/5 border border-emerald-500/10 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 blur-[50px] rounded-full"></div>
+              <h3 className="text-emerald-400 font-bold uppercase tracking-widest text-xs mb-6 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> AI Automation
+              </h3>
+              <ul className="space-y-4 text-slate-200">
+                <li className="flex items-start gap-3"><Check size={18} className="text-emerald-500 mt-0.5" /> <strong>Instant Replies</strong> (Under 2 seconds).</li>
+                <li className="flex items-start gap-3"><Check size={18} className="text-emerald-500 mt-0.5" /> <strong>24/7 Availability</strong> (Even while you sleep).</li>
+                <li className="flex items-start gap-3"><Check size={18} className="text-emerald-500 mt-0.5" /> <strong>Payment Verification</strong> before delivery.</li>
+              </ul>
+            </div>
+
+          </div>
         </div>
       </section>
 
-      {/* === SECTION D: PORTFOLIO PROOF === */}
-      <section className="px-6 py-20 max-w-5xl mx-auto">
-        <h2 className="text-3xl font-bold text-center mb-12">Recent Enterprise Deployments</h2>
+      {/* === 4. INDUSTRY SOLUTIONS (REPLACES DEPLOYMENTS) === */}
+      <section className="px-6 py-24 max-w-6xl mx-auto">
+        <div className="text-center mb-16">
+          <h2 className="font-serif text-3xl md:text-5xl text-white mb-4">Industry Solutions</h2>
+          <p className="text-slate-500 text-xs font-bold uppercase tracking-[0.2em]">Tailored for Nigerian Business</p>
+        </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Project 1 */}
-          <div className="group relative aspect-video bg-slate-900 rounded-2xl overflow-hidden border border-white/10">
-            <div className="absolute inset-0 flex items-center justify-center bg-slate-800">
-              <span className="text-slate-600 font-mono text-xs">PROJECT_SCREENSHOT_1</span>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Real Estate */}
+          <div className="group p-8 rounded-[2rem] bg-slate-900 border border-white/5 hover:border-amber-500/30 transition-all duration-500 hover:-translate-y-1">
+            <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-slate-300 mb-6 group-hover:text-amber-400 transition-colors">
+              <Building2 size={24} />
             </div>
-            <div className="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black to-transparent">
-              <h3 className="font-bold text-lg">The E-Learning Citadel</h3>
-              <p className="text-slate-300 text-sm">Full-stack educational platform.</p>
-            </div>
+            <h3 className="font-serif text-2xl text-white mb-3">Real Estate</h3>
+            <p className="text-slate-400 text-sm leading-relaxed">
+              Auto-schedule inspections, answer "How much?", and qualify high-net-worth buyers instantly.
+            </p>
           </div>
 
-          {/* Project 2 */}
-          <div className="group relative aspect-video bg-slate-900 rounded-2xl overflow-hidden border border-white/10">
-            <div className="absolute inset-0 flex items-center justify-center bg-slate-800">
-              <span className="text-slate-600 font-mono text-xs">PROJECT_SCREENSHOT_2</span>
+          {/* Logistics */}
+          <div className="group p-8 rounded-[2rem] bg-slate-900 border border-white/5 hover:border-amber-500/30 transition-all duration-500 hover:-translate-y-1">
+            <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-slate-300 mb-6 group-hover:text-amber-400 transition-colors">
+              <Truck size={24} />
             </div>
-            <div className="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black to-transparent">
-              <h3 className="font-bold text-lg">Nexus-Commerce</h3>
-              <p className="text-slate-300 text-sm">Multi-vendor architecture.</p>
+            <h3 className="font-serif text-2xl text-white mb-3">Logistics</h3>
+            <p className="text-slate-400 text-sm leading-relaxed">
+              Automated tracking updates and delivery quotes. Reduce support calls by 80%.
+            </p>
+          </div>
+
+          {/* Retail */}
+          <div className="group p-8 rounded-[2rem] bg-slate-900 border border-white/5 hover:border-amber-500/30 transition-all duration-500 hover:-translate-y-1">
+            <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-slate-300 mb-6 group-hover:text-amber-400 transition-colors">
+              <ShoppingBag size={24} />
             </div>
+            <h3 className="font-serif text-2xl text-white mb-3">Luxury Retail</h3>
+            <p className="text-slate-400 text-sm leading-relaxed">
+              Your digital sales rep. Negotiates deals within your set limits and closes sales automatically.
+            </p>
           </div>
         </div>
       </section>
 
-      {/* === SECTION F: THE CLOSE (CTA) === */}
-      <section id="contact" className="px-6 py-24 bg-green-900/10 border-t border-green-500/20 text-center">
-        <div className="max-w-2xl mx-auto">
-          <h2 className="text-3xl md:text-5xl font-bold mb-6">Ready to Automate Your Business?</h2>
-          <p className="text-slate-400 mb-10 text-lg">
-            I only take 3 clients per month to ensure quality. Secure your slot now.
+      {/* === 5. TECH AUTHORITY (NO GEMINI) === */}
+      <section className="py-12 border-y border-white/5 bg-black/50 text-center">
+        <p className="text-[10px] font-bold text-slate-600 uppercase tracking-[0.3em] mb-6">Enterprise-Grade Infrastructure</p>
+        <div className="flex flex-wrap justify-center gap-8 md:gap-16 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
+          <span className="text-lg font-bold text-slate-300">Next.js 14</span>
+          <span className="text-lg font-bold text-slate-300">Neural Engine</span>
+          <span className="text-lg font-bold text-slate-300">Paystack</span>
+          <span className="text-lg font-bold text-slate-300">99.9% Uptime</span>
+        </div>
+      </section>
+
+      {/* === 6. THE CLOSE (CTA) === */}
+      <section id="contact" className="px-6 py-24 text-center relative overflow-hidden">
+        <div className="absolute inset-0 bg-amber-600/5 pointer-events-none"></div>
+        
+        <div className="max-w-2xl mx-auto relative z-10">
+          <h2 className="font-serif text-4xl md:text-6xl text-white mb-6">Ready to Scale?</h2>
+          <p className="text-slate-400 mb-10 text-lg font-light">
+            I only onboard <span className="text-white font-bold">3 partners</span> per month to ensure quality. Secure your slot.
           </p>
           
           <a 
-            href="https://wa.me/2348106293674?text=Hi%20Bolu%2C%20I%20saw%20your%20ad%20about%20AI%20Chatbots.%20I%27m%20interested."
+            href="https://wa.me/2348106293674?text=Hi%20Bolu%2C%20I%20saw%20your%20page.%20I%27m%20interested%20in%20automating%20my%20business."
             target="_blank"
-            className="inline-flex items-center gap-3 px-8 py-4 bg-[#25D366] text-white rounded-full font-bold text-lg hover:scale-105 transition-transform shadow-xl shadow-green-500/20"
+            className="inline-flex items-center gap-3 px-8 py-4 bg-[#25D366] text-white rounded-full font-bold text-lg hover:scale-105 transition-transform shadow-[0_0_30px_rgba(37,211,102,0.3)]"
           >
             <MessageCircle size={24} fill="white" className="text-[#25D366]" />
             Chat on WhatsApp
           </a>
           
-          <p className="mt-6 text-xs text-slate-500 uppercase tracking-widest">
-            <CheckCircle size={12} className="inline mr-1 text-green-500" /> 
-            Response time: Under 5 mins
+          <p className="mt-6 text-[10px] text-slate-500 uppercase tracking-widest">
+            Direct Line to Lead Engineer
           </p>
         </div>
       </section>
-
-      {/* === FLOATING WIDGET === */}
-      <div className="fixed bottom-6 right-6 z-50">
-        <a 
-          href="https://wa.me/2348106293674?text=Hi%20Bolu%2C%20I%20have%20a%20question."
-          className="flex items-center justify-center w-14 h-14 bg-white text-black rounded-full shadow-2xl hover:scale-110 transition-transform"
-        >
-          <MessageCircle size={28} />
-        </a>
-      </div>
 
     </main>
   );
