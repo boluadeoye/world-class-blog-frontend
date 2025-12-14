@@ -10,7 +10,6 @@ import WhatsAppWidget from "../components/home/WhatsAppWidget";
 
 export const revalidate = 3600;
 
-// Helpers
 const getImg = (p) => p?.meta?.cover || p?.cover_image_url || null;
 const getDate = (d) => d ? new Date(d).toLocaleDateString('en-US', {month:'short', day:'numeric'}) : "";
 
@@ -33,19 +32,19 @@ export default async function Page() {
       {/* 1. HERO SECTION */}
       <ModernHero />
 
+      {/* 2. SERVICES DECK */}
+      <ServiceDeck />
+
       {/* Separator */}
-      <div className="w-full max-w-7xl mx-auto px-6 md:px-12 mb-8">
+      <div className="w-full max-w-7xl mx-auto px-6 md:px-12 mb-12">
         <div className="h-px w-full bg-gradient-to-r from-transparent via-slate-800 to-transparent opacity-50"></div>
       </div>
 
-      {/* 2. SERVICES DECK (Horizontal) */}
-      <ServiceDeck />
-
       {/* 3. EDITOR'S PICKS */}
-      <section className="px-6 md:px-12 pb-12 relative z-10">
+      <section className="px-6 md:px-12 pb-20 relative z-10">
         <div className="max-w-7xl mx-auto">
           <ScrollReveal>
-            <div className="flex items-end justify-between mb-6">
+            <div className="flex items-end justify-between mb-8">
               <h2 className="font-serif text-3xl md:text-4xl text-white">Editor's Picks</h2>
               <Link href="/articles" className="hidden md:flex items-center gap-2 text-xs font-bold tracking-widest uppercase text-amber-500 hover:text-white transition-colors">
                 View Archive <ArrowRight size={14} />
@@ -103,27 +102,28 @@ export default async function Page() {
         </div>
       </section>
 
-      {/* 4. LATEST NOTES & VIDEO */}
+      {/* 4. FIELD NOTES & VIDEO (Restored Grid) */}
       <section className="px-6 md:px-12 py-12 bg-[#050a15] border-t border-white/5">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16">
           
-          {/* List */}
+          {/* LEFT: FIELD NOTES (Restored) */}
           <div>
             <ScrollReveal>
-              <h3 className="font-serif text-3xl text-white mb-6 flex items-center gap-3">
+              <h3 className="font-serif text-3xl text-white mb-8 flex items-center gap-3">
                 <FileText className="text-amber-500" size={24} /> 
-                Latest Notes
+                Field Notes
               </h3>
             </ScrollReveal>
             <div className="space-y-4">
               {recentNotes.map((post, i) => (
                 <ScrollReveal key={post.slug} delay={i * 0.1}>
-                  <Link href={`/post/${post.slug}`} className="group flex items-baseline gap-4 pb-4 border-b border-white/5 last:border-0 hover:border-white/10 transition-colors">
+                  <Link href={`/post/${post.slug}`} className="group flex items-baseline gap-5 pb-5 border-b border-white/5 last:border-0 hover:border-white/10 transition-colors">
                     <span className="font-mono text-sm text-slate-600 group-hover:text-amber-500 transition-colors">0{i + 1}</span>
                     <div>
-                      <h4 className="text-lg font-serif text-slate-300 group-hover:text-white transition-colors">
+                      <h4 className="text-lg font-serif text-slate-300 group-hover:text-white transition-colors leading-snug">
                         {post.title}
                       </h4>
+                      <p className="text-sm text-slate-500 mt-1 line-clamp-1 font-light">{post.excerpt}</p>
                     </div>
                   </Link>
                 </ScrollReveal>
@@ -131,10 +131,10 @@ export default async function Page() {
             </div>
           </div>
 
-          {/* Video */}
+          {/* RIGHT: VIDEO */}
           <div>
             <ScrollReveal delay={0.2}>
-              <h3 className="font-serif text-3xl text-white mb-6 flex items-center gap-3">
+              <h3 className="font-serif text-3xl text-white mb-8 flex items-center gap-3">
                 <Play className="text-red-500" size={24} /> 
                 On Air
               </h3>
