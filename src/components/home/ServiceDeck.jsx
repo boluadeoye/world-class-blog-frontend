@@ -1,4 +1,5 @@
 "use client";
+import { motion } from "framer-motion";
 import { Code2, Layers, PenTool, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import ScrollReveal from "../ui/ScrollReveal";
@@ -47,7 +48,7 @@ export default function ServiceDeck() {
           </div>
         </ScrollReveal>
 
-        {/* The Deck (Staggered Animation) */}
+        {/* The Deck (Horizontal Grid) */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {services.map((service, i) => (
             <ScrollReveal key={service.id} delay={i * 0.15}>
