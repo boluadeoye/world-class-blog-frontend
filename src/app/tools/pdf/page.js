@@ -6,37 +6,26 @@ import Link from "next/link";
 
 export default function ContractForge() {
   const [showPreview, setShowPreview] = useState(false);
-  const [content, setContent] = useState(`# THE ARCHITECTURE OF A DIGITAL TWIN
-**Building High-Performance RAG Systems with Next.js**
+  const [content, setContent] = useState(`# SERVICE AGREEMENT
 
-**Author:** Boluwatife Adeoye
-**Date:** December 15, 2025
+**Date:** ${new Date().toLocaleDateString()}
 
-## 1. ABSTRACT
-The modern web is shifting from static content to "Living Interfaces." This paper outlines the architectural decisions behind building a "Digital Consciousness"—an AI agent capable of mimicking a developer's personality and technical knowledge in real-time.
+**Between:**
+Boluwatife Adeoye (Lead Engineer)
+AND
+[Client Name]
 
-## 2. THE CHALLENGE
-Standard chatbots (like ChatGPT wrappers) suffer from hallucination and lack specific context. To build a true "Digital Twin," the system must:
-1.  Retain conversation history across sessions (Persistence).
-2.  Access a specific knowledge base (The Blog).
-3.  Simulate human latency (Typing Physics).
+## 1. Scope of Work
+The Engineer agrees to provide high-performance software architecture, full-stack development, and system design services.
 
-## 3. THE SOLUTION: RAG ARCHITECTURE
-Retrieval-Augmented Generation (RAG) was implemented to ground the AI's responses.
+## 2. Terms
+This contract ensures world-class delivery standards. All code remains the intellectual property of the client upon final payment.
 
-### 3.1 The Stack
-*   **Frontend:** Next.js 14 (App Router) for server-side rendering.
-*   **Inference Engine:** Groq LPU running Llama 3.3 (70B) for sub-100ms latency.
-*   **State Management:** LocalStorage synchronization for aggressive persistence.
-
-### 3.2 The "Neural" Typing Engine
-To prevent the "Wall of Text" effect common in AI, a custom hook was engineered to stream text character-by-character, mimicking human typing speeds (10ms–30ms variance).
-
-## 4. CONCLUSION
-By combining high-performance edge computing with localized state management, we achieved a chat interface that feels less like a tool and more like a conversation.
+## 3. Payment
+Payment shall be made in milestones as agreed upon.
 
 ---
-*Generated via Bolu's PDF Engine*`);
+*Drafted via The Forge*`);
 
   const handlePrint = () => {
     setTimeout(() => {
@@ -44,70 +33,47 @@ By combining high-performance edge computing with localized state management, we
     }, 100);
   };
 
-  // === THE HIGH-CONTRAST DOCUMENT ===
+  // === THE DOCUMENT ===
   const DocumentPaper = () => (
     <div 
       className="bg-white text-black w-full max-w-[210mm] min-h-[297mm] p-[20mm] shadow-2xl relative flex flex-col justify-between mx-auto overflow-hidden"
-      style={{ fontFamily: 'var(--font-serif)' }} 
     >
-      {/* WATERMARK (Subtle but visible) */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[400px] font-black text-black opacity-[0.02] pointer-events-none select-none z-0">
-        BA
-      </div>
-
       {/* HEADER */}
-      <header className="relative z-10 border-b-4 border-black pb-8 mb-10 flex justify-between items-start">
-        <div className="flex flex-col">
-          <h1 className="text-5xl font-black tracking-tighter uppercase leading-[0.9] text-black">
-            Boluwatife<br/>Adeoye
-          </h1>
-          <div className="flex items-center gap-3 mt-3">
-            <div className="h-1 w-12 bg-black"></div>
-            <p className="text-xs font-black tracking-[0.4em] uppercase text-black">Lead Engineer</p>
-          </div>
+      <header className="border-b-[3px] border-black pb-6 mb-8 flex justify-between items-end">
+        <div>
+          <h1 className="text-4xl font-black tracking-tight uppercase leading-none text-black">Boluwatife<br/>Adeoye</h1>
+          <p className="text-xs font-bold tracking-[0.3em] uppercase mt-3 text-black">Lead Software Engineer</p>
         </div>
-        
-        {/* LOGO */}
-        <div className="w-24 h-24 border-[6px] border-black flex items-center justify-center">
-          <span className="text-5xl font-black tracking-tighter text-black">BA</span>
+        <div className="w-14 h-14 border-[3px] border-black rounded-full flex items-center justify-center font-bold text-xl tracking-tighter text-black">
+          BA
         </div>
       </header>
 
-      {/* BODY (Bold & Black) */}
+      {/* BODY */}
       <div className="relative z-10 flex-1">
         <ReactMarkdown
           components={{
-            // H1: Massive Section Headers
             h1: ({node, ...props}) => (
-              <h1 className="text-2xl font-black uppercase tracking-wide border-b-2 border-black pb-2 mt-8 mb-4 text-black" {...props} />
+              <h1 className="text-xl font-black uppercase tracking-wide border-b-2 border-black pb-2 mt-8 mb-4 text-black" {...props} />
             ),
-            // H2: Sub-headers
             h2: ({node, ...props}) => (
-              <h2 className="text-xl font-bold uppercase mt-6 mb-3 text-black" {...props} />
+              <h2 className="text-lg font-bold uppercase mt-6 mb-3 text-black" {...props} />
             ),
-            // H3: Minor headers
-            h3: ({node, ...props}) => (
-              <h3 className="text-lg font-bold uppercase mt-4 mb-2 text-black" {...props} />
-            ),
-            // P: Medium weight for solid black look
             p: ({node, ...props}) => (
-              <p className="text-justify text-[11pt] leading-[1.6] font-medium mb-4 text-black" {...props} />
+              <p className="text-justify text-[12pt] leading-[1.5] font-semibold mb-4 text-black" {...props} />
             ),
-            // Strong: Extra Heavy
             strong: ({node, ...props}) => (
               <strong className="font-black text-black uppercase" {...props} />
             ),
-            // Lists
             ul: ({node, ...props}) => <ul className="list-none pl-0 mb-4" {...props} />,
             li: ({node, ...props}) => (
-              <li className="flex items-start gap-3 mb-2 text-[11pt] font-medium text-black">
-                <span className="mt-1.5 w-1.5 h-1.5 bg-black shrink-0"></span>
+              <li className="flex items-start gap-3 mb-2 text-[12pt] font-semibold text-black">
+                <span className="mt-2 w-1.5 h-1.5 bg-black shrink-0"></span>
                 <span>{props.children}</span>
               </li>
             ),
-            // Blockquote
             blockquote: ({node, ...props}) => (
-              <blockquote className="border-l-4 border-black pl-4 py-2 my-6 italic font-medium text-black bg-gray-50" {...props} />
+              <blockquote className="border-l-4 border-black pl-4 py-2 my-6 italic font-bold text-black bg-gray-100" {...props} />
             ),
           }}
         >
@@ -116,20 +82,20 @@ By combining high-performance edge computing with localized state management, we
       </div>
 
       {/* FOOTER */}
-      <footer className="relative z-10 mt-16 pt-8 border-t-2 border-black flex justify-between items-end">
+      <footer className="relative z-10 mt-16 pt-8 border-t-[3px] border-black flex justify-between items-end">
         <div className="flex flex-col gap-4">
           <div className="flex flex-col">
-            <div className="font-serif italic text-4xl text-black transform -rotate-2 mb-1">
+            <div className="font-serif italic text-3xl text-black transform -rotate-2 mb-1 font-bold">
               Boluwatife Adeoye
             </div>
-            <div className="h-0.5 w-64 bg-black"></div>
-            <p className="text-[9px] uppercase tracking-[0.2em] font-bold mt-2 text-black">Authorized Signature</p>
+            <div className="h-[2px] w-64 bg-black"></div>
+            <p className="text-[10px] uppercase tracking-[0.2em] font-black mt-2 text-black">Authorized Signature</p>
           </div>
         </div>
 
         <div className="text-right">
           <p className="text-sm font-black text-black tracking-tight">BOLUADEOYE.COM.NG</p>
-          <p className="text-[8px] font-bold text-black uppercase tracking-widest mt-1">Engineering & Strategy</p>
+          <p className="text-[9px] font-bold text-black uppercase tracking-widest mt-1">Engineering & Strategy</p>
         </div>
       </footer>
     </div>
@@ -138,9 +104,38 @@ By combining high-performance edge computing with localized state management, we
   return (
     <main className="min-h-screen bg-[#050505] text-white font-sans">
       
-      {/* === HIDE GLOBAL HEADER === */}
+      {/* === CRITICAL PRINT CSS === */}
       <style jsx global>{`
         header { display: none !important; }
+        
+        @media print {
+          @page { margin: 0; size: A4; }
+          
+          /* FORCE BLACK & THICKNESS */
+          body, p, h1, h2, h3, span, div { 
+            color: #000000 !important; 
+            text-shadow: 0 0 0 #000000 !important; /* The Thickener Hack */
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+
+          /* USE SYSTEM FONTS FOR DARKER RENDER */
+          .print-container {
+            font-family: Georgia, 'Times New Roman', serif !important;
+          }
+
+          /* HIDE UI */
+          .no-print { display: none !important; }
+          
+          /* LAYOUT */
+          .print-container {
+            width: 100%;
+            height: auto;
+            padding: 0 !important;
+            margin: 0 !important;
+            box-shadow: none !important;
+          }
+        }
       `}</style>
       
       {/* === 1. EDITOR SECTION === */}
@@ -153,23 +148,11 @@ By combining high-performance edge computing with localized state management, we
               <ArrowLeft size={14} /> Exit
             </Link>
             
-            {/* MOBILE ACTIONS */}
             <div className="flex items-center gap-3 md:hidden">
-              <button 
-                onClick={() => setShowPreview(true)} 
-                className="px-3 py-1.5 rounded bg-white/10 text-white text-xs font-bold uppercase border border-white/10"
-              >
-                Preview
-              </button>
-              <button 
-                onClick={handlePrint} 
-                className="px-3 py-1.5 rounded bg-amber-500 text-black text-xs font-bold uppercase shadow-lg shadow-amber-500/20"
-              >
-                Export PDF
-              </button>
+              <button onClick={() => setShowPreview(true)} className="px-3 py-1.5 rounded bg-white/10 text-white text-xs font-bold uppercase border border-white/10">Preview</button>
+              <button onClick={handlePrint} className="px-3 py-1.5 rounded bg-amber-500 text-black text-xs font-bold uppercase shadow-lg">Export PDF</button>
             </div>
 
-            {/* DESKTOP TITLE */}
             <div className="hidden md:flex items-center gap-2 text-amber-500 font-bold text-sm uppercase">
               <PenTool size={16} /> The Forge
             </div>
@@ -196,7 +179,9 @@ By combining high-performance edge computing with localized state management, we
           </div>
           <div className="flex-1 overflow-y-auto p-8 flex justify-center">
             <div className="scale-[0.6] origin-top">
-              <DocumentPaper />
+              <div className="print-container bg-white text-black w-[210mm] min-h-[297mm] p-[20mm] shadow-2xl relative flex flex-col justify-between">
+                 <DocumentPaper />
+              </div>
             </div>
           </div>
         </div>
@@ -206,20 +191,15 @@ By combining high-performance edge computing with localized state management, we
       {showPreview && (
         <div className="fixed inset-0 z-50 bg-slate-900 flex flex-col md:hidden">
           <div className="h-16 border-b border-white/10 flex items-center justify-between px-4 bg-slate-900 shrink-0">
-            <button onClick={() => setShowPreview(false)} className="text-slate-400 flex items-center gap-2 text-xs font-bold uppercase">
-              <X size={16} /> Edit
-            </button>
-            <span className="text-white font-bold text-sm">Document Preview</span>
-            <button 
-              onClick={handlePrint} 
-              className="px-3 py-1.5 rounded bg-amber-500 text-black text-xs font-bold uppercase shadow-lg"
-            >
-              Export PDF
-            </button>
+            <button onClick={() => setShowPreview(false)} className="text-slate-400 flex items-center gap-2 text-xs font-bold uppercase"><X size={16} /> Edit</button>
+            <span className="text-white font-bold text-sm">Preview</span>
+            <button onClick={handlePrint} className="px-3 py-1.5 rounded bg-amber-500 text-black text-xs font-bold uppercase shadow-lg">Export PDF</button>
           </div>
           <div className="flex-1 overflow-y-auto p-4 bg-slate-800">
             <div className="scale-[0.5] origin-top-left w-[200%]">
-              <DocumentPaper />
+               <div className="print-container bg-white text-black w-[210mm] min-h-[297mm] p-[20mm] shadow-2xl relative flex flex-col justify-between">
+                 <DocumentPaper />
+               </div>
             </div>
           </div>
         </div>
@@ -227,7 +207,9 @@ By combining high-performance edge computing with localized state management, we
 
       {/* === 3. PRINT LAYER === */}
       <div className="hidden print:block print:absolute print:top-0 print:left-0 print:w-full print:z-[9999] print:bg-white">
-        <DocumentPaper />
+        <div className="print-container">
+           <DocumentPaper />
+        </div>
       </div>
 
     </main>
