@@ -1,5 +1,5 @@
 "use client";
-import { Printer, Download, ArrowLeft } from "lucide-react";
+import { Printer, Download, ArrowLeft, Globe, Mail, Phone, MapPin } from "lucide-react";
 import Link from "next/link";
 
 export default function ResumePage() {
@@ -8,146 +8,139 @@ export default function ResumePage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#050505] text-white font-sans flex flex-col items-center py-8 px-4">
+    <main className="min-h-screen bg-[#050505] text-white font-sans flex flex-col items-center py-8 px-4 relative z-50">
       
-      {/* === PRINT CSS OVERRIDES === */}
+      {/* === FORCE HIDE GLOBAL HEADER === */}
       <style jsx global>{`
+        header { display: none !important; }
         @media print {
           @page { margin: 0; size: auto; }
           body { background: white; }
-          /* Hide everything that isn't the resume */
-          body * { visibility: hidden; }
-          #resume-document, #resume-document * { visibility: visible; }
-          #resume-document {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            margin: 0;
-            padding: 15mm !important; /* Enforce our own padding */
-          }
         }
       `}</style>
 
-      {/* === HEADER (Hidden on Print) === */}
-      <div className="w-full max-w-[210mm] flex justify-between items-center mb-8 print:hidden">
-        <Link href="/" className="flex items-center gap-2 text-slate-400 hover:text-white text-sm font-bold uppercase tracking-widest">
-          <ArrowLeft size={16} /> Back
+      {/* === ACTIONS (Hidden on Print) === */}
+      <div className="w-full max-w-[210mm] flex justify-between items-center mb-8 print:hidden sticky top-4 z-50">
+        <Link href="/" className="flex items-center gap-2 text-slate-400 hover:text-white text-xs font-bold uppercase tracking-widest bg-black/50 backdrop-blur-md px-4 py-2 rounded-full border border-white/10">
+          <ArrowLeft size={14} /> Return
         </Link>
         <button 
           onClick={handlePrint}
-          className="flex items-center gap-2 px-6 py-3 bg-amber-500 text-black rounded-full font-bold text-sm hover:bg-amber-400 transition-all shadow-lg shadow-amber-500/20"
+          className="flex items-center gap-2 px-6 py-3 bg-white text-black rounded-full font-black text-xs uppercase tracking-widest hover:bg-slate-200 transition-all shadow-xl"
         >
-          <Download size={18} /> Download PDF
+          <Download size={16} /> Save as PDF
         </button>
       </div>
 
-      {/* === THE RESUME DOCUMENT === */}
-      <div 
-        id="resume-document"
-        className="bg-white text-slate-900 w-full max-w-[210mm] p-[15mm] shadow-2xl print:shadow-none print:w-full print:max-w-none"
-      >
+      {/* === THE DOCUMENT === */}
+      <div className="bg-white text-black w-full max-w-[210mm] min-h-[297mm] p-[15mm] md:p-[20mm] shadow-2xl relative overflow-hidden print:shadow-none print:w-full print:max-w-none print:p-[15mm] print:m-0">
         
-        {/* HEADER */}
-        <header className="border-b-2 border-black pb-5 mb-6 flex justify-between items-start">
-          <div>
-            <h1 className="text-3xl font-black uppercase tracking-tight leading-none mb-2">Boluwatife Adeoye</h1>
-            <p className="text-sm font-bold text-slate-600 uppercase tracking-[0.2em]">Senior Full-Stack Engineer</p>
-          </div>
-          <div className="text-right text-xs font-medium text-slate-700 leading-relaxed">
-            <p>boluadeoye97@gmail.com</p>
-            <p>boluadeoye.com.ng</p>
-            <p>+234 810 629 3674</p>
-            <p>Lagos, Nigeria</p>
-          </div>
-        </header>
+        {/* WATERMARK */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[400px] font-black text-slate-900 opacity-[0.03] pointer-events-none select-none z-0 leading-none">
+          BA
+        </div>
 
-        {/* SUMMARY */}
-        <section className="mb-6">
-          <h2 className="text-xs font-black uppercase tracking-widest border-b border-slate-300 pb-1 mb-2">Professional Summary</h2>
-          <p className="text-[10pt] leading-relaxed text-justify text-slate-800">
-            High-performance Full-Stack Engineer with specialized expertise in <strong>Web3 Frontend Architecture</strong> and <strong>AI-Driven Applications</strong>. Proven track record of building scalable, decentralized applications (dApps) using Next.js, Wagmi, and Solidity integrations. Expert in bridging complex backend logic (Xano, Supabase) with premium, physics-based user interfaces.
-          </p>
-        </section>
-
-        {/* SKILLS (Compact Grid) */}
-        <section className="mb-6">
-          <h2 className="text-xs font-black uppercase tracking-widest border-b border-slate-300 pb-1 mb-2">Technical Arsenal</h2>
-          <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-[9pt]">
-            <div>
-              <span className="font-bold block text-black">Core Stack</span>
-              <span className="text-slate-700">Next.js 14, React, TypeScript, Tailwind CSS</span>
-            </div>
-            <div>
-              <span className="font-bold block text-black">Web3 & Blockchain</span>
-              <span className="text-slate-700">Wagmi, Viem, RainbowKit, Smart Contracts</span>
-            </div>
-            <div>
-              <span className="font-bold block text-black">Backend & Database</span>
-              <span className="text-slate-700">Xano, Supabase, Neon (Postgres), Drizzle</span>
-            </div>
-            <div>
-              <span className="font-bold block text-black">AI & Automation</span>
-              <span className="text-slate-700">RAG Systems, Google Gemini SDK, Groq API</span>
-            </div>
-          </div>
-        </section>
-
-        {/* EXPERIENCE */}
-        <section className="mb-6">
-          <h2 className="text-xs font-black uppercase tracking-widest border-b border-slate-300 pb-1 mb-3">Experience</h2>
-          
-          <div className="mb-4">
-            <div className="flex justify-between items-baseline mb-1">
-              <h3 className="font-bold text-[10pt]">Lead Full-Stack Engineer</h3>
-              <span className="text-[9pt] font-bold text-slate-500">2023 – Present</span>
-            </div>
-            <p className="text-[8pt] font-bold text-slate-600 mb-1 uppercase">Freelance / Contract</p>
-            <ul className="list-disc pl-4 text-[9pt] space-y-1 text-slate-800">
-              <li>Architected <strong>"The Digital Consciousness"</strong>, a custom RAG-based AI agent that autonomously qualifies leads and answers technical queries in real-time.</li>
-              <li>Built <strong>"SkillBridge"</strong>, a decentralized time-banking marketplace using Next.js and Xano, implementing atomic database transactions to prevent double-spending.</li>
-              <li>Developed <strong>"Lumina Commerce"</strong>, a high-performance e-commerce engine featuring "Maglev" physics animations and real-time inventory management via Neon SQL.</li>
-            </ul>
-          </div>
-
-          <div>
-            <div className="flex justify-between items-baseline mb-1">
-              <h3 className="font-bold text-[10pt]">Frontend Developer</h3>
-              <span className="text-[9pt] font-bold text-slate-500">2021 – 2023</span>
-            </div>
-            <p className="text-[8pt] font-bold text-slate-600 mb-1 uppercase">Various Projects</p>
-            <ul className="list-disc pl-4 text-[9pt] space-y-1 text-slate-800">
-              <li>Translated complex Figma designs into pixel-perfect, responsive React components.</li>
-              <li>Integrated third-party APIs (Paystack, Stripe) to handle secure payments for local businesses.</li>
-            </ul>
-          </div>
-        </section>
-
-        {/* PROJECTS */}
-        <section className="mb-6">
-          <h2 className="text-xs font-black uppercase tracking-widest border-b border-slate-300 pb-1 mb-3">Key Projects</h2>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-slate-50 p-3 rounded border border-slate-100">
-              <h3 className="font-bold text-[9pt] mb-1">BoluAdeoye.com.ng</h3>
-              <p className="text-[8pt] leading-relaxed text-slate-700">
-                A "World-Class" personal platform featuring a custom AI Digital Twin, 3D physics animations, and a proprietary Markdown-to-PDF engine.
+        <div className="relative z-10">
+          {/* HEADER */}
+          <header className="border-b-4 border-black pb-6 mb-8">
+            <h1 className="text-5xl md:text-6xl font-black uppercase tracking-tighter leading-[0.9] mb-4">
+              Boluwatife<br/>Adeoye
+            </h1>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <p className="text-sm font-bold bg-black text-white px-2 py-1 inline-block uppercase tracking-[0.2em]">
+                Senior Full-Stack Engineer
               </p>
+              <div className="flex flex-wrap gap-x-6 gap-y-1 text-[10px] font-bold uppercase tracking-wider text-slate-600">
+                <span className="flex items-center gap-1"><Globe size={10} /> boluadeoye.com.ng</span>
+                <span className="flex items-center gap-1"><Mail size={10} /> boluadeoye97@gmail.com</span>
+                <span className="flex items-center gap-1"><Phone size={10} /> +234 810 629 3674</span>
+              </div>
             </div>
-            <div className="bg-slate-50 p-3 rounded border border-slate-100">
-              <h3 className="font-bold text-[9pt] mb-1">Contract Forge</h3>
-              <p className="text-[8pt] leading-relaxed text-slate-700">
-                A browser-based legal document generator that converts Markdown into print-ready, legally formatted PDFs with auto-signatures.
-              </p>
-            </div>
-          </div>
-        </section>
+          </header>
 
-        {/* FOOTER */}
-        <footer className="pt-4 border-t border-slate-200 flex justify-between items-center text-[8pt] text-slate-500">
-          <span>© 2025 Adeoye Boluwatife</span>
-          <span className="font-mono">Generated via boluadeoye.com.ng/resume</span>
-        </footer>
+          {/* SUMMARY */}
+          <section className="mb-8">
+            <h2 className="text-xs font-black uppercase tracking-[0.2em] border-b-2 border-black pb-1 mb-3">Executive Summary</h2>
+            <p className="text-[10pt] leading-relaxed text-justify font-medium text-slate-800">
+              High-performance <strong>Software Architect</strong> with specialized expertise in <strong>Web3 Frontend Engineering</strong> and <strong>AI-Driven Systems</strong>. Proven ability to bridge complex backend logic (Xano, Supabase) with premium, physics-based user interfaces (Next.js). Pioneer in building "Living" digital ecosystems that drive revenue, user engagement, and operational efficiency.
+            </p>
+          </section>
+
+          {/* SKILLS GRID */}
+          <section className="mb-8">
+            <h2 className="text-xs font-black uppercase tracking-[0.2em] border-b-2 border-black pb-1 mb-3">Technical Arsenal</h2>
+            <div className="grid grid-cols-2 gap-y-4 gap-x-8">
+              <div>
+                <p className="text-[9px] font-black uppercase text-slate-500 mb-1">Core Infrastructure</p>
+                <p className="text-[10pt] font-bold leading-tight">Next.js 14 (App Router), React, TypeScript, Node.js, Tailwind CSS</p>
+              </div>
+              <div>
+                <p className="text-[9px] font-black uppercase text-slate-500 mb-1">Web3 & Blockchain</p>
+                <p className="text-[10pt] font-bold leading-tight">Wagmi, Viem, RainbowKit, Smart Contract Integration, dApp Architecture</p>
+              </div>
+              <div>
+                <p className="text-[9px] font-black uppercase text-slate-500 mb-1">Backend & Data</p>
+                <p className="text-[10pt] font-bold leading-tight">Xano (No-Code), Supabase, Neon (Serverless Postgres), Drizzle ORM</p>
+              </div>
+              <div>
+                <p className="text-[9px] font-black uppercase text-slate-500 mb-1">AI & Automation</p>
+                <p className="text-[10pt] font-bold leading-tight">RAG Systems, LangChain, Google Gemini SDK, Groq API, Vector DBs</p>
+              </div>
+            </div>
+          </section>
+
+          {/* EXPERIENCE */}
+          <section className="mb-8">
+            <h2 className="text-xs font-black uppercase tracking-[0.2em] border-b-2 border-black pb-1 mb-4">Professional Experience</h2>
+            
+            <div className="mb-5">
+              <div className="flex justify-between items-end mb-1">
+                <h3 className="text-[11pt] font-black uppercase">Lead Full-Stack Engineer</h3>
+                <span className="text-[9px] font-bold bg-slate-100 px-2 py-0.5 rounded">2023 – PRESENT</span>
+              </div>
+              <p className="text-[9px] font-bold text-slate-500 uppercase tracking-wider mb-2">Freelance / Contract • Remote</p>
+              <ul className="list-disc pl-4 text-[10pt] space-y-1 font-medium text-slate-800 marker:text-black">
+                <li>Architected <strong>"The Digital Consciousness"</strong>, a custom RAG-based AI agent that autonomously qualifies leads and answers technical queries in real-time.</li>
+                <li>Built <strong>"SkillBridge"</strong>, a decentralized time-banking marketplace using Next.js and Xano, implementing atomic database transactions to prevent double-spending.</li>
+                <li>Developed <strong>"Lumina Commerce"</strong>, a high-performance e-commerce engine featuring "Maglev" physics animations and real-time inventory management via Neon SQL.</li>
+                <li>Optimized frontend performance for multiple clients, achieving consistent <strong>99/100 Lighthouse scores</strong> through server-side rendering and edge caching.</li>
+              </ul>
+            </div>
+
+            <div>
+              <div className="flex justify-between items-end mb-1">
+                <h3 className="text-[11pt] font-black uppercase">Frontend Developer</h3>
+                <span className="text-[9px] font-bold bg-slate-100 px-2 py-0.5 rounded">2021 – 2023</span>
+              </div>
+              <p className="text-[9px] font-bold text-slate-500 uppercase tracking-wider mb-2">Various Projects</p>
+              <ul className="list-disc pl-4 text-[10pt] space-y-1 font-medium text-slate-800 marker:text-black">
+                <li>Translated complex Figma designs into pixel-perfect, responsive React components.</li>
+                <li>Integrated third-party APIs (Paystack, Stripe) to handle secure payments for local businesses.</li>
+                <li>Refactored legacy codebases to modern Next.js standards, reducing load times by 40%.</li>
+              </ul>
+            </div>
+          </section>
+
+          {/* PROJECTS */}
+          <section>
+            <h2 className="text-xs font-black uppercase tracking-[0.2em] border-b-2 border-black pb-1 mb-4">Key Projects</h2>
+            
+            <div className="grid grid-cols-2 gap-6">
+              <div className="border-l-2 border-black pl-3">
+                <h3 className="text-[10pt] font-black uppercase mb-1">BoluAdeoye.com.ng</h3>
+                <p className="text-[9pt] leading-tight font-medium text-slate-700">
+                  A "World-Class" personal platform featuring a custom AI Digital Twin, 3D physics animations, and a proprietary Markdown-to-PDF engine.
+                </p>
+              </div>
+              <div className="border-l-2 border-black pl-3">
+                <h3 className="text-[10pt] font-black uppercase mb-1">Contract Forge</h3>
+                <p className="text-[9pt] leading-tight font-medium text-slate-700">
+                  A browser-based legal document generator that converts Markdown into print-ready, legally formatted PDFs with auto-signatures.
+                </p>
+              </div>
+            </div>
+          </section>
+        </div>
 
       </div>
     </main>
