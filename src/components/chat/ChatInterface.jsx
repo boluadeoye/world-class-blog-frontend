@@ -20,7 +20,7 @@ export default function ChatInterface({ blogContext }) {
       setMessages([{ 
         id: "init", 
         role: "assistant", 
-        content: "I am online. Ask me anything about Bolu's work, code, or ideas." 
+        content: "Neural Link Established. I am ready." 
       }]);
     }
   }, []);
