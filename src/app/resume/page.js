@@ -1,5 +1,5 @@
 "use client";
-import { Printer, Download, ArrowLeft, Globe, Mail, Phone, MapPin } from "lucide-react";
+import { Printer, Download, ArrowLeft, Globe, Mail, Phone } from "lucide-react";
 import Link from "next/link";
 
 export default function ResumePage() {
@@ -10,14 +10,25 @@ export default function ResumePage() {
   return (
     <main className="min-h-screen bg-[#050505] text-white font-sans flex flex-col items-center py-8 px-4 relative z-50">
       
-      {/* === PRINT OPTIMIZATION === */}
+      {/* === CRITICAL PRINT CSS === */}
       <style jsx global>{`
         header { display: none !important; }
         @media print {
-          @page { margin: 0.5cm; size: A4; }
+          /* Hides Browser Headers/Footers (URL, Date, Page #) */
+          @page { margin: 0; size: A4; } 
           body { background: white; -webkit-print-color-adjust: exact; }
+          
+          /* Hide UI elements */
           .no-print { display: none !important; }
-          .print-force { display: block !important; }
+          
+          /* Force A4 Dimensions */
+          .print-container {
+            width: 210mm;
+            height: 297mm;
+            padding: 15mm !important; /* Internal padding instead of browser margin */
+            margin: 0 auto;
+            overflow: hidden; /* Cut off anything that spills */
+          }
         }
       `}</style>
 
@@ -35,24 +46,24 @@ export default function ResumePage() {
       </div>
 
       {/* === THE DOCUMENT === */}
-      <div className="bg-white text-black w-full max-w-[210mm] min-h-[297mm] p-[15mm] shadow-2xl relative overflow-hidden print:shadow-none print:w-full print:max-w-none print:h-auto print:overflow-visible print:p-[10mm]">
+      <div className="print-container bg-white text-black w-full max-w-[210mm] min-h-[297mm] p-[15mm] shadow-2xl relative flex flex-col justify-between">
         
         {/* WATERMARK */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[400px] font-black text-slate-900 opacity-[0.03] pointer-events-none select-none z-0 leading-none">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[350px] font-black text-slate-900 opacity-[0.03] pointer-events-none select-none z-0 leading-none">
           BA
         </div>
 
-        <div className="relative z-10">
+        <div className="relative z-10 flex-1">
           {/* HEADER */}
-          <header className="border-b-4 border-black pb-4 mb-6 print-force">
-            <h1 className="text-5xl md:text-6xl font-black uppercase tracking-tighter leading-[0.9] mb-3">
+          <header className="border-b-4 border-black pb-4 mb-5">
+            <h1 className="text-5xl font-black uppercase tracking-tighter leading-[0.9] mb-3">
               Boluwatife<br/>Adeoye
             </h1>
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <p className="text-sm font-bold bg-black text-white px-2 py-1 inline-block uppercase tracking-[0.2em] print:text-black print:bg-transparent print:border print:border-black">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+              <p className="text-xs font-bold bg-black text-white px-2 py-1 inline-block uppercase tracking-[0.2em] print:text-black print:bg-transparent print:border print:border-black">
                 Senior Full-Stack Engineer
               </p>
-              <div className="flex flex-wrap gap-x-5 gap-y-1 text-[9px] font-bold uppercase tracking-wider text-slate-600 print:text-black">
+              <div className="flex flex-wrap gap-x-4 gap-y-1 text-[9px] font-bold uppercase tracking-wider text-slate-600 print:text-black">
                 <span className="flex items-center gap-1">boluadeoye.com.ng</span>
                 <span className="flex items-center gap-1">boluadeoye97@gmail.com</span>
                 <span className="flex items-center gap-1">+234 810 629 3674</span>
@@ -61,46 +72,46 @@ export default function ResumePage() {
           </header>
 
           {/* SUMMARY */}
-          <section className="mb-6">
-            <h2 className="text-xs font-black uppercase tracking-[0.2em] border-b-2 border-black pb-1 mb-2">Executive Summary</h2>
-            <p className="text-[10pt] leading-relaxed text-justify font-medium text-slate-800 print:text-black">
+          <section className="mb-5">
+            <h2 className="text-[10px] font-black uppercase tracking-[0.2em] border-b-2 border-black pb-1 mb-2">Executive Summary</h2>
+            <p className="text-[9.5pt] leading-relaxed text-justify font-medium text-slate-800 print:text-black">
               High-performance <strong>Software Architect</strong> with specialized expertise in <strong>Web3 Frontend Engineering</strong> and <strong>AI-Driven Systems</strong>. Proven ability to bridge complex backend logic (Xano, Supabase) with premium, physics-based user interfaces (Next.js). Pioneer in building "Living" digital ecosystems that drive revenue, user engagement, and operational efficiency.
             </p>
           </section>
 
           {/* SKILLS GRID */}
-          <section className="mb-6">
-            <h2 className="text-xs font-black uppercase tracking-[0.2em] border-b-2 border-black pb-1 mb-2">Technical Arsenal</h2>
-            <div className="grid grid-cols-2 gap-y-3 gap-x-6">
+          <section className="mb-5">
+            <h2 className="text-[10px] font-black uppercase tracking-[0.2em] border-b-2 border-black pb-1 mb-2">Technical Arsenal</h2>
+            <div className="grid grid-cols-2 gap-y-2 gap-x-6">
               <div>
-                <p className="text-[9px] font-black uppercase text-slate-500 mb-0.5 print:text-black">Core Infrastructure</p>
-                <p className="text-[9pt] font-bold leading-tight">Next.js 14 (App Router), React, TypeScript, Node.js, Tailwind CSS</p>
+                <p className="text-[8px] font-black uppercase text-slate-500 mb-0.5 print:text-black">Core Infrastructure</p>
+                <p className="text-[9pt] font-bold leading-tight">Next.js 14, React, TypeScript, Node.js, Tailwind</p>
               </div>
               <div>
-                <p className="text-[9px] font-black uppercase text-slate-500 mb-0.5 print:text-black">Web3 & Blockchain</p>
-                <p className="text-[9pt] font-bold leading-tight">Wagmi, Viem, RainbowKit, Smart Contract Integration, dApp Architecture</p>
+                <p className="text-[8px] font-black uppercase text-slate-500 mb-0.5 print:text-black">Web3 & Blockchain</p>
+                <p className="text-[9pt] font-bold leading-tight">Wagmi, Viem, RainbowKit, Smart Contracts</p>
               </div>
               <div>
-                <p className="text-[9px] font-black uppercase text-slate-500 mb-0.5 print:text-black">Backend & Data</p>
-                <p className="text-[9pt] font-bold leading-tight">Xano (No-Code), Supabase, Neon (Serverless Postgres), Drizzle ORM</p>
+                <p className="text-[8px] font-black uppercase text-slate-500 mb-0.5 print:text-black">Backend & Data</p>
+                <p className="text-[9pt] font-bold leading-tight">Xano, Supabase, Neon Postgres, Drizzle ORM</p>
               </div>
               <div>
-                <p className="text-[9px] font-black uppercase text-slate-500 mb-0.5 print:text-black">AI & Automation</p>
-                <p className="text-[9pt] font-bold leading-tight">RAG Systems, LangChain, Google Gemini SDK, Groq API, Vector DBs</p>
+                <p className="text-[8px] font-black uppercase text-slate-500 mb-0.5 print:text-black">AI & Automation</p>
+                <p className="text-[9pt] font-bold leading-tight">RAG Systems, LangChain, Gemini SDK, Groq API</p>
               </div>
             </div>
           </section>
 
           {/* EXPERIENCE */}
-          <section className="mb-6">
-            <h2 className="text-xs font-black uppercase tracking-[0.2em] border-b-2 border-black pb-1 mb-3">Professional Experience</h2>
+          <section className="mb-5">
+            <h2 className="text-[10px] font-black uppercase tracking-[0.2em] border-b-2 border-black pb-1 mb-3">Professional Experience</h2>
             
             <div className="mb-4">
               <div className="flex justify-between items-end mb-1">
                 <h3 className="text-[10pt] font-black uppercase">Lead Full-Stack Engineer</h3>
-                <span className="text-[9px] font-bold bg-slate-100 px-2 py-0.5 rounded print:border print:border-slate-300">2023 – PRESENT</span>
+                <span className="text-[8px] font-bold bg-slate-100 px-2 py-0.5 rounded print:border print:border-slate-300">2023 – PRESENT</span>
               </div>
-              <p className="text-[9px] font-bold text-slate-500 uppercase tracking-wider mb-1 print:text-black">Freelance / Contract • Remote</p>
+              <p className="text-[8px] font-bold text-slate-500 uppercase tracking-wider mb-1 print:text-black">Freelance / Contract • Remote</p>
               <ul className="list-disc pl-4 text-[9pt] space-y-1 font-medium text-slate-800 marker:text-black print:text-black">
                 <li>Architected <strong>"The Digital Consciousness"</strong>, a custom RAG-based AI agent that autonomously qualifies leads and answers technical queries in real-time.</li>
                 <li>Built <strong>"SkillBridge"</strong>, a decentralized time-banking marketplace using Next.js and Xano, implementing atomic database transactions to prevent double-spending.</li>
@@ -112,9 +123,9 @@ export default function ResumePage() {
             <div>
               <div className="flex justify-between items-end mb-1">
                 <h3 className="text-[10pt] font-black uppercase">Frontend Developer</h3>
-                <span className="text-[9px] font-bold bg-slate-100 px-2 py-0.5 rounded print:border print:border-slate-300">2021 – 2023</span>
+                <span className="text-[8px] font-bold bg-slate-100 px-2 py-0.5 rounded print:border print:border-slate-300">2021 – 2023</span>
               </div>
-              <p className="text-[9px] font-bold text-slate-500 uppercase tracking-wider mb-1 print:text-black">Various Projects</p>
+              <p className="text-[8px] font-bold text-slate-500 uppercase tracking-wider mb-1 print:text-black">Various Projects</p>
               <ul className="list-disc pl-4 text-[9pt] space-y-1 font-medium text-slate-800 marker:text-black print:text-black">
                 <li>Translated complex Figma designs into pixel-perfect, responsive React components.</li>
                 <li>Integrated third-party APIs (Paystack, Stripe) to handle secure payments for local businesses.</li>
@@ -125,7 +136,7 @@ export default function ResumePage() {
 
           {/* PROJECTS */}
           <section>
-            <h2 className="text-xs font-black uppercase tracking-[0.2em] border-b-2 border-black pb-1 mb-3">Key Projects</h2>
+            <h2 className="text-[10px] font-black uppercase tracking-[0.2em] border-b-2 border-black pb-1 mb-3">Key Projects</h2>
             
             <div className="grid grid-cols-2 gap-6">
               <div className="border-l-2 border-black pl-3">
