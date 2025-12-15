@@ -32,7 +32,7 @@ export default async function Page() {
       {/* 1. HERO SECTION */}
       <ModernHero />
 
-      {/* 2. SERVICES DECK */}
+      {/* 2. SERVICES DECK (Expertise) */}
       <ServiceDeck />
 
       {/* Separator */}
@@ -102,11 +102,11 @@ export default async function Page() {
         </div>
       </section>
 
-      {/* 4. FIELD NOTES & VIDEO (Restored Grid) */}
+      {/* 4. FIELD NOTES & VIDEO */}
       <section className="px-6 md:px-12 py-12 bg-[#050a15] border-t border-white/5">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16">
           
-          {/* LEFT: FIELD NOTES (Restored) */}
+          {/* LEFT: FIELD NOTES */}
           <div>
             <ScrollReveal>
               <h3 className="font-serif text-3xl text-white mb-8 flex items-center gap-3">
