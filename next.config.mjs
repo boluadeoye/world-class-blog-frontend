@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Force Rebuild Trigger: V2
   async rewrites() {
     return [
       {
@@ -9,7 +10,10 @@ const nextConfig = {
     ];
   },
   images: {
-    domains: ["images.unsplash.com", "w5e7svgknmetlu9j.public.blob.vercel-storage.com"],
+    remotePatterns: [
+      { protocol: "https", hostname: "images.unsplash.com" },
+      { protocol: "https", hostname: "w5e7svgknmetlu9j.public.blob.vercel-storage.com" }
+    ],
   },
 };
 
