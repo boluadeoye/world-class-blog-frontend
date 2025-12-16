@@ -43,15 +43,14 @@ export default function ChatInterface({ blogContext }) {
     setMessages(prev => [...prev, { id: tempId, role: "assistant", content: "" }]);
 
     let currentText = "";
-    // Split by words for markdown safety (splitting by char breaks markdown syntax during typing)
-    const words = fullText.split(" ");
+    const chars = fullText.split("");
 
-    for (let i = 0; i < words.length; i++) {
-      currentText += words[i] + " ";
+    for (let i = 0; i < chars.length; i++) {
+      currentText += chars[i];
       setMessages(prev => prev.map(msg => 
         msg.id === tempId ? { ...msg, content: currentText } : msg
       ));
-      await new Promise(r => setTimeout(r, 30));
+      await new Promise(r => setTimeout(r, 10));
     }
     setIsTyping(false);
   };
@@ -105,10 +104,10 @@ export default function ChatInterface({ blogContext }) {
   if (!mounted) return null;
 
   return (
-    <div className="flex flex-col h-full w-full bg-[#0a0a0a] relative z-20">
+    <div className="flex flex-col h-full w-full bg-black relative z-20">
       
-      {/* === HEADER === */}
-      <div className="flex items-center justify-between px-4 py-4 bg-slate-900 border-b border-white/10 shadow-md pt-8 md:pt-4">
+      {/* === HEADER (Solid & Visible) === */}
+      <div className="shrink-0 flex items-center justify-between px-4 py-3 bg-slate-900 border-b border-white/10 shadow-md">
         <div className="flex items-center gap-3">
           <Link href="/" className="p-2 -ml-2 text-slate-400 hover:text-white transition-colors">
             <ArrowLeft size={20} />
@@ -119,6 +118,7 @@ export default function ChatInterface({ blogContext }) {
               <div className="w-10 h-10 rounded-full bg-slate-800 border border-white/10 flex items-center justify-center">
                 <Bot size={20} className="text-indigo-400" />
               </div>
+              {/* Status Light */}
               <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-slate-900 animate-pulse"></div>
             </div>
             <div className="flex flex-col">
@@ -138,7 +138,7 @@ export default function ChatInterface({ blogContext }) {
       </div>
 
       {/* === CHAT STREAM === */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#050505]">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-black">
         <AnimatePresence initial={false}>
           {messages.map((msg) => (
             <motion.div 
@@ -160,20 +160,15 @@ export default function ChatInterface({ blogContext }) {
                     ? 'bg-red-900/20 text-red-200 border border-red-500/20 rounded-tl-sm'
                     : 'bg-slate-900 border border-white/10 text-slate-200 rounded-tl-sm'
               }`}>
-                {/* MARKDOWN RENDERER */}
                 <ReactMarkdown 
                   components={{
-                    a: ({node, ...props}) => <a {...props} className="text-amber-400 underline hover:text-amber-300" target="_blank" rel="noopener noreferrer" />,
+                    a: ({node, ...props}) => <a {...props} className="text-amber-400 underline" target="_blank" />,
                     strong: ({node, ...props}) => <strong {...props} className="font-bold text-white" />,
-                    ul: ({node, ...props}) => <ul {...props} className="list-disc pl-4 my-2 space-y-1" />,
-                    ol: ({node, ...props}) => <ol {...props} className="list-decimal pl-4 my-2 space-y-1" />,
-                    code: ({node, ...props}) => <code {...props} className="bg-black/30 px-1 py-0.5 rounded text-xs font-mono text-emerald-400" />,
-                    p: ({node, ...props}) => <p {...props} className="mb-2 last:mb-0" />
+                    p: ({node, ...props}) => <p {...props} className="mb-1 last:mb-0" />
                   }}
                 >
                   {msg.content}
                 </ReactMarkdown>
-
                 {msg.role === 'assistant' && isTyping && msg.id === messages[messages.length-1].id && (
                   <span className="inline-block w-1.5 h-4 ml-1 bg-indigo-400 animate-pulse align-middle"></span>
                 )}
@@ -184,8 +179,8 @@ export default function ChatInterface({ blogContext }) {
         <div ref={scrollRef} />
       </div>
 
-      {/* === INPUT DECK === */}
-      <div className="p-4 bg-slate-900 border-t border-white/10">
+      {/* === INPUT DECK (Solid Bottom) === */}
+      <div className="shrink-0 p-4 bg-slate-900 border-t border-white/10">
         <form onSubmit={handleSend} className="flex items-center gap-3">
           <input 
             type="text" 
