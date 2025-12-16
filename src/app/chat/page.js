@@ -16,8 +16,14 @@ export default async function ChatPage() {
   } catch (e) {}
 
   return (
-    // FIXED FULL SCREEN (Mobile Safe)
+    // FIXED FULL SCREEN
     <main className="fixed inset-0 z-[9999] bg-[#050505] flex flex-col h-dvh w-full">
+      
+      {/* === CRITICAL: HIDE GLOBAL HEADER === */}
+      <style>{`
+        header { display: none !important; }
+      `}</style>
+
       <ChatInterface blogContext={blogContext} />
     </main>
   );

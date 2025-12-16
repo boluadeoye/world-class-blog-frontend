@@ -106,7 +106,7 @@ export default function ChatInterface({ blogContext }) {
     <div className="flex flex-col h-full w-full bg-[#0a0a0a] relative z-20">
       
       {/* === HEADER (Solid & Visible) === */}
-      <div className="flex items-center justify-between px-4 py-4 bg-slate-900 border-b border-white/10 shadow-md pt-8 md:pt-4">
+      <div className="flex items-center justify-between px-4 py-3 bg-slate-900 border-b border-white/10 shadow-md">
         <div className="flex items-center gap-3">
           <Link href="/" className="p-2 -ml-2 text-slate-400 hover:text-white transition-colors">
             <ArrowLeft size={20} />
