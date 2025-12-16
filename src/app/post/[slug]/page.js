@@ -47,14 +47,59 @@ async function getPostData(slug) {
   return { post, related };
 }
 
+// === INTELLIGENT METADATA ENGINE ===
 export async function generateMetadata(props) {
   const params = await props.params;
   const { post } = await getPostData(params.slug);
-  if (!post) return { title: "Post Not Found" };
+
+  if (!post) {
+    return {
+      title: "Post Not Found",
+      robots: { index: false, follow: false }
+    };
+  }
+
+  // 1. Resolve Image URL (Must be Absolute for Social Media)
+  let ogImage = post.meta?.cover || post.cover_image_url;
+  const domain = "https://boluadeoye.com.ng";
+
+  // If path is relative (e.g., "/images/pic.jpg"), prepend domain
+  if (ogImage && ogImage.startsWith("/")) {
+    ogImage = `${domain}${ogImage}`;
+  }
+  
+  // Fallback: Use your Portrait if no cover image exists
+  if (!ogImage) {
+    ogImage = "https://w5e7svgknmetlu9j.public.blob.vercel-storage.com/adeoye.jpg";
+  }
+
   return {
-    title: `${post.title} | Bolu Adeoye`,
+    title: post.title,
     description: post.excerpt,
-    openGraph: { images: [post.meta?.cover || post.cover_image_url || ""] },
+    authors: [{ name: "Boluwatife Adeoye" }],
+    openGraph: {
+      title: post.title,
+      description: post.excerpt,
+      url: `${domain}/post/${post.slug}`,
+      siteName: "Boluwatife Adeoye | Senior Engineer",
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: post.title,
+        },
+      ],
+      locale: "en_US",
+      type: "article",
+    },
+    twitter: {
+      card: "summary_large_image", // Forces the big cinematic card
+      title: post.title,
+      description: post.excerpt,
+      images: [ogImage],
+      creator: "@Tech_babby", // Your handle
+    },
   };
 }
 
