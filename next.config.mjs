@@ -1,6 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Force Rebuild Trigger: V2
+  reactStrictMode: true,
+  webpack: (config) => {
+    // Fix for Web3/Wagmi build errors
+    config.externals.push("pino-pretty", "lokijs", "encoding");
+    return config;
+  },
   async rewrites() {
     return [
       {
