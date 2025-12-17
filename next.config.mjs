@@ -1,11 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
-  webpack: (config) => {
-    // Fix for Web3/Wagmi build errors
-    config.externals.push("pino-pretty", "lokijs", "encoding");
-    return config;
-  },
+  // Removed the conflicting 'webpack' block
   async rewrites() {
     return [
       {
