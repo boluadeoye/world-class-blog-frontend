@@ -1,7 +1,6 @@
 import "./globals.css";
 import { Plus_Jakarta_Sans, Cormorant_Garamond } from "next/font/google";
 import LayoutShell from "../components/LayoutShell";
-import { Web3Provider } from "../components/web3/Web3Provider";
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -17,12 +16,12 @@ const cormorant = Cormorant_Garamond({
 });
 
 export const metadata = {
-  metadataBase: new URL('https://boluadeoye.com.ng'), // CRITICAL FIX
+  metadataBase: new URL('https://boluadeoye.com.ng'),
   title: {
     default: "Boluwatife Adeoye | Senior Full-Stack Engineer",
     template: "%s | Bolu Adeoye"
   },
-  description: "High-performance digital ecosystems, AI architecture, and web3 engineering.",
+  description: "High-performance digital ecosystems, AI architecture, and engineering strategy.",
   openGraph: {
     type: 'website',
     locale: 'en_US',
@@ -39,9 +38,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${jakarta.variable} ${cormorant.variable}`}>
       <body className="font-sans antialiased text-slate-100 bg-slate-950">
-        <Web3Provider>
-           <LayoutShell>{children}</LayoutShell>
-        </Web3Provider>
+        <LayoutShell>{children}</LayoutShell>
       </body>
     </html>
   );
