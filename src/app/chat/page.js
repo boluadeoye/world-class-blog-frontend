@@ -16,14 +16,8 @@ export default async function ChatPage() {
   } catch (e) {}
 
   return (
-    // NUCLEAR OPTION: Fixed position, Top Z-Index, Black Background
-    <main className="fixed inset-0 z-[99999] bg-black flex flex-col h-[100dvh] w-full overflow-hidden">
-      
-      {/* Force Hide Global Header via CSS */}
-      <style>{`
-        body > header, nav, .navbar { display: none !important; }
-      `}</style>
-
+    // FIXED FULL SCREEN (Mobile Safe)
+    <main className="fixed inset-0 z-[9999] bg-[#050505] flex flex-col h-dvh w-full">
       <ChatInterface blogContext={blogContext} />
     </main>
   );

@@ -3,7 +3,6 @@ import { useState, useEffect, useRef } from "react";
 import { Send, Trash2, Bot, User, ArrowLeft, Sparkles, Zap } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import ReactMarkdown from "react-markdown";
 
 export default function ChatInterface({ blogContext }) {
   const [messages, setMessages] = useState([]);
@@ -104,10 +103,10 @@ export default function ChatInterface({ blogContext }) {
   if (!mounted) return null;
 
   return (
-    <div className="flex flex-col h-full w-full bg-black relative z-20">
+    <div className="flex flex-col h-full w-full bg-[#0a0a0a] relative z-20">
       
       {/* === HEADER (Solid & Visible) === */}
-      <div className="shrink-0 flex items-center justify-between px-4 py-3 bg-slate-900 border-b border-white/10 shadow-md">
+      <div className="flex items-center justify-between px-4 py-4 bg-slate-900 border-b border-white/10 shadow-md pt-8 md:pt-4">
         <div className="flex items-center gap-3">
           <Link href="/" className="p-2 -ml-2 text-slate-400 hover:text-white transition-colors">
             <ArrowLeft size={20} />
@@ -138,7 +137,7 @@ export default function ChatInterface({ blogContext }) {
       </div>
 
       {/* === CHAT STREAM === */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-black">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#050505]">
         <AnimatePresence initial={false}>
           {messages.map((msg) => (
             <motion.div 
@@ -160,15 +159,7 @@ export default function ChatInterface({ blogContext }) {
                     ? 'bg-red-900/20 text-red-200 border border-red-500/20 rounded-tl-sm'
                     : 'bg-slate-900 border border-white/10 text-slate-200 rounded-tl-sm'
               }`}>
-                <ReactMarkdown 
-                  components={{
-                    a: ({node, ...props}) => <a {...props} className="text-amber-400 underline" target="_blank" />,
-                    strong: ({node, ...props}) => <strong {...props} className="font-bold text-white" />,
-                    p: ({node, ...props}) => <p {...props} className="mb-1 last:mb-0" />
-                  }}
-                >
-                  {msg.content}
-                </ReactMarkdown>
+                {msg.content}
                 {msg.role === 'assistant' && isTyping && msg.id === messages[messages.length-1].id && (
                   <span className="inline-block w-1.5 h-4 ml-1 bg-indigo-400 animate-pulse align-middle"></span>
                 )}
@@ -180,7 +171,7 @@ export default function ChatInterface({ blogContext }) {
       </div>
 
       {/* === INPUT DECK (Solid Bottom) === */}
-      <div className="shrink-0 p-4 bg-slate-900 border-t border-white/10">
+      <div className="p-4 bg-slate-900 border-t border-white/10">
         <form onSubmit={handleSend} className="flex items-center gap-3">
           <input 
             type="text" 

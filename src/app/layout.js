@@ -16,6 +16,7 @@ const cormorant = Cormorant_Garamond({
 });
 
 export const metadata = {
+  // CRITICAL: This enables social media images to work
   metadataBase: new URL('https://boluadeoye.com.ng'),
   title: {
     default: "Boluwatife Adeoye | Senior Full-Stack Engineer",
