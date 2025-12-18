@@ -15,12 +15,25 @@ export default function QuantumLinks() {
     if (!url) return;
     setLoading(true);
 
-    // Simulate API Call (We will build the real API next)
-    setTimeout(() => {
-      const shortCode = alias || Math.random().toString(36).substring(7);
-      setResult(`https://boluadeoye.com.ng/go/${shortCode}`);
+    try {
+      const res = await fetch("/api/shorten", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url, alias }),
+      });
+      
+      const data = await res.json();
+      
+      if (res.ok) {
+        setResult(data.shortUrl);
+      } else {
+        alert(data.error || "Failed to shorten link");
+      }
+    } catch (err) {
+      alert("System Error");
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   const copyToClipboard = () => {
@@ -31,19 +44,14 @@ export default function QuantumLinks() {
 
   return (
     <main className="min-h-screen bg-[#050505] text-white font-sans flex flex-col items-center justify-center p-6 relative overflow-hidden">
-      
-      {/* HIDE HEADER */}
       <style jsx global>{`header { display: none !important; }`}</style>
 
-      {/* BACKGROUND ATMOSPHERE */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-indigo-600/20 blur-[120px] rounded-full animate-pulse"></div>
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.05]"></div>
       </div>
 
       <div className="relative z-10 w-full max-w-2xl">
-        
-        {/* HEADER */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-indigo-500/30 bg-indigo-500/10 text-indigo-400 text-[10px] font-bold tracking-[0.2em] uppercase mb-6">
             <Zap size={12} /> Internal Tool
@@ -56,11 +64,8 @@ export default function QuantumLinks() {
           </p>
         </div>
 
-        {/* THE FORGE */}
         <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 p-8 rounded-[2rem] shadow-2xl">
           <form onSubmit={handleShorten} className="space-y-6">
-            
-            {/* URL Input */}
             <div className="space-y-2">
               <label className="text-xs font-bold uppercase tracking-widest text-slate-500 ml-1">Destination URL</label>
               <div className="relative flex items-center bg-slate-950 rounded-xl border border-white/10 focus-within:border-indigo-500 transition-colors">
@@ -76,7 +81,6 @@ export default function QuantumLinks() {
               </div>
             </div>
 
-            {/* Alias Input */}
             <div className="space-y-2">
               <label className="text-xs font-bold uppercase tracking-widest text-slate-500 ml-1">Custom Alias (Optional)</label>
               <div className="relative flex items-center bg-slate-950 rounded-xl border border-white/10 focus-within:border-indigo-500 transition-colors">
@@ -98,10 +102,8 @@ export default function QuantumLinks() {
             >
               {loading ? "Forging..." : "Shorten Link"} <ArrowRight size={16} />
             </button>
-
           </form>
 
-          {/* RESULT CARD */}
           {result && (
             <div className="mt-8 p-6 rounded-xl bg-indigo-900/20 border border-indigo-500/30 flex flex-col md:flex-row items-center justify-between gap-4 animate-in fade-in slide-in-from-bottom-4">
               <div className="text-center md:text-left overflow-hidden w-full">
@@ -109,9 +111,6 @@ export default function QuantumLinks() {
                 <p className="text-white font-mono text-lg truncate">{result}</p>
               </div>
               <div className="flex gap-3">
-                <button className="p-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-white transition-colors" title="QR Code">
-                  <QrCode size={20} />
-                </button>
                 <button 
                   onClick={copyToClipboard}
                   className="flex items-center gap-2 px-5 py-3 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs uppercase tracking-wider transition-colors"
@@ -122,7 +121,6 @@ export default function QuantumLinks() {
               </div>
             </div>
           )}
-
         </div>
 
         <div className="mt-8 text-center">
@@ -130,7 +128,6 @@ export default function QuantumLinks() {
             ← Return to Base
           </Link>
         </div>
-
       </div>
     </main>
   );
