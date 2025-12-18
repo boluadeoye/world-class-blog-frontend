@@ -22,7 +22,7 @@ function extractHeadings(content) {
   const headings = [];
   const lines = content.split('\n');
   lines.forEach(line => {
-    const match = line.match(/^##\s+(.+)$/); // Match H2s
+    const match = line.match(/^##\s+(.+)$/);
     if (match) {
       const slug = match[1].toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
       headings.push(slug);
@@ -47,7 +47,7 @@ async function getPostData(slug) {
   return { post, related };
 }
 
-// === INTELLIGENT METADATA ENGINE ===
+// === FACEBOOK/WHATSAPP OPTIMIZED METADATA ===
 export async function generateMetadata(props) {
   const params = await props.params;
   const { post } = await getPostData(params.slug);
@@ -59,19 +59,8 @@ export async function generateMetadata(props) {
     };
   }
 
-  // 1. Resolve Image URL (Must be Absolute for Social Media)
-  let ogImage = post.meta?.cover || post.cover_image_url;
   const domain = "https://boluadeoye.com.ng";
-
-  // If path is relative (e.g., "/images/pic.jpg"), prepend domain
-  if (ogImage && ogImage.startsWith("/")) {
-    ogImage = `${domain}${ogImage}`;
-  }
-  
-  // Fallback: Use your Portrait if no cover image exists
-  if (!ogImage) {
-    ogImage = "https://w5e7svgknmetlu9j.public.blob.vercel-storage.com/adeoye.jpg";
-  }
+  const ogImageUrl = `${domain}/post/${post.slug}/opengraph-image`;
 
   return {
     title: post.title,
@@ -81,24 +70,26 @@ export async function generateMetadata(props) {
       title: post.title,
       description: post.excerpt,
       url: `${domain}/post/${post.slug}`,
-      siteName: "Boluwatife Adeoye | Senior Engineer",
+      siteName: "Boluwatife Adeoye",
+      locale: "en_US",
+      type: "article",
+      // EXPLICIT DEFINITION FOR WHATSAPP
       images: [
         {
-          url: ogImage,
+          url: ogImageUrl,
           width: 1200,
           height: 630,
+          type: "image/png",
           alt: post.title,
         },
       ],
-      locale: "en_US",
-      type: "article",
     },
     twitter: {
-      card: "summary_large_image", // Forces the big cinematic card
+      card: "summary_large_image",
       title: post.title,
       description: post.excerpt,
-      images: [ogImage],
-      creator: "@Tech_babby", // Your handle
+      images: [ogImageUrl],
+      creator: "@Tech_babby",
     },
   };
 }
