@@ -47,7 +47,7 @@ async function getPostData(slug) {
   return { post, related };
 }
 
-// === FACEBOOK/WHATSAPP OPTIMIZED METADATA ===
+// === WHATSAPP-OPTIMIZED METADATA ===
 export async function generateMetadata(props) {
   const params = await props.params;
   const { post } = await getPostData(params.slug);
@@ -59,13 +59,23 @@ export async function generateMetadata(props) {
     };
   }
 
+  // 1. PRIORITIZE DIRECT IMAGE URL (Fastest for WhatsApp)
+  let ogImage = post.meta?.cover || post.cover_image_url;
   const domain = "https://boluadeoye.com.ng";
-  const ogImageUrl = `${domain}/post/${post.slug}/opengraph-image`;
+
+  // If no cover, fallback to the dynamic generator
+  if (!ogImage) {
+    ogImage = `${domain}/post/${post.slug}/opengraph-image`;
+  } else if (ogImage.startsWith("/")) {
+    // Ensure absolute URL
+    ogImage = `${domain}${ogImage}`;
+  }
 
   return {
     title: post.title,
     description: post.excerpt,
     authors: [{ name: "Boluwatife Adeoye" }],
+    metadataBase: new URL(domain),
     openGraph: {
       title: post.title,
       description: post.excerpt,
@@ -73,13 +83,11 @@ export async function generateMetadata(props) {
       siteName: "Boluwatife Adeoye",
       locale: "en_US",
       type: "article",
-      // EXPLICIT DEFINITION FOR WHATSAPP
       images: [
         {
-          url: ogImageUrl,
+          url: ogImage,
           width: 1200,
           height: 630,
-          type: "image/png",
           alt: post.title,
         },
       ],
@@ -88,7 +96,7 @@ export async function generateMetadata(props) {
       card: "summary_large_image",
       title: post.title,
       description: post.excerpt,
-      images: [ogImageUrl],
+      images: [ogImage],
       creator: "@Tech_babby",
     },
   };
