@@ -1,4 +1,4 @@
-import pool from '../../../../lib/db';
+import pool from '../../../lib/db'; // Fixed: 3 levels up to reach src/
 import { redirect } from 'next/navigation';
 
 export async function GET(request, { params }) {
@@ -21,7 +21,7 @@ export async function GET(request, { params }) {
     client.release();
   }
 
-  // 3. Perform Redirect (Must be outside try/catch)
+  // 3. Perform Redirect
   if (destination) {
     return redirect(destination);
   } else {
