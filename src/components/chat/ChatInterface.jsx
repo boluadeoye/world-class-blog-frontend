@@ -21,7 +21,7 @@ export default function ChatInterface({ blogContext }) {
       setMessages([{ 
         id: "init", 
         role: "assistant", 
-        content: "Neural Link Established. I am ready." 
+        content: "Neural Link v2.0 Established. I am ready." 
       }]);
     }
   }, []);
@@ -107,7 +107,7 @@ export default function ChatInterface({ blogContext }) {
     <div className="flex flex-col h-full w-full bg-[#0a0a0a] relative z-20">
       
       {/* === HEADER (Solid & Visible) === */}
-      <div className="flex items-center justify-between px-4 py-4 bg-slate-900 border-b border-white/10 shadow-md pt-8 md:pt-4">
+      <div className="flex items-center justify-between px-4 py-3 bg-slate-900 border-b border-white/10 shadow-md pt-safe-top">
         <div className="flex items-center gap-3">
           <Link href="/" className="p-2 -ml-2 text-slate-400 hover:text-white transition-colors">
             <ArrowLeft size={20} />
@@ -122,8 +122,8 @@ export default function ChatInterface({ blogContext }) {
               <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-slate-900 animate-pulse"></div>
             </div>
             <div className="flex flex-col">
-              <h3 className="font-bold text-white text-sm leading-tight">Boluwatife's<br/>Digital Consciousness</h3>
-              <span className="text-[10px] text-emerald-500 font-mono uppercase tracking-wider mt-0.5">Online</span>
+              <h3 className="font-bold text-white text-sm leading-tight">Digital Consciousness</h3>
+              <span className="text-[10px] text-emerald-500 font-mono uppercase tracking-wider mt-0.5">v2.0 Online</span>
             </div>
           </div>
         </div>
@@ -180,7 +180,7 @@ export default function ChatInterface({ blogContext }) {
       </div>
 
       {/* === INPUT DECK (Solid Bottom) === */}
-      <div className="p-4 bg-slate-900 border-t border-white/10">
+      <div className="p-4 bg-slate-900 border-t border-white/10 pb-safe-bottom">
         <form onSubmit={handleSend} className="flex items-center gap-3">
           <input 
             type="text" 

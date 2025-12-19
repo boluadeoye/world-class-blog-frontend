@@ -17,11 +17,11 @@ export default async function ChatPage() {
 
   return (
     // FIXED FULL SCREEN (Mobile Safe)
-    <main className="fixed inset-0 z-[9999] bg-[#050505] flex flex-col h-dvh w-full">
+    <main className="fixed inset-0 z-[99999] bg-[#050505] flex flex-col h-dvh w-full overflow-hidden">
       
       {/* === CRITICAL: HIDE GLOBAL HEADER === */}
       <style>{`
-        body > header, nav, .navbar { display: none !important; }
+        header, nav, .navbar, [role="banner"] { display: none !important; }
       `}</style>
 
       <ChatInterface blogContext={blogContext} />
