@@ -43,10 +43,15 @@ export default function StudentDashboard() {
   return (
     <main className="min-h-screen bg-gray-50 font-sans text-gray-900 pb-20">
       
-      {/* HEADER */}
+      {/* === CRITICAL: HIDE GLOBAL HEADER === */}
+      <style jsx global>{`
+        body > header, nav, .navbar { display: none !important; }
+      `}</style>
+
+      {/* CBT HEADER */}
       <header className="bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center sticky top-0 z-10 shadow-sm">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-800 font-bold border border-green-200">
+          <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-800 font-bold border border-green-200 uppercase">
             {student.name.charAt(0)}
           </div>
           <div>
