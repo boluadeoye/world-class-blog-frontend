@@ -1,4 +1,4 @@
-import pool from '../../../../../lib/db';
+import pool from '../../../../lib/db'; // Fixed: 4 levels up
 
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
