@@ -1,4 +1,4 @@
-import pool from '../../../../../lib/db';
+import pool from '../../../../lib/db'; // Fixed: 4 levels up
 
 // GET: Fetch single course + all its questions
 export async function GET(req) {
