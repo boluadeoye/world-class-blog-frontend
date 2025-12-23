@@ -1,33 +1,43 @@
 "use client";
 import { Inter } from "next/font/google";
+import { useEffect } from "react";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export default function CBTLayout({ children }) {
+  
+  // === BRUTE FORCE HEADER REMOVAL ===
+  useEffect(() => {
+    // 1. Find all potential global headers
+    const headers = document.querySelectorAll('body > header, nav, .navbar, [role="banner"]');
+    
+    // 2. Hide them
+    headers.forEach(el => {
+      el.style.setProperty('display', 'none', 'important');
+      el.style.setProperty('visibility', 'hidden', 'important');
+    });
+
+    // 3. Restore on unmount (when leaving CBT)
+    return () => {
+      headers.forEach(el => {
+        el.style.removeProperty('display');
+        el.style.removeProperty('visibility');
+      });
+    };
+  }, []);
+
   return (
     <div className={`cbt-isolation ${inter.className} min-h-screen bg-gray-50 text-gray-900`}>
       
-      {/* === THE ISOLATION CHAMBER === */}
+      {/* CSS Backup just in case JS is slow */}
       <style jsx global>{`
-        /* 1. Hide Global Portfolio Header/Footer */
         body:has(.cbt-isolation) > header,
-        body:has(.cbt-isolation) > footer,
         body:has(.cbt-isolation) > nav {
           display: none !important;
         }
-
-        /* 2. FORCE CBT HEADER TO SHOW */
-        /* This targets the header inside the CBT exam page specifically */
-        .cbt-isolation header {
-          display: flex !important;
-          visibility: visible !important;
-        }
-
-        /* 3. Force Light Mode Background */
         body:has(.cbt-isolation) {
           background-color: #f9fafb !important;
           color: #111827 !important;
-          overflow: auto !important;
         }
       `}</style>
 
