@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { ArrowLeft, Save, Trash2, Edit3, Plus, CheckCircle, AlertCircle } from "lucide-react";
+import { ArrowLeft, Save, Trash2, Edit3, Plus, CheckCircle, Upload, FileText } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 
@@ -10,14 +10,16 @@ export default function CourseManager() {
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   
-  // Form State
-  const [isEditingCourse, setIsEditingCourse] = useState(false);
-  const [editingQuestionId, setEditingQuestionId] = useState(null); // Null = Add Mode
+  // Modes: 'list', 'edit', 'bulk'
+  const [mode, setMode] = useState('list'); 
+  const [bulkText, setBulkText] = useState("");
+  
+  // Single Edit State
+  const [editingQuestionId, setEditingQuestionId] = useState(null);
   const [qForm, setQForm] = useState({
     question_text: "", option_a: "", option_b: "", option_c: "", option_d: "", correct_option: "A", explanation: ""
   });
 
-  // 1. Fetch Data
   async function loadData() {
     const res = await fetch(`/api/cbt/manage?id=${params.id}`);
     const data = await res.json();
@@ -28,53 +30,82 @@ export default function CourseManager() {
 
   useEffect(() => { loadData(); }, []);
 
-  // 2. Save Course Details
-  const saveCourse = async () => {
-    await fetch('/api/cbt/manage', {
-      method: 'PUT',
-      body: JSON.stringify({ type: 'course', ...course })
+  // === BULK PARSER ENGINE ===
+  const handleBulkUpload = async () => {
+    const raw = bulkText.split('\n').filter(line => line.trim() !== '');
+    const parsedQuestions = [];
+    let currentQ = null;
+
+    // Simple Parser Logic
+    raw.forEach(line => {
+      // Detect Question (Starts with number like "1. ")
+      if (line.match(/^\d+\./)) {
+        if (currentQ) parsedQuestions.push(currentQ);
+        currentQ = { 
+          course_id: params.id, 
+          question_text: line.replace(/^\d+\.\s*/, '').trim(),
+          option_a: "", option_b: "", option_c: "", option_d: "", 
+          correct_option: "A", explanation: "" 
+        };
+      }
+      // Detect Options
+      else if (line.startsWith("A. ")) currentQ.option_a = line.substring(3).trim();
+      else if (line.startsWith("B. ")) currentQ.option_b = line.substring(3).trim();
+      else if (line.startsWith("C. ")) currentQ.option_c = line.substring(3).trim();
+      else if (line.startsWith("D. ")) currentQ.option_d = line.substring(3).trim();
+      // Detect Answer
+      else if (line.startsWith("Answer: ")) currentQ.correct_option = line.substring(8).trim().charAt(0);
+      // Detect Explanation
+      else if (line.startsWith("Explanation: ")) currentQ.explanation = line.substring(13).trim();
     });
-    setIsEditingCourse(false);
+    if (currentQ) parsedQuestions.push(currentQ);
+
+    if (parsedQuestions.length === 0) {
+      alert("Could not parse questions. Check format.");
+      return;
+    }
+
+    if (confirm(`Ready to upload ${parsedQuestions.length} questions?`)) {
+      await fetch('/api/cbt/manage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(parsedQuestions)
+      });
+      setBulkText("");
+      setMode('list');
+      loadData();
+    }
   };
 
-  // 3. Save Question (Add or Update)
+  // Single Save
   const saveQuestion = async (e) => {
     e.preventDefault();
     if (editingQuestionId) {
-      // Update
       await fetch('/api/cbt/manage', {
         method: 'PUT',
         body: JSON.stringify({ type: 'question', id: editingQuestionId, ...qForm })
       });
     } else {
-      // Create
       await fetch('/api/cbt/manage', {
         method: 'POST',
         body: JSON.stringify({ course_id: params.id, ...qForm })
       });
     }
-    // Reset
     setEditingQuestionId(null);
     setQForm({ question_text: "", option_a: "", option_b: "", option_c: "", option_d: "", correct_option: "A", explanation: "" });
     loadData();
   };
 
-  // 4. Delete Question
   const deleteQuestion = async (id) => {
     if(!confirm("Delete this question?")) return;
     await fetch(`/api/cbt/manage?id=${id}`, { method: 'DELETE' });
     loadData();
   };
 
-  // 5. Load Question into Form
   const editQuestion = (q) => {
     setEditingQuestionId(q.id);
-    setQForm({
-      question_text: q.question_text,
-      option_a: q.option_a, option_b: q.option_b, option_c: q.option_c, option_d: q.option_d,
-      correct_option: q.correct_option,
-      explanation: q.explanation || ""
-    });
+    setQForm({ ...q });
+    setMode('edit');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -83,121 +114,110 @@ export default function CourseManager() {
   return (
     <main className="min-h-screen bg-gray-100 p-4 md:p-8 font-sans text-gray-900">
       
-      {/* === HEADER (Course Details) === */}
-      <div className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-green-700 mb-8">
-        <div className="flex justify-between items-start">
-          <div className="w-full">
-            <Link href="/cbt/admin/dashboard" className="text-xs font-bold text-gray-500 uppercase tracking-widest hover:text-green-700 mb-2 inline-flex items-center gap-1">
-              <ArrowLeft size={12} /> Back to Dashboard
-            </Link>
-            
-            {isEditingCourse ? (
-              <div className="grid gap-4 mt-2 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                <div className="grid grid-cols-2 gap-4">
-                  <input value={course.code} onChange={e=>setCourse({...course, code: e.target.value})} className="p-2 border rounded font-bold uppercase" />
-                  <select value={course.level} onChange={e=>setCourse({...course, level: e.target.value})} className="p-2 border rounded">
-                    <option value="100">100 Level</option>
-                    <option value="200">200 Level</option>
-                  </select>
-                </div>
-                <input value={course.title} onChange={e=>setCourse({...course, title: e.target.value})} className="p-2 border rounded w-full" />
-                <button onClick={saveCourse} className="bg-green-700 text-white px-4 py-2 rounded font-bold text-sm w-fit">Save Changes</button>
-              </div>
-            ) : (
-              <div className="flex justify-between items-end mt-2">
-                <div>
-                  <h1 className="text-3xl font-black text-gray-900">{course.code}: {course.title}</h1>
-                  <p className="text-sm text-gray-500 font-bold">{course.level} Level • {questions.length} Questions Loaded</p>
-                </div>
-                <button onClick={() => setIsEditingCourse(true)} className="text-blue-600 hover:text-blue-800 text-sm font-bold flex items-center gap-1">
-                  <Edit3 size={16} /> Edit Course Info
-                </button>
-              </div>
-            )}
-          </div>
+      {/* HEADER */}
+      <div className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-green-700 mb-8 flex justify-between items-center">
+        <div>
+          <Link href="/cbt/admin/dashboard" className="text-xs font-bold text-gray-500 uppercase tracking-widest hover:text-green-700 mb-2 inline-flex items-center gap-1">
+            <ArrowLeft size={12} /> Back
+          </Link>
+          <h1 className="text-2xl font-black text-gray-900">{course.code}: {course.title}</h1>
+          <p className="text-sm text-gray-500 font-bold">{questions.length} Questions Loaded</p>
+        </div>
+        <div className="flex gap-3">
+          <button onClick={() => setMode('bulk')} className="bg-blue-600 text-white px-4 py-2 rounded font-bold text-sm flex items-center gap-2">
+            <Upload size={16} /> Bulk Upload
+          </button>
+          <button onClick={() => setMode('edit')} className="bg-green-700 text-white px-4 py-2 rounded font-bold text-sm flex items-center gap-2">
+            <Plus size={16} /> Add Single
+          </button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        {/* === LEFT: QUESTION EDITOR (Sticky) === */}
+        {/* === LEFT PANEL (Dynamic) === */}
         <div className="lg:col-span-5">
-          <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-200 sticky top-8">
-            <h2 className="text-lg font-bold mb-4 flex items-center gap-2 text-gray-800">
-              {editingQuestionId ? <Edit3 size={20} className="text-blue-600"/> : <Plus size={20} className="text-green-600"/>}
-              {editingQuestionId ? "Edit Question" : "Add New Question"}
-            </h2>
-            
-            <form onSubmit={saveQuestion} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Question Text</label>
+          
+          {/* BULK UPLOAD MODE */}
+          {mode === 'bulk' && (
+            <div className="bg-white p-6 rounded-xl shadow-lg border border-blue-200 sticky top-8">
+              <h2 className="text-lg font-bold mb-4 flex items-center gap-2 text-blue-800">
+                <FileText size={20} /> Paste AI Content
+              </h2>
+              <p className="text-xs text-gray-500 mb-2">Format: 1. Question? A. Opt B. Opt... Answer: A Explanation: ...</p>
+              <textarea 
+                className="w-full h-96 p-4 border border-gray-300 rounded font-mono text-xs bg-gray-50 focus:border-blue-500 outline-none"
+                placeholder={`1. What is a noun?\nA. A name\nB. A verb\nC. A pronoun\nD. An adjective\nAnswer: A\nExplanation: A noun is a naming word.`}
+                value={bulkText}
+                onChange={(e) => setBulkText(e.target.value)}
+              />
+              <div className="flex gap-3 mt-4">
+                <button onClick={handleBulkUpload} className="flex-1 bg-blue-600 text-white py-3 rounded font-bold hover:bg-blue-700">
+                  Parse & Upload
+                </button>
+                <button onClick={() => setMode('list')} className="px-4 py-3 border rounded font-bold text-gray-600">Cancel</button>
+              </div>
+            </div>
+          )}
+
+          {/* SINGLE EDIT MODE */}
+          {mode === 'edit' && (
+            <div className="bg-white p-6 rounded-xl shadow-lg border border-green-200 sticky top-8">
+              <h2 className="text-lg font-bold mb-4 flex items-center gap-2 text-green-800">
+                {editingQuestionId ? "Edit Question" : "Add New Question"}
+              </h2>
+              <form onSubmit={saveQuestion} className="space-y-4">
                 <textarea 
-                  required rows={3}
+                  required rows={3} placeholder="Question Text"
                   className="w-full p-3 border border-gray-300 rounded focus:border-green-600 outline-none text-sm"
                   value={qForm.question_text}
                   onChange={e => setQForm({...qForm, question_text: e.target.value})}
                 />
-              </div>
-
-              <div className="grid grid-cols-1 gap-3">
-                {['A','B','C','D'].map((opt) => (
-                  <div key={opt} className="flex items-center gap-2">
-                    <span className={`font-bold w-6 ${qForm.correct_option === opt ? 'text-green-600' : 'text-gray-400'}`}>{opt}</span>
-                    <input 
-                      required
-                      placeholder={`Option ${opt}`}
-                      className={`flex-1 p-2 border rounded text-sm ${qForm.correct_option === opt ? 'border-green-500 bg-green-50' : 'border-gray-300'}`}
-                      value={qForm[`option_${opt.toLowerCase()}`]}
-                      onChange={e => setQForm({...qForm, [`option_${opt.toLowerCase()}`]: e.target.value})}
-                    />
-                    <input 
-                      type="radio" name="correct" 
-                      checked={qForm.correct_option === opt}
-                      onChange={() => setQForm({...qForm, correct_option: opt})}
-                      className="accent-green-600 w-4 h-4 cursor-pointer"
-                    />
-                  </div>
-                ))}
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Explanation (Optional)</label>
+                <div className="grid gap-3">
+                  {['A','B','C','D'].map((opt) => (
+                    <div key={opt} className="flex items-center gap-2">
+                      <span className="font-bold w-6 text-gray-400">{opt}</span>
+                      <input 
+                        required placeholder={`Option ${opt}`}
+                        className="flex-1 p-2 border rounded text-sm"
+                        value={qForm[`option_${opt.toLowerCase()}`]}
+                        onChange={e => setQForm({...qForm, [`option_${opt.toLowerCase()}`]: e.target.value})}
+                      />
+                      <input 
+                        type="radio" name="correct" checked={qForm.correct_option === opt}
+                        onChange={() => setQForm({...qForm, correct_option: opt})}
+                        className="accent-green-600 w-4 h-4"
+                      />
+                    </div>
+                  ))}
+                </div>
                 <input 
                   className="w-full p-3 border border-gray-300 rounded focus:border-green-600 outline-none text-sm"
-                  placeholder="Why is the answer correct?"
+                  placeholder="Explanation (Optional)"
                   value={qForm.explanation}
                   onChange={e => setQForm({...qForm, explanation: e.target.value})}
                 />
-              </div>
-
-              <div className="flex gap-3 pt-2">
-                <button type="submit" className={`flex-1 py-3 rounded font-bold text-white transition-colors ${editingQuestionId ? 'bg-blue-600 hover:bg-blue-700' : 'bg-green-700 hover:bg-green-800'}`}>
-                  {editingQuestionId ? "Update Question" : "Add Question"}
-                </button>
-                {editingQuestionId && (
-                  <button type="button" onClick={() => {setEditingQuestionId(null); setQForm({question_text:"", option_a:"", option_b:"", option_c:"", option_d:"", correct_option:"A", explanation:""})}} className="px-4 py-3 rounded border border-gray-300 text-gray-600 font-bold hover:bg-gray-100">
-                    Cancel
-                  </button>
-                )}
-              </div>
-            </form>
-          </div>
+                <div className="flex gap-3 pt-2">
+                  <button type="submit" className="flex-1 bg-green-700 text-white py-3 rounded font-bold hover:bg-green-800">Save</button>
+                  <button type="button" onClick={() => {setMode('list'); setEditingQuestionId(null);}} className="px-4 py-3 border rounded font-bold text-gray-600">Cancel</button>
+                </div>
+              </form>
+            </div>
+          )}
         </div>
 
         {/* === RIGHT: QUESTION BANK === */}
         <div className="lg:col-span-7 space-y-4">
           {questions.map((q, i) => (
-            <div key={q.id} className={`bg-white p-5 rounded-lg border transition-all ${editingQuestionId === q.id ? 'border-blue-500 ring-2 ring-blue-100' : 'border-gray-200 hover:border-green-300'}`}>
+            <div key={q.id} className="bg-white p-5 rounded-lg border border-gray-200 hover:border-green-300 transition-all">
               <div className="flex justify-between items-start mb-3">
                 <span className="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-1 rounded">Q{i + 1}</span>
                 <div className="flex gap-2">
-                  <button onClick={() => editQuestion(q)} className="p-2 text-gray-400 hover:text-blue-600 transition-colors"><Edit3 size={16} /></button>
-                  <button onClick={() => deleteQuestion(q.id)} className="p-2 text-gray-400 hover:text-red-600 transition-colors"><Trash2 size={16} /></button>
+                  <button onClick={() => editQuestion(q)} className="p-2 text-gray-400 hover:text-blue-600"><Edit3 size={16} /></button>
+                  <button onClick={() => deleteQuestion(q.id)} className="p-2 text-gray-400 hover:text-red-600"><Trash2 size={16} /></button>
                 </div>
               </div>
-              
               <p className="font-bold text-gray-800 mb-4">{q.question_text}</p>
-              
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
                 {['A','B','C','D'].map(opt => (
                   <div key={opt} className={`p-2 rounded border ${q.correct_option === opt ? 'bg-green-50 border-green-500 text-green-900 font-bold' : 'bg-gray-50 border-transparent text-gray-600'}`}>
@@ -205,20 +225,9 @@ export default function CourseManager() {
                   </div>
                 ))}
               </div>
-              
-              {q.explanation && (
-                <div className="mt-3 text-xs text-gray-500 italic border-t border-gray-100 pt-2">
-                  💡 {q.explanation}
-                </div>
-              )}
+              {q.explanation && <div className="mt-3 text-xs text-gray-500 italic border-t border-gray-100 pt-2">💡 {q.explanation}</div>}
             </div>
           ))}
-          
-          {questions.length === 0 && (
-            <div className="text-center py-12 text-gray-400 bg-white rounded-lg border border-dashed border-gray-300">
-              No questions yet. Use the form on the left to add one.
-            </div>
-          )}
         </div>
 
       </div>
