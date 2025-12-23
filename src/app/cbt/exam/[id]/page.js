@@ -1,28 +1,31 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Clock, Grid, ChevronLeft, ChevronRight, Save, User, CheckCircle, XCircle, AlertTriangle, X } from "lucide-react";
+import { Clock, Grid, ChevronLeft, ChevronRight, Save, User, CheckCircle, XCircle, X } from "lucide-react";
 
 export default function ExamPage() {
   const params = useParams();
   const router = useRouter();
   
-  // --- STATE ---
+  // Data
   const [student, setStudent] = useState(null);
   const [course, setCourse] = useState(null);
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   
+  // State
   const [currentQIndex, setCurrentQIndex] = useState(0);
   const [answers, setAnswers] = useState({}); 
   const [timeLeft, setTimeLeft] = useState(45 * 60); 
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [score, setScore] = useState(0);
   const [showGrid, setShowGrid] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  // --- INITIALIZATION ---
+  // 1. Init
   useEffect(() => {
+    setMounted(true);
     const stored = sessionStorage.getItem("cbt_student");
     if (!stored) { router.push("/cbt"); return; }
     setStudent(JSON.parse(stored));
@@ -35,7 +38,7 @@ export default function ExamPage() {
         setCourse(data.course);
         setQuestions(data.questions);
       } catch (e) {
-        setError("Error loading exam. Please refresh.");
+        setError("Error loading exam.");
       } finally {
         setLoading(false);
       }
@@ -43,7 +46,7 @@ export default function ExamPage() {
     load();
   }, []);
 
-  // --- TIMER ---
+  // 2. Timer
   useEffect(() => {
     if (loading || isSubmitted || error) return;
     const timer = setInterval(() => {
@@ -61,7 +64,6 @@ export default function ExamPage() {
     return `${m}:${sec.toString().padStart(2, '0')}`;
   };
 
-  // --- ACTIONS ---
   const handleSelect = (opt) => {
     if (isSubmitted) return;
     const qId = questions[currentQIndex].id;
@@ -74,59 +76,43 @@ export default function ExamPage() {
     questions.forEach(q => { if (answers[q.id] === q.correct_option) correct++; });
     setScore(correct);
     
-    // Save to DB (Fire and forget)
-    fetch('/api/cbt/result', {
+    await fetch('/api/cbt/result', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ student_id: student.id, course_id: course.id, score: correct, total: questions.length })
     });
   };
 
-  // --- LOADING / ERROR VIEWS ---
-  if (loading) return <div className="fixed inset-0 flex items-center justify-center bg-white text-green-700 font-bold z-[99999]">Loading Exam...</div>;
-  if (error) return <div className="fixed inset-0 flex items-center justify-center bg-white text-red-600 font-bold z-[99999]">{error}</div>;
+  if (!mounted) return null;
+  if (loading) return <div className="h-screen flex items-center justify-center bg-white text-green-700 font-bold">Loading Exam...</div>;
+  if (error) return <div className="h-screen flex items-center justify-center bg-white text-red-600 font-bold">{error}</div>;
 
-  // --- RESULT VIEW (Scrollable) ---
+  // === RESULT VIEW ===
   if (isSubmitted) {
     const percentage = Math.round((score / questions.length) * 100);
     return (
-      <main className="fixed inset-0 bg-gray-50 z-[99999] overflow-y-auto font-sans">
-        <div className="max-w-3xl mx-auto bg-white min-h-screen shadow-lg">
-          <div className={`p-10 text-center ${percentage >= 50 ? 'bg-green-600' : 'bg-red-600'} text-white`}>
+      <main className="min-h-screen bg-gray-50 p-4 font-sans overflow-y-auto">
+        <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden mb-8">
+          <div className={`p-8 text-center ${percentage >= 50 ? 'bg-green-600' : 'bg-red-600'} text-white`}>
             <h1 className="text-3xl font-black mb-2">{percentage >= 50 ? "PASSED" : "FAILED"}</h1>
             <div className="text-6xl font-black mb-2">{score}/{questions.length}</div>
             <p className="font-medium opacity-90">{percentage}% Score</p>
-            <button onClick={() => router.push('/cbt/dashboard')} className="mt-6 bg-white text-black px-6 py-2 rounded-full font-bold text-sm hover:bg-gray-100">
-              Exit to Dashboard
-            </button>
           </div>
-          
-          <div className="p-6 space-y-6 pb-20">
-            <h2 className="font-bold text-gray-800 border-b pb-2 text-lg">Corrections</h2>
+          <div className="p-6 space-y-6">
+            <h2 className="font-bold text-gray-800 border-b pb-2">Corrections</h2>
             {questions.map((q, i) => {
               const userAns = answers[q.id];
               const isCorrect = userAns === q.correct_option;
               return (
                 <div key={q.id} className={`p-4 rounded-lg border-l-4 ${isCorrect ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50'}`}>
                   <p className="font-bold text-gray-900 mb-2"><span className="text-gray-500 mr-2">{i+1}.</span> {q.question_text}</p>
-                  
-                  <div className="grid grid-cols-1 gap-2 text-sm">
-                    {['A','B','C','D'].map(opt => (
-                      <div key={opt} className={`px-3 py-2 rounded border flex justify-between ${
-                        q.correct_option === opt ? 'bg-green-200 border-green-600 text-green-900 font-bold' : 
-                        userAns === opt ? 'bg-red-100 border-red-300 text-red-900' : 'bg-white border-gray-200 text-gray-500'
-                      }`}>
-                        <span>{opt}. {q[`option_${opt.toLowerCase()}`]}</span>
-                        {q.correct_option === opt && <CheckCircle size={16} />}
-                        {userAns === opt && userAns !== q.correct_option && <XCircle size={16} />}
-                      </div>
-                    ))}
-                  </div>
-                  
-                  {q.explanation && <p className="text-xs text-blue-600 mt-3 italic bg-blue-50 p-2 rounded">💡 {q.explanation}</p>}
+                  <p className="text-sm text-gray-600">Correct: <span className="font-bold">{q.correct_option}</span></p>
+                  {!isCorrect && <p className="text-sm text-red-600">You chose: <span className="font-bold">{userAns || "None"}</span></p>}
+                  {q.explanation && <p className="text-xs text-blue-600 mt-2 italic">Note: {q.explanation}</p>}
                 </div>
               )
             })}
+            <button onClick={() => router.push('/cbt/dashboard')} className="w-full bg-gray-900 text-white py-4 rounded-lg font-bold">Finish Review</button>
           </div>
         </div>
       </main>
@@ -136,30 +122,31 @@ export default function ExamPage() {
   const currentQ = questions[currentQIndex];
   const isLastQuestion = currentQIndex === questions.length - 1;
 
-  // --- EXAM INTERFACE (Locked Frame) ---
   return (
-    <main className="fixed inset-0 bg-gray-100 font-sans text-gray-900 z-[99999]">
+    // === DYNAMIC VIEWPORT HEIGHT (100dvh) ===
+    <main className="flex flex-col h-[100dvh] bg-gray-100 font-sans text-gray-900 overflow-hidden fixed inset-0 z-[99999]">
       
-      {/* 1. HEADER (Fixed Top) */}
-      <header className="fixed top-0 left-0 right-0 h-16 bg-white border-b-4 border-green-600 flex justify-between items-center px-4 shadow-md z-50">
+      {/* === 1. HEADER (Fixed Height) === */}
+      <header className="h-16 shrink-0 bg-white border-b-4 border-green-600 flex justify-between items-center px-4 shadow-md z-50">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-800 font-bold border border-green-200">
             {student.name.charAt(0)}
           </div>
           <div className="leading-tight">
             <h1 className="font-bold text-xs text-gray-900 uppercase truncate max-w-[100px]">{student.name}</h1>
-            <p className="text-[10px] text-gray-500 font-mono">{course.code}</p>
+            <p className="text-[10px] text-gray-500 font-mono">v3.0 • {course.code}</p>
           </div>
         </div>
 
+        {/* TIMER */}
         <div className={`flex items-center gap-2 px-3 py-1 rounded border-2 font-mono font-black text-lg ${timeLeft < 300 ? 'bg-red-50 border-red-500 text-red-600 animate-pulse' : 'bg-gray-50 border-gray-300 text-gray-800'}`}>
           <Clock size={16} />
           {formatTime(timeLeft)}
         </div>
       </header>
 
-      {/* 2. CONTENT (Scrollable Middle Area) */}
-      <div className="fixed top-16 bottom-16 left-0 right-0 overflow-y-auto bg-gray-100 p-4">
+      {/* === 2. CONTENT (Scrollable Middle) === */}
+      <div className="flex-1 overflow-y-auto p-4 bg-gray-100">
         <div className="max-w-2xl mx-auto bg-white p-6 rounded-xl shadow-sm border border-gray-300 min-h-[300px]">
           <div className="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
             <span className="text-xs font-bold text-green-700 uppercase tracking-widest">Question {currentQIndex + 1} of {questions.length}</span>
@@ -195,8 +182,8 @@ export default function ExamPage() {
         </div>
       </div>
 
-      {/* 3. FOOTER (Fixed Bottom) */}
-      <footer className="fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-gray-200 flex justify-between items-center px-4 z-50">
+      {/* === 3. FOOTER (Fixed Height) === */}
+      <footer className="h-16 shrink-0 bg-white border-t border-gray-200 flex justify-between items-center px-4 z-50 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
         <button 
           onClick={() => setCurrentQIndex(Math.max(0, currentQIndex - 1))}
           disabled={currentQIndex === 0}
@@ -205,6 +192,7 @@ export default function ExamPage() {
           <ChevronLeft size={16} /> Prev
         </button>
 
+        {/* GRID TOGGLE */}
         <button 
           onClick={() => setShowGrid(true)}
           className="flex items-center gap-2 px-4 py-2 rounded bg-blue-50 text-blue-700 font-bold text-xs border border-blue-200"
@@ -229,9 +217,9 @@ export default function ExamPage() {
         )}
       </footer>
 
-      {/* 4. GRID OVERLAY (Mobile Modal) */}
+      {/* === 4. GRID OVERLAY === */}
       {showGrid && (
-        <div className="fixed inset-0 bg-black/50 z-[100] flex items-end sm:items-center justify-center">
+        <div className="absolute inset-0 bg-black/50 z-[100] flex items-end sm:items-center justify-center">
           <div className="bg-white w-full sm:w-96 h-[80%] sm:h-[600px] rounded-t-2xl sm:rounded-2xl p-4 flex flex-col shadow-2xl">
             <div className="flex justify-between items-center mb-4 border-b pb-2">
               <h3 className="font-bold text-gray-800">Question Map</h3>
@@ -251,10 +239,6 @@ export default function ExamPage() {
                   {i + 1}
                 </button>
               ))}
-            </div>
-            <div className="mt-4 pt-4 border-t flex justify-between text-xs text-gray-500">
-              <span className="flex items-center gap-1"><div className="w-3 h-3 bg-green-600 rounded"></div> Answered</span>
-              <span className="flex items-center gap-1"><div className="w-3 h-3 bg-gray-100 border rounded"></div> Empty</span>
             </div>
           </div>
         </div>
