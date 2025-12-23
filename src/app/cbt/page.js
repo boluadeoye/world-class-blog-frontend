@@ -1,12 +1,12 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { User, Mail, ArrowRight, GraduationCap, CheckCircle } from "lucide-react";
+import { User, Mail, ArrowRight, GraduationCap } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function StudentLogin() {
   const router = useRouter();
-  const [form, setForm] = useState({ name: "", email: "", department: "" });
+  const [form, setForm] = useState({ name: "", email: "" });
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
@@ -45,74 +45,52 @@ export default function StudentLogin() {
         className="w-full max-w-md"
       >
         {/* Header */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-10">
           <motion.div 
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ type: "spring", stiffness: 200, delay: 0.1 }}
-            className="inline-flex p-4 bg-white rounded-2xl shadow-xl shadow-green-900/5 mb-4 border border-green-100"
+            className="inline-flex p-5 bg-white rounded-2xl shadow-xl shadow-green-900/5 mb-5 border border-green-100"
           >
-            <GraduationCap size={32} className="text-green-600" />
+            <GraduationCap size={40} className="text-green-600" />
           </motion.div>
-          <h1 className="text-3xl font-black text-gray-900 tracking-tight mb-2">FUOYE CBT</h1>
-          <p className="text-gray-500 font-medium">Mock Exam Portal • 2025 Session</p>
+          <h1 className="text-3xl font-black text-gray-900 tracking-tight mb-2">FUOYE GST CBT</h1>
+          <p className="text-gray-500 font-medium">General Studies Mock Exam • 2025</p>
         </div>
 
         {/* Smart Card */}
         <div className="bg-white/80 backdrop-blur-xl p-8 rounded-3xl shadow-2xl shadow-green-900/10 border border-white/50">
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-6">
             
             {/* Name Input */}
             <div className="group">
-              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Full Name</label>
+              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 ml-1">Full Name</label>
               <div className="relative flex items-center">
-                <User className="absolute left-4 text-gray-400 group-focus-within:text-green-600 transition-colors" size={18} />
+                <User className="absolute left-4 text-gray-400 group-focus-within:text-green-600 transition-colors" size={20} />
                 <input 
                   type="text" 
                   required
                   placeholder="Surname Firstname"
-                  className="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-green-500 focus:ring-4 focus:ring-green-500/10 outline-none transition-all font-medium text-gray-800 placeholder-gray-400"
+                  className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-green-500 focus:ring-4 focus:ring-green-500/10 outline-none transition-all font-medium text-gray-800 placeholder-gray-400"
                   value={form.name}
                   onChange={(e) => setForm({...form, name: e.target.value})}
                 />
               </div>
             </div>
 
-            {/* Email Input (Replaces Matric) */}
+            {/* Email Input */}
             <div className="group">
-              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Email Address</label>
+              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 ml-1">Email Address</label>
               <div className="relative flex items-center">
-                <Mail className="absolute left-4 text-gray-400 group-focus-within:text-green-600 transition-colors" size={18} />
+                <Mail className="absolute left-4 text-gray-400 group-focus-within:text-green-600 transition-colors" size={20} />
                 <input 
                   type="email" 
                   required
                   placeholder="you@example.com"
-                  className="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-green-500 focus:ring-4 focus:ring-green-500/10 outline-none transition-all font-medium text-gray-800 placeholder-gray-400"
+                  className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-green-500 focus:ring-4 focus:ring-green-500/10 outline-none transition-all font-medium text-gray-800 placeholder-gray-400"
                   value={form.email}
                   onChange={(e) => setForm({...form, email: e.target.value})}
                 />
-              </div>
-            </div>
-
-            {/* Department Select */}
-            <div className="group">
-              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5 ml-1">Department</label>
-              <div className="relative">
-                <select 
-                  className="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-green-500 focus:ring-4 focus:ring-green-500/10 outline-none transition-all font-medium text-gray-800 appearance-none cursor-pointer"
-                  value={form.department}
-                  onChange={(e) => setForm({...form, department: e.target.value})}
-                  required
-                >
-                  <option value="">Select Department...</option>
-                  <option value="English & Literary Studies">English & Literary Studies</option>
-                  <option value="Computer Science">Computer Science</option>
-                  <option value="Mass Communication">Mass Communication</option>
-                  <option value="Other">Other</option>
-                </select>
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-                </div>
               </div>
             </div>
 
@@ -122,12 +100,12 @@ export default function StudentLogin() {
               whileTap={{ scale: 0.98 }}
               type="submit" 
               disabled={loading}
-              className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-green-600/20 transition-all flex items-center justify-center gap-2 mt-2"
+              className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-green-600/20 transition-all flex items-center justify-center gap-2 mt-4"
             >
               {loading ? (
                 <span className="animate-pulse">Verifying...</span>
               ) : (
-                <>Start Assessment <ArrowRight size={18} /></>
+                <>Start Assessment <ArrowRight size={20} /></>
               )}
             </motion.button>
 
