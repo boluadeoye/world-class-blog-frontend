@@ -1,7 +1,7 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Clock, AlertTriangle, CheckCircle, XCircle, Grid, ChevronLeft, ChevronRight, Save } from "lucide-react";
+import { Clock, Grid, ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function ExamPage() {
   const params = useParams();
@@ -11,11 +11,12 @@ export default function ExamPage() {
   const [course, setCourse] = useState(null);
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   
   // Exam State
   const [currentQIndex, setCurrentQIndex] = useState(0);
-  const [answers, setAnswers] = useState({}); // { questionId: 'A' }
-  const [timeLeft, setTimeLeft] = useState(45 * 60); // 45 Minutes
+  const [answers, setAnswers] = useState({}); 
+  const [timeLeft, setTimeLeft] = useState(45 * 60); 
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [score, setScore] = useState(0);
   
@@ -23,24 +24,42 @@ export default function ExamPage() {
   const [strikes, setStrikes] = useState(0);
   const [showWarning, setShowWarning] = useState(false);
 
-  // 1. Fetch Exam Data
+  // 1. Fetch Exam Data & Check Auth
   useEffect(() => {
-    const student = sessionStorage.getItem("cbt_student");
-    if (!student) router.push("/cbt");
+    // Auth Check
+    try {
+      const student = sessionStorage.getItem("cbt_student");
+      if (!student) {
+        router.push("/cbt");
+        return;
+      }
+    } catch (e) {
+      // Ignore storage errors
+    }
 
     async function loadExam() {
-      const res = await fetch(`/api/cbt/exam?courseId=${params.id}`);
-      const data = await res.json();
-      setCourse(data.course);
-      setQuestions(data.questions);
-      setLoading(false);
+      try {
+        const res = await fetch(`/api/cbt/exam?courseId=${params.id}`);
+        if (!res.ok) throw new Error("Failed to load exam data");
+        
+        const data = await res.json();
+        if (!data.course || !data.questions) throw new Error("Invalid exam data");
+        
+        setCourse(data.course);
+        setQuestions(data.questions);
+      } catch (err) {
+        console.error(err);
+        setError("Could not load the exam. Please try refreshing.");
+      } finally {
+        setLoading(false);
+      }
     }
     loadExam();
-  }, []);
+  }, [params.id, router]);
 
   // 2. Timer Logic
   useEffect(() => {
-    if (loading || isSubmitted) return;
+    if (loading || isSubmitted || error) return;
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
@@ -52,17 +71,18 @@ export default function ExamPage() {
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, [loading, isSubmitted]);
+  }, [loading, isSubmitted, error]);
 
-  // 3. Malpractice Detector (Tab Switching)
+  // 3. Malpractice Detector
   useEffect(() => {
-    if (isSubmitted) return;
+    if (isSubmitted || loading || error) return;
     
     const handleVisibilityChange = () => {
       if (document.hidden) {
         const newStrikes = strikes + 1;
         setStrikes(newStrikes);
         setShowWarning(true);
+        setTimeout(() => setShowWarning(false), 3000);
         if (newStrikes >= 3) {
           alert("Maximum malpractice strikes reached. Exam auto-submitted.");
           submitExam();
@@ -72,23 +92,20 @@ export default function ExamPage() {
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
     return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
-  }, [strikes, isSubmitted]);
+  }, [strikes, isSubmitted, loading, error]);
 
-  // Helper: Format Time
   const formatTime = (seconds) => {
     const m = Math.floor(seconds / 60);
     const s = seconds % 60;
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
-  // Logic: Select Answer
   const handleSelect = (option) => {
     if (isSubmitted) return;
     const qId = questions[currentQIndex].id;
     setAnswers(prev => ({ ...prev, [qId]: option }));
   };
 
-  // Logic: Submit
   const submitExam = () => {
     setIsSubmitted(true);
     let correctCount = 0;
@@ -99,7 +116,10 @@ export default function ExamPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // === LOADING / ERROR STATES ===
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-gray-100 text-gray-500 font-bold">Loading Exam Interface...</div>;
+  if (error) return <div className="min-h-screen flex items-center justify-center bg-gray-100 text-red-500 font-bold">{error}</div>;
+  if (!course || questions.length === 0) return <div className="min-h-screen flex items-center justify-center bg-gray-100 text-gray-500 font-bold">No questions found for this course.</div>;
 
   // === RESULT VIEW ===
   if (isSubmitted) {
