@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { ArrowRight, Play, FileText } from "lucide-react";
-import { fetchLatestArticles, fetchFeaturedPosts, fetchVideoPosts, fetchFeaturedVideo } from "../lib/homeData";
-import ModernHero from "../components/home/ModernHero";
-import ScrollReveal from "../components/ui/ScrollReveal";
-import NewsUpdates from "../components/home/NewsUpdates";
-import Newsletter from "../components/home/Newsletter";
-import ServiceDeck from "../components/home/ServiceDeck";
-import WhatsAppWidget from "../components/home/WhatsAppWidget";
+import { fetchLatestArticles, fetchFeaturedPosts, fetchVideoPosts, fetchFeaturedVideo } from "../../lib/homeData";
+import ModernHero from "../../components/home/ModernHero";
+import ScrollReveal from "../../components/ui/ScrollReveal";
+import NewsUpdates from "../../components/home/NewsUpdates";
+import Newsletter from "../../components/home/Newsletter";
+import ServiceDeck from "../../components/home/ServiceDeck";
+import WhatsAppWidget from "../../components/home/WhatsAppWidget";
 
 export const revalidate = 3600;
 
@@ -28,19 +28,11 @@ export default async function Page() {
 
   return (
     <main className="min-h-screen bg-[#020617] text-slate-200 selection:bg-amber-500/30 overflow-x-hidden font-sans">
-      
-      {/* 1. HERO SECTION */}
       <ModernHero />
-
-      {/* 2. SERVICES DECK */}
       <ServiceDeck />
-
-      {/* Separator */}
       <div className="w-full max-w-7xl mx-auto px-6 md:px-12 mb-12">
         <div className="h-px w-full bg-gradient-to-r from-transparent via-slate-800 to-transparent opacity-50"></div>
       </div>
-
-      {/* 3. EDITOR'S PICKS */}
       <section className="px-6 md:px-12 pb-20 relative z-10">
         <div className="max-w-7xl mx-auto">
           <ScrollReveal>
@@ -51,9 +43,7 @@ export default async function Page() {
               </Link>
             </div>
           </ScrollReveal>
-
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-            {/* Main Feature */}
             {heroPost && (
               <div className="md:col-span-8">
                 <ScrollReveal delay={0.1}>
@@ -64,7 +54,6 @@ export default async function Page() {
                       <div className="absolute inset-0 bg-gradient-to-br from-slate-800 to-slate-900" />
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/40 to-transparent" />
-                    
                     <div className="absolute bottom-0 left-0 p-8 md:p-10 max-w-3xl">
                       <span className="inline-block px-3 py-1 mb-3 text-[10px] font-bold tracking-widest text-slate-950 bg-amber-500 rounded-md uppercase shadow-lg shadow-amber-500/20">
                         {heroPost.meta?.category || "Featured"}
@@ -78,8 +67,6 @@ export default async function Page() {
                 </ScrollReveal>
               </div>
             )}
-            
-            {/* Sub Features */}
             <div className="md:col-span-4 flex flex-col gap-6">
               {subFeatures.map((post, idx) => (
                 <ScrollReveal key={post.slug} delay={0.2 + (idx * 0.1)}>
@@ -101,12 +88,8 @@ export default async function Page() {
           </div>
         </div>
       </section>
-
-      {/* 4. FIELD NOTES & VIDEO */}
       <section className="px-6 md:px-12 py-12 bg-[#050a15] border-t border-white/5">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16">
-          
-          {/* LEFT: FIELD NOTES */}
           <div>
             <ScrollReveal>
               <h3 className="font-serif text-3xl text-white mb-8 flex items-center gap-3">
@@ -130,8 +113,6 @@ export default async function Page() {
               ))}
             </div>
           </div>
-
-          {/* RIGHT: VIDEO */}
           <div>
             <ScrollReveal delay={0.2}>
               <h3 className="font-serif text-3xl text-white mb-8 flex items-center gap-3">
@@ -161,19 +142,11 @@ export default async function Page() {
               )}
             </ScrollReveal>
           </div>
-
         </div>
       </section>
-
-      {/* 5. TECH FEED */}
       <NewsUpdates />
-
-      {/* 6. NEWSLETTER */}
       <Newsletter />
-
-      {/* 7. WHATSAPP WIDGET */}
       <WhatsAppWidget />
-
     </main>
   );
 }
