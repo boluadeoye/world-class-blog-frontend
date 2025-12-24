@@ -1,64 +1,50 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Clock, Grid, ChevronLeft, ChevronRight, AlertTriangle } from "lucide-react";
 
 export default function ExamPage() {
   const params = useParams();
   const router = useRouter();
   
   // Data State
+  const [student, setStudent] = useState(null);
   const [course, setCourse] = useState(null);
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   
   // Exam State
   const [currentQIndex, setCurrentQIndex] = useState(0);
-  const [answers, setAnswers] = useState({}); 
+  const [answers, setAnswers] = useState({}); // { questionId: 'A' }
+  const [visited, setVisited] = useState(new Set([0])); // Track visited indices
   const [timeLeft, setTimeLeft] = useState(45 * 60); 
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [score, setScore] = useState(0);
-  
-  // Malpractice State
-  const [strikes, setStrikes] = useState(0);
-  const [showWarning, setShowWarning] = useState(false);
 
-  // 1. Fetch Exam Data & Check Auth
+  // 1. Fetch Data
   useEffect(() => {
-    // Auth Check
-    try {
-      const student = sessionStorage.getItem("cbt_student");
-      if (!student) {
-        router.push("/cbt");
-        return;
-      }
-    } catch (e) {}
+    const stored = sessionStorage.getItem("cbt_student");
+    if (!stored) { router.push("/cbt"); return; }
+    setStudent(JSON.parse(stored));
 
     async function loadExam() {
       try {
-        // Use params.id directly
         const res = await fetch(`/api/cbt/exam?courseId=${params.id}`);
-        if (!res.ok) throw new Error("Failed to load exam data");
-        
         const data = await res.json();
-        if (!data.course || !data.questions) throw new Error("Invalid exam data");
-        
+        if (!data.course || !data.questions) throw new Error("No data");
         setCourse(data.course);
         setQuestions(data.questions);
-      } catch (err) {
-        console.error(err);
-        setError("Could not load the exam. Please try refreshing.");
+      } catch (e) {
+        alert("Failed to load exam.");
       } finally {
         setLoading(false);
       }
     }
-    if (params.id) loadExam();
-  }, [params.id, router]);
+    loadExam();
+  }, []);
 
-  // 2. Timer Logic
+  // 2. Timer
   useEffect(() => {
-    if (loading || isSubmitted || error) return;
+    if (loading || isSubmitted) return;
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
@@ -70,33 +56,19 @@ export default function ExamPage() {
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, [loading, isSubmitted, error]);
+  }, [loading, isSubmitted]);
 
-  // 3. Malpractice Detector
-  useEffect(() => {
-    if (isSubmitted || loading || error) return;
-    
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        const newStrikes = strikes + 1;
-        setStrikes(newStrikes);
-        setShowWarning(true);
-        setTimeout(() => setShowWarning(false), 3000);
-        if (newStrikes >= 3) {
-          alert("Maximum malpractice strikes reached. Exam auto-submitted.");
-          submitExam();
-        }
-      }
-    };
-
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
-  }, [strikes, isSubmitted, loading, error]);
-
+  // Helper: Format Time
   const formatTime = (seconds) => {
     const m = Math.floor(seconds / 60);
     const s = seconds % 60;
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
+
+  // Navigation Logic
+  const navigateTo = (index) => {
+    setCurrentQIndex(index);
+    setVisited(prev => new Set(prev).add(index));
   };
 
   const handleSelect = (option) => {
@@ -115,180 +87,172 @@ export default function ExamPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // === LOADING / ERROR STATES ===
-  if (loading) return <div className="min-h-screen flex items-center justify-center bg-gray-50 text-gray-500 font-bold">Loading Exam Interface...</div>;
-  if (error) return <div className="min-h-screen flex items-center justify-center bg-gray-50 text-red-500 font-bold">{error}</div>;
-  if (!course || questions.length === 0) return <div className="min-h-screen flex items-center justify-center bg-gray-50 text-gray-500 font-bold">No questions found for this course.</div>;
+  // Determine Button Color (The JAMB Logic)
+  const getGridColor = (index, qId) => {
+    if (currentQIndex === index) return "bg-red-600 text-white border-red-700"; // Current
+    if (answers[qId]) return "bg-green-600 text-white border-green-700"; // Answered
+    if (visited.has(index)) return "bg-yellow-400 text-black border-yellow-500"; // Skipped
+    return "bg-gray-200 text-gray-600 border-gray-300"; // Unvisited
+  };
+
+  if (loading) return <div className="min-h-screen flex items-center justify-center font-bold text-green-800">Loading System...</div>;
 
   // === RESULT VIEW ===
   if (isSubmitted) {
     const percentage = Math.round((score / questions.length) * 100);
     return (
-      <main className="min-h-screen bg-gray-50 p-6 font-sans">
-        <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
-          <div className={`p-8 text-center ${percentage >= 50 ? 'bg-green-600' : 'bg-red-600'} text-white`}>
-            <h1 className="text-3xl font-black mb-2">{percentage >= 50 ? "EXCELLENT!" : "KEEP PRACTICING"}</h1>
-            <p className="text-lg opacity-90">You scored {score} out of {questions.length}</p>
-            <div className="mt-6 text-6xl font-black">{percentage}%</div>
-          </div>
-          
-          <div className="p-8">
-            <h2 className="text-xl font-bold text-gray-800 mb-6 border-b pb-2">Corrections</h2>
-            <div className="space-y-8">
-              {questions.map((q, i) => {
-                const userAns = answers[q.id];
-                const isCorrect = userAns === q.correct_option;
-                return (
-                  <div key={q.id} className={`p-4 rounded-lg border ${isCorrect ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
-                    <p className="font-bold text-gray-800 mb-3"><span className="text-gray-500 mr-2">{i+1}.</span> {q.question_text}</p>
-                    
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm mb-3">
-                      {['A','B','C','D'].map(opt => (
-                        <div key={opt} className={`px-3 py-2 rounded border ${
-                          q.correct_option === opt ? 'bg-green-600 text-white border-green-600' : 
-                          userAns === opt ? 'bg-red-100 text-red-800 border-red-300' : 'bg-white text-gray-500 border-gray-200'
-                        }`}>
-                          <span className="font-bold mr-2">{opt}.</span> {q[`option_${opt.toLowerCase()}`]}
-                        </div>
-                      ))}
-                    </div>
-                    
-                    {!isCorrect && (
-                      <p className="text-xs text-red-600 font-bold mt-2">
-                        Your Answer: {userAns || "None"} | Correct Answer: {q.correct_option}
-                      </p>
-                    )}
-                    {q.explanation && (
-                      <p className="text-xs text-gray-600 mt-2 italic border-t border-gray-200 pt-2">
-                        💡 {q.explanation}
-                      </p>
-                    )}
-                  </div>
-                )
-              })}
+      <main className="min-h-screen bg-gray-100 font-sans">
+        <header className="bg-green-700 text-white p-4 shadow-md">
+          <h1 className="text-xl font-bold text-center">EXAM RESULT</h1>
+        </header>
+        <div className="max-w-4xl mx-auto p-6">
+          <div className="bg-white rounded-lg shadow p-8 text-center mb-8">
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">Total Score</h2>
+            <div className={`text-6xl font-black ${percentage >= 50 ? 'text-green-600' : 'text-red-600'}`}>
+              {score} / {questions.length}
             </div>
-            <button onClick={() => router.push('/cbt/dashboard')} className="w-full mt-8 bg-gray-900 text-white py-4 rounded-lg font-bold hover:bg-black transition-colors">
-              Return to Dashboard
+            <p className="text-gray-500 mt-2 font-bold">{percentage}%</p>
+            <button onClick={() => router.push('/cbt/dashboard')} className="mt-6 bg-gray-800 text-white px-8 py-3 rounded font-bold">
+              Exit to Dashboard
             </button>
+          </div>
+
+          <div className="space-y-4">
+            <h3 className="font-bold text-gray-700 uppercase tracking-widest border-b pb-2">Corrections</h3>
+            {questions.map((q, i) => {
+              const userAns = answers[q.id];
+              const isCorrect = userAns === q.correct_option;
+              return (
+                <div key={q.id} className={`p-4 border-l-4 bg-white shadow-sm ${isCorrect ? 'border-green-500' : 'border-red-500'}`}>
+                  <p className="font-bold text-gray-800 mb-2">{i+1}. {q.question_text}</p>
+                  <p className="text-sm text-gray-600">Correct Answer: <span className="font-bold text-green-700">{q.correct_option}</span></p>
+                  {!isCorrect && <p className="text-sm text-red-600">You Chose: <span className="font-bold">{userAns || "Nothing"}</span></p>}
+                  {q.explanation && <p className="text-xs text-gray-500 mt-1 italic">{q.explanation}</p>}
+                </div>
+              )
+            })}
           </div>
         </div>
       </main>
     );
   }
 
-  // === EXAM VIEW ===
   const currentQ = questions[currentQIndex];
 
   return (
-    <main className="min-h-screen bg-gray-100 flex flex-col font-sans text-gray-900">
+    <main className="min-h-screen bg-gray-100 flex flex-col font-sans">
       
-      {/* HEADER */}
-      <header className="bg-white border-b border-gray-200 px-4 py-3 flex justify-between items-center sticky top-0 z-20 shadow-sm">
-        <div>
-          <h1 className="font-black text-lg text-gray-800">{course.code}</h1>
-          <p className="text-xs text-gray-500 font-bold uppercase">Mock Examination</p>
+      {/* === JAMB HEADER === */}
+      <header className="bg-green-700 text-white px-4 py-3 flex justify-between items-center shadow-md z-20">
+        <div className="flex items-center gap-4">
+          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-green-800 font-bold border-2 border-green-800">
+            {student?.name?.charAt(0)}
+          </div>
+          <div className="leading-tight">
+            <h1 className="font-bold text-sm uppercase">{student?.name}</h1>
+            <p className="text-xs opacity-80">{course.code}</p>
+          </div>
         </div>
-        
-        <div className={`flex items-center gap-2 px-4 py-2 rounded font-mono font-bold text-xl ${timeLeft < 300 ? 'bg-red-100 text-red-600 animate-pulse' : 'bg-gray-100 text-gray-700'}`}>
-          <Clock size={20} />
+        <div className="text-xl font-mono font-bold bg-green-800 px-4 py-1 rounded border border-green-600">
           {formatTime(timeLeft)}
         </div>
-
         <button 
-          onClick={() => { if(confirm("Submit Exam?")) submitExam(); }}
-          className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded font-bold text-sm transition-colors shadow-sm"
+          onClick={() => { if(confirm("Are you sure you want to submit?")) submitExam(); }}
+          className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded font-bold text-sm shadow-sm border border-red-800"
         >
-          Submit
+          SUBMIT
         </button>
       </header>
 
-      {/* MALPRACTICE WARNING */}
-      {showWarning && (
-        <div className="bg-red-600 text-white text-center py-2 text-xs font-bold uppercase tracking-widest animate-pulse">
-          ⚠️ Warning: Tab Switching Detected ({strikes}/3)
-        </div>
-      )}
-
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
         
-        {/* LEFT: QUESTION AREA */}
-        <div className="flex-1 p-4 md:p-8 overflow-y-auto">
-          <div className="max-w-3xl mx-auto">
-            <div className="bg-white p-6 md:p-10 rounded-xl shadow-sm border border-gray-200 min-h-[400px] flex flex-col">
-              <div className="flex justify-between items-start mb-6">
-                <span className="text-sm font-bold text-gray-400 uppercase tracking-widest">Question {currentQIndex + 1} of {questions.length}</span>
-                <span className="text-xs font-bold bg-gray-100 text-gray-600 px-2 py-1 rounded">2 Marks</span>
-              </div>
-              
-              <h2 className="text-xl md:text-2xl font-bold text-gray-900 leading-relaxed mb-8">
-                {currentQ.question_text}
-              </h2>
+        {/* === LEFT: QUESTION PANEL === */}
+        <div className="flex-1 p-4 md:p-6 overflow-y-auto">
+          <div className="bg-white border border-gray-300 rounded-lg shadow-sm min-h-[400px] flex flex-col">
+            
+            {/* Question Header */}
+            <div className="bg-gray-50 px-6 py-3 border-b border-gray-200 flex justify-between items-center">
+              <span className="font-bold text-gray-700">Question {currentQIndex + 1}</span>
+              <span className="text-xs font-bold text-gray-400">2 Marks</span>
+            </div>
 
+            {/* Question Text */}
+            <div className="p-6 md:p-8 flex-1">
+              <p className="text-lg md:text-xl font-medium text-gray-900 leading-relaxed mb-8">
+                {currentQ.question_text}
+              </p>
+
+              {/* Options */}
               <div className="space-y-3">
                 {['A','B','C','D'].map((opt) => (
-                  <button
+                  <label 
                     key={opt}
-                    onClick={() => handleSelect(opt)}
-                    className={`w-full text-left p-4 rounded-lg border-2 transition-all flex items-center gap-4 group ${
+                    className={`flex items-center gap-4 p-3 rounded border-2 cursor-pointer transition-all ${
                       answers[currentQ.id] === opt 
                         ? 'border-green-600 bg-green-50' 
-                        : 'border-gray-200 hover:border-green-300 hover:bg-gray-50'
+                        : 'border-gray-200 hover:bg-gray-50'
                     }`}
                   >
-                    <span className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
-                      answers[currentQ.id] === opt ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-600 group-hover:bg-green-100'
-                    }`}>
-                      {opt}
-                    </span>
-                    <span className={`font-medium ${answers[currentQ.id] === opt ? 'text-green-900' : 'text-gray-700'}`}>
-                      {currentQ[`option_${opt.toLowerCase()}`]}
-                    </span>
-                  </button>
+                    <input 
+                      type="radio" 
+                      name={`q-${currentQ.id}`}
+                      checked={answers[currentQ.id] === opt}
+                      onChange={() => handleSelect(opt)}
+                      className="w-5 h-5 accent-green-600"
+                    />
+                    <span className="font-bold text-gray-500">{opt}.</span>
+                    <span className="text-gray-800 font-medium">{currentQ[`option_${opt.toLowerCase()}`]}</span>
+                  </label>
                 ))}
               </div>
+            </div>
 
-              {/* Navigation */}
-              <div className="mt-auto pt-8 flex justify-between">
-                <button 
-                  onClick={() => setCurrentQIndex(Math.max(0, currentQIndex - 1))}
-                  disabled={currentQIndex === 0}
-                  className="flex items-center gap-2 px-6 py-3 rounded-lg font-bold text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <ChevronLeft size={20} /> Previous
-                </button>
-                <button 
-                  onClick={() => setCurrentQIndex(Math.min(questions.length - 1, currentQIndex + 1))}
-                  disabled={currentQIndex === questions.length - 1}
-                  className="flex items-center gap-2 px-6 py-3 rounded-lg bg-gray-900 text-white font-bold hover:bg-black disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Next <ChevronRight size={20} />
-                </button>
-              </div>
+            {/* Footer Nav */}
+            <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-between">
+              <button 
+                onClick={() => navigateTo(Math.max(0, currentQIndex - 1))}
+                disabled={currentQIndex === 0}
+                className="px-6 py-2 bg-gray-200 text-gray-700 font-bold rounded hover:bg-gray-300 disabled:opacity-50"
+              >
+                Previous
+              </button>
+              <button 
+                onClick={() => navigateTo(Math.min(questions.length - 1, currentQIndex + 1))}
+                disabled={currentQIndex === questions.length - 1}
+                className="px-6 py-2 bg-green-700 text-white font-bold rounded hover:bg-green-800 disabled:opacity-50"
+              >
+                Next
+              </button>
             </div>
           </div>
         </div>
 
-        {/* RIGHT: QUESTION GRID (Sidebar) */}
-        <div className="w-full md:w-72 bg-white border-l border-gray-200 p-4 overflow-y-auto hidden md:block">
-          <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-            <Grid size={14} /> Question Palette
-          </h3>
-          <div className="grid grid-cols-5 gap-2">
-            {questions.map((q, i) => (
-              <button
-                key={q.id}
-                onClick={() => setCurrentQIndex(i)}
-                className={`h-10 rounded flex items-center justify-center text-xs font-bold transition-colors ${
-                  currentQIndex === i ? 'ring-2 ring-black ring-offset-1' : ''
-                } ${
-                  answers[q.id] 
-                    ? 'bg-green-600 text-white' 
-                    : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
-                }`}
-              >
-                {i + 1}
-              </button>
-            ))}
+        {/* === RIGHT: INTELLIGENT MAP (Grid) === */}
+        <div className="w-full md:w-80 bg-white border-l border-gray-300 flex flex-col">
+          <div className="p-3 bg-gray-100 border-b border-gray-300 font-bold text-gray-700 text-sm text-center">
+            Question Map
+          </div>
+          
+          <div className="flex-1 overflow-y-auto p-4">
+            <div className="grid grid-cols-5 gap-2">
+              {questions.map((q, i) => (
+                <button
+                  key={q.id}
+                  onClick={() => navigateTo(i)}
+                  className={`h-10 w-full rounded border text-sm font-bold shadow-sm transition-all ${getGridColor(i, q.id)}`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Legend */}
+          <div className="p-4 border-t border-gray-200 bg-gray-50 text-[10px] grid grid-cols-2 gap-2">
+            <div className="flex items-center gap-2"><div className="w-3 h-3 bg-green-600 rounded"></div> Answered</div>
+            <div className="flex items-center gap-2"><div className="w-3 h-3 bg-red-600 rounded"></div> Current</div>
+            <div className="flex items-center gap-2"><div className="w-3 h-3 bg-yellow-400 rounded"></div> Skipped</div>
+            <div className="flex items-center gap-2"><div className="w-3 h-3 bg-gray-200 border border-gray-400 rounded"></div> Unseen</div>
           </div>
         </div>
 
