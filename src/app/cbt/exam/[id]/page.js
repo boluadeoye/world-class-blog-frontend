@@ -1,7 +1,56 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Clock, Grid, ChevronLeft, ChevronRight, X, AlertTriangle } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Clock, Grid, ChevronLeft, ChevronRight, X, AlertTriangle, CheckCircle, AlertOctagon } from "lucide-react";
+
+/* === CUSTOM MODAL COMPONENT === */
+function ConfirmModal({ isOpen, title, message, onConfirm, onCancel, type = "warning" }) {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+      <motion.div 
+        initial={{ scale: 0.9, opacity: 0 }} 
+        animate={{ scale: 1, opacity: 1 }}
+        className="bg-white rounded-xl shadow-2xl max-w-sm w-full overflow-hidden"
+      >
+        <div className={`p-4 ${type === 'danger' ? 'bg-red-600' : 'bg-green-700'} text-white font-bold flex items-center gap-2`}>
+          {type === 'danger' ? <AlertOctagon size={20} /> : <CheckCircle size={20} />}
+          {title}
+        </div>
+        <div className="p-6">
+          <p className="text-gray-700 font-medium mb-6">{message}</p>
+          <div className="flex gap-3">
+            <button onClick={onCancel} className="flex-1 py-3 border border-gray-300 rounded-lg font-bold text-gray-600 hover:bg-gray-50">Cancel</button>
+            <button onClick={onConfirm} className={`flex-1 py-3 rounded-lg font-bold text-white ${type === 'danger' ? 'bg-red-600 hover:bg-red-700' : 'bg-green-700 hover:bg-green-800'}`}>
+              Confirm
+            </button>
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+/* === TOAST NOTIFICATION === */
+function Toast({ message, type, onClose }) {
+  useEffect(() => {
+    const timer = setTimeout(onClose, 4000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  return (
+    <motion.div 
+      initial={{ y: -50, opacity: 0 }} 
+      animate={{ y: 0, opacity: 1 }} 
+      exit={{ y: -50, opacity: 0 }}
+      className={`fixed top-6 left-1/2 -translate-x-1/2 z-[110] px-6 py-3 rounded-full shadow-xl flex items-center gap-3 font-bold text-sm ${type === 'error' ? 'bg-red-600 text-white' : 'bg-gray-800 text-white'}`}
+    >
+      {type === 'error' && <AlertTriangle size={18} />}
+      {message}
+    </motion.div>
+  );
+}
 
 export default function ExamPage() {
   const params = useParams();
@@ -14,13 +63,17 @@ export default function ExamPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentQIndex, setCurrentQIndex] = useState(0);
-  const [showMobileMap, setShowMobileMap] = useState(false); // NEW: Mobile Map Toggle
+  const [showMobileMap, setShowMobileMap] = useState(false);
 
   // Functional State
   const [answers, setAnswers] = useState({}); 
   const [timeLeft, setTimeLeft] = useState(null); 
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [score, setScore] = useState(0);
+  
+  // Modal & Toast State
+  const [modalConfig, setModalConfig] = useState({ show: false, title: "", message: "", action: null });
+  const [toast, setToast] = useState(null); // { message, type }
   
   // Persistence Key
   const getStorageKey = (email) => `cbt_session_${params.id}_${email}`;
@@ -76,7 +129,7 @@ export default function ExamPage() {
         }
         if (newTime <= 0) {
           clearInterval(interval);
-          submitExam();
+          finishExam();
           return 0;
         }
         return newTime;
@@ -86,13 +139,39 @@ export default function ExamPage() {
     return () => clearInterval(interval);
   }, [loading, isSubmitted, error, timeLeft, answers, currentQIndex]);
 
+  // 3. Malpractice Detector (Silent Log + Toast)
+  useEffect(() => {
+    if (isSubmitted) return;
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        setToast({ message: "Malpractice Warning: Tab Switch Detected!", type: "error" });
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, [isSubmitted]);
+
   const handleSelect = (option) => {
     if (isSubmitted) return;
     const qId = questions[currentQIndex].id;
     setAnswers(prev => ({ ...prev, [qId]: option }));
   };
 
-  const submitExam = () => {
+  // Trigger the Modal
+  const confirmSubmit = () => {
+    const answeredCount = Object.keys(answers).length;
+    const total = questions.length;
+    setModalConfig({
+      show: true,
+      title: "Submit Examination?",
+      message: `You have answered ${answeredCount} out of ${total} questions. Are you sure you want to finish?`,
+      type: "warning",
+      action: finishExam
+    });
+  };
+
+  const finishExam = () => {
+    setModalConfig({ show: false });
     setIsSubmitted(true);
     let correctCount = 0;
     questions.forEach(q => {
@@ -111,7 +190,7 @@ export default function ExamPage() {
 
   const navigateTo = (index) => {
     setCurrentQIndex(index);
-    setShowMobileMap(false); // Close map on selection
+    setShowMobileMap(false);
   };
 
   const getGridColor = (index, qId) => {
@@ -160,6 +239,19 @@ export default function ExamPage() {
   return (
     <main className="min-h-screen bg-gray-100 flex flex-col font-sans h-screen overflow-hidden">
       
+      {/* === OVERLAYS === */}
+      <AnimatePresence>
+        {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+      </AnimatePresence>
+      <ConfirmModal 
+        isOpen={modalConfig.show} 
+        title={modalConfig.title} 
+        message={modalConfig.message} 
+        type={modalConfig.type}
+        onConfirm={modalConfig.action} 
+        onCancel={() => setModalConfig({ ...modalConfig, show: false })} 
+      />
+
       {/* === HEADER === */}
       <header className="bg-[#004d00] text-white px-4 py-2 flex justify-between items-center shadow-md shrink-0 z-30">
         <div className="flex items-center gap-3">
@@ -170,7 +262,6 @@ export default function ExamPage() {
             <h1 className="font-bold text-xs uppercase">{student?.name}</h1>
             <p className="text-[10px] opacity-80">{course.code}</p>
           </div>
-          {/* MOBILE MAP TOGGLE */}
           <button 
             onClick={() => setShowMobileMap(!showMobileMap)}
             className="sm:hidden flex items-center gap-1 bg-green-900/50 px-2 py-1 rounded border border-green-600 text-[10px] font-bold uppercase"
@@ -184,7 +275,7 @@ export default function ExamPage() {
             {formatTime(timeLeft)}
           </div>
           <button 
-            onClick={() => { if(confirm("Submit Exam?")) submitExam(); }}
+            onClick={confirmSubmit}
             className="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded text-xs font-bold uppercase shadow-sm"
           >
             Submit
@@ -233,14 +324,14 @@ export default function ExamPage() {
           {/* STICKY FOOTER NAV */}
           <div className="bg-gray-50 border-t border-gray-200 p-4 flex justify-between items-center shrink-0">
             <button 
-              onClick={() => setCurrentQIndex(Math.max(0, currentQIndex - 1))}
+              onClick={() => navigateTo(Math.max(0, currentQIndex - 1))}
               disabled={currentQIndex === 0}
               className="px-6 py-2 bg-white border border-gray-300 text-gray-700 font-bold rounded shadow-sm disabled:opacity-50"
             >
               Previous
             </button>
             <button 
-              onClick={() => setCurrentQIndex(Math.min(questions.length - 1, currentQIndex + 1))}
+              onClick={() => navigateTo(Math.min(questions.length - 1, currentQIndex + 1))}
               disabled={currentQIndex === questions.length - 1}
               className="px-6 py-2 bg-green-700 text-white font-bold rounded shadow-sm hover:bg-green-800 disabled:opacity-50"
             >
@@ -249,7 +340,7 @@ export default function ExamPage() {
           </div>
         </div>
 
-        {/* === RIGHT: QUESTION MAP (Responsive) === */}
+        {/* === RIGHT: QUESTION MAP === */}
         <div className={`
           absolute inset-0 z-20 bg-white flex flex-col transition-transform duration-300 md:relative md:translate-x-0 md:w-80 md:border-l border-gray-300
           ${showMobileMap ? 'translate-x-0' : 'translate-x-full'}
