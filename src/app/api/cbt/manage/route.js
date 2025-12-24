@@ -1,10 +1,8 @@
 import pool from '../../../../lib/db';
 
-// GET: Fetch single course + all its questions
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
   const courseId = searchParams.get('id');
-  
   if (!courseId) return new Response("Missing ID", { status: 400 });
 
   try {
@@ -22,16 +20,16 @@ export async function GET(req) {
   }
 }
 
-// PUT: Update Course OR Question
 export async function PUT(req) {
   try {
     const body = await req.json();
     const client = await pool.connect();
 
     if (body.type === 'course') {
+      // Update Course (Added Duration)
       await client.query(
-        'UPDATE cbt_courses SET code = $1, title = $2, level = $3 WHERE id = $4',
-        [body.code, body.title, body.level, body.id]
+        'UPDATE cbt_courses SET code = $1, title = $2, level = $3, duration = $4 WHERE id = $5',
+        [body.code, body.title, body.level, body.duration, body.id]
       );
     } else if (body.type === 'question') {
       await client.query(
@@ -50,28 +48,21 @@ export async function PUT(req) {
   }
 }
 
-// POST: Add New Question (Supports Single or Bulk)
 export async function POST(req) {
   try {
     const body = await req.json();
     const client = await pool.connect();
 
     if (Array.isArray(body)) {
-      // BULK INSERT
       for (const q of body) {
         await client.query(
-          `INSERT INTO cbt_questions 
-           (course_id, question_text, option_a, option_b, option_c, option_d, correct_option, explanation)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+          `INSERT INTO cbt_questions (course_id, question_text, option_a, option_b, option_c, option_d, correct_option, explanation) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
           [q.course_id, q.question_text, q.option_a, q.option_b, q.option_c, q.option_d, q.correct_option, q.explanation]
         );
       }
     } else {
-      // SINGLE INSERT
       await client.query(
-        `INSERT INTO cbt_questions 
-         (course_id, question_text, option_a, option_b, option_c, option_d, correct_option, explanation)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+        `INSERT INTO cbt_questions (course_id, question_text, option_a, option_b, option_c, option_d, correct_option, explanation) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
         [body.course_id, body.question_text, body.option_a, body.option_b, body.option_c, body.option_d, body.correct_option, body.explanation]
       );
     }
@@ -83,7 +74,6 @@ export async function POST(req) {
   }
 }
 
-// DELETE: Remove Question
 export async function DELETE(req) {
   try {
     const { searchParams } = new URL(req.url);

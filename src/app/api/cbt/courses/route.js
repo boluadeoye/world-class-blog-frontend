@@ -13,12 +13,12 @@ export async function GET() {
 
 export async function POST(req) {
   try {
-    const { code, title, level } = await req.json();
+    const { code, title, level, duration } = await req.json();
     const client = await pool.connect();
     
     await client.query(
-      'INSERT INTO cbt_courses (code, title, level) VALUES ($1, $2, $3)',
-      [code.toUpperCase(), title, parseInt(level)]
+      'INSERT INTO cbt_courses (code, title, level, duration) VALUES ($1, $2, $3, $4)',
+      [code.toUpperCase(), title, parseInt(level), parseInt(duration || 15)]
     );
     
     client.release();
