@@ -4,28 +4,35 @@ export async function POST(req) {
   try {
     const { name, email } = await req.json();
     
-    if (!name || !email) {
-      return new Response(JSON.stringify({ error: "Name and Email are required" }), { status: 400 });
+    // 1. Email is always required
+    if (!email) {
+      return new Response(JSON.stringify({ error: "Email is required" }), { status: 400 });
     }
 
     const client = await pool.connect();
     
-    // 1. Check if student exists using EMAIL
-    // We check both the 'email' column AND the 'password' column (legacy support)
-    const check = await client.query(
-      'SELECT * FROM cbt_students WHERE email = $1 OR password = $1', 
-      [email]
-    );
+    // 2. Check if student exists
+    const check = await client.query('SELECT * FROM cbt_students WHERE password = $1 OR email = $1', [email]);
     
     let student;
     
     if (check.rows.length > 0) {
-      // Login: Update name
+      // === LOGIN SCENARIO ===
       student = check.rows[0];
-      await client.query('UPDATE cbt_students SET name = $1 WHERE id = $2', [name, student.id]);
+      
+      // If name is provided during login, update it. Otherwise, keep existing name.
+      if (name) {
+        await client.query('UPDATE cbt_students SET name = $1 WHERE id = $2', [name, student.id]);
+        student.name = name;
+      }
     } else {
-      // Register: Create new student
-      // We explicitly insert into 'name', 'department', 'email', and 'password' (as backup)
+      // === REGISTER SCENARIO ===
+      // If user doesn't exist, Name is REQUIRED to create account
+      if (!name) {
+        client.release();
+        return new Response(JSON.stringify({ error: "Account not found. Please Register first." }), { status: 404 });
+      }
+
       const insert = await client.query(
         `INSERT INTO cbt_students (name, department, email, password) 
          VALUES ($1, $2, $3, $3) 
@@ -43,7 +50,6 @@ export async function POST(req) {
     }), { status: 200 });
 
   } catch (error) {
-    console.error("Auth Error:", error);
-    return new Response(JSON.stringify({ error: `System Error: ${error.message}` }), { status: 500 });
+    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
   }
 }
