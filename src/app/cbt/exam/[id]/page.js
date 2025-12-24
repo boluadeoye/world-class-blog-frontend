@@ -1,28 +1,29 @@
 "use client";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
-import { Clock, ChevronLeft, ChevronRight, Grid, Send, AlertTriangle, User, Home } from "lucide-react";
+import { Clock, Grid, ChevronLeft, ChevronRight, Save, LogOut } from "lucide-react";
 
 export default function ExamPage() {
   const params = useParams();
   const router = useRouter();
   
-  // Data & UI State
+  // Data State
   const [student, setStudent] = useState(null);
   const [course, setCourse] = useState(null);
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  
+  // Exam State
   const [currentQIndex, setCurrentQIndex] = useState(0);
-
-  // Functional State
   const [answers, setAnswers] = useState({}); 
   const [timeLeft, setTimeLeft] = useState(null); 
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [score, setScore] = useState(0);
+  
+  // Persistence Key
+  const getStorageKey = (email) => `cbt_session_${params.id}_${email}`;
 
-  // 1. Initial Load & Hydration
+  // 1. Initialize Exam (Aggressive Restore)
   useEffect(() => {
     const studentData = sessionStorage.getItem("cbt_student");
     if (!studentData) { router.push("/cbt"); return; }
@@ -31,54 +32,60 @@ export default function ExamPage() {
 
     async function loadExam() {
       try {
+        // Check LocalStorage FIRST
+        const savedSession = localStorage.getItem(getStorageKey(parsedStudent.email));
+        
         const res = await fetch(`/api/cbt/exam?courseId=${params.id}`);
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "Failed to load exam");
         
         setCourse(data.course);
         setQuestions(data.questions);
 
-        // PERSISTENCE LOGIC: Check for saved state
-        const savedState = localStorage.getItem(`cbt_state_${params.id}_${parsedStudent.email}`);
-        if (savedState) {
-          const { savedAnswers, savedTime } = JSON.parse(savedState);
-          setAnswers(savedAnswers);
-          setTimeLeft(savedTime);
+        if (savedSession) {
+          const session = JSON.parse(savedSession);
+          setAnswers(session.answers || {});
+          setTimeLeft(session.timeLeft);
+          setCurrentQIndex(session.currentIndex || 0);
         } else {
           setTimeLeft((data.course.duration || 15) * 60);
         }
       } catch (e) {
-        setError(e.message);
+        console.error(e);
       } finally {
         setLoading(false);
       }
     }
     loadExam();
-  }, [params.id]);
+  }, []);
 
-  // 2. Timer & State Persistence Loop
+  // 2. Timer & Auto-Save Loop (Every Second)
   useEffect(() => {
-    if (loading || isSubmitted || error || timeLeft === null) return;
+    if (loading || isSubmitted || timeLeft === null) return;
 
-    const interval = setInterval(() => {
+    const timer = setInterval(() => {
       setTimeLeft((prev) => {
-        const nextTime = prev - 1;
-        if (nextTime <= 0) {
-          clearInterval(interval);
+        const newTime = prev - 1;
+        
+        // Auto-Save to LocalStorage
+        if (student) {
+          localStorage.setItem(getStorageKey(student.email), JSON.stringify({
+            answers,
+            timeLeft: newTime,
+            currentIndex: currentQIndex
+          }));
+        }
+
+        if (newTime <= 0) {
+          clearInterval(timer);
           submitExam();
           return 0;
         }
-        // Save state to local storage every second
-        localStorage.setItem(`cbt_state_${params.id}_${student.email}`, JSON.stringify({
-          savedAnswers: answers,
-          savedTime: nextTime
-        }));
-        return nextTime;
+        return newTime;
       });
     }, 1000);
 
-    return () => clearInterval(interval);
-  }, [loading, isSubmitted, error, timeLeft, answers]);
+    return () => clearInterval(timer);
+  }, [loading, isSubmitted, timeLeft, answers, currentQIndex]);
 
   const handleSelect = (option) => {
     if (isSubmitted) return;
@@ -93,8 +100,9 @@ export default function ExamPage() {
       if (answers[q.id] === q.correct_option) correctCount++;
     });
     setScore(correctCount);
-    // Clear saved state after submission
-    localStorage.removeItem(`cbt_state_${params.id}_${student.email}`);
+    
+    // Clear Session
+    if (student) localStorage.removeItem(getStorageKey(student.email));
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -104,43 +112,40 @@ export default function ExamPage() {
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
-  if (loading) return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-white text-green-700">
-      <div className="w-12 h-12 border-4 border-green-200 border-t-green-700 rounded-full animate-spin mb-4"></div>
-      <p className="font-bold animate-pulse">Initializing Exam Terminal...</p>
-    </div>
-  );
+  if (loading) return <div className="min-h-screen flex items-center justify-center bg-gray-100 text-green-800 font-bold">Loading Exam Interface...</div>;
 
-  if (error) return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6 text-center">
-      <AlertTriangle size={64} className="text-red-500 mb-4" />
-      <h1 className="text-2xl font-black text-gray-900">System Error</h1>
-      <p className="text-gray-600 mb-8">{error}</p>
-      <button onClick={() => router.push('/cbt/dashboard')} className="px-8 py-3 bg-green-700 text-white rounded-full font-bold">Return to Base</button>
-    </div>
-  );
-
+  // === RESULT VIEW ===
   if (isSubmitted) {
     const percentage = Math.round((score / questions.length) * 100);
     return (
-      <main className="min-h-screen bg-gray-50 p-4 md:p-10 font-sans">
-        <div className="max-w-4xl mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
-          <div className={`p-12 text-center ${percentage >= 50 ? 'bg-green-700' : 'bg-red-700'} text-white`}>
-            <p className="text-xs font-bold uppercase tracking-[0.3em] mb-2 opacity-80">Final Result</p>
-            <h2 className="text-7xl font-black mb-4">{percentage}%</h2>
-            <p className="text-xl font-medium">You got {score} out of {questions.length} questions correct.</p>
-          </div>
-          <div className="p-8 space-y-6">
-            <h3 className="font-bold text-gray-900 uppercase tracking-widest text-sm border-b pb-2">Review Script</h3>
-            <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-              {questions.map((q, i) => (
-                <div key={q.id} className={`p-4 rounded-xl border ${answers[q.id] === q.correct_option ? 'border-green-100 bg-green-50' : 'border-red-100 bg-red-50'}`}>
-                  <p className="font-bold text-gray-800 text-sm">{i+1}. {q.question_text}</p>
-                  <p className="text-xs mt-2 font-bold text-green-700 uppercase">Correct: {q.correct_option} | Your Choice: {answers[q.id] || "None"}</p>
-                </div>
-              ))}
+      <main className="min-h-screen bg-gray-50 font-sans">
+        <header className="bg-green-800 text-white p-4 shadow-md flex justify-between items-center">
+          <h1 className="font-bold">EXAM RESULT</h1>
+          <button onClick={() => router.push('/cbt/dashboard')} className="text-xs bg-white text-green-800 px-3 py-1 rounded font-bold">EXIT</button>
+        </header>
+        <div className="max-w-4xl mx-auto p-6">
+          <div className="bg-white rounded-xl shadow-lg p-8 text-center mb-8 border-t-4 border-green-600">
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">Total Score</h2>
+            <div className={`text-6xl font-black ${percentage >= 50 ? 'text-green-600' : 'text-red-600'}`}>
+              {score} / {questions.length}
             </div>
-            <button onClick={() => router.push('/cbt/dashboard')} className="w-full py-4 bg-gray-950 text-white rounded-2xl font-bold hover:bg-black transition-all">Back to Dashboard</button>
+            <p className="text-gray-500 mt-2 font-bold">{percentage}%</p>
+          </div>
+
+          <div className="space-y-4">
+            <h3 className="font-bold text-gray-700 uppercase tracking-widest border-b pb-2">Corrections</h3>
+            {questions.map((q, i) => {
+              const userAns = answers[q.id];
+              const isCorrect = userAns === q.correct_option;
+              return (
+                <div key={q.id} className={`p-4 border-l-4 bg-white shadow-sm ${isCorrect ? 'border-green-500' : 'border-red-500'}`}>
+                  <p className="font-bold text-gray-800 mb-2">{i+1}. {q.question_text}</p>
+                  <p className="text-sm text-gray-600">Correct Answer: <span className="font-bold text-green-700">{q.correct_option}</span></p>
+                  {!isCorrect && <p className="text-sm text-red-600">You Chose: <span className="font-bold">{userAns || "Nothing"}</span></p>}
+                  {q.explanation && <p className="text-xs text-gray-500 mt-1 italic">{q.explanation}</p>}
+                </div>
+              )
+            })}
           </div>
         </div>
       </main>
@@ -150,140 +155,121 @@ export default function ExamPage() {
   const currentQ = questions[currentQIndex];
 
   return (
-    <main className="min-h-screen bg-gray-50 flex flex-col font-sans select-none">
+    <main className="min-h-screen bg-gray-100 flex flex-col font-sans h-screen overflow-hidden">
       
-      {/* === JAMB OFFICIAL HEADER === */}
-      <header className="bg-[#15803d] text-white px-6 py-4 flex justify-between items-center shadow-md sticky top-0 z-50">
-        <div className="flex items-center gap-4">
-          <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-green-800 font-black border-2 border-green-900 shadow-sm">
+      {/* === JAMB HEADER === */}
+      <header className="bg-[#004d00] text-white px-4 py-2 flex justify-between items-center shadow-md shrink-0 z-20">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-white rounded-md flex items-center justify-center text-green-800 font-bold">
             {student?.name?.charAt(0)}
           </div>
-          <div className="hidden sm:block">
-            <h1 className="font-black text-xs uppercase tracking-tighter leading-none">{student?.name}</h1>
-            <p className="text-[10px] opacity-70 font-bold uppercase">{course?.code} TEST</p>
+          <div className="leading-tight">
+            <h1 className="font-bold text-xs uppercase">{student?.name}</h1>
+            <p className="text-[10px] opacity-80">{course.code}</p>
           </div>
         </div>
-
-        {/* CLOCK */}
-        <div className={`flex items-center gap-3 px-6 py-2 rounded-full bg-black/20 border border-white/10 font-mono text-2xl font-black ${timeLeft < 300 ? 'text-red-300 animate-pulse' : 'text-white'}`}>
-          <Clock size={20} />
-          {formatTime(timeLeft)}
+        
+        <div className="flex items-center gap-4">
+          <div className={`font-mono font-bold text-xl ${timeLeft < 300 ? 'text-red-400 animate-pulse' : 'text-white'}`}>
+            {formatTime(timeLeft)}
+          </div>
+          <button 
+            onClick={() => { if(confirm("Submit Exam?")) submitExam(); }}
+            className="bg-red-600 hover:bg-red-700 text-white px-4 py-1.5 rounded text-xs font-bold uppercase shadow-sm"
+          >
+            Submit
+          </button>
         </div>
-
-        <button 
-          onClick={() => confirm("End examination now?") && submitExam()}
-          className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-black text-xs uppercase tracking-widest shadow-lg border border-red-800 transition-all active:scale-95"
-        >
-          Submit
-        </button>
       </header>
 
+      {/* === SPLIT LAYOUT === */}
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
         
-        {/* === MAIN QUESTION AREA === */}
-        <div className="flex-1 p-4 md:p-8 overflow-y-auto bg-white">
-          <div className="max-w-3xl mx-auto">
-            <div className="flex justify-between items-center mb-10">
-              <div className="bg-gray-100 px-4 py-1 rounded-full text-[10px] font-black text-gray-500 uppercase tracking-widest">Question {currentQIndex + 1} of {questions.length}</div>
-              <div className="text-[10px] font-black text-green-700 uppercase tracking-widest">Correct: +2.0</div>
+        {/* LEFT: QUESTION PANEL */}
+        <div className="flex-1 flex flex-col bg-white md:border-r border-gray-300 relative">
+          <div className="flex-1 overflow-y-auto p-6 pb-24">
+            <div className="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
+              <span className="font-bold text-gray-500 text-sm">Question {currentQIndex + 1}</span>
+              <span className="text-xs font-bold bg-green-100 text-green-800 px-2 py-1 rounded">2 Marks</span>
             </div>
 
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={currentQIndex}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.2 }}
-              >
-                <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-10 leading-relaxed">
-                  {currentQ.question_text}
-                </h2>
+            <p className="text-lg md:text-xl font-medium text-gray-900 leading-relaxed mb-8">
+              {currentQ.question_text}
+            </p>
 
-                <div className="space-y-4">
-                  {['A','B','C','D'].map((opt) => (
-                    <button
-                      key={opt}
-                      onClick={() => handleSelect(opt)}
-                      className={`w-full text-left p-5 rounded-2xl border-2 transition-all flex items-center gap-5 group ${
-                        answers[currentQ.id] === opt 
-                          ? 'border-green-600 bg-green-50' 
-                          : 'border-gray-100 hover:border-green-200 hover:bg-gray-50'
-                      }`}
-                    >
-                      <span className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-colors ${
-                        answers[currentQ.id] === opt ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-400 group-hover:bg-green-100'
-                      }`}>
-                        {opt}
-                      </span>
-                      <span className={`text-lg font-medium ${answers[currentQ.id] === opt ? 'text-green-900' : 'text-gray-700'}`}>
-                        {currentQ[`option_${opt.toLowerCase()}`]}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </motion.div>
-            </AnimatePresence>
-
-            <div className="flex justify-between mt-12 pt-8 border-t border-gray-100">
-              <button 
-                onClick={() => setCurrentQIndex(Math.max(0, currentQIndex - 1))}
-                disabled={currentQIndex === 0}
-                className="flex items-center gap-2 px-8 py-4 rounded-2xl font-bold text-gray-400 hover:bg-gray-50 disabled:opacity-30"
-              >
-                <ChevronLeft size={20} /> Previous
-              </button>
-              <button 
-                onClick={() => setCurrentQIndex(Math.min(questions.length - 1, currentQIndex + 1))}
-                disabled={currentQIndex === questions.length - 1}
-                className="flex items-center gap-2 px-10 py-4 bg-gray-900 text-white rounded-2xl font-bold hover:bg-black transition-all active:scale-95 shadow-xl"
-              >
-                Next <ChevronRight size={20} />
-              </button>
+            <div className="space-y-3">
+              {['A','B','C','D'].map((opt) => (
+                <button
+                  key={opt}
+                  onClick={() => handleSelect(opt)}
+                  className={`w-full text-left p-4 rounded-lg border-2 transition-all flex items-center gap-4 group ${
+                    answers[currentQ.id] === opt 
+                      ? 'border-green-600 bg-green-50' 
+                      : 'border-gray-200 hover:bg-gray-50'
+                  }`}
+                >
+                  <span className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs ${
+                    answers[currentQ.id] === opt ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-600'
+                  }`}>
+                    {opt}
+                  </span>
+                  <span className="font-medium text-gray-800">{currentQ[`option_${opt.toLowerCase()}`]}</span>
+                </button>
+              ))}
             </div>
+          </div>
+
+          {/* STICKY FOOTER NAV */}
+          <div className="absolute bottom-0 left-0 w-full bg-gray-50 border-t border-gray-200 p-4 flex justify-between items-center z-10">
+            <button 
+              onClick={() => setCurrentQIndex(Math.max(0, currentQIndex - 1))}
+              disabled={currentQIndex === 0}
+              className="px-6 py-2 bg-white border border-gray-300 text-gray-700 font-bold rounded shadow-sm disabled:opacity-50"
+            >
+              Previous
+            </button>
+            <button 
+              onClick={() => setCurrentQIndex(Math.min(questions.length - 1, currentQIndex + 1))}
+              disabled={currentQIndex === questions.length - 1}
+              className="px-6 py-2 bg-green-700 text-white font-bold rounded shadow-sm hover:bg-green-800 disabled:opacity-50"
+            >
+              Next
+            </button>
           </div>
         </div>
 
-        {/* === INTELLIGENT NAVIGATION GRID === */}
-        <aside className="w-full md:w-[350px] bg-gray-50 border-l border-gray-200 flex flex-col p-6 overflow-y-auto">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
-              <Grid size={14} /> Subject Map
-            </h3>
-            <span className="text-[10px] font-bold bg-green-100 text-green-700 px-2 py-0.5 rounded">Progress: {Object.keys(answers).length}/{questions.length}</span>
+        {/* RIGHT: QUESTION MAP (Hidden on small mobile, toggleable maybe?) */}
+        <div className="hidden md:flex w-80 bg-gray-100 flex-col border-l border-gray-300">
+          <div className="p-3 bg-gray-200 border-b border-gray-300 font-bold text-gray-700 text-xs uppercase text-center">
+            Question Map
           </div>
-
-          <div className="grid grid-cols-5 gap-3">
-            {questions.map((q, i) => (
-              <button
-                key={q.id}
-                onClick={() => setCurrentQIndex(i)}
-                className={`h-12 w-full rounded-xl border-2 font-bold text-sm transition-all shadow-sm ${
-                  currentQIndex === i 
-                    ? "border-red-500 bg-red-50 text-red-700 scale-110 z-10" 
-                    : answers[q.id] 
-                      ? "border-green-600 bg-green-600 text-white" 
-                      : "border-gray-200 bg-white text-gray-400 hover:border-green-300"
-                }`}
-              >
-                {i + 1}
-              </button>
-            ))}
+          <div className="flex-1 overflow-y-auto p-4">
+            <div className="grid grid-cols-5 gap-2">
+              {questions.map((q, i) => (
+                <button
+                  key={q.id}
+                  onClick={() => setCurrentQIndex(i)}
+                  className={`h-10 w-full rounded border text-xs font-bold shadow-sm transition-all ${
+                    currentQIndex === i 
+                      ? "bg-blue-600 text-white border-blue-700 ring-2 ring-blue-200" 
+                      : answers[q.id] 
+                        ? "bg-green-600 text-white border-green-700" 
+                        : "bg-white text-gray-500 border-gray-300 hover:bg-gray-50"
+                  }`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+            </div>
           </div>
-
+          
           {/* LEGEND */}
-          <div className="mt-10 p-4 rounded-2xl bg-white border border-gray-200 space-y-3">
-            <div className="flex items-center gap-3 text-[10px] font-bold text-gray-500 uppercase">
-              <div className="w-4 h-4 bg-green-600 rounded-md"></div> Answered
-            </div>
-            <div className="flex items-center gap-3 text-[10px] font-bold text-gray-500 uppercase">
-              <div className="w-4 h-4 bg-red-50 border-2 border-red-500 rounded-md"></div> Current
-            </div>
-            <div className="flex items-center gap-3 text-[10px] font-bold text-gray-500 uppercase">
-              <div className="w-4 h-4 bg-white border-2 border-gray-200 rounded-md"></div> Untouched
-            </div>
+          <div className="p-4 bg-white border-t border-gray-200 text-[10px] grid grid-cols-2 gap-2">
+            <div className="flex items-center gap-2"><div className="w-3 h-3 bg-green-600 rounded"></div> Answered</div>
+            <div className="flex items-center gap-2"><div className="w-3 h-3 bg-blue-600 rounded"></div> Current</div>
+            <div className="flex items-center gap-2"><div className="w-3 h-3 bg-white border border-gray-400 rounded"></div> Unanswered</div>
           </div>
-        </aside>
+        </div>
 
       </div>
     </main>
