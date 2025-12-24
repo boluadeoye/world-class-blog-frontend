@@ -2,52 +2,70 @@ import pool from '../../../../../lib/db';
 
 export async function POST(req) {
   try {
-    const { name, email } = await req.json();
+    const { mode, name, email, password } = await req.json();
     
-    // 1. Email is always required
-    if (!email) {
-      return new Response(JSON.stringify({ error: "Email is required" }), { status: 400 });
+    if (!email || !password) {
+      return new Response(JSON.stringify({ error: "Email and Password are required" }), { status: 400 });
     }
 
     const client = await pool.connect();
     
-    // 2. Check if student exists
-    const check = await client.query('SELECT * FROM cbt_students WHERE password = $1 OR email = $1', [email]);
-    
-    let student;
-    
-    if (check.rows.length > 0) {
-      // === LOGIN SCENARIO ===
-      student = check.rows[0];
+    if (mode === 'login') {
+      // === STRICT LOGIN ===
+      // 1. Find user by Email ONLY
+      const res = await client.query('SELECT * FROM cbt_students WHERE email = $1', [email]);
       
-      // If name is provided during login, update it. Otherwise, keep existing name.
-      if (name) {
-        await client.query('UPDATE cbt_students SET name = $1 WHERE id = $2', [name, student.id]);
-        student.name = name;
-      }
-    } else {
-      // === REGISTER SCENARIO ===
-      // If user doesn't exist, Name is REQUIRED to create account
-      if (!name) {
+      if (res.rows.length === 0) {
         client.release();
-        return new Response(JSON.stringify({ error: "Account not found. Please Register first." }), { status: 404 });
+        return new Response(JSON.stringify({ error: "Account not found. Please register." }), { status: 404 });
       }
 
+      const student = res.rows[0];
+
+      // 2. Verify Password (Strict Comparison)
+      // Note: In a real production app, we would use bcrypt.compare() here.
+      // For this MVP, we compare the raw strings.
+      if (student.password !== password) {
+        client.release();
+        return new Response(JSON.stringify({ error: "Incorrect Password" }), { status: 401 });
+      }
+
+      client.release();
+      return new Response(JSON.stringify({ 
+        success: true, 
+        student: { id: student.id, name: student.name, email: student.email } 
+      }), { status: 200 });
+
+    } else {
+      // === REGISTRATION ===
+      if (!name) {
+        client.release();
+        return new Response(JSON.stringify({ error: "Full Name is required for registration" }), { status: 400 });
+      }
+
+      // 1. Check if email already taken
+      const check = await client.query('SELECT id FROM cbt_students WHERE email = $1', [email]);
+      if (check.rows.length > 0) {
+        client.release();
+        return new Response(JSON.stringify({ error: "Email already registered. Please login." }), { status: 409 });
+      }
+
+      // 2. Create Account
       const insert = await client.query(
         `INSERT INTO cbt_students (name, department, email, password) 
-         VALUES ($1, $2, $3, $3) 
+         VALUES ($1, $2, $3, $4) 
          RETURNING *`,
-        [name, 'General Studies', email]
+        [name, 'General Studies', email, password]
       );
-      student = insert.rows[0];
+      
+      const student = insert.rows[0];
+      client.release();
+      
+      return new Response(JSON.stringify({ 
+        success: true, 
+        student: { id: student.id, name: student.name, email: student.email } 
+      }), { status: 200 });
     }
-    
-    client.release();
-    
-    return new Response(JSON.stringify({ 
-      success: true, 
-      student: { id: student.id, name: student.name, email: student.email || student.password } 
-    }), { status: 200 });
 
   } catch (error) {
     return new Response(JSON.stringify({ error: error.message }), { status: 500 });
