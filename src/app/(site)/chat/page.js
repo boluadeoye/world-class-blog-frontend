@@ -1,5 +1,5 @@
-import ChatInterface from "../../components/chat/ChatInterface";
-import { fetchLatestArticles } from "../../lib/homeData";
+import ChatInterface from "../../../components/chat/ChatInterface";
+import { fetchLatestArticles } from "../../../lib/homeData";
 
 export const metadata = {
   title: "Digital Consciousness | Bolu Adeoye",
@@ -16,14 +16,10 @@ export default async function ChatPage() {
   } catch (e) {}
 
   return (
-    // FIXED FULL SCREEN (Mobile Safe)
     <main className="fixed inset-0 z-[99999] bg-[#050505] flex flex-col h-dvh w-full overflow-hidden">
-      
-      {/* === CRITICAL: HIDE GLOBAL HEADER === */}
       <style>{`
         header, nav, .navbar, [role="banner"] { display: none !important; }
       `}</style>
-
       <ChatInterface blogContext={blogContext} />
     </main>
   );
