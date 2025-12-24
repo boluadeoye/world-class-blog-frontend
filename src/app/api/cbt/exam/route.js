@@ -1,38 +1,55 @@
 import pool from '../../../../lib/db';
 
-// OPTIMIZATION: Cache results for 1 hour (3600 seconds)
-// This prevents the DB from crashing under high load
-export const revalidate = 3600; 
-
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
   const courseId = searchParams.get('courseId');
+  const studentId = searchParams.get('studentId');
+  const token = searchParams.get('token');
 
-  if (!courseId) return new Response("Missing Course ID", { status: 400 });
+  if (!courseId || !studentId || !token) return new Response("Missing Credentials", { status: 400 });
 
   try {
     const client = await pool.connect();
     
-    // 1. Get Course Info
+    // 1. Verify Student & Session
+    const studentRes = await client.query('SELECT * FROM cbt_students WHERE id = $1', [studentId]);
+    const student = studentRes.rows[0];
+
+    if (!student || student.session_token !== token) {
+      client.release();
+      return new Response(JSON.stringify({ error: "Session Expired. Log in again." }), { status: 401 });
+    }
+
+    // 2. Check Subscription Status
+    const isPremium = student.subscription_status === 'premium' && new Date(student.premium_expires_at) > new Date();
+    
+    // 3. Check Attempts (If Free)
+    if (!isPremium) {
+      const attemptsRes = await client.query('SELECT COUNT(*) FROM cbt_results WHERE student_id = $1 AND course_id = $2', [studentId, courseId]);
+      const attempts = parseInt(attemptsRes.rows[0].count);
+      
+      if (attempts >= 2) {
+        client.release();
+        return new Response(JSON.stringify({ error: "Free Limit Reached. Upgrade to Premium for unlimited access." }), { status: 403 });
+      }
+    }
+
+    // 4. Fetch Content
     const courseRes = await client.query('SELECT * FROM cbt_courses WHERE id = $1', [courseId]);
     
-    // 2. Get Questions
-    // Note: RANDOM() breaks caching efficiency, but for a mock exam it's okay.
-    // For a strict exam, we would remove RANDOM() to ensure everyone gets the same cached set.
-    const questionsRes = await client.query('SELECT * FROM cbt_questions WHERE course_id = $1 ORDER BY RANDOM() LIMIT 50', [courseId]);
+    // Free users get 30 questions, Premium get 50 (or all)
+    const limit = isPremium ? 100 : 30;
+    const questionsRes = await client.query('SELECT * FROM cbt_questions WHERE course_id = $1 ORDER BY RANDOM() LIMIT $2', [courseId, limit]);
     
     client.release();
     
     return new Response(JSON.stringify({
       course: courseRes.rows[0],
-      questions: questionsRes.rows
-    }), { 
-      status: 200,
-      headers: {
-        'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=59'
-      }
-    });
+      questions: questionsRes.rows,
+      isPremium
+    }), { status: 200 });
+
   } catch (error) {
-    return new Response(error.message, { status: 500 });
+    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
   }
 }
