@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Plus, BookOpen, LogOut, Clock } from "lucide-react";
+import { Plus, BookOpen, LogOut, Clock, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -126,7 +126,7 @@ export default function AdminDashboard() {
             <div className="grid gap-4">
               {courses.map((course) => (
                 <Link key={course.id} href={`/cbt/admin/course/${course.id}`} className="block bg-white p-5 rounded-lg shadow-sm border border-gray-200 hover:border-green-500 hover:shadow-md transition-all group">
-                  <div className="flex justify-between items-center">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
                       <div className="flex items-center gap-3 mb-1">
                         <span className="bg-green-100 text-green-800 text-xs font-bold px-2 py-1 rounded border border-green-200">{course.code}</span>
@@ -135,7 +135,9 @@ export default function AdminDashboard() {
                       </div>
                       <h3 className="font-bold text-lg text-gray-800 group-hover:text-green-700 transition-colors">{course.title}</h3>
                     </div>
-                    <div className="text-gray-400 group-hover:text-green-600">Manage →</div>
+                    <div className="text-gray-400 group-hover:text-green-600 text-sm font-bold flex items-center gap-1 whitespace-nowrap">
+                      Manage <ArrowRight size={16} />
+                    </div>
                   </div>
                 </Link>
               ))}
