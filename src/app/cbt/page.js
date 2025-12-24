@@ -72,9 +72,7 @@ export default function StudentLogin() {
 
       if (res.ok) {
         sessionStorage.setItem("cbt_student", JSON.stringify(data.student));
-        // Show Welcome Animation
         setShowWelcome(true);
-        // Delay redirect to let them see the beauty
         setTimeout(() => {
           router.push("/cbt/dashboard");
         }, 2500);
@@ -89,7 +87,7 @@ export default function StudentLogin() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center p-6 bg-[#f8fafc] font-sans relative overflow-hidden">
+    <main className="min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-br from-green-50 via-white to-green-50 font-sans relative overflow-hidden">
       
       {/* Background Decor */}
       <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-green-200/30 rounded-full blur-[100px] pointer-events-none"></div>
@@ -109,8 +107,11 @@ export default function StudentLogin() {
           <div className="inline-flex p-4 bg-white rounded-2xl shadow-xl shadow-green-900/5 mb-4 border border-green-50">
             <GraduationCap size={36} className="text-green-700" />
           </div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight mb-1">FUOYE CBT</h1>
-          <p className="text-slate-500 font-medium text-sm">Secure Examination Portal</p>
+          <h1 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight mb-1 uppercase leading-tight">
+            FUOYE CBT <br/>
+            <span className="text-green-700">MOCK EXAMINATIONS 2026</span>
+          </h1>
+          <p className="text-slate-500 font-medium text-sm mt-2">Secure Examination Portal</p>
         </div>
 
         {/* Smart Card */}
@@ -222,7 +223,6 @@ export default function StudentLogin() {
         </div>
         
         <div className="mt-8 flex justify-center gap-4 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
-           {/* Subtle branding footer */}
            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Secure • Fast • Reliable</p>
         </div>
       </motion.div>
