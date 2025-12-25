@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-// STRICTLY USING ONLY THE ICONS PROVEN TO WORK
+// STRICTLY SAFE ICONS ONLY (No ShieldAlert, No Lock, No Clock)
 import { Grid, CheckCircle, AlertOctagon, X, Crown, Sparkles, BrainCircuit } from "lucide-react";
 import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";
@@ -14,6 +14,7 @@ const UpgradeModal = dynamic(() => import("../../../../components/cbt/UpgradeMod
 function MalpracticeOverlay({ count }) {
   return (
     <div className="fixed inset-0 z-[999] bg-red-950/95 flex flex-col items-center justify-center text-white animate-pulse select-none">
+      {/* FIXED: Used AlertOctagon instead of ShieldAlert */}
       <AlertOctagon size={80} className="mb-6 text-red-500" />
       <h2 className="text-5xl font-black uppercase tracking-[0.2em] text-center mb-2">VIOLATION</h2>
       <div className="bg-red-900/50 border border-red-500 px-6 py-2 rounded font-mono text-xl">
