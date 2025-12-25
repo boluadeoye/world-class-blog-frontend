@@ -1,12 +1,12 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-// STRICT SAFE LIST ONLY - NO NEW ICONS
+// SAFE ICONS ONLY - MATCHING YOUR WORKING PROTOTYPE
 import { Grid, CheckCircle, AlertOctagon, X, Crown, Sparkles, BrainCircuit } from "lucide-react";
 import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";
 
-// RELATIVE IMPORT (STABLE)
+// RELATIVE IMPORT
 const UpgradeModal = dynamic(() => import("../../../../components/cbt/UpgradeModal"), { ssr: false });
 
 /* === TACTICAL COMPONENTS === */
@@ -249,6 +249,7 @@ export default function ExamPage() {
     return (
       <main className="min-h-screen bg-gray-50 font-sans pb-20 select-none">
         <header className="bg-[#004d00] text-white p-5 shadow-lg flex justify-between items-center sticky top-0 z-50 border-b-4 border-green-600">
+          {/* REPLACED ShieldAlert WITH AlertOctagon */}
           <h1 className="font-black tracking-tight flex items-center gap-2"><AlertOctagon size={18} /> SESSION REPORT</h1>
           <button onClick={() => router.push('/cbt/dashboard')} className="text-xs bg-white text-green-900 px-5 py-2 rounded-none font-black hover:bg-green-50 transition-colors uppercase tracking-widest">Exit Console</button>
         </header>
