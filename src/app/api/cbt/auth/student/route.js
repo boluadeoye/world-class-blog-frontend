@@ -5,7 +5,7 @@ export async function POST(req) {
     const { mode, name, email, password } = await req.json();
     const client = await pool.connect();
     
-    // Generate a random session token
+    // 1. Generate a NEW Session Token (This invalidates all old sessions)
     const sessionToken = Math.random().toString(36).substring(2) + Date.now().toString(36);
 
     if (mode === 'login') {
@@ -15,18 +15,19 @@ export async function POST(req) {
         return new Response(JSON.stringify({ error: "Account not found." }), { status: 404 });
       }
       const student = res.rows[0];
+      
       if (student.password !== password) {
         client.release();
         return new Response(JSON.stringify({ error: "Incorrect Password" }), { status: 401 });
       }
 
-      // UPDATE SESSION TOKEN (Kicks out other devices)
+      // CRITICAL: Overwrite the old token in the DB
       await client.query('UPDATE cbt_students SET session_token = $1 WHERE id = $2', [sessionToken, student.id]);
       
       client.release();
       return new Response(JSON.stringify({ 
         success: true, 
-        student: { ...student, session_token: sessionToken } // Send token to frontend
+        student: { ...student, session_token: sessionToken } 
       }), { status: 200 });
 
     } else {

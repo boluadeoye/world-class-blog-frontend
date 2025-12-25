@@ -1,4 +1,4 @@
-import pool from '../../../../lib/db'; // 4 levels up
+import pool from '../../../../lib/db';
 
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
@@ -6,44 +6,50 @@ export async function GET(req) {
   const studentId = searchParams.get('studentId');
   const token = searchParams.get('token');
 
-  if (!courseId) return new Response(JSON.stringify({ error: "Missing Course ID" }), { status: 400 });
+  // 1. STRICT INPUT VALIDATION
+  if (!courseId || !studentId || !token) {
+    return new Response(JSON.stringify({ error: "Security Violation: Missing Credentials" }), { status: 400 });
+  }
 
   try {
     const client = await pool.connect();
     
-    // 1. SECURITY CHECK: Verify Session
-    // If studentId/token are missing (legacy frontend), we skip this check for now to prevent crashes,
-    // but in production, this blocks unauthorized access.
-    let isPremium = false;
+    // 2. STRICT SESSION CHECK
+    // Fetch the student's CURRENT token from the DB
+    const studentRes = await client.query('SELECT session_token, subscription_status, premium_expires_at FROM cbt_students WHERE id = $1', [studentId]);
     
-    if (studentId && token) {
-      const studentRes = await client.query('SELECT * FROM cbt_students WHERE id = $1', [studentId]);
-      const student = studentRes.rows[0];
+    if (studentRes.rows.length === 0) {
+      client.release();
+      return new Response(JSON.stringify({ error: "Student not found" }), { status: 404 });
+    }
 
-      if (!student || student.session_token !== token) {
-        client.release();
-        return new Response(JSON.stringify({ error: "Session Expired. You are logged in on another device." }), { status: 401 });
-      }
+    const student = studentRes.rows[0];
 
-      // 2. CHECK PREMIUM STATUS
-      isPremium = student.subscription_status === 'premium' && new Date(student.premium_expires_at) > new Date();
+    // COMPARE: Does the token from the phone match the token in the DB?
+    if (student.session_token !== token) {
+      client.release();
+      // This is the "Kick Out" logic
+      return new Response(JSON.stringify({ error: "Session Expired. You are logged in on another device." }), { status: 401 });
+    }
+
+    // 3. CHECK PREMIUM STATUS
+    const isPremium = student.subscription_status === 'premium' && new Date(student.premium_expires_at) > new Date();
+    
+    // 4. FREE USER LIMITS
+    if (!isPremium) {
+      const attemptsRes = await client.query('SELECT COUNT(*) FROM cbt_results WHERE student_id = $1 AND course_id = $2', [studentId, courseId]);
+      const attempts = parseInt(attemptsRes.rows[0].count);
       
-      // 3. FREE USER LIMITS
-      if (!isPremium) {
-        const attemptsRes = await client.query('SELECT COUNT(*) FROM cbt_results WHERE student_id = $1 AND course_id = $2', [studentId, courseId]);
-        const attempts = parseInt(attemptsRes.rows[0].count);
-        
-        if (attempts >= 2) {
-          client.release();
-          return new Response(JSON.stringify({ error: "Free Limit Reached (2 Attempts). Upgrade to Premium for unlimited access." }), { status: 403 });
-        }
+      if (attempts >= 2) {
+        client.release();
+        return new Response(JSON.stringify({ error: "Free Limit Reached (2 Attempts). Upgrade to Premium." }), { status: 403 });
       }
     }
 
-    // 4. FETCH CONTENT
+    // 5. FETCH CONTENT
     const courseRes = await client.query('SELECT * FROM cbt_courses WHERE id = $1', [courseId]);
     
-    // Free users get 30 questions, Premium get 50 (or all)
+    // Limit questions for free users
     const limit = isPremium ? 100 : 30;
     const questionsRes = await client.query('SELECT * FROM cbt_questions WHERE course_id = $1 ORDER BY RANDOM() LIMIT $2', [courseId, limit]);
     
