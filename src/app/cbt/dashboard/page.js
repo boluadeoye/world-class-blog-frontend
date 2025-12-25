@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { BookOpen, Clock, AlertTriangle, LogOut, User, ChevronDown, ChevronUp, ShieldAlert } from "lucide-react";
+import { BookOpen, Clock, AlertTriangle, LogOut, ChevronDown, ChevronUp, ShieldAlert } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -42,29 +42,50 @@ export default function StudentDashboard() {
 
   if (!student) return null;
 
+  // Generate a consistent premium avatar based on name
+  const avatarUrl = `https://api.dicebear.com/9.x/micah/svg?seed=${student.name}&backgroundColor=f0fdf4&radius=50`;
+
   return (
-    <main className="min-h-screen bg-gray-50 font-sans text-gray-900 p-4 md:p-8">
+    <main className="min-h-screen bg-[#f8fafc] font-sans text-gray-900">
       
-      {/* === HEADER === */}
-      <header className="bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center sticky top-0 z-20 rounded-2xl shadow-sm mb-8">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center text-green-700 font-black border-2 border-green-100 text-lg shadow-inner">
-            {student.name.charAt(0)}
+      {/* === PREMIUM APP HEADER (Full Width) === */}
+      <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-gray-200 px-6 py-3 flex justify-between items-center">
+        
+        {/* Logo Area */}
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center text-white font-black text-xs shadow-lg shadow-green-600/20">
+            F
           </div>
-          <div>
-            <h1 className="text-base font-bold text-gray-900 leading-tight">{student.name}</h1>
-            <p className="text-xs text-gray-500 font-medium">{student.email}</p>
-          </div>
+          <span className="font-black text-lg tracking-tight text-slate-900 hidden sm:block">
+            FUOYE<span className="text-green-600">CBT</span>
+          </span>
         </div>
-        <button 
-          onClick={handleLogout}
-          className="text-xs font-bold text-red-600 hover:text-red-800 uppercase tracking-wider flex items-center gap-2 bg-red-50 px-4 py-2 rounded-lg hover:bg-red-100 transition-colors"
-        >
-          <LogOut size={14} /> Logout
-        </button>
+
+        {/* User Profile Pill */}
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 bg-gray-50 pl-4 pr-1 py-1 rounded-full border border-gray-200 shadow-sm">
+            <div className="text-right hidden md:block">
+              <p className="text-xs font-bold text-gray-900 leading-none">{student.name}</p>
+              <p className="text-[10px] text-gray-500 font-medium uppercase tracking-wide">Student</p>
+            </div>
+            <img 
+              src={avatarUrl} 
+              alt="Profile" 
+              className="w-9 h-9 rounded-full bg-white border border-gray-200 shadow-sm"
+            />
+          </div>
+          
+          <button 
+            onClick={handleLogout}
+            className="p-2 text-gray-400 hover:text-red-600 transition-colors"
+            title="Logout"
+          >
+            <LogOut size={20} />
+          </button>
+        </div>
       </header>
 
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-6xl mx-auto p-6 md:p-8">
         
         {/* === INTELLIGENT RULES (Collapsible) === */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-10">
@@ -72,8 +93,8 @@ export default function StudentDashboard() {
             onClick={() => setShowRules(!showRules)}
             className="w-full flex items-center justify-between p-6 hover:bg-gray-50 transition-colors"
           >
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-yellow-100 text-yellow-700 rounded-lg">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center border border-amber-100">
                 <ShieldAlert size={20} />
               </div>
               <div className="text-left">
@@ -90,9 +111,9 @@ export default function StudentDashboard() {
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: "auto", opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
-                className="border-t border-gray-100 bg-yellow-50/50"
+                className="border-t border-gray-100 bg-amber-50/30"
               >
-                <ul className="p-6 pl-12 list-disc text-sm text-gray-700 space-y-2">
+                <ul className="p-6 pl-16 list-disc text-sm text-gray-700 space-y-2">
                   <li><strong>Zero Tolerance:</strong> Switching tabs is recorded as malpractice. 3 strikes = Auto-Submit.</li>
                   <li><strong>Timer:</strong> The clock starts immediately. It cannot be paused.</li>
                   <li><strong>Submission:</strong> Ensure you click "Submit" before time runs out. Auto-submit occurs at 00:00.</li>
