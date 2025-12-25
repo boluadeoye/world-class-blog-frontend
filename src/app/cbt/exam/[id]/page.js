@@ -1,16 +1,15 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-// FULL TACTICAL ICON SET
+// FIX: ALL ICONS USED IN JSX ARE NOW IMPORTED
 import { 
   Grid, CheckCircle, AlertOctagon, X, Crown, Sparkles, 
-  BrainCircuit, ShieldAlert, Lock, Clock, Terminal, Zap, 
-  ChevronRight, ChevronLeft 
+  BrainCircuit, ShieldAlert, Lock, Clock 
 } from "lucide-react";
 import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";
 
-// RELATIVE IMPORT (STABILITY GUARANTEED)
+// RELATIVE IMPORT
 const UpgradeModal = dynamic(() => import("../../../../components/cbt/UpgradeModal"), { ssr: false });
 
 /* === TACTICAL COMPONENTS === */
@@ -34,7 +33,7 @@ function ConfirmModal({ isOpen, title, message, onConfirm, onCancel, type = "war
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
       <div className="bg-white rounded-none border-l-4 border-green-600 shadow-2xl max-w-sm w-full overflow-hidden">
         <div className={`p-4 ${type === 'danger' ? 'bg-red-600' : 'bg-[#004d00]'} text-white font-bold flex items-center gap-3 uppercase tracking-wider text-sm`}>
-          {type === 'danger' ? <AlertOctagon size={18} /> : <Terminal size={18} />}
+          {type === 'danger' ? <AlertOctagon size={18} /> : <ShieldAlert size={18} />}
           {title}
         </div>
         <div className="p-8 bg-gray-50">
@@ -244,7 +243,7 @@ export default function ExamPage() {
 
   if (!mounted) return null;
   if (showUpgrade) return <div className="min-h-screen flex items-center justify-center bg-white"><UpgradeModal student={student} onClose={() => router.push('/cbt/dashboard')} onSuccess={() => window.location.reload()} /></div>;
-  if (loading) return <div className="min-h-screen flex flex-col items-center justify-center bg-gray-900 text-green-500 font-mono font-bold text-xl tracking-widest"><Terminal className="animate-pulse mb-4" size={48} />INITIALIZING_IRON_MODE...</div>;
+  if (loading) return <div className="min-h-screen flex flex-col items-center justify-center bg-gray-900 text-green-500 font-mono font-bold text-xl tracking-widest"><ShieldAlert className="animate-pulse mb-4" size={48} />INITIALIZING_IRON_MODE...</div>;
   if (error) return <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6 text-center text-red-600 font-bold gap-4"><p>{error}</p><button onClick={() => window.location.reload()} className="bg-gray-900 text-white px-6 py-2 rounded-full">Retry</button></div>;
 
   // === RESULT VIEW ===
@@ -406,7 +405,7 @@ export default function ExamPage() {
               disabled={currentQIndex === 0} 
               className="flex items-center gap-2 px-6 py-3 font-black text-gray-400 hover:text-[#004d00] disabled:opacity-30 disabled:hover:text-gray-400 transition-colors uppercase tracking-widest text-xs"
             >
-              <ChevronLeft size={16} /> Previous
+              [ PREV ]
             </button>
             
             <button 
@@ -414,7 +413,7 @@ export default function ExamPage() {
               disabled={isLastQuestion} 
               className={`flex items-center gap-2 px-8 py-3 font-black uppercase tracking-widest text-xs transition-all shadow-lg border-b-4 active:border-b-0 active:translate-y-1 ${isLastQuestion ? 'bg-gray-100 text-gray-400 border-gray-200' : 'bg-[#004d00] text-white border-green-900 hover:bg-green-900'}`}
             >
-              Next <ChevronRight size={16} />
+              [ NEXT ]
             </button>
           </div>
         </div>
