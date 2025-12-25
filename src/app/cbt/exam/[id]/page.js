@@ -13,33 +13,43 @@ export default function ExamPage() {
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  // Exam State
   const [currentQIndex, setCurrentQIndex] = useState(0);
-  const [showMobileMap, setShowMobileMap] = useState(false);
-
-  // Functional State
   const [answers, setAnswers] = useState({}); 
   const [timeLeft, setTimeLeft] = useState(null); 
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [score, setScore] = useState(0);
   
+  // Malpractice State
+  const [strikes, setStrikes] = useState(0);
+  const [showWarning, setShowWarning] = useState(false);
+  const [showMobileMap, setShowMobileMap] = useState(false);
+
   // Persistence Key
   const getStorageKey = (email) => `cbt_session_${params.id}_${email}`;
 
-  // 1. Initialize Exam
+  // 1. Initialize Exam (Safe Client-Side Only)
   useEffect(() => {
+    // Prevent Server-Side Execution
+    if (typeof window === 'undefined') return;
+
     const studentData = sessionStorage.getItem("cbt_student");
-    if (!studentData) { router.push("/cbt"); return; }
+    if (!studentData) { 
+      router.push("/cbt"); 
+      return; 
+    }
+    
     const parsedStudent = JSON.parse(studentData);
     setStudent(parsedStudent);
 
     async function loadExam() {
       try {
         // === SECURITY HANDSHAKE ===
-        // We send the ID and Token to verify identity and check limits
         const query = new URLSearchParams({
           courseId: params.id,
           studentId: parsedStudent.id,
-          token: parsedStudent.session_token
+          token: parsedStudent.session_token || "" // Handle missing token gracefully
         });
 
         const res = await fetch(`/api/cbt/exam?${query.toString()}`);
@@ -52,7 +62,7 @@ export default function ExamPage() {
         }
 
         if (res.status === 403) {
-          setError(data.error); // Show "Limit Reached" message
+          setError(data.error);
           setLoading(false);
           return;
         }
@@ -62,7 +72,7 @@ export default function ExamPage() {
         setCourse(data.course);
         setQuestions(data.questions);
 
-        // Restore State or Set New Time
+        // Restore State
         const savedSession = localStorage.getItem(getStorageKey(parsedStudent.email));
         if (savedSession) {
           const session = JSON.parse(savedSession);
@@ -107,6 +117,27 @@ export default function ExamPage() {
     return () => clearInterval(interval);
   }, [loading, isSubmitted, error, timeLeft, answers, currentQIndex]);
 
+  // 3. Malpractice Detector
+  useEffect(() => {
+    if (isSubmitted || loading || error) return;
+    
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        const newStrikes = strikes + 1;
+        setStrikes(newStrikes);
+        setShowWarning(true);
+        setTimeout(() => setShowWarning(false), 3000);
+        if (newStrikes >= 3) {
+          alert("Maximum malpractice strikes reached. Exam auto-submitted.");
+          submitExam();
+        }
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, [strikes, isSubmitted, loading, error]);
+
   const handleSelect = (option) => {
     if (isSubmitted) return;
     const qId = questions[currentQIndex].id;
@@ -141,9 +172,9 @@ export default function ExamPage() {
     return "bg-white text-gray-500 border-gray-300 hover:bg-gray-50";
   };
 
+  // === LOADING / ERROR STATES ===
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-white text-green-800 font-bold">Verifying Access...</div>;
   
-  // === ERROR VIEW (Limit Reached) ===
   if (error) return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6 text-center">
       <div className="bg-red-100 p-4 rounded-full mb-4 text-red-600">
