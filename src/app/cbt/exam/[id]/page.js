@@ -9,8 +9,8 @@ import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";
 import { motion, AnimatePresence } from "framer-motion";
 
-// Dynamic import using Absolute Alias for safety
-const UpgradeModal = dynamic(() => import("@/components/cbt/UpgradeModal"), { ssr: false });
+// FIX: Revert to Relative Import (Proven Stability)
+const UpgradeModal = dynamic(() => import("../../../../components/cbt/UpgradeModal"), { ssr: false });
 
 /* === SECURITY & UI COMPONENTS === */
 
@@ -29,11 +29,7 @@ function ConfirmModal({ isOpen, title, message, onConfirm, onCancel, type = "war
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
-      <motion.div 
-        initial={{ scale: 0.9, opacity: 0 }} 
-        animate={{ scale: 1, opacity: 1 }}
-        className="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden border-t-4 border-green-600"
-      >
+      <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden border-t-4 border-green-600 animate-in fade-in zoom-in duration-200">
         <div className="p-6 text-center">
           <div className={`mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4 ${type === 'danger' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
             {type === 'danger' ? <AlertOctagon size={32} /> : <CheckCircle size={32} />}
@@ -47,7 +43,7 @@ function ConfirmModal({ isOpen, title, message, onConfirm, onCancel, type = "war
             {type === 'danger' ? "End Exam" : "Confirm"}
           </button>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }
@@ -147,7 +143,7 @@ export default function ExamPage() {
         if (!res.ok) throw new Error(data.error || "Failed to load");
 
         setCourse(data.course);
-        // FIX: Ensure questions is always an array
+        // Safety: Ensure questions is an array
         setQuestions(Array.isArray(data.questions) ? data.questions : []);
         setIsPremium(data.isPremium);
 
@@ -170,7 +166,7 @@ export default function ExamPage() {
     loadExam();
   }, [params.id, router, getStorageKey]);
 
-  // 4. Submission Logic
+  // 4. Submit Logic
   const submitExam = useCallback(() => {
     setIsSubmitted(true);
     let correctCount = 0;
@@ -183,7 +179,7 @@ export default function ExamPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [questions, answers, student, getStorageKey]);
 
-  // 5. Timer & Auto-Save
+  // 5. Timer
   useEffect(() => {
     if (!mounted || loading || isSubmitted || error || timeLeft === null || showUpgrade || isFrozen) return;
     const interval = setInterval(() => {
@@ -201,7 +197,7 @@ export default function ExamPage() {
     return () => clearInterval(interval);
   }, [loading, isSubmitted, error, timeLeft, showUpgrade, mounted, answers, currentQIndex, student, getStorageKey, submitExam, isFrozen]);
 
-  // 6. Keyboard Navigation
+  // 6. Keyboard Nav
   useEffect(() => {
     if (isSubmitted || loading) return;
     const handleKeyNav = (e) => {
@@ -259,7 +255,7 @@ export default function ExamPage() {
     finally { setAnalyzing(false); }
   };
 
-  // Render Helpers
+  // Render
   if (!mounted) return null;
   if (showUpgrade) return <div className="min-h-screen flex items-center justify-center bg-white"><UpgradeModal student={student} onClose={() => router.push('/cbt/dashboard')} onSuccess={() => window.location.reload()} /></div>;
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-gray-900 text-green-500 font-mono font-bold text-xl tracking-widest">SYSTEM BOOT_SEQUENCE...</div>;
@@ -341,9 +337,7 @@ export default function ExamPage() {
   }
 
   // === EXAM VIEW ===
-  // FIX: Safe access to currentQ
   const currentQ = Array.isArray(questions) ? questions[currentQIndex] : null;
-  // FIX: Safe calculation of isLastQuestion
   const isLastQuestion = Array.isArray(questions) && questions.length > 0 && currentQIndex === questions.length - 1;
 
   if (!currentQ) return <div className="h-screen flex items-center justify-center bg-white font-bold">Synchronizing...</div>;
@@ -353,7 +347,7 @@ export default function ExamPage() {
       {isFrozen && <MalpracticeOverlay count={malpracticeCount} />}
       <ConfirmModal isOpen={modalConfig.show} title={modalConfig.title} message={modalConfig.message} type={modalConfig.type} onConfirm={modalConfig.action} onCancel={() => setModalConfig({ ...modalConfig, show: false })} />
 
-      {/* HEADER: JAMB STYLE */}
+      {/* HEADER */}
       <header className="bg-[#004d00] text-white h-16 flex justify-between items-center shadow-2xl shrink-0 z-[160] px-4 border-b-4 border-green-600">
         <div className="flex items-center gap-4">
           <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-[#004d00] font-black text-lg shadow-inner">
