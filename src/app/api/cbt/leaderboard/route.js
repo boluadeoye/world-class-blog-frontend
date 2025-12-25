@@ -1,11 +1,10 @@
-import pool from '../../../../../lib/db';
+import pool from '../../../../lib/db'; // Fixed: 4 levels up
 
 export async function GET() {
   try {
     const client = await pool.connect();
     
     // Get Top 10 Scores across all courses
-    // In a real app, we would filter by course_id
     const res = await client.query(`
       SELECT s.name, s.department, r.score, r.total_questions, c.code 
       FROM cbt_results r
