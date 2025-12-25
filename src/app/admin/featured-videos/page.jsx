@@ -1,168 +1,124 @@
 "use client";
+import { useEffect, useState } from "react";
+import { Trash2, Star, StarOff, Eye, EyeOff, Save, Plus } from "lucide-react";
 
-import { useEffect, useMemo, useState } from "react";
-import { QueryClient, QueryClientProvider, useMutation, useQuery } from "@tanstack/react-query";
-import { useLogin, useLogout } from "../../../lib/apiClient";
-import { listVideos, createVideo, togglePublish, toggleFeature, deleteVideo, updateVideo } from "../../../lib/featuredVideos";
-import { Trash2, Star, StarOff, Eye, EyeOff, Save } from "lucide-react";
+export default function FeaturedVideos() {
+  const [videos, setVideos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [newVideo, setNewVideo] = useState({ title: "", youtubeUrl: "" });
 
-function parseErr(e) {
-  return e?.data?.error || e?.message || "Request failed";
-}
-
-function VideoRow({ v, onChange, onDelete }) {
-  const meta = v?.meta || {};
-  const [title, setTitle] = useState(v?.title || "");
-  const [url, setUrl] = useState(meta.youtubeUrl || "");
-  const [caption, setCaption] = useState(meta.caption || "");
-  const [start, setStart] = useState(meta.start || "");
-
-  const mSave = useMutation({
-    mutationFn: async () => updateVideo(v.id, { title, url, caption, start }),
-    onSuccess: onChange,
-  });
-  const mPub = useMutation({ mutationFn: (p) => togglePublish(v.id, p), onSuccess: onChange });
-  const mFeat = useMutation({ mutationFn: (f) => toggleFeature(v.id, f), onSuccess: onChange });
-  const mDel = useMutation({ mutationFn: () => deleteVideo(v.id), onSuccess: onDelete });
-
-  const featured = Array.isArray(v?.tags) && v.tags.includes("home-featured");
-
-  return (
-    <div className="adm-card">
-      <div className="flex flex-col gap-2 md:grid md:grid-cols-2">
-        <div>
-          <label className="adm-label">Title</label>
-          <input className="adm-input" value={title} onChange={(e)=>setTitle(e.target.value)} />
-        </div>
-        <div>
-          <label className="adm-label">YouTube URL</label>
-          <input className="adm-input" value={url} onChange={(e)=>setUrl(e.target.value)} placeholder="https://youtu.be/..." />
-        </div>
-        <div>
-          <label className="adm-label">Caption</label>
-          <input className="adm-input" value={caption} onChange={(e)=>setCaption(e.target.value)} />
-        </div>
-        <div>
-          <label className="adm-label">Start (e.g., 90 or 1m30s)</label>
-          <input className="adm-input" value={start} onChange={(e)=>setStart(e.target.value)} />
-        </div>
-      </div>
-
-      <div className="mt-2 flex flex-wrap gap-2">
-        <button className="adm-btn" onClick={()=>mSave.mutate()} disabled={mSave.isLoading}>
-          <Save size={16} /> Save
-        </button>
-        <button className="adm-btn" onClick={()=>mPub.mutate(!v.published)} disabled={mPub.isLoading}>
-          {v.published ? <EyeOff size={16}/> : <Eye size={16}/>} {v.published ? "Unpublish" : "Publish"}
-        </button>
-        <button className="adm-btn" onClick={()=>mFeat.mutate(!featured)} disabled={mFeat.isLoading}>
-          {featured ? <StarOff size={16}/> : <Star size={16}/>} {featured ? "Unfeature" : "Feature on Home"}
-        </button>
-        <button className="adm-btn danger" onClick={()=>{ if (confirm("Delete this video?")) mDel.mutate(); }} disabled={mDel.isLoading}>
-          <Trash2 size={16}/> Delete
-        </button>
-      </div>
-
-      {(mSave.isError || mPub.isError || mFeat.isError || mDel.isError) && (
-        <div className="adm-error mt-2">Error: {parseErr(mSave.error || mPub.error || mFeat.error || mDel.error)}</div>
-      )}
-    </div>
-  );
-}
-
-function AdminPageInner() {
-  const [needAuth, setNeedAuth] = useState(false);
-  const [form, setForm] = useState({ title: "", url: "", caption: "", start: "", featured: true, published: true });
-
-  const q = useQuery({
-    queryKey: ["videos"],
-    queryFn: () => listVideos(50, true),
-    retry: false,
-  });
+  // Fetch Videos
+  const fetchVideos = async () => {
+    try {
+      const res = await fetch("/api/proxy/videos");
+      const data = await res.json();
+      setVideos(Array.isArray(data) ? data : []);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    if (q.isError && q.error?.status === 401) setNeedAuth(true);
-  }, [q.isError, q.error]);
+    fetchVideos();
+  }, []);
 
-  const login = useLogin();
-  const logout = useLogout();
+  // Create Video
+  const handleCreate = async (e) => {
+    e.preventDefault();
+    await fetch("/api/proxy/videos", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newVideo),
+    });
+    setNewVideo({ title: "", youtubeUrl: "" });
+    fetchVideos();
+  };
 
-  const createMut = useMutation({
-    mutationFn: () => createVideo(form),
-    onSuccess: () => {
-      setForm({ title: "", url: "", caption: "", start: "", featured: true, published: true });
-      q.refetch();
-    },
-  });
+  // Delete Video
+  const handleDelete = async (id) => {
+    if (!confirm("Delete this video?")) return;
+    await fetch(`/api/proxy/videos/${id}`, { method: "DELETE" });
+    fetchVideos();
+  };
 
-  if (needAuth) {
-    let pw = "";
-    return (
-      <div className="mx-auto max-w-4xl p-4">
-        <div className="adm-card">
-          <h1 className="text-lg font-semibold text-slate-50 mb-2">Admin Login</h1>
-          <input type="password" className="adm-input" placeholder="Admin password" onChange={(e)=>{pw=e.target.value}} />
-          <div className="mt-2 flex gap-2">
-            <button className="adm-btn" onClick={()=>login.mutate({ password: pw }, { onSuccess: ()=>{ setNeedAuth(false); q.refetch(); } })}>Login</button>
-          </div>
-          {login.isError && <div className="adm-error mt-2">Login failed: {parseErr(login.error)}</div>}
-        </div>
-      </div>
-    );
-  }
+  // Toggle Publish
+  const togglePublish = async (video) => {
+    await fetch(`/api/proxy/videos/${video.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ is_published: !video.is_published }),
+    });
+    fetchVideos();
+  };
+
+  // Toggle Feature
+  const toggleFeature = async (video) => {
+    await fetch(`/api/proxy/videos/${video.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ is_featured: !video.is_featured }),
+    });
+    fetchVideos();
+  };
+
+  if (loading) return <div className="p-8 text-slate-500">Loading videos...</div>;
 
   return (
-    <div className="mx-auto max-w-5xl p-4">
-      <div className="flex items-center justify-between mb-3">
-        <h1 className="text-xl font-bold text-slate-50">Featured Videos (Admin)</h1>
-        <button className="adm-btn" onClick={()=>logout.mutate(null, { onSuccess: ()=>{ setNeedAuth(true);} })}>Logout</button>
-      </div>
+    <div className="space-y-8">
+      <header>
+        <h1 className="text-2xl font-bold text-white">Featured Videos</h1>
+        <p className="text-slate-400 text-sm">Manage your "On Air" content.</p>
+      </header>
 
-      {/* Create new */}
-      <div className="adm-card">
-        <h2 className="text-lg font-semibold text-slate-100 mb-2">New Video</h2>
-        <div className="grid md:grid-cols-2 gap-2">
-          <input className="adm-input" placeholder="Title" value={form.title} onChange={(e)=>setForm({...form, title:e.target.value})} />
-          <input className="adm-input" placeholder="YouTube URL" value={form.url} onChange={(e)=>setForm({...form, url:e.target.value})} />
-          <input className="adm-input" placeholder="Caption (optional)" value={form.caption} onChange={(e)=>setForm({...form, caption:e.target.value})} />
-          <input className="adm-input" placeholder="Start (e.g., 90 or 1m30s)" value={form.start} onChange={(e)=>setForm({...form, start:e.target.value})} />
+      {/* Add Form */}
+      <form onSubmit={handleCreate} className="bg-slate-900 p-6 rounded-xl border border-white/10 flex gap-4 items-end">
+        <div className="flex-1">
+          <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Title</label>
+          <input 
+            className="w-full bg-slate-950 border border-white/10 rounded-lg px-4 py-2 text-white"
+            value={newVideo.title}
+            onChange={(e) => setNewVideo({...newVideo, title: e.target.value})}
+            required
+          />
         </div>
-        <div className="mt-2 flex flex-wrap gap-3">
-          <label className="adm-check"><input type="checkbox" checked={form.featured} onChange={(e)=>setForm({...form, featured:e.target.checked})}/> Feature on Home</label>
-          <label className="adm-check"><input type="checkbox" checked={form.published} onChange={(e)=>setForm({...form, published:e.target.checked})}/> Published</label>
+        <div className="flex-1">
+          <label className="block text-xs font-bold text-slate-500 uppercase mb-1">YouTube URL</label>
+          <input 
+            className="w-full bg-slate-950 border border-white/10 rounded-lg px-4 py-2 text-white"
+            value={newVideo.youtubeUrl}
+            onChange={(e) => setNewVideo({...newVideo, youtubeUrl: e.target.value})}
+            required
+          />
         </div>
-        <div className="mt-2">
-          <button className="adm-btn" onClick={()=>createMut.mutate()} disabled={createMut.isLoading}>Create Video</button>
-        </div>
-        {createMut.isError && <div className="adm-error mt-2">Error: {parseErr(createMut.error)}</div>}
-      </div>
+        <button type="submit" className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2 rounded-lg font-bold flex items-center gap-2">
+          <Plus size={18} /> Add
+        </button>
+      </form>
 
-      {/* List */}
-      <div className="mt-4">
-        {q.isLoading ? (
-          <div className="adm-card">Loading…</div>
-        ) : q.isError ? (
-          <div className="adm-error">Error: {parseErr(q.error)}</div>
-        ) : (
-          (q.data || []).map(v => (
-            <VideoRow
-              key={v.id}
-              v={v}
-              onChange={()=>q.refetch()}
-              onDelete={()=>q.refetch()}
-            />
-          ))
-        )}
+      {/* Video List */}
+      <div className="grid gap-4">
+        {videos.map((video) => (
+          <div key={video.id} className="bg-slate-900 p-4 rounded-xl border border-white/10 flex items-center justify-between">
+            <div>
+              <h3 className="font-bold text-white">{video.title}</h3>
+              <a href={video.youtube_url} target="_blank" className="text-xs text-indigo-400 hover:underline">{video.youtube_url}</a>
+            </div>
+            <div className="flex gap-2">
+              <button onClick={() => toggleFeature(video)} className={`p-2 rounded-lg ${video.is_featured ? 'bg-amber-500/20 text-amber-400' : 'bg-slate-800 text-slate-500'}`}>
+                {video.is_featured ? <Star size={18} fill="currentColor" /> : <StarOff size={18} />}
+              </button>
+              <button onClick={() => togglePublish(video)} className={`p-2 rounded-lg ${video.is_published ? 'bg-green-500/20 text-green-400' : 'bg-slate-800 text-slate-500'}`}>
+                {video.is_published ? <Eye size={18} /> : <EyeOff size={18} />}
+              </button>
+              <button onClick={() => handleDelete(video.id)} className="p-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20">
+                <Trash2 size={18} />
+              </button>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
-  );
-}
-
-export default function Page() {
-  const client = useMemo(() => new QueryClient(), []);
-  return (
-    <QueryClientProvider client={client}>
-      <AdminPageInner />
-    </QueryClientProvider>
   );
 }
