@@ -83,9 +83,8 @@ export default function ExamPage() {
     
     const parsedStudent = JSON.parse(studentData);
     
-    // CRITICAL FIX: Check if token exists. If not, force logout.
     if (!parsedStudent.session_token) {
-      alert("Security Update: Please log in again to verify your session.");
+      alert("Security Update: Please log in again.");
       sessionStorage.removeItem("cbt_student");
       router.push("/cbt");
       return;
@@ -117,10 +116,9 @@ export default function ExamPage() {
         }
         
         if (!res.ok) throw new Error(data.error || "Failed to load exam");
-        if (!data.questions || data.questions.length === 0) throw new Error("No questions found for this course.");
         
         setCourse(data.course);
-        setQuestions(data.questions);
+        setQuestions(data.questions || []);
 
         const savedSession = localStorage.getItem(getStorageKey(parsedStudent.email));
         if (savedSession) {
@@ -140,7 +138,32 @@ export default function ExamPage() {
     loadExam();
   }, []);
 
-  // 2. Timer
+  // 2. SECURITY HEARTBEAT (The Fix)
+  useEffect(() => {
+    if (!student || isSubmitted) return;
+
+    const heartbeat = setInterval(async () => {
+      try {
+        const res = await fetch('/api/cbt/auth/verify', {
+          method: 'POST',
+          body: JSON.stringify({ id: student.id, token: student.session_token })
+        });
+
+        if (res.status === 401) {
+          clearInterval(heartbeat);
+          alert("SECURITY ALERT: You have logged in on another device. This session is terminated.");
+          sessionStorage.removeItem("cbt_student");
+          router.push("/cbt");
+        }
+      } catch (e) {
+        // Ignore network blips
+      }
+    }, 5000); // Check every 5 seconds
+
+    return () => clearInterval(heartbeat);
+  }, [student, isSubmitted]);
+
+  // 3. Timer
   useEffect(() => {
     if (!mounted || loading || isSubmitted || error || timeLeft === null) return;
 
@@ -166,7 +189,7 @@ export default function ExamPage() {
     return () => clearInterval(interval);
   }, [loading, isSubmitted, error, timeLeft, answers, currentQIndex, mounted]);
 
-  // 3. Malpractice
+  // 4. Malpractice
   useEffect(() => {
     if (!mounted || isSubmitted || loading || error) return;
     
@@ -247,6 +270,14 @@ export default function ExamPage() {
     </div>
   );
 
+  if (questions.length === 0) return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6 text-center">
+      <h1 className="text-2xl font-black text-gray-900">No Questions Found</h1>
+      <p className="text-gray-600 mb-8">This course has no questions uploaded yet.</p>
+      <button onClick={() => router.push('/cbt/dashboard')} className="px-8 py-3 bg-gray-900 text-white rounded-full font-bold">Go Back</button>
+    </div>
+  );
+
   // === RESULT VIEW ===
   if (isSubmitted) {
     const percentage = Math.round((score / questions.length) * 100);
@@ -284,17 +315,6 @@ export default function ExamPage() {
   return (
     <main className="min-h-screen bg-gray-100 flex flex-col font-sans h-screen overflow-hidden">
       
-      {/* === OVERLAYS === */}
-      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
-      <ConfirmModal 
-        isOpen={modalConfig.show} 
-        title={modalConfig.title} 
-        message={modalConfig.message} 
-        type={modalConfig.type}
-        onConfirm={modalConfig.action} 
-        onCancel={() => setModalConfig({ ...modalConfig, show: false })} 
-      />
-
       {/* === HEADER === */}
       <header className="bg-[#004d00] text-white px-4 py-2 flex justify-between items-center shadow-md shrink-0 z-30">
         <div className="flex items-center gap-3">
@@ -376,7 +396,7 @@ export default function ExamPage() {
             <button 
               onClick={() => navigateTo(Math.min(questions.length - 1, currentQIndex + 1))}
               disabled={currentQIndex === questions.length - 1}
-              className="px-8 py-3 bg-gray-900 text-white rounded-xl font-bold hover:bg-black transition-all active:scale-95 shadow-lg disabled:opacity-50"
+              className="px-8 py-3 bg-green-700 text-white font-bold rounded shadow-sm hover:bg-green-800 disabled:opacity-50"
             >
               Next Question
             </button>
