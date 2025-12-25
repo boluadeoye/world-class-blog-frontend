@@ -12,7 +12,7 @@ export default function UpgradeModal({ student, onClose, onSuccess }) {
     reference: (new Date()).getTime().toString(),
     email: student.email,
     amount: 50000, // 500 Naira (in kobo)
-    publicKey: "pk_test_YOUR_PAYSTACK_PUBLIC_KEY_HERE", // REPLACE THIS!
+    publicKey: "pk_test_1654a27f4eae7ea41981edeb2ec5993c029e361d", // YOUR KEY IS HERE
   };
 
   const handleSuccess = async (reference) => {
