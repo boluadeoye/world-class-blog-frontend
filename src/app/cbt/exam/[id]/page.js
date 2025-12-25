@@ -1,40 +1,41 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Clock, Grid, ChevronLeft, ChevronRight, AlertTriangle, Lock } from "lucide-react";
+import { Clock, Grid, ChevronLeft, ChevronRight, AlertTriangle } from "lucide-react";
 
 export default function ExamPage() {
   const params = useParams();
   const router = useRouter();
   
-  // Data & UI State
+  // UI State
+  const [mounted, setMounted] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Data State
   const [student, setStudent] = useState(null);
   const [course, setCourse] = useState(null);
   const [questions, setQuestions] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   
-  // Exam State
+  // Exam Logic State
   const [currentQIndex, setCurrentQIndex] = useState(0);
   const [answers, setAnswers] = useState({}); 
   const [timeLeft, setTimeLeft] = useState(null); 
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [score, setScore] = useState(0);
   
-  // Malpractice State
+  // Malpractice
   const [strikes, setStrikes] = useState(0);
   const [showWarning, setShowWarning] = useState(false);
   const [showMobileMap, setShowMobileMap] = useState(false);
 
-  // Persistence Key
   const getStorageKey = (email) => `cbt_session_${params.id}_${email}`;
 
-  // 1. Initialize Exam (Safe Client-Side Only)
+  // 1. MOUNT & AUTH CHECK
   useEffect(() => {
-    // Prevent Server-Side Execution
-    if (typeof window === 'undefined') return;
-
+    setMounted(true);
     const studentData = sessionStorage.getItem("cbt_student");
+    
     if (!studentData) { 
       router.push("/cbt"); 
       return; 
@@ -43,36 +44,19 @@ export default function ExamPage() {
     const parsedStudent = JSON.parse(studentData);
     setStudent(parsedStudent);
 
+    // Load Exam Data
     async function loadExam() {
       try {
-        // === SECURITY HANDSHAKE ===
-        const query = new URLSearchParams({
-          courseId: params.id,
-          studentId: parsedStudent.id,
-          token: parsedStudent.session_token || "" // Handle missing token gracefully
-        });
-
-        const res = await fetch(`/api/cbt/exam?${query.toString()}`);
+        const res = await fetch(`/api/cbt/exam?courseId=${params.id}`);
         const data = await res.json();
         
-        if (res.status === 401) {
-          alert("Session Expired. You logged in on another device.");
-          router.push("/cbt");
-          return;
-        }
-
-        if (res.status === 403) {
-          setError(data.error);
-          setLoading(false);
-          return;
-        }
-        
         if (!res.ok) throw new Error(data.error || "Failed to load exam");
+        if (!data.questions || data.questions.length === 0) throw new Error("No questions found for this course.");
         
         setCourse(data.course);
         setQuestions(data.questions);
 
-        // Restore State
+        // Restore Session
         const savedSession = localStorage.getItem(getStorageKey(parsedStudent.email));
         if (savedSession) {
           const session = JSON.parse(savedSession);
@@ -91,9 +75,9 @@ export default function ExamPage() {
     loadExam();
   }, []);
 
-  // 2. Timer & Auto-Save
+  // 2. TIMER
   useEffect(() => {
-    if (loading || isSubmitted || error || timeLeft === null) return;
+    if (!mounted || loading || isSubmitted || error || timeLeft === null) return;
 
     const interval = setInterval(() => {
       setTimeLeft((prev) => {
@@ -115,11 +99,11 @@ export default function ExamPage() {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [loading, isSubmitted, error, timeLeft, answers, currentQIndex]);
+  }, [loading, isSubmitted, error, timeLeft, answers, currentQIndex, mounted]);
 
-  // 3. Malpractice Detector
+  // 3. MALPRACTICE
   useEffect(() => {
-    if (isSubmitted || loading || error) return;
+    if (!mounted || isSubmitted || loading || error) return;
     
     const handleVisibilityChange = () => {
       if (document.hidden) {
@@ -136,7 +120,7 @@ export default function ExamPage() {
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
     return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
-  }, [strikes, isSubmitted, loading, error]);
+  }, [strikes, isSubmitted, loading, error, mounted]);
 
   const handleSelect = (option) => {
     if (isSubmitted) return;
@@ -172,19 +156,10 @@ export default function ExamPage() {
     return "bg-white text-gray-500 border-gray-300 hover:bg-gray-50";
   };
 
-  // === LOADING / ERROR STATES ===
-  if (loading) return <div className="min-h-screen flex items-center justify-center bg-white text-green-800 font-bold">Verifying Access...</div>;
-  
-  if (error) return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6 text-center">
-      <div className="bg-red-100 p-4 rounded-full mb-4 text-red-600">
-        <Lock size={48} />
-      </div>
-      <h1 className="text-2xl font-black text-gray-900 mb-2">Access Restricted</h1>
-      <p className="text-gray-600 mb-8 max-w-md">{error}</p>
-      <button onClick={() => router.push('/cbt/dashboard')} className="px-8 py-3 bg-gray-900 text-white rounded-full font-bold">Return to Dashboard</button>
-    </div>
-  );
+  // === PREVENT RENDER CRASH ===
+  if (!mounted) return null;
+  if (loading) return <div className="min-h-screen flex items-center justify-center bg-white text-green-800 font-bold">Loading Exam Interface...</div>;
+  if (error) return <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6 text-center text-red-600 font-bold">{error}</div>;
 
   // === RESULT VIEW ===
   if (isSubmitted) {
@@ -218,12 +193,14 @@ export default function ExamPage() {
     );
   }
 
+  // === SAFE QUESTION RENDER ===
   const currentQ = questions[currentQIndex];
+  if (!currentQ) return <div className="min-h-screen flex items-center justify-center">Loading Question...</div>;
 
   return (
     <main className="min-h-screen bg-gray-100 flex flex-col font-sans h-screen overflow-hidden">
       
-      {/* === HEADER === */}
+      {/* HEADER */}
       <header className="bg-[#004d00] text-white px-4 py-2 flex justify-between items-center shadow-md shrink-0 z-30">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-white rounded-md flex items-center justify-center text-green-800 font-bold">
@@ -231,7 +208,7 @@ export default function ExamPage() {
           </div>
           <div className="leading-tight hidden sm:block">
             <h1 className="font-bold text-xs uppercase">{student?.name}</h1>
-            <p className="text-[10px] opacity-80">{course.code}</p>
+            <p className="text-[10px] opacity-80">{course?.code}</p>
           </div>
           <button 
             onClick={() => setShowMobileMap(!showMobileMap)}
@@ -243,7 +220,7 @@ export default function ExamPage() {
         
         <div className="flex items-center gap-3">
           <div className={`font-mono font-bold text-lg ${timeLeft < 300 ? 'text-red-400 animate-pulse' : 'text-white'}`}>
-            {formatTime(timeLeft)}
+            {formatTime(timeLeft || 0)}
           </div>
           <button 
             onClick={() => { if(confirm("Submit Exam?")) submitExam(); }}
@@ -254,9 +231,15 @@ export default function ExamPage() {
         </div>
       </header>
 
+      {showWarning && (
+        <div className="bg-red-600 text-white text-center py-2 text-xs font-bold uppercase tracking-widest animate-pulse">
+          ⚠️ Warning: Tab Switching Detected ({strikes}/3)
+        </div>
+      )}
+
       <div className="flex-1 flex overflow-hidden relative">
         
-        {/* === LEFT: QUESTION PANEL === */}
+        {/* LEFT: QUESTION PANEL */}
         <div className="flex-1 flex flex-col bg-white relative z-10">
           <div className="flex-1 overflow-y-auto p-4 md:p-8 pb-24">
             <div className="max-w-3xl mx-auto">
@@ -311,7 +294,7 @@ export default function ExamPage() {
           </div>
         </div>
 
-        {/* === RIGHT: QUESTION MAP === */}
+        {/* RIGHT: QUESTION MAP */}
         <div className={`
           absolute inset-0 z-20 bg-white flex flex-col transition-transform duration-300 md:relative md:translate-x-0 md:w-80 md:border-l border-gray-300
           ${showMobileMap ? 'translate-x-0' : 'translate-x-full'}
