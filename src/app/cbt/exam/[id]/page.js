@@ -1,7 +1,56 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Clock, Grid, ChevronLeft, ChevronRight, AlertTriangle, X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Clock, Grid, ChevronLeft, ChevronRight, AlertTriangle, CheckCircle, AlertOctagon, X } from "lucide-react";
+
+/* === CUSTOM MODAL === */
+function ConfirmModal({ isOpen, title, message, onConfirm, onCancel, type = "warning" }) {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+      <motion.div 
+        initial={{ scale: 0.9, opacity: 0 }} 
+        animate={{ scale: 1, opacity: 1 }}
+        className="bg-white rounded-xl shadow-2xl max-w-sm w-full overflow-hidden"
+      >
+        <div className={`p-4 ${type === 'danger' ? 'bg-red-600' : 'bg-green-700'} text-white font-bold flex items-center gap-2`}>
+          {type === 'danger' ? <AlertOctagon size={20} /> : <CheckCircle size={20} />}
+          {title}
+        </div>
+        <div className="p-6">
+          <p className="text-gray-700 font-medium mb-6">{message}</p>
+          <div className="flex gap-3">
+            <button onClick={onCancel} className="flex-1 py-3 border border-gray-300 rounded-lg font-bold text-gray-600 hover:bg-gray-50 transition-colors">Cancel</button>
+            <button onClick={onConfirm} className={`flex-1 py-3 rounded-lg font-bold text-white transition-colors ${type === 'danger' ? 'bg-red-600 hover:bg-red-700' : 'bg-green-700 hover:bg-green-800'}`}>
+              Confirm
+            </button>
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+/* === TOAST NOTIFICATION === */
+function Toast({ message, type, onClose }) {
+  useEffect(() => {
+    const timer = setTimeout(onClose, 4000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  return (
+    <motion.div 
+      initial={{ y: -50, opacity: 0 }} 
+      animate={{ y: 0, opacity: 1 }} 
+      exit={{ y: -50, opacity: 0 }}
+      className={`fixed top-6 left-1/2 -translate-x-1/2 z-[110] px-6 py-3 rounded-full shadow-xl flex items-center gap-3 font-bold text-sm ${type === 'error' ? 'bg-red-600 text-white' : 'bg-gray-800 text-white'}`}
+    >
+      {type === 'error' && <AlertTriangle size={18} />}
+      {message}
+    </motion.div>
+  );
+}
 
 export default function ExamPage() {
   const params = useParams();
@@ -23,7 +72,13 @@ export default function ExamPage() {
   const [score, setScore] = useState(0);
   const [showMobileMap, setShowMobileMap] = useState(false);
   
-  // Persistence Key
+  // Modal & Toast State
+  const [modalConfig, setModalConfig] = useState({ show: false, title: "", message: "", action: null });
+  const [toast, setToast] = useState(null);
+  
+  // Malpractice
+  const [strikes, setStrikes] = useState(0);
+  
   const getStorageKey = (email) => `cbt_session_${params.id}_${email}`;
 
   // 1. Initialize
@@ -40,11 +95,11 @@ export default function ExamPage() {
         const data = await res.json();
         
         if (!res.ok) throw new Error(data.error || "Failed to load exam");
+        if (!data.questions || data.questions.length === 0) throw new Error("No questions found for this course.");
         
         setCourse(data.course);
-        setQuestions(data.questions || []); // Ensure array
+        setQuestions(data.questions);
 
-        // Restore Session
         const savedSession = localStorage.getItem(getStorageKey(parsedStudent.email));
         if (savedSession) {
           const session = JSON.parse(savedSession);
@@ -79,7 +134,7 @@ export default function ExamPage() {
         }
         if (newTime <= 0) {
           clearInterval(interval);
-          submitExam();
+          finishExam();
           return 0;
         }
         return newTime;
@@ -89,13 +144,46 @@ export default function ExamPage() {
     return () => clearInterval(interval);
   }, [loading, isSubmitted, error, timeLeft, answers, currentQIndex, mounted]);
 
+  // 3. Malpractice
+  useEffect(() => {
+    if (!mounted || isSubmitted || loading || error) return;
+    
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        const newStrikes = strikes + 1;
+        setStrikes(newStrikes);
+        setToast({ message: `Warning: Tab Switch Detected (${newStrikes}/3)`, type: "error" });
+        
+        if (newStrikes >= 3) {
+          finishExam();
+        }
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, [strikes, isSubmitted, loading, error, mounted]);
+
   const handleSelect = (option) => {
     if (isSubmitted) return;
     const qId = questions[currentQIndex].id;
     setAnswers(prev => ({ ...prev, [qId]: option }));
   };
 
-  const submitExam = () => {
+  const confirmSubmit = () => {
+    const answeredCount = Object.keys(answers).length;
+    const total = questions.length;
+    setModalConfig({
+      show: true,
+      title: "Submit Examination?",
+      message: `You have answered ${answeredCount} out of ${total} questions. Are you sure you want to finish?`,
+      type: "warning",
+      action: finishExam
+    });
+  };
+
+  const finishExam = () => {
+    setModalConfig({ show: false });
     setIsSubmitted(true);
     let correctCount = 0;
     questions.forEach(q => {
@@ -123,7 +211,6 @@ export default function ExamPage() {
     return "bg-white text-gray-500 border-gray-300 hover:bg-gray-50";
   };
 
-  // === SAFE RENDERING ===
   if (!mounted) return null;
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-white text-green-800 font-bold">Loading Exam Interface...</div>;
   
@@ -136,7 +223,6 @@ export default function ExamPage() {
     </div>
   );
 
-  // CRITICAL FIX: Handle Empty Questions
   if (questions.length === 0) return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6 text-center">
       <h1 className="text-2xl font-black text-gray-900">No Questions Found</h1>
@@ -149,7 +235,7 @@ export default function ExamPage() {
   if (isSubmitted) {
     const percentage = Math.round((score / questions.length) * 100);
     return (
-      <main className="min-h-screen bg-gray-50 font-sans">
+      <main className="min-h-screen bg-gray-100 font-sans">
         <header className="bg-green-800 text-white p-4 shadow-md flex justify-between items-center">
           <h1 className="font-bold">EXAM RESULT</h1>
           <button onClick={() => router.push('/cbt/dashboard')} className="text-xs bg-white text-green-800 px-3 py-1 rounded font-bold">EXIT</button>
@@ -178,12 +264,23 @@ export default function ExamPage() {
   }
 
   const currentQ = questions[currentQIndex];
-  // Extra Safety Check
-  if (!currentQ) return <div>Loading Question...</div>;
 
   return (
     <main className="min-h-screen bg-gray-100 flex flex-col font-sans h-screen overflow-hidden">
       
+      {/* === OVERLAYS === */}
+      <AnimatePresence>
+        {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+      </AnimatePresence>
+      <ConfirmModal 
+        isOpen={modalConfig.show} 
+        title={modalConfig.title} 
+        message={modalConfig.message} 
+        type={modalConfig.type}
+        onConfirm={modalConfig.action} 
+        onCancel={() => setModalConfig({ ...modalConfig, show: false })} 
+      />
+
       {/* === HEADER === */}
       <header className="bg-[#004d00] text-white px-4 py-2 flex justify-between items-center shadow-md shrink-0 z-30">
         <div className="flex items-center gap-3">
@@ -207,7 +304,7 @@ export default function ExamPage() {
             {formatTime(timeLeft || 0)}
           </div>
           <button 
-            onClick={() => { if(confirm("Submit Exam?")) submitExam(); }}
+            onClick={confirmSubmit}
             className="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded text-xs font-bold uppercase shadow-sm"
           >
             Submit
@@ -217,9 +314,9 @@ export default function ExamPage() {
 
       <div className="flex-1 flex overflow-hidden relative">
         
-        {/* === LEFT: QUESTION PANEL === */}
+        {/* LEFT: QUESTION PANEL */}
         <div className="flex-1 flex flex-col bg-white relative z-10">
-          <div className="flex-1 overflow-y-auto p-4 md:p-8 pb-24">
+          <div className="flex-1 overflow-y-auto p-4 md:p-8 pb-24 scroll-smooth">
             <div className="max-w-3xl mx-auto">
               <div className="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
                 <span className="font-bold text-gray-500 text-sm">Question {currentQIndex + 1} of {questions.length}</span>
@@ -235,18 +332,18 @@ export default function ExamPage() {
                   <button
                     key={opt}
                     onClick={() => handleSelect(opt)}
-                    className={`w-full text-left p-4 rounded-lg border-2 transition-all flex items-center gap-4 group ${
+                    className={`w-full text-left p-5 rounded-xl border-2 transition-all flex items-center gap-4 group ${
                       answers[currentQ.id] === opt 
                         ? 'border-green-600 bg-green-50' 
-                        : 'border-gray-200 hover:bg-gray-50'
+                        : 'border-gray-100 hover:border-gray-300'
                     }`}
                   >
-                    <span className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs ${
+                    <span className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${
                       answers[currentQ.id] === opt ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-600'
                     }`}>
                       {opt}
                     </span>
-                    <span className="font-medium text-gray-800">{currentQ[`option_${opt.toLowerCase()}`]}</span>
+                    <span className="font-bold text-gray-800">{currentQ[`option_${opt.toLowerCase()}`]}</span>
                   </button>
                 ))}
               </div>
@@ -258,21 +355,21 @@ export default function ExamPage() {
             <button 
               onClick={() => navigateTo(Math.max(0, currentQIndex - 1))}
               disabled={currentQIndex === 0}
-              className="px-6 py-2 bg-white border border-gray-300 text-gray-700 font-bold rounded shadow-sm disabled:opacity-50"
+              className="px-8 py-3 font-bold text-gray-400 disabled:opacity-30"
             >
               Previous
             </button>
             <button 
               onClick={() => navigateTo(Math.min(questions.length - 1, currentQIndex + 1))}
               disabled={currentQIndex === questions.length - 1}
-              className="px-6 py-2 bg-green-700 text-white font-bold rounded shadow-sm hover:bg-green-800 disabled:opacity-50"
+              className="px-8 py-3 bg-gray-900 text-white rounded-xl font-bold hover:bg-black transition-all active:scale-95 shadow-lg disabled:opacity-50"
             >
-              Next
+              Next Question
             </button>
           </div>
         </div>
 
-        {/* === RIGHT: QUESTION MAP === */}
+        {/* RIGHT: QUESTION MAP */}
         <div className={`
           absolute inset-0 z-20 bg-white flex flex-col transition-transform duration-300 md:relative md:translate-x-0 md:w-80 md:border-l border-gray-300
           ${showMobileMap ? 'translate-x-0' : 'translate-x-full'}
