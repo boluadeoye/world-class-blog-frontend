@@ -1,4 +1,4 @@
-import pool from '../../../../../../lib/db';
+import pool from '../../../../../lib/db'; // Fixed: 5 levels up
 
 export async function POST(req) {
   try {
@@ -9,7 +9,6 @@ export async function POST(req) {
     }
 
     // 1. VERIFY WITH PAYSTACK (Server-to-Server)
-    // Replace process.env.PAYSTACK_SECRET_KEY with your actual key in Vercel
     const paystackRes = await fetch(`https://api.paystack.co/transaction/verify/${reference}`, {
       headers: {
         Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`, 
