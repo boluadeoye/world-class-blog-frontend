@@ -1,15 +1,12 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-// FIX: ALL ICONS USED IN JSX ARE NOW IMPORTED
-import { 
-  Grid, CheckCircle, AlertOctagon, X, Crown, Sparkles, 
-  BrainCircuit, ShieldAlert, Lock, Clock 
-} from "lucide-react";
+// STRICT SAFE LIST ONLY - NO NEW ICONS
+import { Grid, CheckCircle, AlertOctagon, X, Crown, Sparkles, BrainCircuit } from "lucide-react";
 import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";
 
-// RELATIVE IMPORT
+// RELATIVE IMPORT (STABLE)
 const UpgradeModal = dynamic(() => import("../../../../components/cbt/UpgradeModal"), { ssr: false });
 
 /* === TACTICAL COMPONENTS === */
@@ -17,7 +14,7 @@ const UpgradeModal = dynamic(() => import("../../../../components/cbt/UpgradeMod
 function MalpracticeOverlay({ count }) {
   return (
     <div className="fixed inset-0 z-[999] bg-red-950/95 flex flex-col items-center justify-center text-white animate-pulse select-none">
-      <ShieldAlert size={80} className="mb-6 text-red-500" />
+      <AlertOctagon size={80} className="mb-6 text-red-500" />
       <h2 className="text-5xl font-black uppercase tracking-[0.2em] text-center mb-2">VIOLATION</h2>
       <div className="bg-red-900/50 border border-red-500 px-6 py-2 rounded font-mono text-xl">
         FOCUS_LOST_EVENT_ID: #{String(count).padStart(4, '0')}
@@ -33,7 +30,7 @@ function ConfirmModal({ isOpen, title, message, onConfirm, onCancel, type = "war
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
       <div className="bg-white rounded-none border-l-4 border-green-600 shadow-2xl max-w-sm w-full overflow-hidden">
         <div className={`p-4 ${type === 'danger' ? 'bg-red-600' : 'bg-[#004d00]'} text-white font-bold flex items-center gap-3 uppercase tracking-wider text-sm`}>
-          {type === 'danger' ? <AlertOctagon size={18} /> : <ShieldAlert size={18} />}
+          <AlertOctagon size={18} />
           {title}
         </div>
         <div className="p-8 bg-gray-50">
@@ -243,7 +240,7 @@ export default function ExamPage() {
 
   if (!mounted) return null;
   if (showUpgrade) return <div className="min-h-screen flex items-center justify-center bg-white"><UpgradeModal student={student} onClose={() => router.push('/cbt/dashboard')} onSuccess={() => window.location.reload()} /></div>;
-  if (loading) return <div className="min-h-screen flex flex-col items-center justify-center bg-gray-900 text-green-500 font-mono font-bold text-xl tracking-widest"><ShieldAlert className="animate-pulse mb-4" size={48} />INITIALIZING_IRON_MODE...</div>;
+  if (loading) return <div className="min-h-screen flex flex-col items-center justify-center bg-gray-900 text-green-500 font-mono font-bold text-xl tracking-widest"><AlertOctagon className="animate-pulse mb-4" size={48} />INITIALIZING_IRON_MODE...</div>;
   if (error) return <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6 text-center text-red-600 font-bold gap-4"><p>{error}</p><button onClick={() => window.location.reload()} className="bg-gray-900 text-white px-6 py-2 rounded-full">Retry</button></div>;
 
   // === RESULT VIEW ===
@@ -252,7 +249,7 @@ export default function ExamPage() {
     return (
       <main className="min-h-screen bg-gray-50 font-sans pb-20 select-none">
         <header className="bg-[#004d00] text-white p-5 shadow-lg flex justify-between items-center sticky top-0 z-50 border-b-4 border-green-600">
-          <h1 className="font-black tracking-tight flex items-center gap-2"><ShieldAlert size={18} /> SESSION REPORT</h1>
+          <h1 className="font-black tracking-tight flex items-center gap-2"><AlertOctagon size={18} /> SESSION REPORT</h1>
           <button onClick={() => router.push('/cbt/dashboard')} className="text-xs bg-white text-green-900 px-5 py-2 rounded-none font-black hover:bg-green-50 transition-colors uppercase tracking-widest">Exit Console</button>
         </header>
         <div className="max-w-4xl mx-auto p-4 md:p-8">
@@ -353,7 +350,8 @@ export default function ExamPage() {
 
         <div className="flex items-center gap-6">
           <div className={`flex items-center gap-2 bg-black/40 px-4 py-1.5 border border-green-800 ${timeLeft < 300 ? 'animate-pulse bg-red-900/50 border-red-500' : ''}`}>
-            <Clock size={16} className={timeLeft < 300 ? "text-red-500" : "text-green-500"} />
+            {/* REPLACED CLOCK ICON WITH TEXT */}
+            <span className="text-green-500 font-black text-xs">TIME:</span>
             <span className={`font-mono font-black text-xl tracking-widest ${timeLeft < 300 ? "text-red-500" : "text-white"}`}>{formatTime(timeLeft || 0)}</span>
           </div>
           <button onClick={confirmSubmit} className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 text-xs font-black uppercase tracking-widest shadow-lg transition-all hover:scale-105 border-b-4 border-red-900 active:border-b-0 active:translate-y-1">
