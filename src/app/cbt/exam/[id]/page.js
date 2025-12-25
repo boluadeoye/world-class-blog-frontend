@@ -1,21 +1,16 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
-import { Clock, Grid, ChevronLeft, ChevronRight, AlertTriangle, CheckCircle, AlertOctagon, X } from "lucide-react";
+import { Clock, Grid, ChevronLeft, ChevronRight, AlertTriangle, X, Lock } from "lucide-react";
 
 /* === CUSTOM MODAL === */
 function ConfirmModal({ isOpen, title, message, onConfirm, onCancel, type = "warning" }) {
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <motion.div 
-        initial={{ scale: 0.9, opacity: 0 }} 
-        animate={{ scale: 1, opacity: 1 }}
-        className="bg-white rounded-xl shadow-2xl max-w-sm w-full overflow-hidden"
-      >
+      <div className="bg-white rounded-xl shadow-2xl max-w-sm w-full overflow-hidden animate-in fade-in zoom-in duration-200">
         <div className={`p-4 ${type === 'danger' ? 'bg-red-600' : 'bg-green-700'} text-white font-bold flex items-center gap-2`}>
-          {type === 'danger' ? <AlertOctagon size={20} /> : <CheckCircle size={20} />}
+          {type === 'danger' ? <AlertTriangle size={20} /> : <Clock size={20} />}
           {title}
         </div>
         <div className="p-6">
@@ -27,7 +22,7 @@ function ConfirmModal({ isOpen, title, message, onConfirm, onCancel, type = "war
             </button>
           </div>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }
@@ -40,15 +35,10 @@ function Toast({ message, type, onClose }) {
   }, []);
 
   return (
-    <motion.div 
-      initial={{ y: -50, opacity: 0 }} 
-      animate={{ y: 0, opacity: 1 }} 
-      exit={{ y: -50, opacity: 0 }}
-      className={`fixed top-6 left-1/2 -translate-x-1/2 z-[110] px-6 py-3 rounded-full shadow-xl flex items-center gap-3 font-bold text-sm ${type === 'error' ? 'bg-red-600 text-white' : 'bg-gray-800 text-white'}`}
-    >
+    <div className={`fixed top-6 left-1/2 -translate-x-1/2 z-[110] px-6 py-3 rounded-full shadow-xl flex items-center gap-3 font-bold text-sm animate-in slide-in-from-top-4 ${type === 'error' ? 'bg-red-600 text-white' : 'bg-gray-800 text-white'}`}>
       {type === 'error' && <AlertTriangle size={18} />}
       {message}
-    </motion.div>
+    </div>
   );
 }
 
@@ -85,14 +75,46 @@ export default function ExamPage() {
   useEffect(() => {
     setMounted(true);
     const studentData = sessionStorage.getItem("cbt_student");
-    if (!studentData) { router.push("/cbt"); return; }
+    
+    if (!studentData) { 
+      router.push("/cbt"); 
+      return; 
+    }
+    
     const parsedStudent = JSON.parse(studentData);
+    
+    // CRITICAL FIX: Check if token exists. If not, force logout.
+    if (!parsedStudent.session_token) {
+      alert("Security Update: Please log in again to verify your session.");
+      sessionStorage.removeItem("cbt_student");
+      router.push("/cbt");
+      return;
+    }
+
     setStudent(parsedStudent);
 
     async function loadExam() {
       try {
-        const res = await fetch(`/api/cbt/exam?courseId=${params.id}`);
+        const query = new URLSearchParams({
+          courseId: params.id,
+          studentId: parsedStudent.id,
+          token: parsedStudent.session_token
+        });
+
+        const res = await fetch(`/api/cbt/exam?${query.toString()}`);
         const data = await res.json();
+        
+        if (res.status === 401) {
+          alert("Session Expired. You logged in on another device.");
+          router.push("/cbt");
+          return;
+        }
+
+        if (res.status === 403) {
+          setError(data.error);
+          setLoading(false);
+          return;
+        }
         
         if (!res.ok) throw new Error(data.error || "Failed to load exam");
         if (!data.questions || data.questions.length === 0) throw new Error("No questions found for this course.");
@@ -212,22 +234,16 @@ export default function ExamPage() {
   };
 
   if (!mounted) return null;
-  if (loading) return <div className="min-h-screen flex items-center justify-center bg-white text-green-800 font-bold">Loading Exam Interface...</div>;
+  if (loading) return <div className="min-h-screen flex items-center justify-center bg-white text-green-800 font-bold">Verifying Access...</div>;
   
   if (error) return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6 text-center">
-      <AlertTriangle size={64} className="text-red-500 mb-4" />
-      <h1 className="text-2xl font-black text-gray-900">System Error</h1>
-      <p className="text-gray-600 mb-8">{error}</p>
-      <button onClick={() => router.push('/cbt/dashboard')} className="px-8 py-3 bg-green-700 text-white rounded-full font-bold">Return to Dashboard</button>
-    </div>
-  );
-
-  if (questions.length === 0) return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6 text-center">
-      <h1 className="text-2xl font-black text-gray-900">No Questions Found</h1>
-      <p className="text-gray-600 mb-8">This course has no questions uploaded yet.</p>
-      <button onClick={() => router.push('/cbt/dashboard')} className="px-8 py-3 bg-gray-900 text-white rounded-full font-bold">Go Back</button>
+      <div className="bg-red-100 p-4 rounded-full mb-4 text-red-600">
+        <Lock size={48} />
+      </div>
+      <h1 className="text-2xl font-black text-gray-900 mb-2">Access Restricted</h1>
+      <p className="text-gray-600 mb-8 max-w-md">{error}</p>
+      <button onClick={() => router.push('/cbt/dashboard')} className="px-8 py-3 bg-gray-900 text-white rounded-full font-bold">Return to Dashboard</button>
     </div>
   );
 
@@ -235,7 +251,7 @@ export default function ExamPage() {
   if (isSubmitted) {
     const percentage = Math.round((score / questions.length) * 100);
     return (
-      <main className="min-h-screen bg-gray-100 font-sans">
+      <main className="min-h-screen bg-gray-50 font-sans">
         <header className="bg-green-800 text-white p-4 shadow-md flex justify-between items-center">
           <h1 className="font-bold">EXAM RESULT</h1>
           <button onClick={() => router.push('/cbt/dashboard')} className="text-xs bg-white text-green-800 px-3 py-1 rounded font-bold">EXIT</button>
@@ -269,9 +285,7 @@ export default function ExamPage() {
     <main className="min-h-screen bg-gray-100 flex flex-col font-sans h-screen overflow-hidden">
       
       {/* === OVERLAYS === */}
-      <AnimatePresence>
-        {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
-      </AnimatePresence>
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
       <ConfirmModal 
         isOpen={modalConfig.show} 
         title={modalConfig.title} 
