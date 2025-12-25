@@ -1,4 +1,4 @@
-import pool from '../../../../../lib/db'; // Fixed: 5 levels up
+import pool from '../../../../lib/db'; // Fixed: 5 levels up
 
 export async function POST(req) {
   try {

@@ -1,10 +1,11 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Clock, Grid, ChevronLeft, ChevronRight, AlertTriangle, CheckCircle, AlertOctagon, X, Lock, Crown, Sparkles, BrainCircuit } from "lucide-react";
+import { Grid, CheckCircle, AlertOctagon, X, Crown, Sparkles, BrainCircuit } from "lucide-react";
 import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";
 
+// Dynamic import for the Upgrade Modal
 const UpgradeModal = dynamic(() => import("../../../../components/cbt/UpgradeModal"), { ssr: false });
 
 /* === CUSTOM MODAL === */
@@ -32,7 +33,7 @@ function ConfirmModal({ isOpen, title, message, onConfirm, onCancel, type = "war
 export default function ExamPage() {
   const params = useParams();
   const router = useRouter();
-  
+
   const [student, setStudent] = useState(null);
   const [course, setCourse] = useState(null);
   const [questions, setQuestions] = useState([]);
@@ -59,7 +60,7 @@ export default function ExamPage() {
     setMounted(true);
     const studentData = sessionStorage.getItem("cbt_student");
     if (!studentData) { router.push("/cbt"); return; }
-    
+
     let parsedStudent;
     try {
       parsedStudent = JSON.parse(studentData);
@@ -68,7 +69,7 @@ export default function ExamPage() {
       router.push("/cbt");
       return;
     }
-    
+
     async function loadExam() {
       try {
         const query = new URLSearchParams({
@@ -124,9 +125,9 @@ export default function ExamPage() {
       setTimeLeft((prev) => {
         if (prev <= 0) { clearInterval(interval); submitExam(); return 0; }
         const newTime = prev - 1;
-        if (student && newTime % 5 === 0) { // Save every 5 seconds to reduce CPU
-          localStorage.setItem(getStorageKey(student.email), JSON.stringify({ 
-            answers, timeLeft: newTime, currentIndex: currentQIndex 
+        if (student && newTime % 5 === 0) { // Save every 5 seconds
+          localStorage.setItem(getStorageKey(student.email), JSON.stringify({
+            answers, timeLeft: newTime, currentIndex: currentQIndex
           }));
         }
         return newTime;
@@ -248,12 +249,15 @@ export default function ExamPage() {
   }
 
   const currentQ = questions[currentQIndex];
+  // FIX: Define isLastQuestion to prevent ReferenceError
+  const isLastQuestion = questions.length > 0 && currentQIndex === questions.length - 1;
+
   if (!currentQ) return <div className="h-screen flex items-center justify-center bg-white font-bold">Synchronizing Questions...</div>;
 
   return (
     <main className="fixed inset-0 bg-gray-100 flex flex-col font-sans h-screen overflow-hidden z-[150]">
       <ConfirmModal isOpen={modalConfig.show} title={modalConfig.title} message={modalConfig.message} type={modalConfig.type} onConfirm={modalConfig.action} onCancel={() => setModalConfig({ ...modalConfig, show: false })} />
-      
+
       <header className="bg-[#004d00] text-white px-4 h-16 flex justify-between items-center shadow-2xl shrink-0 z-[160] border-b-2 border-green-400">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-green-900 font-black shadow-inner">{student?.name?.charAt(0).toUpperCase()}</div>
@@ -288,7 +292,7 @@ export default function ExamPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="fixed bottom-0 left-0 right-0 md:relative bg-white border-t-2 border-gray-200 p-5 flex justify-between items-center shrink-0 z-[170] md:pr-80">
             <button onClick={() => navigateTo(Math.max(0, currentQIndex - 1))} disabled={currentQIndex === 0} className="px-10 py-4 font-black text-gray-400 uppercase tracking-widest disabled:opacity-20 text-xs transition-all">Previous</button>
             <button onClick={() => navigateTo(Math.min(questions.length - 1, currentQIndex + 1))} disabled={isLastQuestion} className={`px-12 py-4 rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-xl ${isLastQuestion ? 'bg-gray-200 text-gray-400' : 'bg-gray-900 text-white hover:bg-black active:scale-95'}`}>Next</button>
