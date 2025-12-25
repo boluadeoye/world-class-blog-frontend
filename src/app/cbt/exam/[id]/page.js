@@ -1,56 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
-import { Clock, Grid, ChevronLeft, ChevronRight, X, AlertTriangle, CheckCircle, AlertOctagon } from "lucide-react";
-
-/* === CUSTOM MODAL COMPONENT === */
-function ConfirmModal({ isOpen, title, message, onConfirm, onCancel, type = "warning" }) {
-  if (!isOpen) return null;
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <motion.div 
-        initial={{ scale: 0.9, opacity: 0 }} 
-        animate={{ scale: 1, opacity: 1 }}
-        className="bg-white rounded-xl shadow-2xl max-w-sm w-full overflow-hidden"
-      >
-        <div className={`p-4 ${type === 'danger' ? 'bg-red-600' : 'bg-green-700'} text-white font-bold flex items-center gap-2`}>
-          {type === 'danger' ? <AlertOctagon size={20} /> : <CheckCircle size={20} />}
-          {title}
-        </div>
-        <div className="p-6">
-          <p className="text-gray-700 font-medium mb-6">{message}</p>
-          <div className="flex gap-3">
-            <button onClick={onCancel} className="flex-1 py-3 border border-gray-300 rounded-lg font-bold text-gray-600 hover:bg-gray-50">Cancel</button>
-            <button onClick={onConfirm} className={`flex-1 py-3 rounded-lg font-bold text-white ${type === 'danger' ? 'bg-red-600 hover:bg-red-700' : 'bg-green-700 hover:bg-green-800'}`}>
-              Confirm
-            </button>
-          </div>
-        </div>
-      </motion.div>
-    </div>
-  );
-}
-
-/* === TOAST NOTIFICATION === */
-function Toast({ message, type, onClose }) {
-  useEffect(() => {
-    const timer = setTimeout(onClose, 4000);
-    return () => clearTimeout(timer);
-  }, []);
-
-  return (
-    <motion.div 
-      initial={{ y: -50, opacity: 0 }} 
-      animate={{ y: 0, opacity: 1 }} 
-      exit={{ y: -50, opacity: 0 }}
-      className={`fixed top-6 left-1/2 -translate-x-1/2 z-[110] px-6 py-3 rounded-full shadow-xl flex items-center gap-3 font-bold text-sm ${type === 'error' ? 'bg-red-600 text-white' : 'bg-gray-800 text-white'}`}
-    >
-      {type === 'error' && <AlertTriangle size={18} />}
-      {message}
-    </motion.div>
-  );
-}
+import { Clock, Grid, ChevronLeft, ChevronRight, AlertTriangle, Lock } from "lucide-react";
 
 export default function ExamPage() {
   const params = useParams();
@@ -71,10 +22,6 @@ export default function ExamPage() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [score, setScore] = useState(0);
   
-  // Modal & Toast State
-  const [modalConfig, setModalConfig] = useState({ show: false, title: "", message: "", action: null });
-  const [toast, setToast] = useState(null); // { message, type }
-  
   // Persistence Key
   const getStorageKey = (email) => `cbt_session_${params.id}_${email}`;
 
@@ -87,15 +34,36 @@ export default function ExamPage() {
 
     async function loadExam() {
       try {
-        const savedSession = localStorage.getItem(getStorageKey(parsedStudent.email));
-        const res = await fetch(`/api/cbt/exam?courseId=${params.id}`);
+        // === SECURITY HANDSHAKE ===
+        // We send the ID and Token to verify identity and check limits
+        const query = new URLSearchParams({
+          courseId: params.id,
+          studentId: parsedStudent.id,
+          token: parsedStudent.session_token
+        });
+
+        const res = await fetch(`/api/cbt/exam?${query.toString()}`);
         const data = await res.json();
+        
+        if (res.status === 401) {
+          alert("Session Expired. You logged in on another device.");
+          router.push("/cbt");
+          return;
+        }
+
+        if (res.status === 403) {
+          setError(data.error); // Show "Limit Reached" message
+          setLoading(false);
+          return;
+        }
         
         if (!res.ok) throw new Error(data.error || "Failed to load exam");
         
         setCourse(data.course);
         setQuestions(data.questions);
 
+        // Restore State or Set New Time
+        const savedSession = localStorage.getItem(getStorageKey(parsedStudent.email));
         if (savedSession) {
           const session = JSON.parse(savedSession);
           setAnswers(session.answers || {});
@@ -129,7 +97,7 @@ export default function ExamPage() {
         }
         if (newTime <= 0) {
           clearInterval(interval);
-          finishExam();
+          submitExam();
           return 0;
         }
         return newTime;
@@ -139,39 +107,13 @@ export default function ExamPage() {
     return () => clearInterval(interval);
   }, [loading, isSubmitted, error, timeLeft, answers, currentQIndex]);
 
-  // 3. Malpractice Detector (Silent Log + Toast)
-  useEffect(() => {
-    if (isSubmitted) return;
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        setToast({ message: "Malpractice Warning: Tab Switch Detected!", type: "error" });
-      }
-    };
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
-  }, [isSubmitted]);
-
   const handleSelect = (option) => {
     if (isSubmitted) return;
     const qId = questions[currentQIndex].id;
     setAnswers(prev => ({ ...prev, [qId]: option }));
   };
 
-  // Trigger the Modal
-  const confirmSubmit = () => {
-    const answeredCount = Object.keys(answers).length;
-    const total = questions.length;
-    setModalConfig({
-      show: true,
-      title: "Submit Examination?",
-      message: `You have answered ${answeredCount} out of ${total} questions. Are you sure you want to finish?`,
-      type: "warning",
-      action: finishExam
-    });
-  };
-
-  const finishExam = () => {
-    setModalConfig({ show: false });
+  const submitExam = () => {
     setIsSubmitted(true);
     let correctCount = 0;
     questions.forEach(q => {
@@ -199,8 +141,19 @@ export default function ExamPage() {
     return "bg-white text-gray-500 border-gray-300 hover:bg-gray-50";
   };
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center bg-white text-green-800 font-bold">Loading Exam Interface...</div>;
-  if (error) return <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6 text-center text-red-600 font-bold">{error}</div>;
+  if (loading) return <div className="min-h-screen flex items-center justify-center bg-white text-green-800 font-bold">Verifying Access...</div>;
+  
+  // === ERROR VIEW (Limit Reached) ===
+  if (error) return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6 text-center">
+      <div className="bg-red-100 p-4 rounded-full mb-4 text-red-600">
+        <Lock size={48} />
+      </div>
+      <h1 className="text-2xl font-black text-gray-900 mb-2">Access Restricted</h1>
+      <p className="text-gray-600 mb-8 max-w-md">{error}</p>
+      <button onClick={() => router.push('/cbt/dashboard')} className="px-8 py-3 bg-gray-900 text-white rounded-full font-bold">Return to Dashboard</button>
+    </div>
+  );
 
   // === RESULT VIEW ===
   if (isSubmitted) {
@@ -239,19 +192,6 @@ export default function ExamPage() {
   return (
     <main className="min-h-screen bg-gray-100 flex flex-col font-sans h-screen overflow-hidden">
       
-      {/* === OVERLAYS === */}
-      <AnimatePresence>
-        {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
-      </AnimatePresence>
-      <ConfirmModal 
-        isOpen={modalConfig.show} 
-        title={modalConfig.title} 
-        message={modalConfig.message} 
-        type={modalConfig.type}
-        onConfirm={modalConfig.action} 
-        onCancel={() => setModalConfig({ ...modalConfig, show: false })} 
-      />
-
       {/* === HEADER === */}
       <header className="bg-[#004d00] text-white px-4 py-2 flex justify-between items-center shadow-md shrink-0 z-30">
         <div className="flex items-center gap-3">
@@ -275,7 +215,7 @@ export default function ExamPage() {
             {formatTime(timeLeft)}
           </div>
           <button 
-            onClick={confirmSubmit}
+            onClick={() => { if(confirm("Submit Exam?")) submitExam(); }}
             className="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded text-xs font-bold uppercase shadow-sm"
           >
             Submit
@@ -290,7 +230,7 @@ export default function ExamPage() {
           <div className="flex-1 overflow-y-auto p-4 md:p-8 pb-24">
             <div className="max-w-3xl mx-auto">
               <div className="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
-                <span className="font-bold text-gray-500 text-sm">Question {currentQIndex + 1}</span>
+                <span className="font-bold text-gray-500 text-sm">Question {currentQIndex + 1} of {questions.length}</span>
                 <span className="text-xs font-bold bg-green-100 text-green-800 px-2 py-1 rounded">2 Marks</span>
               </div>
 
