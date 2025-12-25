@@ -1,16 +1,16 @@
 "use client";
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { 
   Grid, CheckCircle, AlertOctagon, X, Crown, Sparkles, 
-  BrainCircuit, Lock, ShieldAlert, Timer, ChevronRight, ChevronLeft 
+  BrainCircuit, ShieldAlert, Clock, ChevronRight, ChevronLeft 
 } from "lucide-react";
 import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";
 import { motion, AnimatePresence } from "framer-motion";
 
-// Dynamic import for Upgrade Modal
-const UpgradeModal = dynamic(() => import("../../../../components/cbt/UpgradeModal"), { ssr: false });
+// Dynamic import using Absolute Alias for safety
+const UpgradeModal = dynamic(() => import("@/components/cbt/UpgradeModal"), { ssr: false });
 
 /* === SECURITY & UI COMPONENTS === */
 
@@ -90,7 +90,6 @@ export default function ExamPage() {
   useEffect(() => {
     const handleContextMenu = (e) => e.preventDefault();
     const handleKeyDown = (e) => {
-      // Prevent Copy/Paste shortcuts
       if ((e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'v' || e.key === 'p')) {
         e.preventDefault();
       }
@@ -103,22 +102,19 @@ export default function ExamPage() {
     };
   }, []);
 
-  // 2. Security: Malpractice Monitor (Tab Switching)
+  // 2. Security: Malpractice Monitor
   useEffect(() => {
     if (!mounted || isSubmitted) return;
-    
     const handleVisibilityChange = () => {
       if (document.hidden) {
         setMalpracticeCount(prev => {
           const newCount = prev + 1;
-          // Trigger Freeze Penalty
           setIsFrozen(true);
-          setTimeout(() => setIsFrozen(false), 3000); // 3s Penalty Freeze
+          setTimeout(() => setIsFrozen(false), 3000);
           return newCount;
         });
       }
     };
-    
     document.addEventListener("visibilitychange", handleVisibilityChange);
     return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
   }, [mounted, isSubmitted]);
@@ -151,7 +147,8 @@ export default function ExamPage() {
         if (!res.ok) throw new Error(data.error || "Failed to load");
 
         setCourse(data.course);
-        setQuestions(data.questions);
+        // FIX: Ensure questions is always an array
+        setQuestions(Array.isArray(data.questions) ? data.questions : []);
         setIsPremium(data.isPremium);
 
         const savedSession = localStorage.getItem(getStorageKey(parsedStudent.email));
@@ -164,6 +161,7 @@ export default function ExamPage() {
           setTimeLeft((data.course?.duration || 15) * 60);
         }
       } catch (e) {
+        console.error("Load Error:", e);
         setError(e.message);
       } finally {
         setLoading(false);
@@ -176,7 +174,9 @@ export default function ExamPage() {
   const submitExam = useCallback(() => {
     setIsSubmitted(true);
     let correctCount = 0;
-    questions.forEach(q => { if (answers[q.id] === q.correct_option) correctCount++; });
+    if (Array.isArray(questions)) {
+      questions.forEach(q => { if (answers[q.id] === q.correct_option) correctCount++; });
+    }
     setScore(correctCount);
     if (student) localStorage.removeItem(getStorageKey(student.email));
     setModalConfig({ show: false });
@@ -201,7 +201,7 @@ export default function ExamPage() {
     return () => clearInterval(interval);
   }, [loading, isSubmitted, error, timeLeft, showUpgrade, mounted, answers, currentQIndex, student, getStorageKey, submitExam, isFrozen]);
 
-  // 6. Keyboard Navigation (A, B, C, D, N, P)
+  // 6. Keyboard Navigation
   useEffect(() => {
     if (isSubmitted || loading) return;
     const handleKeyNav = (e) => {
@@ -341,8 +341,10 @@ export default function ExamPage() {
   }
 
   // === EXAM VIEW ===
-  const currentQ = questions[currentQIndex];
-  const isLastQuestion = questions.length > 0 && currentQIndex === questions.length - 1;
+  // FIX: Safe access to currentQ
+  const currentQ = Array.isArray(questions) ? questions[currentQIndex] : null;
+  // FIX: Safe calculation of isLastQuestion
+  const isLastQuestion = Array.isArray(questions) && questions.length > 0 && currentQIndex === questions.length - 1;
 
   if (!currentQ) return <div className="h-screen flex items-center justify-center bg-white font-bold">Synchronizing...</div>;
 
@@ -372,7 +374,7 @@ export default function ExamPage() {
 
         <div className="flex items-center gap-6">
           <div className={`flex items-center gap-2 bg-black/30 px-4 py-1.5 rounded-lg border border-white/10 ${timeLeft < 300 ? 'animate-pulse bg-red-900/50 border-red-500' : ''}`}>
-            <Timer size={16} className="text-green-400" />
+            <Clock size={16} className="text-green-400" />
             <span className="font-mono font-black text-xl tracking-widest">{formatTime(timeLeft || 0)}</span>
           </div>
           <button onClick={confirmSubmit} className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg text-xs font-black uppercase shadow-lg transition-all hover:scale-105">
