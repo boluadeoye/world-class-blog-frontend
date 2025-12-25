@@ -30,6 +30,7 @@
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "react-markdown": "^10.1.0",
+    "react-paystack": "^6.0.0",
     "react-to-print": "^3.2.0",
     "remark-gfm": "^4.0.1",
     "sentiment": "^5.0.2",
