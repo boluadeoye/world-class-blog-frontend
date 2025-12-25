@@ -1,28 +1,40 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Clock, Grid, ChevronLeft, ChevronRight, AlertTriangle, X, Lock } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Clock, Grid, ChevronLeft, ChevronRight, AlertTriangle, CheckCircle, AlertOctagon, X, Lock } from "lucide-react";
 
-/* === CUSTOM MODAL === */
-function ConfirmModal({ isOpen, title, message, onConfirm, onCancel, type = "warning" }) {
+/* === CUSTOM MODAL (Enhanced) === */
+function ConfirmModal({ isOpen, title, message, onConfirm, onCancel, type = "warning", singleButton = false }) {
   if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-xl shadow-2xl max-w-sm w-full overflow-hidden animate-in fade-in zoom-in duration-200">
-        <div className={`p-4 ${type === 'danger' ? 'bg-red-600' : 'bg-green-700'} text-white font-bold flex items-center gap-2`}>
-          {type === 'danger' ? <AlertTriangle size={20} /> : <Clock size={20} />}
-          {title}
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 transition-all">
+      <motion.div 
+        initial={{ scale: 0.9, opacity: 0 }} 
+        animate={{ scale: 1, opacity: 1 }}
+        className="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden border border-gray-200"
+      >
+        <div className={`p-5 ${type === 'danger' ? 'bg-red-600' : 'bg-green-700'} text-white font-bold flex items-center gap-3`}>
+          {type === 'danger' ? <AlertOctagon size={24} /> : <CheckCircle size={24} />}
+          <span className="text-lg">{title}</span>
         </div>
         <div className="p-6">
-          <p className="text-gray-700 font-medium mb-6">{message}</p>
+          <p className="text-gray-700 font-medium mb-8 text-base leading-relaxed">{message}</p>
           <div className="flex gap-3">
-            <button onClick={onCancel} className="flex-1 py-3 border border-gray-300 rounded-lg font-bold text-gray-600 hover:bg-gray-50 transition-colors">Cancel</button>
-            <button onClick={onConfirm} className={`flex-1 py-3 rounded-lg font-bold text-white transition-colors ${type === 'danger' ? 'bg-red-600 hover:bg-red-700' : 'bg-green-700 hover:bg-green-800'}`}>
-              Confirm
+            {!singleButton && (
+              <button onClick={onCancel} className="flex-1 py-3 border-2 border-gray-200 rounded-xl font-bold text-gray-600 hover:bg-gray-50 transition-colors">
+                Cancel
+              </button>
+            )}
+            <button 
+              onClick={onConfirm} 
+              className={`flex-1 py-3 rounded-xl font-bold text-white shadow-lg transition-transform active:scale-95 ${type === 'danger' ? 'bg-red-600 hover:bg-red-700' : 'bg-green-700 hover:bg-green-800'}`}
+            >
+              {singleButton ? "Exit Portal" : "Confirm"}
             </button>
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
@@ -35,10 +47,15 @@ function Toast({ message, type, onClose }) {
   }, []);
 
   return (
-    <div className={`fixed top-6 left-1/2 -translate-x-1/2 z-[110] px-6 py-3 rounded-full shadow-xl flex items-center gap-3 font-bold text-sm animate-in slide-in-from-top-4 ${type === 'error' ? 'bg-red-600 text-white' : 'bg-gray-800 text-white'}`}>
+    <motion.div 
+      initial={{ y: -50, opacity: 0 }} 
+      animate={{ y: 0, opacity: 1 }} 
+      exit={{ y: -50, opacity: 0 }}
+      className={`fixed top-6 left-1/2 -translate-x-1/2 z-[110] px-6 py-3 rounded-full shadow-xl flex items-center gap-3 font-bold text-sm ${type === 'error' ? 'bg-red-600 text-white' : 'bg-gray-800 text-white'}`}
+    >
       {type === 'error' && <AlertTriangle size={18} />}
       {message}
-    </div>
+    </motion.div>
   );
 }
 
@@ -63,7 +80,7 @@ export default function ExamPage() {
   const [showMobileMap, setShowMobileMap] = useState(false);
   
   // Modal & Toast State
-  const [modalConfig, setModalConfig] = useState({ show: false, title: "", message: "", action: null });
+  const [modalConfig, setModalConfig] = useState({ show: false, title: "", message: "", action: null, singleButton: false });
   const [toast, setToast] = useState(null);
   
   // Malpractice
@@ -75,21 +92,8 @@ export default function ExamPage() {
   useEffect(() => {
     setMounted(true);
     const studentData = sessionStorage.getItem("cbt_student");
-    
-    if (!studentData) { 
-      router.push("/cbt"); 
-      return; 
-    }
-    
+    if (!studentData) { router.push("/cbt"); return; }
     const parsedStudent = JSON.parse(studentData);
-    
-    if (!parsedStudent.session_token) {
-      alert("Security Update: Please log in again.");
-      sessionStorage.removeItem("cbt_student");
-      router.push("/cbt");
-      return;
-    }
-
     setStudent(parsedStudent);
 
     async function loadExam() {
@@ -104,8 +108,15 @@ export default function ExamPage() {
         const data = await res.json();
         
         if (res.status === 401) {
-          alert("Session Expired. You logged in on another device.");
-          router.push("/cbt");
+          // Initial Load Security Check
+          setModalConfig({
+            show: true,
+            title: "Access Denied",
+            message: "Session Expired. You are logged in on another device.",
+            type: "danger",
+            singleButton: true,
+            action: () => { sessionStorage.removeItem("cbt_student"); router.push("/cbt"); }
+          });
           return;
         }
 
@@ -116,9 +127,10 @@ export default function ExamPage() {
         }
         
         if (!res.ok) throw new Error(data.error || "Failed to load exam");
+        if (!data.questions || data.questions.length === 0) throw new Error("No questions found for this course.");
         
         setCourse(data.course);
-        setQuestions(data.questions || []);
+        setQuestions(data.questions);
 
         const savedSession = localStorage.getItem(getStorageKey(parsedStudent.email));
         if (savedSession) {
@@ -138,7 +150,7 @@ export default function ExamPage() {
     loadExam();
   }, []);
 
-  // 2. SECURITY HEARTBEAT (The Fix)
+  // 2. SECURITY HEARTBEAT (Updated with Modal)
   useEffect(() => {
     if (!student || isSubmitted) return;
 
@@ -151,14 +163,23 @@ export default function ExamPage() {
 
         if (res.status === 401) {
           clearInterval(heartbeat);
-          alert("SECURITY ALERT: You have logged in on another device. This session is terminated.");
-          sessionStorage.removeItem("cbt_student");
-          router.push("/cbt");
+          // Trigger Beautiful Modal
+          setModalConfig({
+            show: true,
+            title: "Session Terminated",
+            message: "Security Alert: You have logged in on another device. This session is now invalid.",
+            type: "danger",
+            singleButton: true,
+            action: () => {
+              sessionStorage.removeItem("cbt_student");
+              router.push("/cbt");
+            }
+          });
         }
       } catch (e) {
         // Ignore network blips
       }
-    }, 5000); // Check every 5 seconds
+    }, 5000);
 
     return () => clearInterval(heartbeat);
   }, [student, isSubmitted]);
@@ -315,6 +336,20 @@ export default function ExamPage() {
   return (
     <main className="min-h-screen bg-gray-100 flex flex-col font-sans h-screen overflow-hidden">
       
+      {/* === OVERLAYS === */}
+      <AnimatePresence>
+        {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+      </AnimatePresence>
+      <ConfirmModal 
+        isOpen={modalConfig.show} 
+        title={modalConfig.title} 
+        message={modalConfig.message} 
+        type={modalConfig.type}
+        onConfirm={modalConfig.action} 
+        onCancel={() => setModalConfig({ ...modalConfig, show: false })} 
+        singleButton={modalConfig.singleButton}
+      />
+
       {/* === HEADER === */}
       <header className="bg-[#004d00] text-white px-4 py-2 flex justify-between items-center shadow-md shrink-0 z-30">
         <div className="flex items-center gap-3">
