@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { ArrowLeft, Save, Trash2, Edit3, Plus, CheckCircle, Upload, FileText } from "lucide-react";
+import { ArrowLeft, Save, Trash2, Edit3, Plus, Upload, FileText, X, Clock } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 
@@ -10,11 +10,12 @@ export default function CourseManager() {
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   
-  // Modes: 'list', 'edit', 'bulk'
+  // Modes
   const [mode, setMode] = useState('list'); 
   const [bulkText, setBulkText] = useState("");
+  const [isEditingCourse, setIsEditingCourse] = useState(false); // Course Edit Mode
   
-  // Single Edit State
+  // Question Form State
   const [editingQuestionId, setEditingQuestionId] = useState(null);
   const [qForm, setQForm] = useState({
     question_text: "", option_a: "", option_b: "", option_c: "", option_d: "", correct_option: "A", explanation: ""
@@ -36,7 +37,18 @@ export default function CourseManager() {
 
   useEffect(() => { loadData(); }, []);
 
-  // === BULK PARSER ENGINE ===
+  // === 1. SAVE COURSE DETAILS ===
+  const saveCourse = async () => {
+    await fetch('/api/cbt/manage', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'course', ...course })
+    });
+    setIsEditingCourse(false);
+    loadData(); // Refresh to confirm
+  };
+
+  // === 2. BULK UPLOAD ===
   const handleBulkUpload = async () => {
     const raw = bulkText.split('\n').filter(line => line.trim() !== '');
     const parsedQuestions = [];
@@ -78,7 +90,7 @@ export default function CourseManager() {
     }
   };
 
-  // Single Save
+  // === 3. SINGLE QUESTION LOGIC ===
   const saveQuestion = async (e) => {
     e.preventDefault();
     const method = editingQuestionId ? 'PUT' : 'POST';
@@ -117,22 +129,70 @@ export default function CourseManager() {
   return (
     <main className="min-h-screen bg-gray-50 p-4 md:p-8 font-sans text-gray-900">
       
-      {/* HEADER */}
-      <div className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-green-700 mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <Link href="/cbt/admin/dashboard" className="text-xs font-bold text-gray-500 uppercase tracking-widest hover:text-green-700 mb-2 inline-flex items-center gap-1">
-            <ArrowLeft size={12} /> Back
+      {/* === HEADER (Editable) === */}
+      <div className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-green-700 mb-8">
+        <div className="flex flex-col gap-4">
+          <Link href="/cbt/admin/dashboard" className="text-xs font-bold text-gray-500 uppercase tracking-widest hover:text-green-700 inline-flex items-center gap-1">
+            <ArrowLeft size={12} /> Back to Dashboard
           </Link>
-          <h1 className="text-2xl font-black text-gray-900">{course.code}: {course.title}</h1>
-          <p className="text-sm text-gray-500 font-bold">{questions.length} Questions Loaded</p>
-        </div>
-        <div className="flex gap-3">
-          <button onClick={() => setMode('bulk')} className="bg-blue-600 text-white px-4 py-2 rounded font-bold text-sm flex items-center gap-2 shadow-sm hover:bg-blue-700">
-            <Upload size={16} /> Bulk Upload
-          </button>
-          <button onClick={() => setMode('edit')} className="bg-green-700 text-white px-4 py-2 rounded font-bold text-sm flex items-center gap-2 shadow-sm hover:bg-green-800">
-            <Plus size={16} /> Add Single
-          </button>
+
+          {isEditingCourse ? (
+            <div className="bg-gray-50 p-6 rounded-lg border border-green-200 animate-in fade-in slide-in-from-top-2">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                <div>
+                  <label className="text-xs font-bold text-gray-500 uppercase">Code</label>
+                  <input value={course.code} onChange={e=>setCourse({...course, code: e.target.value})} className="w-full p-2 border rounded font-bold uppercase" />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="text-xs font-bold text-gray-500 uppercase">Title</label>
+                  <input value={course.title} onChange={e=>setCourse({...course, title: e.target.value})} className="w-full p-2 border rounded" />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-gray-500 uppercase">Level</label>
+                  <select value={course.level} onChange={e=>setCourse({...course, level: e.target.value})} className="w-full p-2 border rounded bg-white">
+                    <option value="100">100 Level</option>
+                    <option value="200">200 Level</option>
+                  </select>
+                </div>
+              </div>
+              <div className="flex items-end justify-between">
+                <div>
+                  <label className="text-xs font-bold text-gray-500 uppercase">Duration (Mins)</label>
+                  <input type="number" value={course.duration || 15} onChange={e=>setCourse({...course, duration: e.target.value})} className="w-24 p-2 border rounded" />
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={() => setIsEditingCourse(false)} className="px-4 py-2 text-gray-600 font-bold hover:bg-gray-200 rounded">Cancel</button>
+                  <button onClick={saveCourse} className="px-6 py-2 bg-green-700 text-white font-bold rounded hover:bg-green-800 flex items-center gap-2">
+                    <Save size={16} /> Save Changes
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+              <div>
+                <h1 className="text-3xl font-black text-gray-900">{course.code}: {course.title}</h1>
+                <div className="flex items-center gap-4 mt-2 text-sm text-gray-500 font-bold">
+                  <span>{course.level} Level</span>
+                  <span>•</span>
+                  <span className="flex items-center gap-1"><Clock size={14} /> {course.duration || 15} Mins</span>
+                  <span>•</span>
+                  <span>{questions.length} Questions</span>
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <button onClick={() => setIsEditingCourse(true)} className="text-blue-600 hover:text-blue-800 text-sm font-bold flex items-center gap-1 bg-blue-50 px-3 py-2 rounded">
+                  <Edit3 size={16} /> Edit Info
+                </button>
+                <button onClick={() => setMode('bulk')} className="bg-blue-600 text-white px-4 py-2 rounded font-bold text-sm flex items-center gap-2 shadow-sm hover:bg-blue-700">
+                  <Upload size={16} /> Bulk Upload
+                </button>
+                <button onClick={() => setMode('edit')} className="bg-green-700 text-white px-4 py-2 rounded font-bold text-sm flex items-center gap-2 shadow-sm hover:bg-green-800">
+                  <Plus size={16} /> Add Single
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -144,9 +204,10 @@ export default function CourseManager() {
           {/* BULK UPLOAD MODE */}
           {mode === 'bulk' && (
             <div className="bg-white p-6 rounded-xl shadow-lg border border-blue-200 sticky top-8">
-              <h2 className="text-lg font-bold mb-4 flex items-center gap-2 text-blue-800">
-                <FileText size={20} /> Paste AI Content
-              </h2>
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-lg font-bold flex items-center gap-2 text-blue-800"><FileText size={20} /> Paste AI Content</h2>
+                <button onClick={() => setMode('list')}><X size={20} className="text-gray-400 hover:text-gray-600" /></button>
+              </div>
               <p className="text-xs text-gray-500 mb-2">Format: 1. Question? A. Opt B. Opt... Answer: A Explanation: ...</p>
               <textarea 
                 className="w-full h-96 p-4 border border-gray-300 rounded font-mono text-xs bg-gray-50 focus:border-blue-500 outline-none"
@@ -154,21 +215,21 @@ export default function CourseManager() {
                 value={bulkText}
                 onChange={(e) => setBulkText(e.target.value)}
               />
-              <div className="flex gap-3 mt-4">
-                <button onClick={handleBulkUpload} className="flex-1 bg-blue-600 text-white py-3 rounded font-bold hover:bg-blue-700">
-                  Parse & Upload
-                </button>
-                <button onClick={() => setMode('list')} className="px-4 py-3 border rounded font-bold text-gray-600">Cancel</button>
-              </div>
+              <button onClick={handleBulkUpload} className="w-full mt-4 bg-blue-600 text-white py-3 rounded font-bold hover:bg-blue-700">
+                Parse & Upload
+              </button>
             </div>
           )}
 
           {/* SINGLE EDIT MODE */}
           {mode === 'edit' && (
             <div className="bg-white p-6 rounded-xl shadow-lg border border-green-200 sticky top-8">
-              <h2 className="text-lg font-bold mb-4 flex items-center gap-2 text-green-800">
-                {editingQuestionId ? "Edit Question" : "Add New Question"}
-              </h2>
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-lg font-bold flex items-center gap-2 text-green-800">
+                  {editingQuestionId ? "Edit Question" : "Add New Question"}
+                </h2>
+                <button onClick={() => {setMode('list'); setEditingQuestionId(null);}}><X size={20} className="text-gray-400 hover:text-gray-600" /></button>
+              </div>
               <form onSubmit={saveQuestion} className="space-y-4">
                 <textarea 
                   required rows={3} placeholder="Question Text"
@@ -200,10 +261,7 @@ export default function CourseManager() {
                   value={qForm.explanation}
                   onChange={e => setQForm({...qForm, explanation: e.target.value})}
                 />
-                <div className="flex gap-3 pt-2">
-                  <button type="submit" className="flex-1 bg-green-700 text-white py-3 rounded font-bold hover:bg-green-800">Save</button>
-                  <button type="button" onClick={() => {setMode('list'); setEditingQuestionId(null);}} className="px-4 py-3 border rounded font-bold text-gray-600">Cancel</button>
-                </div>
+                <button type="submit" className="w-full bg-green-700 text-white py-3 rounded font-bold hover:bg-green-800">Save Question</button>
               </form>
             </div>
           )}
