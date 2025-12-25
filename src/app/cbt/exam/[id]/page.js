@@ -2,7 +2,12 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Clock, Grid, ChevronLeft, ChevronRight, AlertTriangle, Lock, Crown } from "lucide-react";
-import UpgradeModal from "../../../../components/cbt/UpgradeModal";
+import dynamic from "next/dynamic";
+
+// CRITICAL FIX: Dynamic Import for Paystack Modal
+const UpgradeModal = dynamic(() => import("../../../../components/cbt/UpgradeModal"), { 
+  ssr: false 
+});
 
 /* === CUSTOM MODAL === */
 function ConfirmModal({ isOpen, title, message, onConfirm, onCancel, type = "warning" }) {
@@ -38,8 +43,6 @@ export default function ExamPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [mounted, setMounted] = useState(false);
-  
-  // Upgrade State
   const [showUpgrade, setShowUpgrade] = useState(false);
 
   const [currentQIndex, setCurrentQIndex] = useState(0);
@@ -77,7 +80,6 @@ export default function ExamPage() {
           return;
         }
 
-        // TRIGGER UPGRADE MODAL ON 403
         if (res.status === 403) {
           setShowUpgrade(true);
           setLoading(false);
@@ -108,7 +110,6 @@ export default function ExamPage() {
     loadExam();
   }, []);
 
-  // Timer & Malpractice logic (Same as before)
   useEffect(() => {
     if (!mounted || loading || isSubmitted || error || timeLeft === null || showUpgrade) return;
     const interval = setInterval(() => {
@@ -158,7 +159,6 @@ export default function ExamPage() {
 
   if (!mounted) return null;
 
-  // === UPGRADE GATE ===
   if (showUpgrade) return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6 text-center">
       <UpgradeModal student={student} onClose={() => router.push('/cbt/dashboard')} onSuccess={handleUpgradeSuccess} />
@@ -176,7 +176,6 @@ export default function ExamPage() {
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-white text-green-800 font-bold">Verifying Access...</div>;
   if (error) return <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6 text-center text-red-600 font-bold">{error}</div>;
 
-  // === RESULT VIEW ===
   if (isSubmitted) {
     const percentage = Math.round((score / questions.length) * 100);
     return (

@@ -3,7 +3,13 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { BookOpen, Clock, AlertTriangle, LogOut, User, Crown, Sparkles } from "lucide-react";
 import Link from "next/link";
-import UpgradeModal from "../../../components/cbt/UpgradeModal";
+import dynamic from "next/dynamic";
+
+// CRITICAL FIX: Dynamically import Paystack component with SSR disabled
+// This prevents "window is not defined" error during build
+const UpgradeModal = dynamic(() => import("../../../components/cbt/UpgradeModal"), { 
+  ssr: false 
+});
 
 export default function StudentDashboard() {
   const router = useRouter();
@@ -13,12 +19,15 @@ export default function StudentDashboard() {
   const [showUpgrade, setShowUpgrade] = useState(false);
 
   useEffect(() => {
-    const stored = sessionStorage.getItem("cbt_student");
-    if (!stored) {
-      router.push("/cbt");
-      return;
+    // Safe client-side access
+    if (typeof window !== 'undefined') {
+      const stored = sessionStorage.getItem("cbt_student");
+      if (!stored) {
+        router.push("/cbt");
+        return;
+      }
+      setStudent(JSON.parse(stored));
     }
-    setStudent(JSON.parse(stored));
 
     async function fetchCourses() {
       try {
@@ -53,7 +62,7 @@ export default function StudentDashboard() {
   return (
     <main className="min-h-screen bg-gray-50 font-sans text-gray-900 p-6">
       
-      {/* UPGRADE MODAL */}
+      {/* UPGRADE MODAL (Client Only) */}
       {showUpgrade && (
         <UpgradeModal 
           student={student} 
@@ -83,7 +92,7 @@ export default function StudentDashboard() {
 
       <div className="max-w-5xl mx-auto">
         
-        {/* === PREMIUM BANNER (Only for Free Users) === */}
+        {/* PREMIUM BANNER */}
         {!isPremium && (
           <div className="bg-gradient-to-r from-gray-900 to-slate-800 rounded-2xl p-6 mb-10 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-yellow-500/10 blur-[80px] rounded-full pointer-events-none"></div>
