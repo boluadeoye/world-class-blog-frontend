@@ -1,16 +1,16 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { BookOpen, Clock, AlertTriangle, LogOut, ChevronDown, ChevronUp, ShieldAlert } from "lucide-react";
+import { BookOpen, Clock, AlertTriangle, LogOut, User, Crown, Sparkles } from "lucide-react";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import UpgradeModal from "../../../components/cbt/UpgradeModal";
 
 export default function StudentDashboard() {
   const router = useRouter();
   const [student, setStudent] = useState(null);
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showRules, setShowRules] = useState(false);
+  const [showUpgrade, setShowUpgrade] = useState(false);
 
   useEffect(() => {
     const stored = sessionStorage.getItem("cbt_student");
@@ -40,146 +40,121 @@ export default function StudentDashboard() {
     router.push("/cbt");
   };
 
+  const handleUpgradeSuccess = () => {
+    setShowUpgrade(false);
+    alert("Upgrade Successful! Please log out and log back in to refresh your status.");
+    handleLogout();
+  };
+
   if (!student) return null;
 
-  // Generate a consistent premium avatar based on name
-  const avatarUrl = `https://api.dicebear.com/9.x/micah/svg?seed=${student.name}&backgroundColor=f0fdf4&radius=50`;
+  const isPremium = student.subscription_status === 'premium';
 
   return (
-    <main className="min-h-screen bg-[#f8fafc] font-sans text-gray-900">
+    <main className="min-h-screen bg-gray-50 font-sans text-gray-900 p-6">
       
-      {/* === PREMIUM APP HEADER (Full Width) === */}
-      <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-gray-200 px-6 py-3 flex justify-between items-center">
-        
-        {/* Logo Area */}
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center text-white font-black text-xs shadow-lg shadow-green-600/20">
-            F
-          </div>
-          <span className="font-black text-lg tracking-tight text-slate-900 hidden sm:block">
-            FUOYE<span className="text-green-600">CBT</span>
-          </span>
-        </div>
+      {/* UPGRADE MODAL */}
+      {showUpgrade && (
+        <UpgradeModal 
+          student={student} 
+          onClose={() => setShowUpgrade(false)} 
+          onSuccess={handleUpgradeSuccess} 
+        />
+      )}
 
-        {/* User Profile Pill */}
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-3 bg-gray-50 pl-4 pr-1 py-1 rounded-full border border-gray-200 shadow-sm">
-            <div className="text-right hidden md:block">
-              <p className="text-xs font-bold text-gray-900 leading-none">{student.name}</p>
-              <p className="text-[10px] text-gray-500 font-medium uppercase tracking-wide">Student</p>
-            </div>
-            <img 
-              src={avatarUrl} 
-              alt="Profile" 
-              className="w-9 h-9 rounded-full bg-white border border-gray-200 shadow-sm"
-            />
+      {/* HEADER */}
+      <header className="bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center sticky top-0 z-10 rounded-xl shadow-sm mb-8">
+        <div className="flex items-center gap-3">
+          <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold border ${isPremium ? 'bg-yellow-100 text-yellow-700 border-yellow-300' : 'bg-green-100 text-green-800 border-green-200'}`}>
+            {isPremium ? <Crown size={20} /> : student.name.charAt(0)}
           </div>
-          
-          <button 
-            onClick={handleLogout}
-            className="p-2 text-gray-400 hover:text-red-600 transition-colors"
-            title="Logout"
-          >
-            <LogOut size={20} />
-          </button>
+          <div>
+            <h1 className="text-sm font-bold text-gray-900 flex items-center gap-2">
+              {student.name}
+              {isPremium && <span className="text-[10px] bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full border border-yellow-200">PRO</span>}
+            </h1>
+            <p className="text-xs text-gray-500">{student.email}</p>
+          </div>
         </div>
+        <button onClick={handleLogout} className="text-xs font-bold text-red-600 hover:text-red-800 uppercase tracking-wider flex items-center gap-1">
+          <LogOut size={14} /> Logout
+        </button>
       </header>
 
-      <div className="max-w-6xl mx-auto p-6 md:p-8">
+      <div className="max-w-5xl mx-auto">
         
-        {/* === INTELLIGENT RULES (Collapsible) === */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-10">
-          <button 
-            onClick={() => setShowRules(!showRules)}
-            className="w-full flex items-center justify-between p-6 hover:bg-gray-50 transition-colors"
-          >
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center border border-amber-100">
-                <ShieldAlert size={20} />
-              </div>
-              <div className="text-left">
-                <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wide">Examination Protocols</h2>
-                <p className="text-xs text-gray-500">Read strict guidelines before starting</p>
-              </div>
+        {/* === PREMIUM BANNER (Only for Free Users) === */}
+        {!isPremium && (
+          <div className="bg-gradient-to-r from-gray-900 to-slate-800 rounded-2xl p-6 mb-10 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-yellow-500/10 blur-[80px] rounded-full pointer-events-none"></div>
+            
+            <div className="relative z-10">
+              <h2 className="text-xl font-bold flex items-center gap-2 mb-2">
+                <Crown size={24} className="text-yellow-400" /> Upgrade to Premium
+              </h2>
+              <p className="text-slate-300 text-sm max-w-md">
+                Get unlimited retakes, full 60-question banks, and AI-powered performance analysis.
+              </p>
             </div>
-            {showRules ? <ChevronUp size={20} className="text-gray-400" /> : <ChevronDown size={20} className="text-gray-400" />}
-          </button>
-          
-          <AnimatePresence>
-            {showRules && (
-              <motion.div 
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                className="border-t border-gray-100 bg-amber-50/30"
-              >
-                <ul className="p-6 pl-16 list-disc text-sm text-gray-700 space-y-2">
-                  <li><strong>Zero Tolerance:</strong> Switching tabs is recorded as malpractice. 3 strikes = Auto-Submit.</li>
-                  <li><strong>Timer:</strong> The clock starts immediately. It cannot be paused.</li>
-                  <li><strong>Submission:</strong> Ensure you click "Submit" before time runs out. Auto-submit occurs at 00:00.</li>
-                  <li><strong>Network:</strong> A stable connection is required. Do not refresh the page.</li>
-                </ul>
-              </motion.div>
-            )}
-          </AnimatePresence>
+            
+            <button 
+              onClick={() => setShowUpgrade(true)}
+              className="relative z-10 px-8 py-3 bg-yellow-500 hover:bg-yellow-400 text-black font-bold rounded-xl shadow-lg shadow-yellow-500/20 transition-transform active:scale-95 flex items-center gap-2"
+            >
+              <Sparkles size={16} /> Unlock Now - ₦500
+            </button>
+          </div>
+        )}
+
+        {/* INSTRUCTIONS */}
+        <div className="bg-yellow-50 border-l-4 border-yellow-500 p-6 rounded-r-lg mb-10 shadow-sm">
+          <h2 className="text-lg font-bold text-yellow-800 flex items-center gap-2 mb-2">
+            <AlertTriangle size={20} /> Examination Instructions
+          </h2>
+          <ul className="list-disc pl-5 text-sm text-yellow-900 space-y-1">
+            <li>Do not refresh the page once the exam starts.</li>
+            <li>The timer will start immediately after you click "Start Exam".</li>
+            <li>Switching tabs is recorded as malpractice.</li>
+          </ul>
         </div>
 
-        {/* === EXAM TICKETS (Grid) === */}
-        <div className="flex items-center gap-3 mb-6">
-          <BookOpen size={24} className="text-green-700" />
-          <h2 className="text-xl font-black text-gray-900 tracking-tight">Available Examinations</h2>
-        </div>
+        {/* EXAMS */}
+        <h2 className="text-xl font-black text-gray-800 mb-6 flex items-center gap-2">
+          <BookOpen size={24} className="text-green-700" /> Available Examinations
+        </h2>
 
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[1,2,3].map(i => (
-              <div key={i} className="h-48 bg-white rounded-2xl animate-pulse border border-gray-200"></div>
-            ))}
-          </div>
+          <div className="text-center py-12 text-gray-500">Loading exam portal...</div>
         ) : courses.length === 0 ? (
-          <div className="bg-white p-12 rounded-2xl border-2 border-dashed border-gray-300 text-center">
-            <p className="text-gray-400 font-medium">No exams are currently scheduled.</p>
+          <div className="bg-white p-10 rounded-xl border border-dashed border-gray-300 text-center">
+            <p className="text-gray-500">No exams are currently scheduled.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {courses.map((course) => (
-              <motion.div 
-                key={course.id}
-                whileHover={{ y: -4 }}
-                className="group bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-xl hover:border-green-500/30 transition-all duration-300 flex flex-col"
-              >
-                {/* Ticket Header */}
-                <div className="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center relative overflow-hidden">
-                  <div className="absolute top-0 left-0 w-1 h-full bg-green-600"></div>
-                  <span className="font-mono text-lg font-black text-gray-900 tracking-tight">
+              <div key={course.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+                <div className="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+                  <span className="bg-green-100 text-green-800 text-xs font-bold px-2 py-1 rounded border border-green-200">
                     {course.code}
                   </span>
-                  <span className="text-[10px] font-bold bg-white border border-gray-200 px-2 py-1 rounded text-gray-500 uppercase tracking-wider">
-                    {course.level} Level
-                  </span>
+                  <span className="text-xs font-bold text-gray-400">{course.level} Level</span>
                 </div>
                 
-                {/* Ticket Body */}
-                <div className="p-6 flex-1 flex flex-col">
-                  <h3 className="font-bold text-lg text-gray-800 mb-4 leading-snug group-hover:text-green-700 transition-colors">
-                    {course.title}
-                  </h3>
-                  
-                  <div className="mt-auto pt-6 border-t border-dashed border-gray-200 flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-xs font-bold text-gray-500">
-                      <Clock size={14} className="text-green-600" />
-                      <span>{course.duration || 15} Mins</span>
-                    </div>
-                    
-                    <Link 
-                      href={`/cbt/exam/${course.id}`}
-                      className="bg-gray-900 hover:bg-green-700 text-white text-xs font-bold px-6 py-2.5 rounded-lg transition-colors shadow-lg shadow-gray-900/10"
-                    >
-                      Start
-                    </Link>
+                <div className="p-6">
+                  <h3 className="font-bold text-lg text-gray-900 mb-2">{course.title}</h3>
+                  <div className="flex items-center gap-2 text-xs text-gray-500 mb-6">
+                    <Clock size={14} />
+                    <span>{course.duration || 15} Minutes</span>
                   </div>
+                  
+                  <Link 
+                    href={`/cbt/exam/${course.id}`}
+                    className="block w-full bg-green-700 hover:bg-green-800 text-white text-center font-bold py-3 rounded transition-colors"
+                  >
+                    Start Exam
+                  </Link>
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
         )}
