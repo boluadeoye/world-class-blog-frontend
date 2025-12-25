@@ -1,9 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
-import { Clock, Grid, ChevronLeft, ChevronRight, AlertTriangle, CheckCircle, AlertOctagon, X, Lock } from "lucide-react";
+import { Clock, Grid, ChevronLeft, ChevronRight, AlertTriangle, CheckCircle, AlertOctagon, X, Lock, Crown, Sparkles, BrainCircuit } from "lucide-react";
 import dynamic from "next/dynamic";
+import ReactMarkdown from "react-markdown";
 
 const UpgradeModal = dynamic(() => import("../../../../components/cbt/UpgradeModal"), { ssr: false });
 
@@ -12,11 +12,7 @@ function ConfirmModal({ isOpen, title, message, onConfirm, onCancel, type = "war
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <motion.div 
-        initial={{ scale: 0.9, opacity: 0 }} 
-        animate={{ scale: 1, opacity: 1 }}
-        className="bg-white rounded-xl shadow-2xl max-w-sm w-full overflow-hidden border border-gray-200"
-      >
+      <div className="bg-white rounded-xl shadow-2xl max-w-sm w-full overflow-hidden border border-gray-200">
         <div className={`p-4 ${type === 'danger' ? 'bg-red-600' : 'bg-green-700'} text-white font-bold flex items-center gap-2`}>
           {type === 'danger' ? <AlertOctagon size={20} /> : <CheckCircle size={20} />}
           {title}
@@ -24,36 +20,12 @@ function ConfirmModal({ isOpen, title, message, onConfirm, onCancel, type = "war
         <div className="p-6">
           <p className="text-gray-700 font-medium mb-6">{message}</p>
           <div className="flex gap-3">
-            {!singleButton && (
-              <button onClick={onCancel} className="flex-1 py-3 border border-gray-300 rounded-lg font-bold text-gray-600 hover:bg-gray-50 transition-colors">Cancel</button>
-            )}
-            <button onClick={onConfirm} className={`flex-1 py-3 rounded-lg font-bold text-white transition-colors ${type === 'danger' ? 'bg-red-600 hover:bg-red-700' : 'bg-green-700 hover:bg-green-800'}`}>
-              {singleButton ? "Exit" : "Confirm"}
-            </button>
+            {!singleButton && <button onClick={onCancel} className="flex-1 py-3 border border-gray-300 rounded-lg font-bold text-gray-600 hover:bg-gray-50">Cancel</button>}
+            <button onClick={onConfirm} className={`flex-1 py-3 rounded-lg font-bold text-white ${type === 'danger' ? 'bg-red-600 hover:bg-red-700' : 'bg-green-700 hover:bg-green-800'}`}>{singleButton ? "Exit" : "Confirm"}</button>
           </div>
         </div>
-      </motion.div>
+      </div>
     </div>
-  );
-}
-
-/* === TOAST === */
-function Toast({ message, type, onClose }) {
-  useEffect(() => {
-    const timer = setTimeout(onClose, 4000);
-    return () => clearTimeout(timer);
-  }, []);
-
-  return (
-    <motion.div 
-      initial={{ y: -50, opacity: 0 }} 
-      animate={{ y: 0, opacity: 1 }} 
-      exit={{ y: -50, opacity: 0 }}
-      className={`fixed top-6 left-1/2 -translate-x-1/2 z-[110] px-6 py-3 rounded-full shadow-xl flex items-center gap-3 font-bold text-sm ${type === 'error' ? 'bg-red-600 text-white' : 'bg-gray-800 text-white'}`}
-    >
-      {type === 'error' && <AlertTriangle size={18} />}
-      {message}
-    </motion.div>
   );
 }
 
@@ -68,6 +40,7 @@ export default function ExamPage() {
   const [error, setError] = useState(null);
   const [mounted, setMounted] = useState(false);
   const [showUpgrade, setShowUpgrade] = useState(false);
+  const [isPremium, setIsPremium] = useState(false);
 
   const [currentQIndex, setCurrentQIndex] = useState(0);
   const [answers, setAnswers] = useState({}); 
@@ -76,9 +49,12 @@ export default function ExamPage() {
   const [score, setScore] = useState(0);
   const [showMobileMap, setShowMobileMap] = useState(false);
   const [modalConfig, setModalConfig] = useState({ show: false });
-  const [toast, setToast] = useState(null);
-  const [strikes, setStrikes] = useState(0);
   
+  // AI Analysis State
+  const [activeTab, setActiveTab] = useState("corrections"); // corrections | ai
+  const [analysis, setAnalysis] = useState(null);
+  const [analyzing, setAnalyzing] = useState(false);
+
   const getStorageKey = (email) => `cbt_session_${params.id}_${email}`;
 
   useEffect(() => {
@@ -99,21 +75,13 @@ export default function ExamPage() {
         const res = await fetch(`/api/cbt/exam?${query.toString()}`);
         const data = await res.json();
         
-        if (res.status === 401) {
-          setModalConfig({
-            show: true, title: "Session Terminated", message: "You logged in on another device.", type: "danger", singleButton: true,
-            action: () => { sessionStorage.removeItem("cbt_student"); router.push("/cbt"); }
-          });
-          return;
-        }
-
+        if (res.status === 401) { alert("Session Expired."); router.push("/cbt"); return; }
         if (res.status === 403) { setShowUpgrade(true); setLoading(false); return; }
-        
-        if (!res.ok) throw new Error(data.error || "Failed to load exam");
-        if (!data.questions || data.questions.length === 0) throw new Error("No questions found.");
+        if (!res.ok) throw new Error(data.error || "Failed to load");
         
         setCourse(data.course);
         setQuestions(data.questions);
+        setIsPremium(data.isPremium);
 
         const savedSession = localStorage.getItem(getStorageKey(parsedStudent.email));
         if (savedSession) {
@@ -133,33 +101,18 @@ export default function ExamPage() {
     loadExam();
   }, []);
 
-  // Timer & Malpractice
   useEffect(() => {
     if (!mounted || loading || isSubmitted || error || timeLeft === null || showUpgrade) return;
     const interval = setInterval(() => {
       setTimeLeft((prev) => {
         const newTime = prev - 1;
         if (student) localStorage.setItem(getStorageKey(student.email), JSON.stringify({ answers, timeLeft: newTime, currentIndex: currentQIndex }));
-        if (newTime <= 0) { clearInterval(interval); finishExam(); return 0; }
+        if (newTime <= 0) { clearInterval(interval); submitExam(); return 0; }
         return newTime;
       });
     }, 1000);
     return () => clearInterval(interval);
-  }, [loading, isSubmitted, error, timeLeft, answers, currentQIndex, mounted, showUpgrade]);
-
-  useEffect(() => {
-    if (!mounted || isSubmitted || loading || error) return;
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        const newStrikes = strikes + 1;
-        setStrikes(newStrikes);
-        setToast({ message: `Warning: Tab Switch Detected (${newStrikes}/3)`, type: "error" });
-        if (newStrikes >= 3) finishExam();
-      }
-    };
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
-  }, [strikes, isSubmitted, loading, error, mounted]);
+  }, [loading, isSubmitted, error, timeLeft, showUpgrade]);
 
   const handleSelect = (option) => {
     if (isSubmitted) return;
@@ -167,26 +120,36 @@ export default function ExamPage() {
     setAnswers(prev => ({ ...prev, [qId]: option }));
   };
 
-  const confirmSubmit = () => {
-    const answeredCount = Object.keys(answers).length;
-    const total = questions.length;
-    setModalConfig({
-      show: true,
-      title: "Submit Examination?",
-      message: `You have answered ${answeredCount} out of ${total} questions. Are you sure you want to finish?`,
-      type: "warning",
-      action: finishExam
-    });
-  };
-
-  const finishExam = () => {
-    setModalConfig({ show: false });
+  const submitExam = () => {
     setIsSubmitted(true);
     let correctCount = 0;
     questions.forEach(q => { if (answers[q.id] === q.correct_option) correctCount++; });
     setScore(correctCount);
     if (student) localStorage.removeItem(getStorageKey(student.email));
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const generateAnalysis = async () => {
+    setAnalyzing(true);
+    const failedQuestions = questions.filter(q => answers[q.id] !== q.correct_option).map(q => ({
+      question_text: q.question_text,
+      correct_option: q.correct_option,
+      user_choice: answers[q.id] || "Skipped"
+    }));
+
+    try {
+      const res = await fetch("/api/cbt/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ studentId: student.id, failedQuestions })
+      });
+      const data = await res.json();
+      setAnalysis(data.analysis);
+    } catch (e) {
+      alert("AI Analysis failed. Try again.");
+    } finally {
+      setAnalyzing(false);
+    }
   };
 
   const formatTime = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
@@ -197,26 +160,25 @@ export default function ExamPage() {
     return "bg-white text-gray-500 border-gray-300 hover:bg-gray-50";
   };
 
-  const handleUpgradeSuccess = () => {
-    setShowUpgrade(false);
-    alert("Upgrade Successful! Reloading exam...");
-    window.location.reload();
-  };
-
   if (!mounted) return null;
-  if (showUpgrade) return <div className="min-h-screen flex items-center justify-center"><UpgradeModal student={student} onClose={() => router.push('/cbt/dashboard')} onSuccess={handleUpgradeSuccess} /></div>;
+  if (showUpgrade) return <div className="min-h-screen flex items-center justify-center"><UpgradeModal student={student} onClose={() => router.push('/cbt/dashboard')} onSuccess={() => window.location.reload()} /></div>;
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-white text-green-800 font-bold">Verifying Access...</div>;
   if (error) return <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6 text-center text-red-600 font-bold">{error}</div>;
 
+  // === RESULT VIEW ===
   if (isSubmitted) {
     const percentage = Math.round((score / questions.length) * 100);
     return (
-      <main className="min-h-screen bg-gray-50 font-sans">
-        <header className="bg-green-800 text-white p-4 shadow-md flex justify-between items-center">
+      <main className="min-h-screen bg-gray-50 font-sans pb-20">
+        {showUpgrade && <UpgradeModal student={student} onClose={() => setShowUpgrade(false)} onSuccess={() => {setShowUpgrade(false); setIsPremium(true);}} />}
+        
+        <header className="bg-green-800 text-white p-4 shadow-md flex justify-between items-center sticky top-0 z-30">
           <h1 className="font-bold">EXAM RESULT</h1>
           <button onClick={() => router.push('/cbt/dashboard')} className="text-xs bg-white text-green-800 px-3 py-1 rounded font-bold">EXIT</button>
         </header>
+
         <div className="max-w-4xl mx-auto p-6">
+          {/* SCORE CARD */}
           <div className="bg-white rounded-xl shadow-lg p-8 text-center mb-8 border-t-4 border-green-600">
             <h2 className="text-2xl font-bold text-gray-800 mb-2">Total Score</h2>
             <div className={`text-6xl font-black ${percentage >= 50 ? 'text-green-600' : 'text-red-600'}`}>
@@ -224,27 +186,70 @@ export default function ExamPage() {
             </div>
             <p className="text-gray-500 mt-2 font-bold">{percentage}%</p>
           </div>
-          <div className="space-y-4">
-            <h3 className="font-bold text-gray-700 uppercase tracking-widest border-b pb-2">Corrections</h3>
-            {questions.map((q, i) => (
-              <div key={q.id} className={`p-4 border-l-4 bg-white shadow-sm ${answers[q.id] === q.correct_option ? 'border-green-500' : 'border-red-500'}`}>
-                <p className="font-bold text-gray-800 mb-2">{i+1}. {q.question_text}</p>
-                <p className="text-sm text-gray-600">Correct: <span className="font-bold text-green-700">{q.correct_option}</span></p>
-                {answers[q.id] !== q.correct_option && <p className="text-sm text-red-600">You Chose: <span className="font-bold">{answers[q.id] || "None"}</span></p>}
-              </div>
-            ))}
+
+          {/* TABS */}
+          <div className="flex gap-2 mb-6 bg-gray-200 p-1 rounded-lg">
+            <button onClick={() => setActiveTab("corrections")} className={`flex-1 py-2 text-sm font-bold rounded-md transition-all ${activeTab === 'corrections' ? 'bg-white text-green-800 shadow-sm' : 'text-gray-500'}`}>Corrections</button>
+            <button onClick={() => setActiveTab("ai")} className={`flex-1 py-2 text-sm font-bold rounded-md transition-all flex items-center justify-center gap-2 ${activeTab === 'ai' ? 'bg-white text-purple-800 shadow-sm' : 'text-gray-500'}`}>
+              <Sparkles size={14} /> AI Tutor
+            </button>
           </div>
+
+          {/* CORRECTIONS TAB */}
+          {activeTab === "corrections" && (
+            <div className="space-y-4">
+              {questions.map((q, i) => (
+                <div key={q.id} className={`p-4 border-l-4 bg-white shadow-sm ${answers[q.id] === q.correct_option ? 'border-green-500' : 'border-red-500'}`}>
+                  <p className="font-bold text-gray-800 mb-2">{i+1}. {q.question_text}</p>
+                  <p className="text-sm text-gray-600">Correct: <span className="font-bold text-green-700">{q.correct_option}</span></p>
+                  {answers[q.id] !== q.correct_option && <p className="text-sm text-red-600">You Chose: <span className="font-bold">{answers[q.id] || "None"}</span></p>}
+                  {isPremium && q.explanation && <p className="text-xs text-gray-500 mt-1 italic border-t pt-2">💡 {q.explanation}</p>}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* AI TUTOR TAB */}
+          {activeTab === "ai" && (
+            <div className="bg-white rounded-xl shadow-sm border border-purple-100 overflow-hidden relative min-h-[300px]">
+              {!isPremium ? (
+                <div className="absolute inset-0 z-10 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center text-center p-6">
+                  <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mb-4 text-yellow-600"><Crown size={32} /></div>
+                  <h3 className="text-xl font-black text-gray-900 mb-2">Premium Feature</h3>
+                  <p className="text-gray-500 mb-6 max-w-xs">Unlock personalized AI analysis to understand why you failed specific questions.</p>
+                  <button onClick={() => setShowUpgrade(true)} className="bg-gray-900 text-white px-8 py-3 rounded-full font-bold shadow-lg">Unlock for ₦500</button>
+                </div>
+              ) : (
+                <div className="p-6">
+                  {!analysis ? (
+                    <div className="text-center py-10">
+                      <BrainCircuit size={48} className="mx-auto text-purple-200 mb-4" />
+                      <h3 className="text-lg font-bold text-gray-800 mb-2">AI Performance Coach</h3>
+                      <p className="text-gray-500 mb-6">I will analyze your failed questions and create a study plan.</p>
+                      <button onClick={generateAnalysis} disabled={analyzing} className="bg-purple-600 text-white px-8 py-3 rounded-full font-bold hover:bg-purple-700 disabled:opacity-50">
+                        {analyzing ? "Analyzing..." : "Generate Report"}
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="prose prose-sm max-w-none prose-headings:text-purple-900 prose-p:text-gray-700">
+                      <ReactMarkdown>{analysis}</ReactMarkdown>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
         </div>
       </main>
     );
   }
 
   const currentQ = questions[currentQIndex];
-  if (!currentQ) return <div>Loading Question...</div>;
+  if (!currentQ) return <div>Loading...</div>;
 
   return (
     <main className="min-h-screen bg-gray-100 flex flex-col font-sans h-screen overflow-hidden">
-      <AnimatePresence>{toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}</AnimatePresence>
       <ConfirmModal isOpen={modalConfig.show} title={modalConfig.title} message={modalConfig.message} type={modalConfig.type} onConfirm={modalConfig.action} onCancel={() => setModalConfig({ ...modalConfig, show: false })} singleButton={modalConfig.singleButton} />
       
       <header className="bg-[#004d00] text-white px-4 py-2 flex justify-between items-center shadow-md shrink-0 z-30">
