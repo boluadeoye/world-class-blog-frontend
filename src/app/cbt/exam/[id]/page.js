@@ -1,60 +1,48 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Clock, Grid, ChevronLeft, ChevronRight, AlertTriangle } from "lucide-react";
+import { Clock, Grid, ChevronLeft, ChevronRight, AlertTriangle, X } from "lucide-react";
 
 export default function ExamPage() {
   const params = useParams();
   const router = useRouter();
   
-  // UI State
-  const [mounted, setMounted] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  // Data State
+  // Data & UI State
   const [student, setStudent] = useState(null);
   const [course, setCourse] = useState(null);
   const [questions, setQuestions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [mounted, setMounted] = useState(false);
   
-  // Exam Logic State
+  // Exam State
   const [currentQIndex, setCurrentQIndex] = useState(0);
   const [answers, setAnswers] = useState({}); 
   const [timeLeft, setTimeLeft] = useState(null); 
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [score, setScore] = useState(0);
-  
-  // Malpractice
-  const [strikes, setStrikes] = useState(0);
-  const [showWarning, setShowWarning] = useState(false);
   const [showMobileMap, setShowMobileMap] = useState(false);
-
+  
+  // Persistence Key
   const getStorageKey = (email) => `cbt_session_${params.id}_${email}`;
 
-  // 1. MOUNT & AUTH CHECK
+  // 1. Initialize
   useEffect(() => {
     setMounted(true);
     const studentData = sessionStorage.getItem("cbt_student");
-    
-    if (!studentData) { 
-      router.push("/cbt"); 
-      return; 
-    }
-    
+    if (!studentData) { router.push("/cbt"); return; }
     const parsedStudent = JSON.parse(studentData);
     setStudent(parsedStudent);
 
-    // Load Exam Data
     async function loadExam() {
       try {
         const res = await fetch(`/api/cbt/exam?courseId=${params.id}`);
         const data = await res.json();
         
         if (!res.ok) throw new Error(data.error || "Failed to load exam");
-        if (!data.questions || data.questions.length === 0) throw new Error("No questions found for this course.");
         
         setCourse(data.course);
-        setQuestions(data.questions);
+        setQuestions(data.questions || []); // Ensure array
 
         // Restore Session
         const savedSession = localStorage.getItem(getStorageKey(parsedStudent.email));
@@ -64,7 +52,7 @@ export default function ExamPage() {
           setTimeLeft(session.timeLeft);
           setCurrentQIndex(session.currentIndex || 0);
         } else {
-          setTimeLeft((data.course.duration || 15) * 60);
+          setTimeLeft((data.course?.duration || 15) * 60);
         }
       } catch (e) {
         setError(e.message);
@@ -75,7 +63,7 @@ export default function ExamPage() {
     loadExam();
   }, []);
 
-  // 2. TIMER
+  // 2. Timer
   useEffect(() => {
     if (!mounted || loading || isSubmitted || error || timeLeft === null) return;
 
@@ -100,27 +88,6 @@ export default function ExamPage() {
 
     return () => clearInterval(interval);
   }, [loading, isSubmitted, error, timeLeft, answers, currentQIndex, mounted]);
-
-  // 3. MALPRACTICE
-  useEffect(() => {
-    if (!mounted || isSubmitted || loading || error) return;
-    
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        const newStrikes = strikes + 1;
-        setStrikes(newStrikes);
-        setShowWarning(true);
-        setTimeout(() => setShowWarning(false), 3000);
-        if (newStrikes >= 3) {
-          alert("Maximum malpractice strikes reached. Exam auto-submitted.");
-          submitExam();
-        }
-      }
-    };
-
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
-  }, [strikes, isSubmitted, loading, error, mounted]);
 
   const handleSelect = (option) => {
     if (isSubmitted) return;
@@ -156,10 +123,27 @@ export default function ExamPage() {
     return "bg-white text-gray-500 border-gray-300 hover:bg-gray-50";
   };
 
-  // === PREVENT RENDER CRASH ===
+  // === SAFE RENDERING ===
   if (!mounted) return null;
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-white text-green-800 font-bold">Loading Exam Interface...</div>;
-  if (error) return <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6 text-center text-red-600 font-bold">{error}</div>;
+  
+  if (error) return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6 text-center">
+      <AlertTriangle size={64} className="text-red-500 mb-4" />
+      <h1 className="text-2xl font-black text-gray-900">System Error</h1>
+      <p className="text-gray-600 mb-8">{error}</p>
+      <button onClick={() => router.push('/cbt/dashboard')} className="px-8 py-3 bg-green-700 text-white rounded-full font-bold">Return to Dashboard</button>
+    </div>
+  );
+
+  // CRITICAL FIX: Handle Empty Questions
+  if (questions.length === 0) return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6 text-center">
+      <h1 className="text-2xl font-black text-gray-900">No Questions Found</h1>
+      <p className="text-gray-600 mb-8">This course has no questions uploaded yet.</p>
+      <button onClick={() => router.push('/cbt/dashboard')} className="px-8 py-3 bg-gray-900 text-white rounded-full font-bold">Go Back</button>
+    </div>
+  );
 
   // === RESULT VIEW ===
   if (isSubmitted) {
@@ -193,14 +177,14 @@ export default function ExamPage() {
     );
   }
 
-  // === SAFE QUESTION RENDER ===
   const currentQ = questions[currentQIndex];
-  if (!currentQ) return <div className="min-h-screen flex items-center justify-center">Loading Question...</div>;
+  // Extra Safety Check
+  if (!currentQ) return <div>Loading Question...</div>;
 
   return (
     <main className="min-h-screen bg-gray-100 flex flex-col font-sans h-screen overflow-hidden">
       
-      {/* HEADER */}
+      {/* === HEADER === */}
       <header className="bg-[#004d00] text-white px-4 py-2 flex justify-between items-center shadow-md shrink-0 z-30">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-white rounded-md flex items-center justify-center text-green-800 font-bold">
@@ -231,15 +215,9 @@ export default function ExamPage() {
         </div>
       </header>
 
-      {showWarning && (
-        <div className="bg-red-600 text-white text-center py-2 text-xs font-bold uppercase tracking-widest animate-pulse">
-          ⚠️ Warning: Tab Switching Detected ({strikes}/3)
-        </div>
-      )}
-
       <div className="flex-1 flex overflow-hidden relative">
         
-        {/* LEFT: QUESTION PANEL */}
+        {/* === LEFT: QUESTION PANEL === */}
         <div className="flex-1 flex flex-col bg-white relative z-10">
           <div className="flex-1 overflow-y-auto p-4 md:p-8 pb-24">
             <div className="max-w-3xl mx-auto">
@@ -294,7 +272,7 @@ export default function ExamPage() {
           </div>
         </div>
 
-        {/* RIGHT: QUESTION MAP */}
+        {/* === RIGHT: QUESTION MAP === */}
         <div className={`
           absolute inset-0 z-20 bg-white flex flex-col transition-transform duration-300 md:relative md:translate-x-0 md:w-80 md:border-l border-gray-300
           ${showMobileMap ? 'translate-x-0' : 'translate-x-full'}
