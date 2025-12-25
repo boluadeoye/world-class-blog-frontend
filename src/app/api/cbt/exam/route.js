@@ -6,51 +6,35 @@ export async function GET(req) {
   const studentId = searchParams.get('studentId');
   const token = searchParams.get('token');
 
-  // 1. STRICT INPUT VALIDATION
-  if (!courseId || !studentId || !token) {
-    return new Response(JSON.stringify({ error: "Security Violation: Missing Credentials" }), { status: 400 });
-  }
+  if (!courseId) return new Response(JSON.stringify({ error: "Missing Course ID" }), { status: 400 });
 
   try {
     const client = await pool.connect();
     
-    // 2. STRICT SESSION CHECK
-    // Fetch the student's CURRENT token from the DB
-    const studentRes = await client.query('SELECT session_token, subscription_status, premium_expires_at FROM cbt_students WHERE id = $1', [studentId]);
+    // 1. SECURITY CHECK
+    let isPremium = false;
     
-    if (studentRes.rows.length === 0) {
-      client.release();
-      return new Response(JSON.stringify({ error: "Student not found" }), { status: 404 });
-    }
-
-    const student = studentRes.rows[0];
-
-    // COMPARE: Does the token from the phone match the token in the DB?
-    if (student.session_token !== token) {
-      client.release();
-      // This is the "Kick Out" logic
-      return new Response(JSON.stringify({ error: "Session Expired. You are logged in on another device." }), { status: 401 });
-    }
-
-    // 3. CHECK PREMIUM STATUS
-    const isPremium = student.subscription_status === 'premium' && new Date(student.premium_expires_at) > new Date();
-    
-    // 4. FREE USER LIMITS
-    if (!isPremium) {
-      const attemptsRes = await client.query('SELECT COUNT(*) FROM cbt_results WHERE student_id = $1 AND course_id = $2', [studentId, courseId]);
-      const attempts = parseInt(attemptsRes.rows[0].count);
+    if (studentId && token) {
+      const studentRes = await client.query('SELECT session_token, subscription_status, premium_expires_at FROM cbt_students WHERE id = $1', [studentId]);
       
-      if (attempts >= 2) {
-        client.release();
-        return new Response(JSON.stringify({ error: "Free Limit Reached (2 Attempts). Upgrade to Premium." }), { status: 403 });
+      if (studentRes.rows.length > 0) {
+        const student = studentRes.rows[0];
+        if (student.session_token !== token) {
+          client.release();
+          return new Response(JSON.stringify({ error: "Session Expired. You are logged in on another device." }), { status: 401 });
+        }
+        // Check Premium
+        isPremium = student.subscription_status === 'premium' && new Date(student.premium_expires_at) > new Date();
       }
     }
 
-    // 5. FETCH CONTENT
+    // 2. FETCH CONTENT
     const courseRes = await client.query('SELECT * FROM cbt_courses WHERE id = $1', [courseId]);
     
-    // Limit questions for free users
-    const limit = isPremium ? 100 : 30;
+    // UPDATED: Set limit to 60 for everyone (Standard JAMB size)
+    // Premium users can get 100 if available
+    const limit = isPremium ? 100 : 60;
+    
     const questionsRes = await client.query('SELECT * FROM cbt_questions WHERE course_id = $1 ORDER BY RANDOM() LIMIT $2', [courseId, limit]);
     
     client.release();
