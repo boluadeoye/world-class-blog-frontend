@@ -1,19 +1,39 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { 
   Grid, CheckCircle, AlertOctagon, X, Crown, Sparkles, 
-  BrainCircuit, ShieldAlert, Clock, ChevronRight, ChevronLeft 
+  BrainCircuit, ShieldAlert, Clock, ChevronRight, ChevronLeft,
+  Terminal
 } from "lucide-react";
 import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";
 import { motion, AnimatePresence } from "framer-motion";
 
-// FIX: Revert to Relative Import (Proven Stability)
-const UpgradeModal = dynamic(() => import("../../../../components/cbt/UpgradeModal"), { ssr: false });
+// Safe Dynamic Import
+const UpgradeModal = dynamic(() => import("../../../../components/cbt/UpgradeModal"), { 
+  ssr: false,
+  loading: () => <div className="p-4 text-center">Loading Module...</div>
+});
 
-/* === SECURITY & UI COMPONENTS === */
+/* === DIAGNOSTIC ERROR BOUNDARY === */
+function ErrorDisplay({ error }) {
+  return (
+    <div className="min-h-screen bg-gray-900 text-red-500 p-8 font-mono flex flex-col items-center justify-center text-center">
+      <ShieldAlert size={64} className="mb-4" />
+      <h1 className="text-2xl font-bold text-white mb-2">SYSTEM CRITICAL FAILURE</h1>
+      <div className="bg-black p-4 rounded border border-red-800 max-w-lg w-full overflow-auto text-left">
+        <p className="text-xs text-gray-500 uppercase mb-2">Error Trace:</p>
+        <code className="text-sm break-all">{error}</code>
+      </div>
+      <button onClick={() => window.location.reload()} className="mt-8 bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700">
+        REBOOT SYSTEM
+      </button>
+    </div>
+  );
+}
 
+/* === UI COMPONENTS === */
 function MalpracticeOverlay({ count }) {
   return (
     <div className="fixed inset-0 z-[999] bg-red-900/95 flex flex-col items-center justify-center text-white animate-pulse">
@@ -29,7 +49,7 @@ function ConfirmModal({ isOpen, title, message, onConfirm, onCancel, type = "war
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden border-t-4 border-green-600 animate-in fade-in zoom-in duration-200">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden border-t-4 border-green-600">
         <div className="p-6 text-center">
           <div className={`mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4 ${type === 'danger' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
             {type === 'danger' ? <AlertOctagon size={32} /> : <CheckCircle size={32} />}
@@ -53,12 +73,14 @@ export default function ExamPage() {
   const router = useRouter();
   
   // Core State
+  const [mounted, setMounted] = useState(false);
+  const [crashError, setCrashError] = useState(null);
+  
   const [student, setStudent] = useState(null);
   const [course, setCourse] = useState(null);
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [mounted, setMounted] = useState(false);
   
   // Exam State
   const [currentQIndex, setCurrentQIndex] = useState(0);
@@ -82,8 +104,20 @@ export default function ExamPage() {
 
   const getStorageKey = useCallback((email) => `cbt_session_${params.id}_${email}`, [params.id]);
 
+  // 0. GLOBAL ERROR TRAP & MOUNT
+  useEffect(() => {
+    setMounted(true);
+    const errorHandler = (e) => {
+      console.error("Runtime Error Caught:", e);
+      setCrashError(e.message || "Unknown Runtime Error");
+    };
+    window.addEventListener("error", errorHandler);
+    return () => window.removeEventListener("error", errorHandler);
+  }, []);
+
   // 1. Security: Disable Context Menu & Copy
   useEffect(() => {
+    if (!mounted) return;
     const handleContextMenu = (e) => e.preventDefault();
     const handleKeyDown = (e) => {
       if ((e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'v' || e.key === 'p')) {
@@ -96,7 +130,7 @@ export default function ExamPage() {
       document.removeEventListener('contextmenu', handleContextMenu);
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, []);
+  }, [mounted]);
 
   // 2. Security: Malpractice Monitor
   useEffect(() => {
@@ -117,54 +151,63 @@ export default function ExamPage() {
 
   // 3. Initialization
   useEffect(() => {
-    setMounted(true);
-    const studentData = sessionStorage.getItem("cbt_student");
-    if (!studentData) { router.push("/cbt"); return; }
-
-    let parsedStudent;
+    if (!mounted) return;
+    
     try {
-      parsedStudent = JSON.parse(studentData);
-      setStudent(parsedStudent);
-    } catch (e) { router.push("/cbt"); return; }
+      const studentData = sessionStorage.getItem("cbt_student");
+      if (!studentData) { router.push("/cbt"); return; }
 
-    async function loadExam() {
+      let parsedStudent;
       try {
-        const query = new URLSearchParams({
-          courseId: params.id,
-          studentId: parsedStudent.id,
-          token: parsedStudent.session_token || ""
-        });
+        parsedStudent = JSON.parse(studentData);
+        setStudent(parsedStudent);
+      } catch (e) { router.push("/cbt"); return; }
 
-        const res = await fetch(`/api/cbt/exam?${query.toString()}`);
-        const data = await res.json();
+      async function loadExam() {
+        try {
+          const query = new URLSearchParams({
+            courseId: params.id,
+            studentId: parsedStudent.id,
+            token: parsedStudent.session_token || ""
+          });
 
-        if (res.status === 401) { router.push("/cbt"); return; }
-        if (res.status === 403) { setShowUpgrade(true); setLoading(false); return; }
-        if (!res.ok) throw new Error(data.error || "Failed to load");
+          const res = await fetch(`/api/cbt/exam?${query.toString()}`);
+          const data = await res.json();
 
-        setCourse(data.course);
-        // Safety: Ensure questions is an array
-        setQuestions(Array.isArray(data.questions) ? data.questions : []);
-        setIsPremium(data.isPremium);
+          if (res.status === 401) { router.push("/cbt"); return; }
+          if (res.status === 403) { setShowUpgrade(true); setLoading(false); return; }
+          if (!res.ok) throw new Error(data.error || "Failed to load");
 
-        const savedSession = localStorage.getItem(getStorageKey(parsedStudent.email));
-        if (savedSession) {
-          const session = JSON.parse(savedSession);
-          setAnswers(session.answers || {});
-          setTimeLeft(session.timeLeft);
-          setCurrentQIndex(session.currentIndex || 0);
-        } else {
-          setTimeLeft((data.course?.duration || 15) * 60);
+          setCourse(data.course || {});
+          setQuestions(Array.isArray(data.questions) ? data.questions : []);
+          setIsPremium(!!data.isPremium);
+
+          // Safe Storage Access
+          let savedSession = null;
+          try {
+            savedSession = localStorage.getItem(getStorageKey(parsedStudent.email));
+          } catch (err) { console.warn("Storage access denied"); }
+
+          if (savedSession) {
+            const session = JSON.parse(savedSession);
+            setAnswers(session.answers || {});
+            setTimeLeft(session.timeLeft);
+            setCurrentQIndex(session.currentIndex || 0);
+          } else {
+            setTimeLeft((data.course?.duration || 15) * 60);
+          }
+        } catch (e) {
+          console.error("Load Error:", e);
+          setError(e.message);
+        } finally {
+          setLoading(false);
         }
-      } catch (e) {
-        console.error("Load Error:", e);
-        setError(e.message);
-      } finally {
-        setLoading(false);
       }
+      loadExam();
+    } catch (err) {
+      setCrashError("Initialization Failed: " + err.message);
     }
-    loadExam();
-  }, [params.id, router, getStorageKey]);
+  }, [params.id, router, getStorageKey, mounted]);
 
   // 4. Submit Logic
   const submitExam = useCallback(() => {
@@ -174,7 +217,9 @@ export default function ExamPage() {
       questions.forEach(q => { if (answers[q.id] === q.correct_option) correctCount++; });
     }
     setScore(correctCount);
-    if (student) localStorage.removeItem(getStorageKey(student.email));
+    if (student) {
+      try { localStorage.removeItem(getStorageKey(student.email)); } catch(e){}
+    }
     setModalConfig({ show: false });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [questions, answers, student, getStorageKey]);
@@ -187,9 +232,11 @@ export default function ExamPage() {
         if (prev <= 0) { clearInterval(interval); submitExam(); return 0; }
         const newTime = prev - 1;
         if (student && newTime % 5 === 0) {
-          localStorage.setItem(getStorageKey(student.email), JSON.stringify({
-            answers, timeLeft: newTime, currentIndex: currentQIndex
-          }));
+          try {
+            localStorage.setItem(getStorageKey(student.email), JSON.stringify({
+              answers, timeLeft: newTime, currentIndex: currentQIndex
+            }));
+          } catch(e){}
         }
         return newTime;
       });
@@ -199,7 +246,7 @@ export default function ExamPage() {
 
   // 6. Keyboard Nav
   useEffect(() => {
-    if (isSubmitted || loading) return;
+    if (isSubmitted || loading || !mounted) return;
     const handleKeyNav = (e) => {
       const key = e.key.toUpperCase();
       if (['A', 'B', 'C', 'D'].includes(key)) handleSelect(key);
@@ -208,7 +255,7 @@ export default function ExamPage() {
     };
     window.addEventListener('keydown', handleKeyNav);
     return () => window.removeEventListener('keydown', handleKeyNav);
-  }, [currentQIndex, questions, isSubmitted, loading]);
+  }, [currentQIndex, questions, isSubmitted, loading, mounted]);
 
   // Actions
   const confirmSubmit = () => {
@@ -223,8 +270,8 @@ export default function ExamPage() {
 
   const handleSelect = (option) => {
     if (isSubmitted) return;
-    const qId = questions[currentQIndex].id;
-    setAnswers(prev => ({ ...prev, [qId]: option }));
+    const qId = questions[currentQIndex]?.id;
+    if (qId) setAnswers(prev => ({ ...prev, [qId]: option }));
   };
 
   const navigateTo = (index) => { setCurrentQIndex(index); setShowMobileMap(false); };
@@ -255,15 +302,16 @@ export default function ExamPage() {
     finally { setAnalyzing(false); }
   };
 
-  // Render
-  if (!mounted) return null;
+  // === RENDER GATES ===
+  if (!mounted) return <div className="min-h-screen bg-white flex items-center justify-center font-bold text-gray-400">Initializing Secure Environment...</div>;
+  if (crashError) return <ErrorDisplay error={crashError} />;
   if (showUpgrade) return <div className="min-h-screen flex items-center justify-center bg-white"><UpgradeModal student={student} onClose={() => router.push('/cbt/dashboard')} onSuccess={() => window.location.reload()} /></div>;
-  if (loading) return <div className="min-h-screen flex items-center justify-center bg-gray-900 text-green-500 font-mono font-bold text-xl tracking-widest">SYSTEM BOOT_SEQUENCE...</div>;
+  if (loading) return <div className="min-h-screen flex items-center justify-center bg-gray-900 text-green-500 font-mono font-bold text-xl tracking-widest flex-col gap-4"><Terminal className="animate-pulse" /> SYSTEM BOOT_SEQUENCE...</div>;
   if (error) return <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6 text-center text-red-600 font-bold gap-4"><p>{error}</p><button onClick={() => window.location.reload()} className="bg-gray-900 text-white px-6 py-2 rounded-full">Retry</button></div>;
 
   // === RESULT VIEW ===
   if (isSubmitted) {
-    const percentage = Math.round((score / questions.length) * 100);
+    const percentage = Math.round((score / (questions.length || 1)) * 100);
     return (
       <main className="min-h-screen bg-gray-50 font-sans pb-20 select-none">
         <header className="bg-[#004d00] text-white p-5 shadow-lg flex justify-between items-center sticky top-0 z-50">
@@ -337,10 +385,10 @@ export default function ExamPage() {
   }
 
   // === EXAM VIEW ===
-  const currentQ = Array.isArray(questions) ? questions[currentQIndex] : null;
-  const isLastQuestion = Array.isArray(questions) && questions.length > 0 && currentQIndex === questions.length - 1;
+  const currentQ = (questions && questions.length > 0) ? questions[currentQIndex] : null;
+  const isLastQuestion = (questions && questions.length > 0) && currentQIndex === questions.length - 1;
 
-  if (!currentQ) return <div className="h-screen flex items-center justify-center bg-white font-bold">Synchronizing...</div>;
+  if (!currentQ) return <div className="h-screen flex items-center justify-center bg-white font-bold">Synchronizing Questions...</div>;
 
   return (
     <main className="fixed inset-0 bg-[#f0f2f5] flex flex-col font-sans h-screen overflow-hidden z-[150] select-none" onContextMenu={(e) => e.preventDefault()}>
