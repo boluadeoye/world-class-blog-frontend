@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 // SAFE ICONS ONLY
 import { Grid, CheckCircle, AlertOctagon, X, Crown, Sparkles, BrainCircuit } from "lucide-react";
 import dynamic from "next/dynamic";
@@ -34,6 +34,7 @@ function ConfirmModal({ isOpen, title, message, onConfirm, onCancel, type = "war
 export default function ExamPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams(); // NEW: To read ?duration=
 
   // Logic State
   const [student, setStudent] = useState(null);
@@ -94,12 +95,16 @@ export default function ExamPage() {
           setTimeLeft(session.timeLeft);
           setCurrentQIndex(session.currentIndex || 0);
         } else {
-          setTimeLeft((data.course?.duration || 15) * 60);
+          // === TIME CONTROL LOGIC ===
+          // If Premium, check URL param. If Free, force default.
+          const requestedDuration = searchParams.get('duration');
+          const finalDuration = (data.isPremium && requestedDuration) ? parseInt(requestedDuration) : (data.course?.duration || 15);
+          setTimeLeft(finalDuration * 60);
         }
       } catch (e) { setError(e.message); } finally { setLoading(false); }
     }
     loadExam();
-  }, [params.id, router, getStorageKey]);
+  }, [params.id, router, getStorageKey, searchParams]);
 
   // 2. Submit
   const submitExam = useCallback(() => {
@@ -202,13 +207,9 @@ export default function ExamPage() {
               ))}
             </div>
           ) : (
-            /* === CHARMING PREMIUM CARD === */
             <div className="relative overflow-hidden rounded-3xl shadow-2xl bg-white border border-yellow-100 min-h-[350px]">
               {!isPremium ? (
                 <div className="absolute inset-0 z-10 bg-gradient-to-br from-white via-yellow-50 to-orange-50 flex flex-col items-center justify-center text-center p-8">
-                  {/* Animated Glow */}
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-yellow-400/20 blur-[60px] rounded-full pointer-events-none"></div>
-                  
                   <div className="relative z-10">
                     <div className="mx-auto w-20 h-20 bg-gradient-to-br from-yellow-300 to-orange-400 rounded-full flex items-center justify-center mb-6 shadow-lg shadow-orange-200 animate-bounce">
                       <Crown size={36} className="text-white drop-shadow-md" />

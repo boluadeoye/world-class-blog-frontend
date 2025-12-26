@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { 
   LogOut, User, Trophy, BookOpen, Play, Award, 
-  ChevronDown, Info, Crown, Clock, ChevronRight, AlertTriangle 
+  ChevronDown, Info, Crown, Clock, ChevronRight, AlertTriangle, Settings, Lock 
 } from "lucide-react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -25,6 +25,64 @@ function LogoutModal({ isOpen, onConfirm, onCancel }) {
           <div className="flex gap-3">
             <button onClick={onCancel} className="flex-1 py-3 border-2 border-gray-100 rounded-xl text-xs font-black text-gray-400 hover:bg-gray-50">STAY</button>
             <button onClick={onConfirm} className="flex-1 py-3 bg-red-600 text-white rounded-xl text-xs font-black shadow-lg hover:bg-red-700">LOGOUT</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* === EXAM SETUP MODAL (NEW) === */
+function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
+  const [duration, setDuration] = useState(course.duration || 15);
+  
+  return (
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in duration-200">
+        <div className="bg-[#004d00] p-6 text-white">
+          <h3 className="font-black text-sm uppercase tracking-widest flex items-center gap-2">
+            <Settings size={16} /> Configure Session
+          </h3>
+          <p className="text-green-200 text-xs mt-1">{course.code}: {course.title}</p>
+        </div>
+        
+        <div className="p-6">
+          <div className="mb-6">
+            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Select Duration</label>
+            <div className="grid grid-cols-4 gap-2">
+              {[15, 30, 45, 60].map((time) => (
+                <button
+                  key={time}
+                  disabled={!isPremium && time !== (course.duration || 15)}
+                  onClick={() => setDuration(time)}
+                  className={`py-3 rounded-xl text-xs font-bold border-2 transition-all relative overflow-hidden ${
+                    duration === time 
+                      ? 'border-green-600 bg-green-50 text-green-900' 
+                      : 'border-gray-100 text-gray-400'
+                  } ${!isPremium && time !== (course.duration || 15) ? 'opacity-50 cursor-not-allowed' : 'hover:border-green-300'}`}
+                >
+                  {time}m
+                  {!isPremium && time !== (course.duration || 15) && (
+                    <div className="absolute inset-0 bg-gray-100/50 flex items-center justify-center">
+                      <Lock size={12} className="text-gray-400" />
+                    </div>
+                  )}
+                </button>
+              ))}
+            </div>
+            {!isPremium && (
+              <div onClick={onUpgrade} className="mt-3 flex items-center gap-2 text-[10px] text-yellow-600 bg-yellow-50 p-2 rounded-lg cursor-pointer hover:bg-yellow-100 transition-colors">
+                <Crown size={12} />
+                <span className="font-bold">Upgrade to customize time</span>
+              </div>
+            )}
+          </div>
+
+          <div className="flex gap-3">
+            <button onClick={onClose} className="flex-1 py-4 border-2 border-gray-100 rounded-xl text-xs font-black text-gray-400 hover:bg-gray-50 uppercase tracking-widest">Cancel</button>
+            <button onClick={() => onStart(duration)} className="flex-[2] py-4 bg-green-900 text-white rounded-xl text-xs font-black shadow-xl hover:bg-green-800 uppercase tracking-widest flex items-center justify-center gap-2">
+              Start Exam <Play size={14} fill="currentColor" />
+            </button>
           </div>
         </div>
       </div>
@@ -74,11 +132,13 @@ export default function StudentDashboard() {
   const [showLogout, setShowLogout] = useState(false);
   const [greeting, setGreeting] = useState("Good Day");
   const [avatarUrl, setAvatarUrl] = useState("");
+  
+  // Setup Modal State
+  const [setupCourse, setSetupCourse] = useState(null);
 
   useEffect(() => {
     setMounted(true);
     
-    // 1. Time-Aware Greeting (Adjusted: Evening starts at 5 PM / 17:00)
     const hour = new Date().getHours();
     if (hour < 12) setGreeting("GOOD MORNING");
     else if (hour < 17) setGreeting("GOOD AFTERNOON");
@@ -89,7 +149,6 @@ export default function StudentDashboard() {
     const parsed = JSON.parse(stored);
     setStudent(parsed);
 
-    // 2. STABLE AVATAR GENERATION
     const seed = parsed.name.replace(/\s/g, '');
     setAvatarUrl(`https://api.dicebear.com/7.x/micah/svg?seed=${seed}&backgroundColor=b6e3f4`);
 
@@ -116,6 +175,12 @@ export default function StudentDashboard() {
     router.push("/cbt");
   };
 
+  const handleLaunchExam = (duration) => {
+    if (!setupCourse) return;
+    // Push with duration param
+    router.push(`/cbt/exam/${setupCourse.id}?duration=${duration}`);
+  };
+
   if (!mounted || !student) return null;
   const isPremium = student.subscription_status === 'premium';
 
@@ -137,42 +202,34 @@ export default function StudentDashboard() {
           onSuccess={() => { setShowUpgrade(false); window.location.reload(); }}
         />
       )}
+
+      {/* SETUP MODAL */}
+      {setupCourse && (
+        <ExamSetupModal 
+          course={setupCourse}
+          isPremium={isPremium}
+          onClose={() => setSetupCourse(null)}
+          onStart={handleLaunchExam}
+          onUpgrade={() => { setSetupCourse(null); setShowUpgrade(true); }}
+        />
+      )}
       
       {/* === HEADER === */}
       <header className="bg-[#004d00] text-white pt-8 pb-16 px-6 rounded-b-[40px] shadow-2xl relative z-10">
         <div className="flex justify-between items-center mb-8">
           <div className="flex items-center gap-4">
-            {/* AVATAR CONTAINER */}
             <div className="w-16 h-16 bg-[#006400] rounded-2xl flex items-center justify-center border-2 border-white/20 shadow-lg overflow-hidden relative">
-              {avatarUrl && (
-                <img 
-                  src={avatarUrl} 
-                  alt="Profile" 
-                  className="w-full h-full object-cover"
-                  onError={(e) => { e.target.style.display = 'none'; }}
-                />
-              )}
+              {avatarUrl && <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" onError={(e) => { e.target.style.display = 'none'; }} />}
               {!avatarUrl && <span className="text-2xl font-black">{student.name.charAt(0)}</span>}
-              
-              {isPremium && (
-                <div className="absolute top-0 right-0 bg-yellow-400 p-1 rounded-bl-lg shadow-sm">
-                  <Crown size={10} className="text-black" fill="currentColor" />
-                </div>
-              )}
+              {isPremium && <div className="absolute top-0 right-0 bg-yellow-400 p-1 rounded-bl-lg shadow-sm"><Crown size={10} className="text-black" fill="currentColor" /></div>}
             </div>
-            
             <div>
               <p className="text-green-200 text-[10px] font-bold uppercase tracking-widest mb-1">{greeting}</p>
               <h1 className="text-xl font-black leading-none truncate w-48">{student.name.split(" ")[0]}</h1>
             </div>
           </div>
-          
-          <button onClick={() => setShowLogout(true)} className="bg-[#006400] p-3 rounded-xl border border-white/10 hover:bg-red-600 transition-colors shadow-lg">
-            <LogOut size={20} />
-          </button>
+          <button onClick={() => setShowLogout(true)} className="bg-[#006400] p-3 rounded-xl border border-white/10 hover:bg-red-600 transition-colors shadow-lg"><LogOut size={20} /></button>
         </div>
-
-        {/* Current Session Card */}
         <div className="bg-[#003300]/50 backdrop-blur-sm border border-white/10 rounded-2xl p-5 flex items-center justify-between">
           <div>
             <p className="text-[10px] font-bold text-green-400 uppercase tracking-wider mb-1">Current Session</p>
@@ -183,8 +240,6 @@ export default function StudentDashboard() {
       </header>
 
       <div className="px-6 -mt-8 relative z-20 space-y-8">
-        
-        {/* === DISCLAIMER === */}
         <DisclaimerCard />
 
         {/* === AVAILABLE COURSES === */}
@@ -193,7 +248,6 @@ export default function StudentDashboard() {
             <BookOpen size={18} className="text-[#004d00]" />
             <h2 className="font-black text-xs text-gray-500 uppercase tracking-widest">Available Courses</h2>
           </div>
-          
           <div className="grid gap-4">
             {courses.length > 0 ? courses.map((course) => (
               <div key={course.id} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center group active:scale-[0.98] transition-transform">
@@ -206,9 +260,10 @@ export default function StudentDashboard() {
                     <p className="text-[10px] text-gray-500 font-medium uppercase tracking-wide">{course.title}</p>
                   </div>
                 </div>
-                <Link href={`/cbt/exam/${course.id}`} className="bg-black text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg group-hover:bg-[#004d00] transition-colors">
+                {/* CLICKING THIS NOW OPENS THE SETUP MODAL */}
+                <button onClick={() => setSetupCourse(course)} className="bg-black text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg group-hover:bg-[#004d00] transition-colors">
                   <Play size={14} fill="currentColor" />
-                </Link>
+                </button>
               </div>
             )) : (
               <div className="text-center py-12 bg-white rounded-3xl border-2 border-dashed border-gray-200">
@@ -226,22 +281,14 @@ export default function StudentDashboard() {
             <Trophy size={18} className="text-yellow-600" />
             <h2 className="font-black text-xs text-gray-500 uppercase tracking-widest">Top Performers</h2>
           </div>
-          
           {leaders.length > 0 ? (
             <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-4 overflow-x-auto flex gap-4 custom-scrollbar">
               {leaders.map((user, i) => (
                 <div key={i} className="min-w-[140px] bg-gray-50 rounded-2xl p-4 border border-gray-100 flex flex-col items-center text-center relative">
                   {i === 0 && <div className="absolute -top-2 -right-2 bg-yellow-400 text-white p-1 rounded-full shadow-sm"><Crown size={12} fill="currentColor" /></div>}
-                  
-                  {/* Leaderboard Avatar */}
                   <div className={`w-12 h-12 rounded-full flex items-center justify-center font-black text-sm mb-3 overflow-hidden border-2 ${i === 0 ? 'border-yellow-400' : 'border-gray-100'}`}>
-                     <img 
-                        src={`https://api.dicebear.com/7.x/micah/svg?seed=${user.name}&backgroundColor=transparent`} 
-                        alt={user.name}
-                        className="w-full h-full object-cover"
-                      />
+                     <img src={`https://api.dicebear.com/7.x/micah/svg?seed=${user.name}&backgroundColor=transparent`} alt={user.name} className="w-full h-full object-cover" />
                   </div>
-                  
                   <h3 className="font-bold text-xs text-gray-900 truncate w-full mb-1">{user.name}</h3>
                   <p className="text-[10px] text-gray-500 font-medium mb-2">{user.course || user.code}</p>
                   <div className="bg-[#004d00] text-white px-3 py-0.5 rounded-full text-[10px] font-black">{user.score}%</div>
@@ -274,7 +321,6 @@ export default function StudentDashboard() {
           </div>
         </div>
       </div>
-
     </main>
   );
 }
