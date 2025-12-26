@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { 
   LogOut, User, Trophy, BookOpen, Play, Award, 
-  ChevronDown, Info, Crown, Clock, ChevronRight, AlertTriangle 
+  ChevronDown, Info, Crown, Clock, ChevronRight, AlertTriangle, Grid 
 } from "lucide-react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -72,7 +72,7 @@ export default function StudentDashboard() {
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [showLogout, setShowLogout] = useState(false);
-  const [greeting, setGreeting] = useState("Welcome");
+  const [greeting, setGreeting] = useState("Good Day");
   const [avatarUrl, setAvatarUrl] = useState("");
 
   useEffect(() => {
@@ -80,21 +80,19 @@ export default function StudentDashboard() {
     
     // 1. Time-Aware Greeting
     const hour = new Date().getHours();
-    if (hour < 12) setGreeting("Good Morning");
-    else if (hour < 18) setGreeting("Good Afternoon");
-    else setGreeting("Good Evening");
+    if (hour < 12) setGreeting("GOOD MORNING");
+    else if (hour < 18) setGreeting("GOOD AFTERNOON");
+    else setGreeting("GOOD EVENING");
 
     const stored = sessionStorage.getItem("cbt_student");
     if (!stored) { router.push("/cbt"); return; }
     const parsed = JSON.parse(stored);
     setStudent(parsed);
 
-    // 2. Professional Avatar Logic (Two Distinct Styles)
-    // We use 'avataaars' with 'blazerAndShirt' to ensure they look like serious students/scholars.
-    // Toggle based on name length to ensure consistency (Name A always gets Avatar A).
-    const isTypeA = parsed.name.length % 2 === 0;
-    const seed = isTypeA ? "Felix" : "Aneka"; 
-    setAvatarUrl(`https://api.dicebear.com/9.x/avataaars/svg?seed=${seed}&clothing=blazerAndShirt&accessories=glasses&backgroundColor=b6e3f4`);
+    // 2. STABLE AVATAR GENERATION (Micah Style - Professional)
+    // Using v7.x which is stable. 'micah' style is clean and corporate.
+    const seed = parsed.name.replace(/\s/g, '');
+    setAvatarUrl(`https://api.dicebear.com/7.x/micah/svg?seed=${seed}&backgroundColor=b6e3f4`);
 
     async function fetchData() {
       try {
@@ -141,17 +139,23 @@ export default function StudentDashboard() {
         />
       )}
       
-      {/* === HEADER (PROFESSIONAL) === */}
+      {/* === HEADER (FIXED AVATAR & GREETING) === */}
       <header className="bg-[#004d00] text-white pt-8 pb-16 px-6 rounded-b-[40px] shadow-2xl relative z-10">
         <div className="flex justify-between items-center mb-8">
           <div className="flex items-center gap-4">
-            {/* PROFESSIONAL AVATAR */}
+            {/* AVATAR CONTAINER */}
             <div className="w-16 h-16 bg-[#006400] rounded-2xl flex items-center justify-center border-2 border-white/20 shadow-lg overflow-hidden relative">
-              <img 
-                src={avatarUrl} 
-                alt="Profile" 
-                className="w-full h-full object-cover transform scale-110 mt-1"
-              />
+              {avatarUrl && (
+                <img 
+                  src={avatarUrl} 
+                  alt="Profile" 
+                  className="w-full h-full object-cover"
+                  onError={(e) => { e.target.style.display = 'none'; }} // Hide if broken
+                />
+              )}
+              {/* Fallback Initial if image fails */}
+              {!avatarUrl && <span className="text-2xl font-black">{student.name.charAt(0)}</span>}
+              
               {isPremium && (
                 <div className="absolute top-0 right-0 bg-yellow-400 p-1 rounded-bl-lg shadow-sm">
                   <Crown size={10} className="text-black" fill="currentColor" />
@@ -234,7 +238,7 @@ export default function StudentDashboard() {
                   {/* Leaderboard Avatar */}
                   <div className={`w-12 h-12 rounded-full flex items-center justify-center font-black text-sm mb-3 overflow-hidden border-2 ${i === 0 ? 'border-yellow-400' : 'border-gray-100'}`}>
                      <img 
-                        src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${user.name}&clothing=blazerAndShirt&backgroundColor=transparent`} 
+                        src={`https://api.dicebear.com/7.x/micah/svg?seed=${user.name}&backgroundColor=transparent`} 
                         alt={user.name}
                         className="w-full h-full object-cover"
                       />
