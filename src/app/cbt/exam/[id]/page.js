@@ -175,7 +175,7 @@ export default function ExamPage() {
     } catch (e) { alert("Analysis failed."); } finally { setAnalyzing(false); }
   };
 
-  // CORRECTED NAME: getGridColor (Was getMapColor in some versions, causing the crash)
+  // CORRECTED NAME: getGridColor
   const getGridColor = (index, qId) => {
     if (currentQIndex === index) return "bg-green-800 text-white border-green-900 ring-2 ring-green-300";
     if (answers[qId]) return "bg-green-100 text-green-800 border-green-200";
