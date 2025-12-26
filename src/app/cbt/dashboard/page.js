@@ -1,171 +1,214 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { BookOpen, Clock, AlertTriangle, LogOut, User, Crown, Sparkles, Trophy, Home, BarChart2 } from "lucide-react";
-import Link from "next/link";
-import dynamic from "next/dynamic";
+// SAFE ICONS ONLY
+import { LogOut, User, Trophy, BookOpen, Play, Award, Star, ChevronRight, AlertOctagon, ChevronDown, Info } from "lucide-react";
 
-// Dynamic Import for Modal (Prevents SSR Crash)
-const UpgradeModal = dynamic(() => import("../../../components/cbt/UpgradeModal"), { ssr: false });
+/* === LOGOUT MODAL === */
+function LogoutModal({ isOpen, onConfirm, onCancel }) {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-xs w-full overflow-hidden border-t-4 border-red-600">
+        <div className="p-6 text-center">
+          <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+            <LogOut size={32} className="text-red-600" />
+          </div>
+          <h3 className="font-black text-lg uppercase text-gray-900 mb-2">Disconnect?</h3>
+          <p className="text-gray-500 text-xs font-medium mb-6">You are about to terminate your session.</p>
+          <div className="flex gap-3">
+            <button onClick={onCancel} className="flex-1 py-3 border-2 border-gray-100 rounded-xl text-xs font-black text-gray-400 hover:bg-gray-50">STAY</button>
+            <button onClick={onConfirm} className="flex-1 py-3 bg-red-600 text-white rounded-xl text-xs font-black shadow-lg hover:bg-red-700">LOGOUT</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
-export default function StudentDashboard() {
+/* === DISCLAIMER ACCORDION === */
+function DisclaimerCard() {
+  const [isOpen, setIsOpen] = useState(false);
+  return (
+    <div className="bg-orange-50 border border-orange-100 rounded-xl overflow-hidden mb-8 transition-all">
+      <button onClick={() => setIsOpen(!isOpen)} className="w-full flex items-center justify-between p-4 text-left">
+        <div className="flex items-center gap-3">
+          <div className="bg-orange-100 p-2 rounded-lg text-orange-600"><Info size={18} /></div>
+          <div>
+            <h3 className="font-black text-xs text-orange-900 uppercase tracking-wide">Important Disclaimer</h3>
+            <p className="text-[10px] text-orange-700 font-medium">Read before starting</p>
+          </div>
+        </div>
+        <ChevronDown size={16} className={`text-orange-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+      </button>
+      
+      {isOpen && (
+        <div className="px-4 pb-4 text-xs text-orange-800 leading-relaxed border-t border-orange-100 pt-3">
+          <p className="mb-2 font-bold">Strict Warning:</p>
+          <ul className="list-disc pl-4 space-y-1 opacity-90">
+            <li>The purpose of this mock examination is <strong>NOT</strong> to expose likely questions.</li>
+            <li>The aim is to <strong>simulate the environment</strong> and prepare you psychologically for the real exam.</li>
+            <li>Use this tool to practice <strong>time management</strong> and pressure handling.</li>
+            <li>Success here does not guarantee success in the main exam, but it builds the necessary resilience.</li>
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function Dashboard() {
   const router = useRouter();
   const [student, setStudent] = useState(null);
   const [courses, setCourses] = useState([]);
-  const [leaders, setLeaders] = useState([]);
-  const [activeTab, setActiveTab] = useState("home"); // home | leaderboard
-  const [showUpgrade, setShowUpgrade] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const [leaderboard, setLeaderboard] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showLogout, setShowLogout] = useState(false);
+
+  // MOCK LEADERBOARD (Fallback)
+  const mockLeaderboard = [
+    { id: 1, name: "Divine O.", score: 98, course: "GST 101", avatar: "D" },
+    { id: 2, name: "Samuel A.", score: 96, course: "GST 102", avatar: "S" },
+    { id: 3, name: "Boluwatife", score: 95, course: "ENT 101", avatar: "B" },
+  ];
 
   useEffect(() => {
-    setMounted(true);
-    const stored = sessionStorage.getItem("cbt_student");
-    if (!stored) { router.push("/cbt"); return; }
-    setStudent(JSON.parse(stored));
+    const data = sessionStorage.getItem("cbt_student");
+    if (!data) { router.push("/cbt"); return; }
+    
+    const parsed = JSON.parse(data);
+    setStudent(parsed);
 
-    // Fetch Data
-    fetch("/api/cbt/courses").then(res => res.json()).then(setCourses);
-    fetch("/api/cbt/leaderboard").then(res => res.json()).then(setLeaders);
-  }, []);
+    async function fetchData() {
+      try {
+        const courseRes = await fetch(`/api/cbt/courses?studentId=${parsed.id}`);
+        const courseData = await courseRes.json();
+        setCourses(courseData.courses || []);
+        setLeaderboard(mockLeaderboard); 
+      } catch (e) {
+        console.error("Dashboard Load Error", e);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, [router]);
 
   const handleLogout = () => {
     sessionStorage.removeItem("cbt_student");
     router.push("/cbt");
   };
 
-  if (!mounted || !student) return null;
-  const isPremium = student.subscription_status === 'premium';
+  if (loading) return <div className="min-h-screen flex items-center justify-center bg-gray-50 text-green-900 font-black text-sm tracking-widest animate-pulse">AUTHENTICATING...</div>;
 
   return (
-    <main className="min-h-screen bg-gray-50 font-sans text-gray-900 pb-24">
-      
-      {/* UPGRADE MODAL */}
-      {showUpgrade && (
-        <UpgradeModal 
-          student={student} 
-          onClose={() => setShowUpgrade(false)} 
-          onSuccess={() => { setShowUpgrade(false); alert("Welcome to Premium!"); }} 
-        />
-      )}
+    <main className="min-h-screen bg-[#f8fafc] font-sans pb-32 relative">
+      <LogoutModal isOpen={showLogout} onConfirm={handleLogout} onCancel={() => setShowLogout(false)} />
 
-      {/* HEADER */}
-      <header className="bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center sticky top-0 z-20 shadow-sm">
-        <div className="flex items-center gap-3">
-          <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold border ${isPremium ? 'bg-yellow-100 text-yellow-700 border-yellow-300' : 'bg-green-100 text-green-800 border-green-200'}`}>
-            {isPremium ? <Crown size={20} /> : student.name.charAt(0)}
+      {/* === HEADER === */}
+      <header className="bg-[#004d00] text-white p-6 pb-12 rounded-b-[2.5rem] shadow-xl relative z-10">
+        <div className="flex justify-between items-center mb-8">
+          {/* Avatar & Welcome */}
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl flex items-center justify-center shadow-inner">
+              <span className="font-black text-xl text-white">{student?.name?.charAt(0).toUpperCase()}</span>
+            </div>
+            <div>
+              <p className="text-green-200 text-[10px] font-bold uppercase tracking-widest">Welcome Back</p>
+              <h1 className="font-black text-lg leading-tight truncate w-40">{student?.name?.split(" ")[0]}</h1>
+            </div>
           </div>
-          <div>
-            <h1 className="text-sm font-bold text-gray-900 flex items-center gap-2">
-              {student.name}
-              {isPremium && <span className="text-[10px] bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full border border-yellow-200">PRO</span>}
-            </h1>
-            <p className="text-xs text-gray-500">{student.email}</p>
-          </div>
+
+          {/* Logout Arrow */}
+          <button onClick={() => setShowLogout(true)} className="bg-white/10 p-3 rounded-xl hover:bg-red-600 hover:text-white transition-colors border border-white/10">
+            <LogOut size={20} />
+          </button>
         </div>
-        <button onClick={handleLogout} className="text-xs font-bold text-red-600 hover:text-red-800 uppercase tracking-wider flex items-center gap-1">
-          <LogOut size={14} />
-        </button>
+
+        {/* Hero Context */}
+        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/10 flex items-center justify-between">
+          <div>
+            <p className="text-[10px] font-bold text-green-300 uppercase tracking-wider">Current Session</p>
+            <p className="font-black text-sm">FUOYE 2026 GST MOCK</p>
+          </div>
+          <div className="bg-white text-green-900 px-3 py-1 rounded-lg text-[10px] font-black uppercase">Active</div>
+        </div>
       </header>
 
-      <div className="max-w-5xl mx-auto p-6">
+      <div className="px-6 -mt-6 relative z-20 space-y-8">
         
-        {/* === TAB: HOME === */}
-        {activeTab === "home" && (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            
-            {/* PREMIUM CARD */}
-            {!isPremium && (
-              <div className="bg-gray-900 rounded-2xl p-6 mb-8 text-white shadow-xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-40 h-40 bg-yellow-500/20 blur-[60px] rounded-full"></div>
-                <div className="relative z-10 flex justify-between items-center">
-                  <div>
-                    <h2 className="text-lg font-bold flex items-center gap-2 text-yellow-400">
-                      <Crown size={20} /> Upgrade to Premium
-                    </h2>
-                    <p className="text-slate-400 text-xs mt-1 max-w-xs">Unlimited Retakes • AI Analysis • Full Question Bank</p>
-                  </div>
-                  <button onClick={() => setShowUpgrade(true)} className="bg-yellow-500 text-black px-4 py-2 rounded-lg font-bold text-xs shadow-lg hover:scale-105 transition-transform">
-                    Unlock ₦500
-                  </button>
+        {/* === DISCLAIMER === */}
+        <DisclaimerCard />
+
+        {/* === LEADERBOARD === */}
+        <section>
+          <div className="flex items-center gap-2 mb-4">
+            <Trophy size={16} className="text-yellow-600" />
+            <h2 className="font-black text-xs text-gray-500 uppercase tracking-widest">Top Performers</h2>
+          </div>
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 overflow-x-auto flex gap-4 custom-scrollbar">
+            {leaderboard.map((user, i) => (
+              <div key={user.id} className="min-w-[140px] bg-gray-50 rounded-xl p-3 border border-gray-100 flex flex-col items-center text-center relative">
+                {i === 0 && <div className="absolute -top-2 -right-2 bg-yellow-400 text-white p-1 rounded-full shadow-sm"><Crown size={12} fill="currentColor" /></div>}
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-sm mb-2 ${i === 0 ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-200 text-gray-600'}`}>
+                  {user.avatar}
                 </div>
+                <h3 className="font-bold text-xs text-gray-900 truncate w-full">{user.name}</h3>
+                <p className="text-[10px] text-gray-500 font-medium mb-2">{user.course}</p>
+                <div className="bg-green-900 text-white px-3 py-0.5 rounded-full text-[10px] font-black">{user.score}%</div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* === COURSE GRID === */}
+        <section>
+          <div className="flex items-center gap-2 mb-4">
+            <BookOpen size={16} className="text-green-800" />
+            <h2 className="font-black text-xs text-gray-500 uppercase tracking-widest">Available Courses</h2>
+          </div>
+          <div className="grid gap-4">
+            {courses.length > 0 ? courses.map((course) => (
+              <div key={course.id} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center group active:scale-[0.98] transition-transform">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center text-green-800 font-black text-sm border border-green-100">
+                    {course.code.slice(0,3)}
+                  </div>
+                  <div>
+                    <h3 className="font-black text-gray-900 text-sm">{course.code}</h3>
+                    <p className="text-[10px] text-gray-500 font-medium uppercase tracking-wide">{course.title}</p>
+                  </div>
+                </div>
+                <button onClick={() => router.push(`/cbt/exam/${course.id}`)} className="bg-black text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg group-hover:bg-green-900 transition-colors">
+                  <Play size={14} fill="currentColor" />
+                </button>
+              </div>
+            )) : (
+              <div className="text-center py-10 bg-white rounded-2xl border border-dashed border-gray-300">
+                <p className="text-gray-400 text-xs font-bold">No courses available yet.</p>
               </div>
             )}
-
-            {/* EXAMS GRID */}
-            <h2 className="text-lg font-black text-gray-800 mb-4 flex items-center gap-2">
-              <BookOpen size={20} className="text-green-700" /> Available Exams
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {courses.map((course) => (
-                <div key={course.id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:border-green-500 transition-all">
-                  <div className="flex justify-between items-start mb-4">
-                    <span className="bg-green-50 text-green-700 text-xs font-bold px-2 py-1 rounded border border-green-100">{course.code}</span>
-                    <span className="text-xs font-bold text-gray-400">{course.level}L</span>
-                  </div>
-                  <h3 className="font-bold text-gray-900 mb-1">{course.title}</h3>
-                  <p className="text-xs text-gray-500 mb-4 flex items-center gap-1"><Clock size={12}/> {course.duration || 15} Mins</p>
-                  <Link href={`/cbt/exam/${course.id}`} className="block w-full bg-green-700 text-white text-center py-2.5 rounded-lg font-bold text-sm hover:bg-green-800">
-                    Start Exam
-                  </Link>
-                </div>
-              ))}
-            </div>
           </div>
-        )}
-
-        {/* === TAB: LEADERBOARD === */}
-        {activeTab === "leaderboard" && (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-              <div className="bg-yellow-50 p-6 border-b border-yellow-100 text-center">
-                <Trophy size={40} className="mx-auto text-yellow-600 mb-2" />
-                <h2 className="text-xl font-black text-yellow-900">Top Performers</h2>
-                <p className="text-xs text-yellow-700 font-bold uppercase tracking-widest">Hall of Fame</p>
-              </div>
-              <div className="divide-y divide-gray-100">
-                {leaders.map((l, i) => (
-                  <div key={i} className="p-4 flex items-center justify-between hover:bg-gray-50">
-                    <div className="flex items-center gap-4">
-                      <span className={`w-8 h-8 flex items-center justify-center rounded-full font-bold text-sm ${i===0 ? 'bg-yellow-100 text-yellow-700' : i===1 ? 'bg-gray-200 text-gray-700' : i===2 ? 'bg-orange-100 text-orange-700' : 'bg-white border text-gray-500'}`}>
-                        {i + 1}
-                      </span>
-                      <div>
-                        <p className="font-bold text-sm text-gray-900">{l.name}</p>
-                        <p className="text-[10px] text-gray-500 uppercase">{l.department} • {l.code}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-black text-green-700">{l.score}/{l.total_questions}</p>
-                    </div>
-                  </div>
-                ))}
-                {leaders.length === 0 && <div className="p-8 text-center text-gray-400 text-sm">No records yet. Be the first!</div>}
-              </div>
-            </div>
-          </div>
-        )}
-
+        </section>
       </div>
 
-      {/* === FLOATING TAB BAR === */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-xl border border-gray-200 shadow-2xl rounded-full px-6 py-3 flex items-center gap-8 z-50">
-        <button 
-          onClick={() => setActiveTab("home")}
-          className={`flex flex-col items-center gap-1 transition-colors ${activeTab === 'home' ? 'text-green-700' : 'text-gray-400 hover:text-gray-600'}`}
-        >
-          <Home size={20} strokeWidth={activeTab === 'home' ? 3 : 2} />
-          <span className="text-[10px] font-bold uppercase">Home</span>
-        </button>
-        
-        <div className="w-px h-8 bg-gray-200"></div>
-
-        <button 
-          onClick={() => setActiveTab("leaderboard")}
-          className={`flex flex-col items-center gap-1 transition-colors ${activeTab === 'leaderboard' ? 'text-yellow-600' : 'text-gray-400 hover:text-gray-600'}`}
-        >
-          <BarChart2 size={20} strokeWidth={activeTab === 'leaderboard' ? 3 : 2} />
-          <span className="text-[10px] font-bold uppercase">Rank</span>
-        </button>
+      {/* === FLOATING FOOTER === */}
+      <div className="fixed bottom-6 left-6 right-6 z-50">
+        <div className="bg-white/80 backdrop-blur-md border border-white/40 shadow-2xl rounded-2xl p-4 flex items-center gap-3">
+          <div className="w-10 h-10 bg-green-900 rounded-full flex items-center justify-center text-white shadow-md shrink-0">
+            <Award size={18} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Engineered By</p>
+            <h4 className="font-black text-xs text-gray-900 truncate">BOLU ADEOYE</h4>
+            <p className="text-[9px] text-green-800 font-medium truncate">Dept. of English & Literary Studies</p>
+          </div>
+          <div className="h-8 w-[1px] bg-gray-200 mx-1"></div>
+          <div className="text-right shrink-0">
+            <p className="text-[8px] font-black text-gray-300 uppercase">FUOYE</p>
+            <p className="text-[10px] font-black text-gray-900">2026</p>
+          </div>
+        </div>
       </div>
 
     </main>
