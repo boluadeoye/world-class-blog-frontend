@@ -1,8 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-// SAFE ICONS ONLY
-import { LogOut, User, Trophy, BookOpen, Play, Award, Star, ChevronRight, AlertOctagon, ChevronDown, Info } from "lucide-react";
+// FIX: ADDED 'Crown' TO IMPORTS
+import { LogOut, User, Trophy, BookOpen, Play, Award, Star, ChevronRight, AlertOctagon, ChevronDown, Info, Crown } from "lucide-react";
 
 /* === LOGOUT MODAL === */
 function LogoutModal({ isOpen, onConfirm, onCancel }) {
