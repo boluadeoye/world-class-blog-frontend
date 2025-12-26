@@ -32,9 +32,9 @@ function LogoutModal({ isOpen, onConfirm, onCancel }) {
   );
 }
 
-/* === DISCLAIMER ACCORDION (MATCHING SCREENSHOT) === */
+/* === DISCLAIMER ACCORDION === */
 function DisclaimerCard() {
-  const [isOpen, setIsOpen] = useState(true); // Default open as per screenshot
+  const [isOpen, setIsOpen] = useState(true);
   return (
     <div className="bg-[#FFF8F0] border border-orange-100 rounded-3xl overflow-hidden mb-8 shadow-sm">
       <button onClick={() => setIsOpen(!isOpen)} className="w-full flex items-center justify-between p-6 text-left">
@@ -72,9 +72,17 @@ export default function StudentDashboard() {
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [showLogout, setShowLogout] = useState(false);
+  const [greeting, setGreeting] = useState("Welcome");
 
   useEffect(() => {
     setMounted(true);
+    
+    // 1. Time-Aware Greeting Logic
+    const hour = new Date().getHours();
+    if (hour < 12) setGreeting("Good Morning");
+    else if (hour < 18) setGreeting("Good Afternoon");
+    else setGreeting("Good Evening");
+
     const stored = sessionStorage.getItem("cbt_student");
     if (!stored) { router.push("/cbt"); return; }
     const parsed = JSON.parse(stored);
@@ -82,17 +90,15 @@ export default function StudentDashboard() {
 
     async function fetchData() {
       try {
-        // 1. Fetch Courses (REAL DATA ONLY)
         const courseRes = await fetch(`/api/cbt/courses?studentId=${parsed.id}`);
         const courseData = await courseRes.json();
         
         if (courseData.courses && Array.isArray(courseData.courses)) {
           setCourses(courseData.courses);
         } else {
-          setCourses([]); // No dummy data
+          setCourses([]);
         }
 
-        // 2. Fetch Leaderboard (REAL DATA ONLY)
         const lbRes = await fetch('/api/cbt/leaderboard');
         const lbData = await lbRes.json();
         setLeaders(Array.isArray(lbData) ? lbData : []); 
@@ -133,19 +139,31 @@ export default function StudentDashboard() {
         />
       )}
       
-      {/* === HEADER (MATCHING SCREENSHOT) === */}
+      {/* === HEADER (UPGRADED) === */}
       <header className="bg-[#004d00] text-white pt-8 pb-16 px-6 rounded-b-[40px] shadow-2xl relative z-10">
-        <div className="flex justify-between items-start mb-8">
+        <div className="flex justify-between items-center mb-8">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 bg-[#006400] rounded-2xl flex items-center justify-center font-black text-2xl border border-white/10 shadow-inner">
-              {student.name.charAt(0).toUpperCase()}
+            {/* 3D AVATAR */}
+            <div className="w-16 h-16 bg-[#006400] rounded-2xl flex items-center justify-center border-2 border-white/20 shadow-lg overflow-hidden relative">
+              <img 
+                src={`https://api.dicebear.com/9.x/adventurer/svg?seed=${student.name}&backgroundColor=b6e3f4`} 
+                alt="Avatar" 
+                className="w-full h-full object-cover transform scale-110 mt-2"
+              />
+              {isPremium && (
+                <div className="absolute top-0 right-0 bg-yellow-400 p-1 rounded-bl-lg shadow-sm">
+                  <Crown size={10} className="text-black" fill="currentColor" />
+                </div>
+              )}
             </div>
+            
             <div>
-              <p className="text-green-200 text-[10px] font-bold uppercase tracking-widest mb-1">Welcome Back</p>
-              <h1 className="text-xl font-black leading-none">{student.name.split(" ")[0]}</h1>
+              <p className="text-green-200 text-[10px] font-bold uppercase tracking-widest mb-1">{greeting}</p>
+              <h1 className="text-xl font-black leading-none truncate w-48">{student.name.split(" ")[0]}</h1>
             </div>
           </div>
-          <button onClick={() => setShowLogout(true)} className="bg-[#006400] p-3 rounded-xl border border-white/10 hover:bg-red-600 transition-colors">
+          
+          <button onClick={() => setShowLogout(true)} className="bg-[#006400] p-3 rounded-xl border border-white/10 hover:bg-red-600 transition-colors shadow-lg">
             <LogOut size={20} />
           </button>
         </div>
@@ -156,7 +174,7 @@ export default function StudentDashboard() {
             <p className="text-[10px] font-bold text-green-400 uppercase tracking-wider mb-1">Current Session</p>
             <p className="font-black text-sm text-white">FUOYE 2026 GST MOCK</p>
           </div>
-          <div className="bg-white text-[#004d00] px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wide">Active</div>
+          <div className="bg-white text-[#004d00] px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wide shadow-sm">Active</div>
         </div>
       </header>
 
@@ -165,7 +183,7 @@ export default function StudentDashboard() {
         {/* === DISCLAIMER === */}
         <DisclaimerCard />
 
-        {/* === AVAILABLE COURSES (FIRST) === */}
+        {/* === AVAILABLE COURSES === */}
         <section>
           <div className="flex items-center gap-2 mb-4">
             <BookOpen size={18} className="text-[#004d00]" />
@@ -198,7 +216,7 @@ export default function StudentDashboard() {
           </div>
         </section>
 
-        {/* === LEADERBOARD (SECOND) === */}
+        {/* === LEADERBOARD === */}
         <section>
           <div className="flex items-center gap-2 mb-4">
             <Trophy size={18} className="text-yellow-600" />
@@ -210,9 +228,16 @@ export default function StudentDashboard() {
               {leaders.map((user, i) => (
                 <div key={i} className="min-w-[140px] bg-gray-50 rounded-2xl p-4 border border-gray-100 flex flex-col items-center text-center relative">
                   {i === 0 && <div className="absolute -top-2 -right-2 bg-yellow-400 text-white p-1 rounded-full shadow-sm"><Crown size={12} fill="currentColor" /></div>}
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center font-black text-sm mb-3 ${i === 0 ? 'bg-yellow-100 text-yellow-700' : 'bg-white border border-gray-200 text-gray-500'}`}>
-                    {user.name ? user.name.charAt(0) : "U"}
+                  
+                  {/* Leaderboard Avatar */}
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center font-black text-sm mb-3 overflow-hidden border-2 ${i === 0 ? 'border-yellow-400' : 'border-gray-100'}`}>
+                     <img 
+                        src={`https://api.dicebear.com/9.x/adventurer/svg?seed=${user.name}&backgroundColor=transparent`} 
+                        alt={user.name}
+                        className="w-full h-full object-cover"
+                      />
                   </div>
+                  
                   <h3 className="font-bold text-xs text-gray-900 truncate w-full mb-1">{user.name}</h3>
                   <p className="text-[10px] text-gray-500 font-medium mb-2">{user.course || user.code}</p>
                   <div className="bg-[#004d00] text-white px-3 py-0.5 rounded-full text-[10px] font-black">{user.score}%</div>
