@@ -1,57 +1,52 @@
-import pool from '@/lib/db';
+import pool from '../../../../lib/db';
+import { NextResponse } from 'next/server';
+import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 
 export async function POST(req) {
   try {
-    const { mode, name, email, password } = await req.json();
+    const { email, password } = await req.json();
     const client = await pool.connect();
     
-    // 1. Generate a NEW Session Token (This invalidates all old sessions)
-    const sessionToken = Math.random().toString(36).substring(2) + Date.now().toString(36);
-
-    if (mode === 'login') {
-      const res = await client.query('SELECT * FROM cbt_students WHERE email = $1', [email]);
-      if (res.rows.length === 0) {
-        client.release();
-        return new Response(JSON.stringify({ error: "Account not found." }), { status: 404 });
-      }
-      const student = res.rows[0];
-      
-      if (student.password !== password) {
-        client.release();
-        return new Response(JSON.stringify({ error: "Incorrect Password" }), { status: 401 });
-      }
-
-      // CRITICAL: Overwrite the old token in the DB
-      await client.query('UPDATE cbt_students SET session_token = $1 WHERE id = $2', [sessionToken, student.id]);
-      
+    // 1. Find Student
+    const res = await client.query('SELECT * FROM cbt_students WHERE email = $1', [email]);
+    if (res.rows.length === 0) {
       client.release();
-      return new Response(JSON.stringify({ 
-        success: true, 
-        student: { ...student, session_token: sessionToken } 
-      }), { status: 200 });
-
-    } else {
-      // Register
-      const check = await client.query('SELECT id FROM cbt_students WHERE email = $1', [email]);
-      if (check.rows.length > 0) {
-        client.release();
-        return new Response(JSON.stringify({ error: "Email already registered." }), { status: 409 });
-      }
-
-      const insert = await client.query(
-        `INSERT INTO cbt_students (name, department, email, password, session_token) 
-         VALUES ($1, $2, $3, $4, $5) 
-         RETURNING *`,
-        [name, 'General Studies', email, password, sessionToken]
-      );
-      
-      client.release();
-      return new Response(JSON.stringify({ 
-        success: true, 
-        student: insert.rows[0] 
-      }), { status: 200 });
+      return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
+    const student = res.rows[0];
+
+    // 2. Verify Password
+    const valid = await bcrypt.compare(password, student.password);
+    if (!valid) {
+      client.release();
+      return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
+    }
+
+    // 3. ATOMIC SECURITY: Generate New Session Token
+    // This invalidates ANY previous session on any other device.
+    const sessionToken = crypto.randomBytes(32).toString('hex');
+    
+    await client.query(
+      'UPDATE cbt_students SET session_token = $1, last_login = NOW() WHERE id = $2',
+      [sessionToken, student.id]
+    );
+    
+    client.release();
+
+    // 4. Return Student Data + Token
+    return NextResponse.json({
+      success: true,
+      student: {
+        id: student.id,
+        name: student.name,
+        email: student.email,
+        subscription_status: student.subscription_status,
+        session_token: sessionToken // Frontend must save this
+      }
+    }, { status: 200 });
+
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
