@@ -73,11 +73,12 @@ export default function StudentDashboard() {
   const [mounted, setMounted] = useState(false);
   const [showLogout, setShowLogout] = useState(false);
   const [greeting, setGreeting] = useState("Welcome");
+  const [avatarUrl, setAvatarUrl] = useState("");
 
   useEffect(() => {
     setMounted(true);
     
-    // 1. Time-Aware Greeting Logic
+    // 1. Time-Aware Greeting
     const hour = new Date().getHours();
     if (hour < 12) setGreeting("Good Morning");
     else if (hour < 18) setGreeting("Good Afternoon");
@@ -88,21 +89,22 @@ export default function StudentDashboard() {
     const parsed = JSON.parse(stored);
     setStudent(parsed);
 
+    // 2. Professional Avatar Logic (Two Distinct Styles)
+    // We use 'avataaars' with 'blazerAndShirt' to ensure they look like serious students/scholars.
+    // Toggle based on name length to ensure consistency (Name A always gets Avatar A).
+    const isTypeA = parsed.name.length % 2 === 0;
+    const seed = isTypeA ? "Felix" : "Aneka"; 
+    setAvatarUrl(`https://api.dicebear.com/9.x/avataaars/svg?seed=${seed}&clothing=blazerAndShirt&accessories=glasses&backgroundColor=b6e3f4`);
+
     async function fetchData() {
       try {
         const courseRes = await fetch(`/api/cbt/courses?studentId=${parsed.id}`);
         const courseData = await courseRes.json();
-        
-        if (courseData.courses && Array.isArray(courseData.courses)) {
-          setCourses(courseData.courses);
-        } else {
-          setCourses([]);
-        }
+        setCourses(Array.isArray(courseData.courses) ? courseData.courses : []);
 
         const lbRes = await fetch('/api/cbt/leaderboard');
         const lbData = await lbRes.json();
         setLeaders(Array.isArray(lbData) ? lbData : []); 
-
       } catch (e) {
         console.error("Load Error", e);
       } finally {
@@ -128,7 +130,7 @@ export default function StudentDashboard() {
   );
 
   return (
-    <main className="min-h-screen bg-[#f8fafc] font-sans text-gray-900 pb-40 relative">
+    <main className="min-h-screen bg-[#fcfdfc] font-sans text-gray-900 pb-40 relative">
       <LogoutModal isOpen={showLogout} onConfirm={handleLogout} onCancel={() => setShowLogout(false)} />
       
       {showUpgrade && (
@@ -139,16 +141,16 @@ export default function StudentDashboard() {
         />
       )}
       
-      {/* === HEADER (UPGRADED) === */}
+      {/* === HEADER (PROFESSIONAL) === */}
       <header className="bg-[#004d00] text-white pt-8 pb-16 px-6 rounded-b-[40px] shadow-2xl relative z-10">
         <div className="flex justify-between items-center mb-8">
           <div className="flex items-center gap-4">
-            {/* 3D AVATAR */}
+            {/* PROFESSIONAL AVATAR */}
             <div className="w-16 h-16 bg-[#006400] rounded-2xl flex items-center justify-center border-2 border-white/20 shadow-lg overflow-hidden relative">
               <img 
-                src={`https://api.dicebear.com/9.x/adventurer/svg?seed=${student.name}&backgroundColor=b6e3f4`} 
-                alt="Avatar" 
-                className="w-full h-full object-cover transform scale-110 mt-2"
+                src={avatarUrl} 
+                alt="Profile" 
+                className="w-full h-full object-cover transform scale-110 mt-1"
               />
               {isPremium && (
                 <div className="absolute top-0 right-0 bg-yellow-400 p-1 rounded-bl-lg shadow-sm">
@@ -232,7 +234,7 @@ export default function StudentDashboard() {
                   {/* Leaderboard Avatar */}
                   <div className={`w-12 h-12 rounded-full flex items-center justify-center font-black text-sm mb-3 overflow-hidden border-2 ${i === 0 ? 'border-yellow-400' : 'border-gray-100'}`}>
                      <img 
-                        src={`https://api.dicebear.com/9.x/adventurer/svg?seed=${user.name}&backgroundColor=transparent`} 
+                        src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${user.name}&clothing=blazerAndShirt&backgroundColor=transparent`} 
                         alt={user.name}
                         className="w-full h-full object-cover"
                       />
