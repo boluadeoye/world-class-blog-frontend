@@ -1,29 +1,43 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-// SAFE ICONS ONLY
-import { Grid, CheckCircle, AlertOctagon, X, Crown, Sparkles, BrainCircuit, Clock, ChevronRight, ChevronLeft } from "lucide-react";
+import { Grid, CheckCircle, AlertOctagon, X, Crown, Sparkles, BrainCircuit, Clock, ChevronRight, Share2, BarChart2, ShieldAlert } from "lucide-react";
 import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";
 
-// RELATIVE IMPORT
 const UpgradeModal = dynamic(() => import("../../../../components/cbt/UpgradeModal"), { ssr: false });
 
-/* === MODAL === */
-function ConfirmModal({ isOpen, title, message, onConfirm, onCancel, type = "warning", singleButton = false }) {
+/* === CUSTOM ALERT MODAL === */
+function AlertModal({ isOpen, title, message, type = "danger", onClose }) {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/90 backdrop-blur-md p-6">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-xs w-full overflow-hidden border-t-4 border-red-600">
+        <div className="p-6 text-center">
+          <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+            <ShieldAlert size={32} className="text-red-600" />
+          </div>
+          <h3 className="font-black text-lg uppercase text-gray-900 mb-2">{title}</h3>
+          <p className="text-gray-500 text-xs font-medium mb-6 leading-relaxed">{message}</p>
+          <button onClick={onClose} className="w-full py-3 bg-red-600 text-white rounded-xl text-xs font-black shadow-lg hover:bg-red-700 uppercase tracking-widest">ACKNOWLEDGE</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* === CONFIRM MODAL === */
+function ConfirmModal({ isOpen, title, message, onConfirm, onCancel }) {
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-xs w-full overflow-hidden transform transition-all scale-100">
-        <div className={`p-4 flex items-center gap-3 ${type === 'danger' ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-800'}`}>
-          {type === 'danger' ? <AlertOctagon size={20} /> : <CheckCircle size={20} />}
-          <h3 className="font-black text-sm uppercase tracking-wide">{title}</h3>
-        </div>
+      <div className="bg-white rounded-2xl shadow-2xl max-w-xs w-full overflow-hidden">
         <div className="p-6">
+          <h3 className="font-black text-sm uppercase tracking-wide text-green-900 mb-2 flex items-center gap-2"><CheckCircle size={18}/> {title}</h3>
           <p className="text-gray-600 text-xs font-bold mb-6 leading-relaxed">{message}</p>
           <div className="flex gap-3">
-            {!singleButton && <button onClick={onCancel} className="flex-1 py-3 border-2 border-gray-100 rounded-xl text-xs font-black text-gray-400 hover:bg-gray-50">CANCEL</button>}
-            <button onClick={onConfirm} className={`flex-1 py-3 rounded-xl text-xs font-black text-white shadow-lg ${type === 'danger' ? 'bg-red-600' : 'bg-green-800'}`}>{singleButton ? "CLOSE" : "CONFIRM"}</button>
+            <button onClick={onCancel} className="flex-1 py-3 border-2 border-gray-100 rounded-xl text-xs font-black text-gray-400 hover:bg-gray-50">CANCEL</button>
+            <button onClick={onConfirm} className="flex-1 py-3 rounded-xl text-xs font-black text-white shadow-lg bg-green-800 hover:bg-green-900">CONFIRM</button>
           </div>
         </div>
       </div>
@@ -36,13 +50,10 @@ export default function ExamPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Logic State
   const [student, setStudent] = useState(null);
   const [course, setCourse] = useState(null);
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [mounted, setMounted] = useState(false);
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
   const [currentQIndex, setCurrentQIndex] = useState(0);
@@ -52,23 +63,18 @@ export default function ExamPage() {
   const [score, setScore] = useState(0);
   const [showMap, setShowMap] = useState(false);
   const [modalConfig, setModalConfig] = useState({ show: false });
+  const [alertConfig, setAlertConfig] = useState({ show: false, title: "", message: "" }); // NEW ALERT STATE
   const [activeTab, setActiveTab] = useState("corrections");
   const [analysis, setAnalysis] = useState(null);
   const [analyzing, setAnalyzing] = useState(false);
 
   const getStorageKey = useCallback((email) => `cbt_session_${params.id}_${email}`, [params.id]);
 
-  // 1. Init
   useEffect(() => {
-    setMounted(true);
     const studentData = sessionStorage.getItem("cbt_student");
     if (!studentData) { router.push("/cbt"); return; }
-
-    let parsedStudent;
-    try {
-      parsedStudent = JSON.parse(studentData);
-      setStudent(parsedStudent);
-    } catch (e) { router.push("/cbt"); return; }
+    const parsedStudent = JSON.parse(studentData);
+    setStudent(parsedStudent);
 
     async function loadExam() {
       try {
@@ -81,8 +87,8 @@ export default function ExamPage() {
         const data = await res.json();
 
         if (res.status === 401) { 
-          alert("Session Expired: You logged in on another device.");
-          router.push("/cbt"); 
+          // CUSTOM ALERT INSTEAD OF BROWSER ALERT
+          setAlertConfig({ show: true, title: "SESSION TERMINATED", message: "You have logged in on another device. This session is now invalid." });
           return; 
         }
         if (res.status === 403) { setShowUpgrade(true); setLoading(false); return; }
@@ -103,12 +109,11 @@ export default function ExamPage() {
           const finalDuration = (data.isPremium && requestedDuration) ? parseInt(requestedDuration) : (data.course?.duration || 15);
           setTimeLeft(finalDuration * 60);
         }
-      } catch (e) { setError(e.message); } finally { setLoading(false); }
+      } catch (e) { console.error(e); } finally { setLoading(false); }
     }
     loadExam();
   }, [params.id, router, getStorageKey, searchParams]);
 
-  // 2. Submit
   const submitExam = useCallback(async () => {
     setIsSubmitted(true);
     let correctCount = 0;
@@ -135,9 +140,8 @@ export default function ExamPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [questions, answers, student, course, getStorageKey]);
 
-  // 3. Timer
   useEffect(() => {
-    if (!mounted || loading || isSubmitted || error || timeLeft === null || showUpgrade) return;
+    if (loading || isSubmitted || !timeLeft) return;
     const interval = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 0) { clearInterval(interval); submitExam(); return 0; }
@@ -151,10 +155,9 @@ export default function ExamPage() {
       });
     }, 1000);
     return () => clearInterval(interval);
-  }, [loading, isSubmitted, error, timeLeft, showUpgrade, mounted, answers, currentQIndex, student, getStorageKey, submitExam]);
+  }, [loading, isSubmitted, timeLeft, student, getStorageKey, submitExam]);
 
-  // Actions
-  const confirmSubmit = () => setModalConfig({ show: true, title: "FINISH EXAM?", message: "You are about to submit your answers. This action cannot be undone.", type: "warning", action: submitExam });
+  const confirmSubmit = () => setModalConfig({ show: true, title: "FINISH EXAM?", message: "You are about to submit your answers.", onConfirm: submitExam, onCancel: () => setModalConfig({ show: false }) });
   const handleSelect = (option) => { if (!isSubmitted) setAnswers(prev => ({ ...prev, [questions[currentQIndex].id]: option })); };
   const formatTime = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
   const navigateTo = (index) => { setCurrentQIndex(index); setShowMap(false); };
@@ -180,10 +183,7 @@ export default function ExamPage() {
     return "bg-white text-gray-400 border-gray-200";
   };
 
-  if (!mounted) return null;
-  if (showUpgrade) return <div className="min-h-screen flex items-center justify-center bg-white"><UpgradeModal student={student} onClose={() => router.push('/cbt/dashboard')} onSuccess={() => window.location.reload()} /></div>;
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-white text-green-900 font-black text-sm tracking-widest animate-pulse">LOADING ENGINE...</div>;
-  if (error) return <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6 text-center text-red-600 font-bold gap-4"><p>{error}</p><button onClick={() => window.location.reload()} className="bg-black text-white px-6 py-2 rounded text-xs">RETRY</button></div>;
 
   if (isSubmitted) {
     const percentage = Math.round((score / questions.length) * 100);
@@ -249,124 +249,50 @@ export default function ExamPage() {
   if (!currentQ) return <div className="h-screen flex items-center justify-center bg-white font-bold text-xs tracking-widest text-green-900">SYNCING...</div>;
 
   return (
-    <main className="fixed inset-0 bg-gray-50 flex flex-col font-sans h-screen overflow-hidden z-[150]">
+    <main className="fixed inset-0 bg-gray-100 flex flex-col font-sans h-screen overflow-hidden z-[150]">
       <ConfirmModal isOpen={modalConfig.show} title={modalConfig.title} message={modalConfig.message} type={modalConfig.type} onConfirm={modalConfig.action} onCancel={() => setModalConfig({ ...modalConfig, show: false })} />
+      <AlertModal isOpen={alertConfig.show} title={alertConfig.title} message={alertConfig.message} onClose={() => router.push('/cbt')} />
       
-      {/* === EXECUTIVE HEADER === */}
-      <header className="bg-[#004d00] text-white h-16 flex justify-between items-center shadow-lg shrink-0 z-[160] px-6 border-b border-green-800">
+      <header className="bg-[#004d00] text-white h-16 flex justify-between items-center shadow-2xl shrink-0 z-[160] px-4 border-b-4 border-green-600">
         <div className="flex items-center gap-4">
-          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-[#004d00] font-black text-lg shadow-md border-2 border-green-200">
-            {student?.name?.charAt(0).toUpperCase()}
-          </div>
-          <div className="hidden sm:block leading-tight">
-            <h1 className="font-black text-xs uppercase tracking-widest text-green-100">{student?.name}</h1>
-            <div className="flex items-center gap-2 text-[10px] font-mono opacity-80">
-              <span>ID: {safeId.slice(0,8)}</span>
-              <span className="text-green-400">●</span>
-              <span>{course?.code}</span>
-            </div>
-          </div>
-          <button onClick={() => setShowMap(!showMap)} className="sm:hidden flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-full border border-white/20 text-[10px] font-black uppercase tracking-widest hover:bg-white/20 transition-colors">
-            <Grid size={14} /> Map
-          </button>
+          <div className="w-10 h-10 bg-white rounded-none flex items-center justify-center text-[#004d00] font-black text-lg shadow-inner border border-green-800">{student?.name?.charAt(0).toUpperCase()}</div>
+          <div className="hidden sm:block leading-tight"><h1 className="font-black text-xs uppercase tracking-widest">{student?.name}</h1><div className="flex items-center gap-2 text-[10px] font-mono opacity-80"><span>ID: {safeId.slice(0,8)}</span><span className="text-green-400">●</span><span>{course?.code}</span></div></div>
+          <button onClick={() => setShowMap(!showMap)} className="sm:hidden flex items-center gap-2 bg-white/10 px-3 py-1.5 border border-white/20 text-xs font-black uppercase tracking-widest"><Grid size={14} /> Map</button>
         </div>
-        
         <div className="flex items-center gap-6">
-          <div className={`flex items-center gap-2 bg-black/30 px-4 py-1.5 rounded-full border border-white/10 ${timeLeft < 300 ? 'animate-pulse bg-red-900/50 border-red-500' : ''}`}>
-            <Clock size={14} className={timeLeft < 300 ? "text-red-500" : "text-green-400"} />
-            <span className={`font-mono font-black text-lg tracking-widest ${timeLeft < 300 ? "text-red-500" : "text-white"}`}>{formatTime(timeLeft || 0)}</span>
-          </div>
-          <button onClick={confirmSubmit} className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg transition-all hover:scale-105 active:scale-95">
-            Submit
-          </button>
+          <div className={`flex items-center gap-2 bg-black/40 px-4 py-1.5 border border-green-800 ${timeLeft < 300 ? 'animate-pulse bg-red-900/50 border-red-500' : ''}`}><span className="text-green-500 font-black text-xs">TIME:</span><span className={`font-mono font-black text-xl tracking-widest ${timeLeft < 300 ? "text-red-500" : "text-white"}`}>{formatTime(timeLeft || 0)}</span></div>
+          <button onClick={confirmSubmit} className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 text-xs font-black uppercase tracking-widest shadow-lg transition-all hover:scale-105 border-b-4 border-red-900 active:border-b-0 active:translate-y-1">Submit</button>
         </div>
       </header>
-
       <div className="flex-1 flex overflow-hidden relative">
-        {/* MAIN CONTENT */}
-        <div className="flex-1 flex flex-col bg-gray-50 relative z-10">
+        <div className="flex-1 flex flex-col bg-[#f0f2f5] relative z-10">
           <div className="flex-1 overflow-y-auto p-4 md:p-8 pb-32 custom-scrollbar">
-            <div className="max-w-3xl mx-auto">
-              {/* Question Card */}
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 md:p-10 mb-6 relative">
-                <div className="absolute top-0 right-0 bg-green-50 text-green-800 px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-bl-2xl border-b border-l border-green-100">
-                  2.0 Marks
-                </div>
-                
-                <div className="flex justify-between items-center mb-8 border-b border-gray-100 pb-4">
-                  <span className="font-black text-green-900 text-xs tracking-[0.2em] uppercase bg-green-50 px-3 py-1 rounded-lg border border-green-100">
-                    Question {String(currentQIndex + 1).padStart(2, '0')} / {questions.length}
-                  </span>
-                </div>
-                
-                <h2 className="text-lg md:text-2xl font-bold text-gray-900 leading-relaxed mb-10 select-none font-sans">
-                  {currentQ.question_text}
-                </h2>
-
+            <div className="max-w-4xl mx-auto">
+              <div className="bg-white shadow-sm border-t-4 border-[#004d00] p-6 md:p-10 mb-6 relative">
+                <div className="absolute top-0 right-0 bg-gray-100 px-3 py-1 text-[10px] font-black text-gray-400 uppercase tracking-widest">Single Choice</div>
+                <div className="flex justify-between items-center mb-8 border-b border-gray-100 pb-4"><span className="font-black text-[#004d00] text-xs tracking-[0.2em] uppercase bg-green-50 px-3 py-1 border border-green-100">Question {String(currentQIndex + 1).padStart(2, '0')} / {questions.length}</span></div>
+                <h2 className="text-xl md:text-2xl font-bold text-gray-900 leading-relaxed mb-10 select-none font-sans">{currentQ.question_text}</h2>
                 <div className="grid gap-4 md:grid-cols-2">
                   {['A','B','C','D'].map((opt) => (
-                    <button 
-                      key={opt} 
-                      onClick={() => handleSelect(opt)} 
-                      className={`group relative p-5 rounded-xl border-2 text-left transition-all duration-150 flex items-start gap-4 hover:shadow-md active:scale-[0.99] ${answers[currentQ.id] === opt ? 'border-green-600 bg-green-50 ring-1 ring-green-600' : 'border-gray-200 bg-white hover:border-green-300'}`}
-                    >
-                      <span className={`shrink-0 w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm border transition-colors ${answers[currentQ.id] === opt ? 'bg-green-600 text-white border-green-600' : 'bg-gray-100 text-gray-500 border-gray-300 group-hover:bg-white'}`}>
-                        {opt}
-                      </span>
-                      <span className={`font-medium text-sm md:text-base mt-1 ${answers[currentQ.id] === opt ? 'text-green-900 font-bold' : 'text-gray-700'}`}>
-                        {currentQ[`option_${opt.toLowerCase()}`]}
-                      </span>
+                    <button key={opt} onClick={() => handleSelect(opt)} className={`group relative p-5 border-2 text-left transition-all duration-150 flex items-start gap-4 hover:shadow-md active:scale-[0.99] ${answers[currentQ.id] === opt ? 'border-[#004d00] bg-green-50' : 'border-gray-200 bg-white hover:border-green-300'}`}>
+                      <span className={`shrink-0 w-8 h-8 flex items-center justify-center font-black text-sm border transition-colors ${answers[currentQ.id] === opt ? 'bg-[#004d00] text-white border-[#004d00]' : 'bg-gray-100 text-gray-500 border-gray-300 group-hover:bg-white'}`}>{opt}</span>
+                      <span className={`font-medium text-base mt-1 ${answers[currentQ.id] === opt ? 'text-[#004d00] font-bold' : 'text-gray-700'}`}>{currentQ[`option_${opt.toLowerCase()}`]}</span>
                     </button>
                   ))}
                 </div>
               </div>
             </div>
           </div>
-
-          {/* FOOTER NAV */}
           <div className="fixed bottom-0 left-0 right-0 md:relative bg-white border-t border-gray-200 p-4 flex justify-between items-center shrink-0 z-[170] md:pr-80 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
-            <button 
-              onClick={() => navigateTo(Math.max(0, currentQIndex - 1))} 
-              disabled={currentQIndex === 0} 
-              className="flex items-center gap-2 px-6 py-3 rounded-xl font-black text-gray-400 hover:text-green-900 hover:bg-gray-50 disabled:opacity-30 disabled:hover:bg-transparent transition-colors uppercase tracking-widest text-xs"
-            >
-              <ChevronLeft size={16} /> Previous
-            </button>
-            
-            <button 
-              onClick={() => navigateTo(Math.min(questions.length - 1, currentQIndex + 1))} 
-              disabled={currentQIndex === questions.length - 1} 
-              className="flex items-center gap-2 px-8 py-3 rounded-xl font-black uppercase tracking-widest text-xs transition-all shadow-lg bg-[#004d00] text-white hover:bg-green-900 active:scale-95"
-            >
-              Next <ChevronRight size={16} />
-            </button>
+            <button onClick={() => navigateTo(Math.max(0, currentQIndex - 1))} disabled={currentQIndex === 0} className="flex items-center gap-2 px-6 py-3 font-black text-gray-400 hover:text-[#004d00] disabled:opacity-30 disabled:hover:text-gray-400 transition-colors uppercase tracking-widest text-xs">[ PREV ]</button>
+            <button onClick={() => navigateTo(Math.min(questions.length - 1, currentQIndex + 1))} disabled={currentQIndex === questions.length - 1} className="flex items-center gap-2 px-8 py-3 font-black uppercase tracking-widest text-xs transition-all shadow-lg border-b-4 active:border-b-0 active:translate-y-1 bg-[#004d00] text-white border-green-900 hover:bg-green-900">[ NEXT ]</button>
           </div>
         </div>
-
-        {/* SIDEBAR PALETTE */}
-        <aside className={`absolute inset-0 z-[180] bg-white flex flex-col transition-transform duration-300 md:relative md:translate-x-0 md:w-80 md:border-l border-gray-200 shadow-2xl md:shadow-none ${showMap ? 'translate-x-0' : 'translate-x-full'}`}>
-          <div className="p-5 bg-gray-50 border-b border-gray-200 font-black text-gray-700 text-xs uppercase flex justify-between items-center shrink-0 tracking-widest">
-            <span className="flex items-center gap-2"><Grid size={14} /> Question Matrix</span>
-            <button onClick={() => setShowMap(false)} className="md:hidden p-2 bg-white rounded-xl shadow-sm hover:bg-gray-100"><X size={18}/></button>
-          </div>
-          
-          <div className="flex-1 overflow-y-auto p-5 custom-scrollbar">
-            <div className="grid grid-cols-5 gap-3">
-              {questions.map((q, i) => (
-                <button 
-                  key={q.id} 
-                  onClick={() => navigateTo(i)} 
-                  className={`h-10 rounded-lg text-xs font-black transition-all border-2 ${getGridColor(i, q.id)}`}
-                >
-                  {i + 1}
-                </button>
-              ))}
-            </div>
-          </div>
-          
-          <div className="p-5 bg-gray-50 border-t border-gray-200 grid grid-cols-2 gap-3 text-[10px] font-bold uppercase text-gray-500">
-             <div className="flex items-center gap-2"><div className="w-3 h-3 bg-green-600 rounded-full"></div> Answered</div>
-             <div className="flex items-center gap-2"><div className="w-3 h-3 bg-white border-2 border-gray-300 rounded-full"></div> Pending</div>
+        <aside className={`fixed inset-0 z-[190] bg-black/60 backdrop-blur-sm flex justify-end transition-opacity duration-300 md:static md:bg-transparent md:backdrop-blur-none md:w-72 md:border-l md:border-gray-200 ${showMap ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none md:opacity-100 md:pointer-events-auto'}`} onClick={() => setShowMap(false)}>
+          <div className={`bg-white w-72 h-full shadow-2xl flex flex-col transition-transform duration-300 ${showMap ? 'translate-x-0' : 'translate-x-full md:translate-x-0'}`} onClick={e => e.stopPropagation()}>
+            <div className="p-5 bg-green-900 text-white font-black text-xs uppercase flex justify-between items-center shrink-0 tracking-widest"><span className="flex items-center gap-2"><Grid size={14} /> Question Matrix</span><button onClick={() => setShowMap(false)} className="md:hidden bg-white/20 p-1 rounded hover:bg-white/30"><X size={16}/></button></div>
+            <div className="flex-1 overflow-y-auto p-5 custom-scrollbar bg-gray-50"><div className="grid grid-cols-5 gap-3">{questions.map((q, i) => (<button key={q.id} onClick={() => navigateTo(i)} className={`h-10 rounded-lg text-xs font-black transition-all border-2 ${getGridColor(i, q.id)}`}>{i + 1}</button>))}</div></div>
+            <div className="p-5 bg-white border-t border-gray-200 grid grid-cols-2 gap-3 text-[9px] font-bold uppercase text-gray-500"><div className="flex items-center gap-2"><div className="w-3 h-3 bg-green-100 border border-green-300 rounded-full"></div> Answered</div><div className="flex items-center gap-2"><div className="w-3 h-3 bg-green-800 rounded-full"></div> Current</div><div className="flex items-center gap-2"><div className="w-3 h-3 bg-white border border-gray-300 rounded-full"></div> Pending</div></div>
           </div>
         </aside>
       </div>
