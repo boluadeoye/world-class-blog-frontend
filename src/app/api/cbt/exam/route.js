@@ -1,4 +1,8 @@
 import pool from '../../../../lib/db';
+import { NextResponse } from 'next/server';
+
+// Force dynamic to prevent caching of random questions
+export const dynamic = 'force-dynamic';
 
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
@@ -6,46 +10,68 @@ export async function GET(req) {
   const studentId = searchParams.get('studentId');
   const token = searchParams.get('token');
 
-  if (!courseId) return new Response(JSON.stringify({ error: "Missing Course ID" }), { status: 400 });
+  if (!courseId) return NextResponse.json({ error: "Missing Course ID" }, { status: 400 });
 
   try {
     const client = await pool.connect();
-    
-    // 1. SECURITY CHECK
+
+    // 1. SECURITY & AUTHENTICATION
     let isPremium = false;
-    
+
     if (studentId && token) {
-      const studentRes = await client.query('SELECT session_token, subscription_status, premium_expires_at FROM cbt_students WHERE id = $1', [studentId]);
-      
+      const studentRes = await client.query(
+        'SELECT session_token, subscription_status, premium_expires_at FROM cbt_students WHERE id = $1', 
+        [studentId]
+      );
+
       if (studentRes.rows.length > 0) {
         const student = studentRes.rows[0];
+        
+        // THE KILL SWITCH: Atomic Session Locking
         if (student.session_token !== token) {
           client.release();
-          return new Response(JSON.stringify({ error: "Session Expired. You are logged in on another device." }), { status: 401 });
+          return NextResponse.json({ error: "Session Terminated. Logged in on another device." }, { status: 401 });
         }
-        // Check Premium
-        isPremium = student.subscription_status === 'premium' && new Date(student.premium_expires_at) > new Date();
+
+        // Check Premium Status
+        const now = new Date();
+        const expiresAt = new Date(student.premium_expires_at);
+        isPremium = student.subscription_status === 'premium' && expiresAt > now;
       }
     }
 
-    // 2. FETCH CONTENT
+    // 2. FREEMIUM LOGIC GATES
+    // Free: 30 Questions (Taste) | Premium: 100 Questions (Feast)
+    const limit = isPremium ? 100 : 30;
+
+    // 3. FETCH CONTENT
     const courseRes = await client.query('SELECT * FROM cbt_courses WHERE id = $1', [courseId]);
-    
-    // UPDATED: Set limit to 60 for everyone (Standard JAMB size)
-    // Premium users can get 100 if available
-    const limit = isPremium ? 100 : 60;
-    
-    const questionsRes = await client.query('SELECT * FROM cbt_questions WHERE course_id = $1 ORDER BY RANDOM() LIMIT $2', [courseId, limit]);
-    
+    const questionsRes = await client.query(
+      'SELECT * FROM cbt_questions WHERE course_id = $1 ORDER BY RANDOM() LIMIT $2', 
+      [courseId, limit]
+    );
+
     client.release();
-    
-    return new Response(JSON.stringify({
+
+    // 4. DATA SANITIZATION (The Fortress Wall)
+    // Remove sensitive "explanation" data for free users so they can't inspect element to cheat.
+    const sanitizedQuestions = questionsRes.rows.map(q => {
+      if (!isPremium) {
+        // Destructure to separate explanation from the rest
+        const { explanation, ...safeQuestion } = q;
+        return safeQuestion;
+      }
+      return q; // Premium gets everything
+    });
+
+    return NextResponse.json({
       course: courseRes.rows[0],
-      questions: questionsRes.rows,
+      questions: sanitizedQuestions,
       isPremium
-    }), { status: 200 });
+    }, { status: 200 });
 
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+    console.error("Exam API Error:", error);
+    return NextResponse.json({ error: "System Error" }, { status: 500 });
   }
 }
