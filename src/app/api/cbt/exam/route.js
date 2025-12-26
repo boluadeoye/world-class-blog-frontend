@@ -1,7 +1,6 @@
 import pool from '../../../../lib/db';
 import { NextResponse } from 'next/server';
 
-// Force dynamic to prevent caching of random questions
 export const dynamic = 'force-dynamic';
 
 export async function GET(req) {
@@ -15,8 +14,9 @@ export async function GET(req) {
   try {
     const client = await pool.connect();
 
-    // 1. SECURITY & AUTHENTICATION
+    // 1. AUTHENTICATION & SECURITY
     let isPremium = false;
+    let attempts = 0;
 
     if (studentId && token) {
       const studentRes = await client.query(
@@ -27,24 +27,43 @@ export async function GET(req) {
       if (studentRes.rows.length > 0) {
         const student = studentRes.rows[0];
         
-        // THE KILL SWITCH: Atomic Session Locking
+        // KILL SWITCH
         if (student.session_token !== token) {
           client.release();
           return NextResponse.json({ error: "Session Terminated. Logged in on another device." }, { status: 401 });
         }
 
-        // Check Premium Status
+        // CHECK PREMIUM
         const now = new Date();
         const expiresAt = new Date(student.premium_expires_at);
         isPremium = student.subscription_status === 'premium' && expiresAt > now;
+
+        // COUNT PAST ATTEMPTS (Strict Enforcement)
+        // We assume you have a 'cbt_results' table. If not, this check returns 0 and allows access (safe fail).
+        try {
+            const historyRes = await client.query(
+                'SELECT COUNT(*) FROM cbt_results WHERE student_id = $1 AND course_id = $2',
+                [studentId, courseId]
+            );
+            attempts = parseInt(historyRes.rows[0].count);
+        } catch (err) {
+            // Table might not exist yet, allow pass for now
+            console.warn("Could not check attempts history:", err.message);
+        }
       }
     }
 
-    // 2. FREEMIUM LOGIC GATES
-    // Free: 30 Questions (Taste) | Premium: 100 Questions (Feast)
-    const limit = isPremium ? 100 : 30;
+    // 2. THE FREEMIUM BLOCKADE
+    if (!isPremium && attempts >= 2) {
+      client.release();
+      return NextResponse.json({ 
+        error: "Free Limit Reached. You have used your 2 free attempts for this course. Upgrade to Premium for unlimited access." 
+      }, { status: 403 });
+    }
 
     // 3. FETCH CONTENT
+    const limit = isPremium ? 100 : 30; // Taste vs Feast
+
     const courseRes = await client.query('SELECT * FROM cbt_courses WHERE id = $1', [courseId]);
     const questionsRes = await client.query(
       'SELECT * FROM cbt_questions WHERE course_id = $1 ORDER BY RANDOM() LIMIT $2', 
@@ -53,15 +72,13 @@ export async function GET(req) {
 
     client.release();
 
-    // 4. DATA SANITIZATION (The Fortress Wall)
-    // Remove sensitive "explanation" data for free users so they can't inspect element to cheat.
+    // 4. DATA SANITIZATION
     const sanitizedQuestions = questionsRes.rows.map(q => {
       if (!isPremium) {
-        // Destructure to separate explanation from the rest
-        const { explanation, ...safeQuestion } = q;
+        const { explanation, ...safeQuestion } = q; // Strip intel
         return safeQuestion;
       }
-      return q; // Premium gets everything
+      return q;
     });
 
     return NextResponse.json({
