@@ -2,31 +2,33 @@ import { NextResponse } from 'next/server';
 
 export async function POST(req) {
   try {
-    const { studentId, failedQuestions } = await req.json();
+    const { studentName, courseCode, score, total, failedQuestions } = await req.json();
 
     if (!failedQuestions || failedQuestions.length === 0) {
-      return NextResponse.json({ analysis: "Perfect score! No analysis needed. Keep it up!" });
+      return NextResponse.json({ analysis: `### Excellent Performance, ${studentName}!\n\nYou have achieved a perfect score in **${courseCode}**. Your mastery of this subject is absolute. No corrective measures are required at this time.` });
     }
 
-    // 1. Construct the Prompt
+    // THE SOPHISTICATED PROMPT
     const prompt = `
-    You are a strict but encouraging University Professor. A student just failed the following questions in a GST Mock Exam.
+    SYSTEM ROLE: You are the "Bolu Adeoye Digital Consciousness" — a high-level AI Academic Strategist. 
+    TASK: Perform a deep-dive diagnostic on a student's performance in the FUOYE GST Mock Exam.
     
-    Analyze their mistakes and provide a concise, bullet-point study guide.
-    Do NOT just give the answers. Explain the *concept* they missed.
+    STUDENT: ${studentName}
+    COURSE: ${courseCode}
+    SCORE: ${score}/${total}
     
-    FAILED QUESTIONS:
+    DATASET (FAILED QUESTIONS):
     ${JSON.stringify(failedQuestions)}
     
-    FORMAT:
-    - **Concept 1:** Explanation...
-    - **Concept 2:** Explanation...
-    - **Study Tip:** One actionable tip.
+    INSTRUCTIONS:
+    1. EXECUTIVE SUMMARY: Start with a personalized, sophisticated assessment of their current standing. Use an authoritative yet encouraging tone.
+    2. COGNITIVE PATTERN RECOGNITION: Do not just list topics. Identify the *nature* of their errors. (e.g., "You are struggling with chronological sequences" or "There is a clear disconnect in your understanding of theoretical frameworks vs. practical application").
+    3. CRITICAL FAILURE POINTS: Group the failed questions into high-level academic pillars.
+    4. TACTICAL RECOVERY ROADMAP: Provide 3 highly specific, actionable steps they must take in the next 48 hours to bridge this gap.
     
-    Keep it under 150 words. Use Markdown.
+    STYLE: Professional, "Aggressively Excellent," State-of-the-Art. Use Markdown for premium formatting. Use bold text for emphasis.
     `;
 
-    // 2. Call Groq AI (Llama 3.3 70B)
     const aiRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -35,14 +37,17 @@ export async function POST(req) {
       },
       body: JSON.stringify({
         model: "llama-3.3-70b-versatile",
-        messages: [{ role: "user", content: prompt }],
-        temperature: 0.7,
-        max_tokens: 300
+        messages: [
+          { role: "system", content: "You are a world-class academic diagnostic engine." },
+          { role: "user", content: prompt }
+        ],
+        temperature: 0.5, // Lower temperature for more precise, academic analysis
+        max_tokens: 800
       })
     });
 
     const aiData = await aiRes.json();
-    const analysis = aiData.choices?.[0]?.message?.content || "AI Analysis unavailable at the moment.";
+    const analysis = aiData.choices?.[0]?.message?.content || "Diagnostic engine offline. Please retry.";
 
     return NextResponse.json({ analysis }, { status: 200 });
 

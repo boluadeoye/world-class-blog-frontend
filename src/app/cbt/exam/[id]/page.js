@@ -148,7 +148,7 @@ export default function ExamPage() {
     }));
     try {
       const res = await fetch("/api/cbt/analyze", {
-        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ studentId: student.id, failedQuestions })
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ studentId: student.id, studentName: student.name, courseCode: course.code, score, total: questions.length, failedQuestions })
       });
       const data = await res.json();
       setAnalysis(data.analysis);
