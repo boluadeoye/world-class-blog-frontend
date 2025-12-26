@@ -1,24 +1,25 @@
-import pool from '../../../../lib/db'; // Fixed: 4 levels up
+import pool from '../../../../lib/db';
+import { NextResponse } from 'next/server';
 
 export async function GET() {
   try {
     const client = await pool.connect();
     
-    // Force add email column if missing
+    // 1. Add 'department' column if missing
     await client.query(`
       ALTER TABLE cbt_students 
-      ADD COLUMN IF NOT EXISTS email TEXT UNIQUE;
+      ADD COLUMN IF NOT EXISTS department TEXT;
     `);
 
-    // Ensure department has a default
+    // 2. Add 'level' column if missing
     await client.query(`
       ALTER TABLE cbt_students 
-      ALTER COLUMN department SET DEFAULT 'General Studies';
+      ADD COLUMN IF NOT EXISTS level TEXT;
     `);
 
     client.release();
-    return new Response("Database Schema Fixed: Email column ensured.", { status: 200 });
+    return NextResponse.json({ success: true, message: "Database Schema Updated Successfully" }, { status: 200 });
   } catch (error) {
-    return new Response(`Fix Failed: ${error.message}`, { status: 500 });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

@@ -1,22 +1,29 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { User, Mail, Lock, ArrowRight, GraduationCap, Eye, EyeOff, CheckCircle, Loader2, Building2, BookOpen, AlertTriangle } from "lucide-react";
+import { User, Mail, Lock, ArrowRight, GraduationCap, Eye, EyeOff, CheckCircle, Loader2, BookOpen, AlertTriangle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-/* === FUOYE DATA === */
-const FACULTIES = {
-  "Arts": ["English and Literary Studies", "History and International Studies", "Linguistics and Languages", "Theatre and Media Arts"],
-  "Science": ["Biochemistry", "Microbiology", "Computer Science", "Geology", "Physics", "Mathematics", "Chemistry"],
-  "Social Sciences": ["Economics", "Sociology", "Psychology", "Political Science", "Mass Communication"],
-  "Engineering": ["Civil Engineering", "Mechanical Engineering", "Mechatronics", "Electrical Engineering", "Computer Engineering"],
-  "Management": ["Accounting", "Banking and Finance", "Business Administration", "Public Administration"],
-  "Education": ["Library Science", "Educational Management", "Guidance and Counseling"],
-  "Agriculture": ["Agricultural Economics", "Animal Production", "Crop Science"],
-  "Law": ["Law"],
-  "Pharmacy": ["Pharmacy"],
-  "Basic Medical": ["Anatomy", "Physiology", "Nursing", "Medical Lab Science"]
-};
+/* === FUOYE DEPARTMENTS (ALPHABETICAL) === */
+const DEPARTMENTS = [
+  "Accounting", "Adult Education", "Agricultural & Bio-resources Engineering", "Agricultural Economics & Extension",
+  "Agriculture", "Anatomy", "Animal & Environmental Biology", "Animal Production & Health",
+  "Architecture", "Banking and Finance", "Biochemistry", "Building", "Business Administration",
+  "Chemistry", "Civil Engineering", "Computer Engineering", "Computer Science",
+  "Criminology and Security Studies", "Crop Science and Horticulture", "Demography and Social Statistics",
+  "Economics", "Educational Management", "Educational Technology", "Electrical & Electronics Engineering",
+  "English and Literary Studies", "Estate Management", "Fisheries and Aquaculture",
+  "Food Science and Technology", "Geology", "Guidance and Counseling",
+  "History and International Studies", "Hospitality and Tourism Management", "Human Kinetics",
+  "Industrial Chemistry", "Library and Information Science", "Linguistics and Languages",
+  "Mass Communication", "Mathematics", "Mechanical Engineering", "Mechatronics Engineering",
+  "Medical Laboratory Science", "Metallurgical and Materials Engineering", "Microbiology",
+  "Nursing Science", "Peace and Conflict Studies", "Pharmacy", "Physics", "Physiology",
+  "Plant Science and Biotechnology", "Political Science", "Psychology", "Public Administration",
+  "Quantity Surveying", "Radiography", "Religious Studies", "Science Education",
+  "Sociology", "Soil Science and Land Resources Management", "Statistics", "Surveying and Geoinformatics",
+  "Theatre and Media Arts", "Urban and Regional Planning", "Water Resources Management and Agrometeorology"
+];
 
 /* === CONSENT MODAL === */
 function ConsentModal({ onAccept, onCancel }) {
@@ -51,7 +58,7 @@ function ConsentModal({ onAccept, onCancel }) {
 export default function StudentLogin() {
   const router = useRouter();
   const [isLogin, setIsLogin] = useState(true);
-  const [form, setForm] = useState({ name: "", email: "", password: "", faculty: "", department: "", level: "100" });
+  const [form, setForm] = useState({ name: "", email: "", password: "", department: "", level: "100" });
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConsent, setShowConsent] = useState(false);
@@ -59,9 +66,9 @@ export default function StudentLogin() {
   const handleRegisterClick = (e) => {
     e.preventDefault();
     if (!isLogin) {
-      setShowConsent(true); // Show consent before submitting registration
+      setShowConsent(true);
     } else {
-      submitForm(); // Login proceeds directly
+      submitForm();
     }
   };
 
@@ -90,7 +97,6 @@ export default function StudentLogin() {
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center p-4 bg-[#f0fdf4] font-sans relative overflow-hidden">
-      {/* Background Decor */}
       <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-green-200/20 rounded-full blur-[100px] pointer-events-none"></div>
       
       <AnimatePresence>
@@ -99,7 +105,6 @@ export default function StudentLogin() {
 
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md relative z-10">
         
-        {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex p-4 bg-white rounded-2xl shadow-xl shadow-green-900/5 mb-4 border border-green-50">
             <GraduationCap size={40} className="text-green-700" />
@@ -110,10 +115,8 @@ export default function StudentLogin() {
           <p className="text-slate-500 font-bold text-xs tracking-widest uppercase mt-2">Mock Examination Portal</p>
         </div>
 
-        {/* Card */}
         <div className="bg-white p-8 rounded-[2.5rem] shadow-2xl shadow-slate-200/50 border border-white relative overflow-hidden">
           
-          {/* Toggle */}
           <div className="flex bg-slate-100 p-1.5 rounded-xl mb-8">
             <button onClick={() => setIsLogin(true)} className={`flex-1 py-3 text-xs font-black uppercase tracking-wider rounded-lg transition-all ${isLogin ? 'bg-white text-green-800 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}>Login</button>
             <button onClick={() => setIsLogin(false)} className={`flex-1 py-3 text-xs font-black uppercase tracking-wider rounded-lg transition-all ${!isLogin ? 'bg-white text-green-800 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}>Register</button>
@@ -121,7 +124,6 @@ export default function StudentLogin() {
 
           <form onSubmit={handleRegisterClick} className="space-y-4">
             
-            {/* Registration Fields */}
             <AnimatePresence>
               {!isLogin && (
                 <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden space-y-4">
@@ -130,27 +132,17 @@ export default function StudentLogin() {
                     <input required placeholder="Full Name" className="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:ring-2 focus:ring-green-500 outline-none" onChange={(e) => setForm({...form, name: e.target.value})} />
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="relative">
-                      <Building2 className="absolute left-3 top-3.5 text-slate-400" size={16} />
-                      <select required className="w-full pl-9 pr-2 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-600 focus:ring-2 focus:ring-green-500 outline-none appearance-none" onChange={(e) => setForm({...form, faculty: e.target.value})}>
-                        <option value="">Faculty</option>
-                        {Object.keys(FACULTIES).map(f => <option key={f} value={f}>{f}</option>)}
-                      </select>
-                    </div>
-                    <div className="relative">
-                      <BookOpen className="absolute left-3 top-3.5 text-slate-400" size={16} />
-                      <select required className="w-full pl-9 pr-2 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-600 focus:ring-2 focus:ring-green-500 outline-none appearance-none" onChange={(e) => setForm({...form, department: e.target.value})}>
-                        <option value="">Dept</option>
-                        {form.faculty && FACULTIES[form.faculty]?.map(d => <option key={d} value={d}>{d}</option>)}
-                      </select>
-                    </div>
+                  <div className="relative">
+                    <BookOpen className="absolute left-4 top-3.5 text-slate-400" size={18} />
+                    <select required className="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-600 focus:ring-2 focus:ring-green-500 outline-none appearance-none" onChange={(e) => setForm({...form, department: e.target.value})}>
+                      <option value="">Select Department</option>
+                      {DEPARTMENTS.map(d => <option key={d} value={d}>{d}</option>)}
+                    </select>
                   </div>
                 </motion.div>
               )}
             </AnimatePresence>
 
-            {/* Common Fields */}
             <div className="relative">
               <Mail className="absolute left-4 top-3.5 text-slate-400" size={18} />
               <input required type="email" placeholder="Student Email" className="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:ring-2 focus:ring-green-500 outline-none" onChange={(e) => setForm({...form, email: e.target.value})} />
