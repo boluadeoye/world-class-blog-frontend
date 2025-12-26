@@ -5,7 +5,6 @@ import { Grid, CheckCircle, AlertOctagon, X, Crown, Sparkles, BrainCircuit, Cloc
 import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";
 
-// RELATIVE IMPORT
 const UpgradeModal = dynamic(() => import("../../../../components/cbt/UpgradeModal"), { ssr: false });
 
 /* === MODAL === */
@@ -35,7 +34,6 @@ export default function ExamPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Logic State
   const [student, setStudent] = useState(null);
   const [course, setCourse] = useState(null);
   const [questions, setQuestions] = useState([]);
@@ -57,7 +55,6 @@ export default function ExamPage() {
 
   const getStorageKey = useCallback((email) => `cbt_session_${params.id}_${email}`, [params.id]);
 
-  // 1. Init
   useEffect(() => {
     setMounted(true);
     const studentData = sessionStorage.getItem("cbt_student");
@@ -80,7 +77,7 @@ export default function ExamPage() {
         const data = await res.json();
 
         if (res.status === 401) { 
-          alert("Session Expired: You logged in on another device.");
+          alert("Session Expired.");
           router.push("/cbt"); 
           return; 
         }
@@ -107,14 +104,12 @@ export default function ExamPage() {
     loadExam();
   }, [params.id, router, getStorageKey, searchParams]);
 
-  // 2. Submit Logic (With DB Saving)
   const submitExam = useCallback(async () => {
     setIsSubmitted(true);
     let correctCount = 0;
     questions.forEach(q => { if (answers[q.id] === q.correct_option) correctCount++; });
     setScore(correctCount);
     
-    // SAVE RESULT TO DB (For 2-Attempt Limit)
     if (student && course) {
         try {
             await fetch('/api/cbt/result', {
@@ -129,15 +124,12 @@ export default function ExamPage() {
                 })
             });
         } catch(e) { console.error("Save failed", e); }
-        
         localStorage.removeItem(getStorageKey(student.email));
     }
-    
     setModalConfig({ show: false });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [questions, answers, student, course, getStorageKey]);
 
-  // 3. Timer
   useEffect(() => {
     if (!mounted || loading || isSubmitted || error || timeLeft === null || showUpgrade) return;
     const interval = setInterval(() => {
@@ -155,8 +147,7 @@ export default function ExamPage() {
     return () => clearInterval(interval);
   }, [loading, isSubmitted, error, timeLeft, showUpgrade, mounted, answers, currentQIndex, student, getStorageKey, submitExam]);
 
-  // Actions
-  const confirmSubmit = () => setModalConfig({ show: true, title: "FINISH EXAM?", message: "You are about to submit your answers. This action cannot be undone.", type: "warning", action: submitExam });
+  const confirmSubmit = () => setModalConfig({ show: true, title: "FINISH EXAM?", message: "You are about to submit your answers.", type: "warning", action: submitExam });
   const handleSelect = (option) => { if (!isSubmitted) setAnswers(prev => ({ ...prev, [questions[currentQIndex].id]: option })); };
   const formatTime = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
   const navigateTo = (index) => { setCurrentQIndex(index); setShowMap(false); };
@@ -168,15 +159,8 @@ export default function ExamPage() {
     }));
     try {
       const res = await fetch("/api/cbt/analyze", {
-        method: "POST", 
-        headers: { "Content-Type": "application/json" }, 
-        body: JSON.stringify({ 
-            studentName: student.name, 
-            courseCode: course.code, 
-            score, 
-            total: questions.length, 
-            failedQuestions 
-        })
+        method: "POST", headers: { "Content-Type": "application/json" }, 
+        body: JSON.stringify({ studentName: student.name, courseCode: course.code, score, total: questions.length, failedQuestions })
       });
       const data = await res.json();
       setAnalysis(data.analysis);
@@ -194,82 +178,37 @@ export default function ExamPage() {
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-white text-green-900 font-black text-sm tracking-widest animate-pulse">LOADING ENGINE...</div>;
   if (error) return <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6 text-center text-red-600 font-bold gap-4"><p>{error}</p><button onClick={() => window.location.reload()} className="bg-black text-white px-6 py-2 rounded text-xs">RETRY</button></div>;
 
-  // === EXECUTIVE RESULT VIEW ===
   if (isSubmitted) {
     const percentage = Math.round((score / questions.length) * 100);
     return (
       <main className="min-h-screen bg-[#f8fafc] font-sans pb-20">
-        
-        {/* EXECUTIVE HEADER */}
-        <div className="bg-[#002b00] text-white pt-10 pb-20 px-6 rounded-b-[3rem] shadow-2xl relative overflow-hidden">
+        <header className="bg-[#002b00] text-white pt-10 pb-20 px-6 rounded-b-[3rem] shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
-          
           <div className="relative z-10 flex justify-between items-start mb-8">
-            <div>
-              <div className="text-[10px] font-bold text-green-400 uppercase tracking-widest mb-1">Session Closed</div>
-              <h1 className="font-black text-2xl tracking-tight">{course?.code}</h1>
-            </div>
+            <div><div className="text-[10px] font-bold text-green-400 uppercase tracking-widest mb-1">Session Closed</div><h1 className="font-black text-2xl tracking-tight">{course?.code}</h1></div>
             <button onClick={() => router.push('/cbt/dashboard')} className="bg-white/10 backdrop-blur-md border border-white/10 px-5 py-2 rounded-full text-[10px] font-bold uppercase hover:bg-white hover:text-[#002b00] transition-colors">Exit</button>
           </div>
-
           <div className="relative z-10 flex flex-col items-center">
-            <div className="relative">
-              <div className={`text-7xl font-black tracking-tighter ${percentage >= 50 ? 'text-white' : 'text-red-400'}`}>
-                {percentage}<span className="text-3xl text-green-500/50">%</span>
-              </div>
-            </div>
-            <div className="flex gap-6 mt-4">
-              <div className="text-center">
-                <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Score</p>
-                <p className="text-lg font-black">{score}/{questions.length}</p>
-              </div>
-              <div className="w-[1px] bg-white/10"></div>
-              <div className="text-center">
-                <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Status</p>
-                <p className={`text-lg font-black ${percentage >= 50 ? 'text-green-400' : 'text-red-400'}`}>{percentage >= 50 ? 'PASSED' : 'FAILED'}</p>
-              </div>
-            </div>
+            <div className={`text-7xl font-black tracking-tighter ${percentage >= 50 ? 'text-white' : 'text-red-400'}`}>{percentage}<span className="text-3xl text-green-500/50">%</span></div>
+            <div className="flex gap-6 mt-4"><div className="text-center"><p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Score</p><p className="text-lg font-black">{score}/{questions.length}</p></div><div className="w-[1px] bg-white/10"></div><div className="text-center"><p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Status</p><p className={`text-lg font-black ${percentage >= 50 ? 'text-green-400' : 'text-red-400'}`}>{percentage >= 50 ? 'PASSED' : 'FAILED'}</p></div></div>
           </div>
-        </div>
-
-        {/* CONTENT CARD */}
+        </header>
         <div className="max-w-3xl mx-auto px-6 -mt-10 relative z-20">
-          
-          {/* TABS */}
           <div className="bg-white rounded-2xl shadow-lg p-1.5 mb-6 flex gap-2 border border-gray-100">
             <button onClick={() => setActiveTab("corrections")} className={`flex-1 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'corrections' ? 'bg-[#004d00] text-white shadow-md' : 'text-gray-400 hover:bg-gray-50'}`}>Corrections</button>
             <button onClick={() => setActiveTab("ai")} className={`flex-1 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${activeTab === 'ai' ? 'bg-purple-900 text-white shadow-md' : 'text-gray-400 hover:bg-gray-50'}`}><Sparkles size={14} /> AI Strategist</button>
           </div>
-
           {activeTab === "corrections" ? (
             <div className="space-y-4">
               {questions.map((q, i) => (
                 <div key={q.id} className={`bg-white p-6 rounded-2xl shadow-sm border-l-4 ${answers[q.id] === q.correct_option ? 'border-green-500' : 'border-red-500'}`}>
-                  <div className="flex justify-between items-start mb-4">
-                    <span className="bg-gray-100 text-gray-500 px-3 py-1 rounded text-[10px] font-black uppercase tracking-widest">Question {i+1}</span>
-                    {answers[q.id] === q.correct_option ? <CheckCircle size={20} className="text-green-600" /> : <X size={20} className="text-red-500" />}
-                  </div>
+                  <div className="flex justify-between items-start mb-4"><span className="bg-gray-100 text-gray-500 px-3 py-1 rounded text-[10px] font-black uppercase tracking-widest">Question {i+1}</span>{answers[q.id] === q.correct_option ? <CheckCircle size={20} className="text-green-600" /> : <X size={20} className="text-red-500" />}</div>
                   <p className="font-bold text-gray-900 text-sm leading-relaxed mb-4">{q.question_text}</p>
-                  
                   <div className="grid grid-cols-2 gap-3 mb-4">
-                    <div className="bg-green-50 border border-green-100 p-3 rounded-xl">
-                      <p className="text-[10px] font-black text-green-800 uppercase mb-1">Correct Answer</p>
-                      <p className="text-sm font-bold text-green-900">{q.correct_option}</p>
-                    </div>
-                    {answers[q.id] !== q.correct_option && (
-                      <div className="bg-red-50 border border-red-100 p-3 rounded-xl">
-                        <p className="text-[10px] font-black text-red-800 uppercase mb-1">Your Choice</p>
-                        <p className="text-sm font-bold text-red-900">{answers[q.id] || "Skipped"}</p>
-                      </div>
-                    )}
+                    <div className="bg-green-50 border border-green-100 p-3 rounded-xl"><p className="text-[10px] font-black text-green-800 uppercase mb-1">Correct Answer</p><p className="text-sm font-bold text-green-900">{q.correct_option}</p></div>
+                    {answers[q.id] !== q.correct_option && <div className="bg-red-50 border border-red-100 p-3 rounded-xl"><p className="text-[10px] font-black text-red-800 uppercase mb-1">Your Choice</p><p className="text-sm font-bold text-red-900">{answers[q.id] || "Skipped"}</p></div>}
                   </div>
-
-                  {isPremium && q.explanation && (
-                    <div className="mt-4 pt-4 border-t border-gray-100">
-                      <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-1 flex items-center gap-1"><BrainCircuit size={12}/> Analysis</p>
-                      <p className="text-xs text-gray-600 leading-relaxed">{q.explanation}</p>
-                    </div>
-                  )}
+                  {isPremium && q.explanation && <div className="mt-4 pt-4 border-t border-gray-100"><p className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-1 flex items-center gap-1"><BrainCircuit size={12}/> Analysis</p><p className="text-xs text-gray-600 leading-relaxed">{q.explanation}</p></div>}
                 </div>
               ))}
             </div>
@@ -277,31 +216,18 @@ export default function ExamPage() {
             <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden min-h-[400px] relative">
               {!isPremium ? (
                 <div className="absolute inset-0 z-10 bg-white/95 flex flex-col items-center justify-center text-center p-8">
-                  <div className="w-20 h-20 bg-gradient-to-br from-yellow-300 to-orange-400 rounded-full flex items-center justify-center mb-6 shadow-xl shadow-yellow-200">
-                    <Crown size={40} className="text-white" />
-                  </div>
+                  <div className="w-20 h-20 bg-gradient-to-br from-yellow-300 to-orange-400 rounded-full flex items-center justify-center mb-6 shadow-xl shadow-yellow-200"><Crown size={40} className="text-white" /></div>
                   <h3 className="text-xl font-black text-gray-900 mb-2 tracking-tight">RESTRICTED INTEL</h3>
-                  <p className="text-gray-500 text-xs mb-8 max-w-xs font-medium">This high-level diagnostic report is reserved for Premium Students.</p>
                   <button onClick={() => setShowUpgrade(true)} className="bg-black text-white px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest shadow-lg hover:scale-105 transition-transform">Unlock Report</button>
                 </div>
               ) : (
                 <div className="p-8">
                   {!analysis ? (
                     <div className="text-center py-16">
-                      <div className="w-16 h-16 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
-                        <BrainCircuit size={32} className="text-purple-600" />
-                      </div>
-                      <h3 className="font-black text-gray-900 text-sm mb-2 uppercase tracking-widest">Generating Strategy</h3>
-                      <p className="text-gray-400 text-xs mb-8">Analyzing cognitive patterns...</p>
-                      <button onClick={generateAnalysis} disabled={analyzing} className="bg-purple-900 text-white px-10 py-3 rounded-xl font-black text-xs uppercase tracking-widest shadow-xl disabled:opacity-50 hover:bg-purple-800 transition-colors">
-                        {analyzing ? "PROCESSING..." : "RUN DIAGNOSTICS"}
-                      </button>
+                      <div className="w-16 h-16 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse"><BrainCircuit size={32} className="text-purple-600" /></div>
+                      <button onClick={generateAnalysis} disabled={analyzing} className="bg-purple-900 text-white px-10 py-3 rounded-xl font-black text-xs uppercase tracking-widest shadow-xl disabled:opacity-50 hover:bg-purple-800 transition-colors">{analyzing ? "PROCESSING..." : "RUN DIAGNOSTICS"}</button>
                     </div>
-                  ) : (
-                    <div className="prose prose-sm max-w-none text-gray-700 bg-gray-50 p-6 rounded-2xl border border-gray-100">
-                      <ReactMarkdown>{analysis}</ReactMarkdown>
-                    </div>
-                  )}
+                  ) : <div className="prose prose-sm max-w-none text-gray-700 bg-gray-50 p-6 rounded-2xl border border-gray-100"><ReactMarkdown>{analysis}</ReactMarkdown></div>}
                 </div>
               )}
             </div>
@@ -315,52 +241,48 @@ export default function ExamPage() {
   if (!currentQ) return <div className="h-screen flex items-center justify-center bg-white font-bold text-xs tracking-widest text-green-900">SYNCING...</div>;
 
   return (
-    <main className="fixed inset-0 bg-gray-50 flex flex-col font-sans h-screen overflow-hidden z-[150]">
+    <main className="fixed inset-0 bg-gray-100 flex flex-col font-sans h-screen overflow-hidden z-[150]">
       <ConfirmModal isOpen={modalConfig.show} title={modalConfig.title} message={modalConfig.message} type={modalConfig.type} onConfirm={modalConfig.action} onCancel={() => setModalConfig({ ...modalConfig, show: false })} />
-
-      <header className="bg-green-900 text-white h-14 flex justify-between items-center px-4 shadow-md shrink-0 z-[160]">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-white text-green-900 rounded-lg flex items-center justify-center font-black text-sm shadow-inner">{student?.name?.charAt(0)}</div>
-          <div className="leading-none"><h1 className="font-bold text-[10px] uppercase tracking-wider opacity-70 mb-0.5">CBT ENGINE</h1><p className="font-black text-xs">{course?.code}</p></div>
+      <header className="bg-[#004d00] text-white h-16 flex justify-between items-center shadow-2xl shrink-0 z-[160] px-4 border-b-4 border-green-600">
+        <div className="flex items-center gap-4">
+          <div className="w-10 h-10 bg-white rounded-none flex items-center justify-center text-[#004d00] font-black text-lg shadow-inner border border-green-800">{student?.name?.charAt(0).toUpperCase()}</div>
+          <div className="hidden sm:block leading-tight"><h1 className="font-black text-xs uppercase tracking-widest">{student?.name}</h1><div className="flex items-center gap-2 text-[10px] font-mono opacity-80"><span>ID: {student?.id?.slice(0,8)}</span><span className="text-green-400">●</span><span>{course?.code}</span></div></div>
+          <button onClick={() => setShowMap(!showMap)} className="sm:hidden flex items-center gap-2 bg-white/10 px-3 py-1.5 border border-white/20 text-xs font-black uppercase tracking-widest"><Grid size={14} /> Map</button>
         </div>
-        <div className="flex items-center gap-3">
-          <div className={`font-mono font-bold text-lg tracking-tight ${timeLeft < 300 ? 'text-red-300 animate-pulse' : 'text-white'}`}>{formatTime(timeLeft || 0)}</div>
-          <button onClick={confirmSubmit} className="bg-red-600 hover:bg-red-700 text-white px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest shadow-sm">Submit</button>
+        <div className="flex items-center gap-6">
+          <div className={`flex items-center gap-2 bg-black/40 px-4 py-1.5 border border-green-800 ${timeLeft < 300 ? 'animate-pulse bg-red-900/50 border-red-500' : ''}`}><span className="text-green-500 font-black text-xs">TIME:</span><span className={`font-mono font-black text-xl tracking-widest ${timeLeft < 300 ? "text-red-500" : "text-white"}`}>{formatTime(timeLeft || 0)}</span></div>
+          <button onClick={confirmSubmit} className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 text-xs font-black uppercase tracking-widest shadow-lg transition-all hover:scale-105 border-b-4 border-red-900 active:border-b-0 active:translate-y-1">Submit</button>
         </div>
       </header>
-
       <div className="flex-1 flex overflow-hidden relative">
-        <div className="flex-1 flex flex-col bg-gray-50 relative z-10">
-          <div className="flex-1 overflow-y-auto p-4 pb-32">
-            <div className="max-w-2xl mx-auto">
-              <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-4 relative overflow-hidden">
-                <div className="absolute top-0 right-0 bg-green-50 text-green-800 px-3 py-1.5 text-[9px] font-black uppercase tracking-widest rounded-bl-xl border-b border-l border-green-100">2.0 Marks</div>
-                <div className="flex justify-between items-center mb-6 border-b border-gray-100 pb-3"><span className="font-black text-green-900 text-xs uppercase tracking-widest bg-green-50 px-2 py-1 rounded">Question {currentQIndex + 1}</span></div>
-                <h2 className="text-base md:text-xl font-bold text-gray-900 leading-relaxed mb-8 select-none">{currentQ.question_text}</h2>
-                <div className="grid gap-3">
+        <div className="flex-1 flex flex-col bg-[#f0f2f5] relative z-10">
+          <div className="flex-1 overflow-y-auto p-4 md:p-8 pb-32 custom-scrollbar">
+            <div className="max-w-4xl mx-auto">
+              <div className="bg-white shadow-sm border-t-4 border-[#004d00] p-6 md:p-10 mb-6 relative">
+                <div className="absolute top-0 right-0 bg-gray-100 px-3 py-1 text-[10px] font-black text-gray-400 uppercase tracking-widest">Single Choice</div>
+                <div className="flex justify-between items-center mb-8 border-b border-gray-100 pb-4"><span className="font-black text-[#004d00] text-xs tracking-[0.2em] uppercase bg-green-50 px-3 py-1 border border-green-100">Question {String(currentQIndex + 1).padStart(2, '0')} / {questions.length}</span></div>
+                <h2 className="text-xl md:text-2xl font-bold text-gray-900 leading-relaxed mb-10 select-none font-sans">{currentQ.question_text}</h2>
+                <div className="grid gap-4 md:grid-cols-2">
                   {['A','B','C','D'].map((opt) => (
-                    <button key={opt} onClick={() => handleSelect(opt)} className={`w-full text-left p-4 rounded-xl border-2 transition-all flex items-center gap-4 group ${answers[currentQ.id] === opt ? 'border-green-600 bg-green-50 ring-1 ring-green-600 shadow-sm' : 'border-gray-200 bg-white hover:border-green-300'}`}>
-                      <span className={`w-8 h-8 flex items-center justify-center font-black text-xs rounded-lg border transition-colors ${answers[currentQ.id] === opt ? 'bg-green-600 text-white border-green-600' : 'bg-gray-100 text-gray-500 border-gray-300 group-hover:bg-white'}`}>{opt}</span>
-                      <span className={`font-bold text-sm ${answers[currentQ.id] === opt ? 'text-green-900' : 'text-gray-600'}`}>{currentQ[`option_${opt.toLowerCase()}`]}</span>
+                    <button key={opt} onClick={() => handleSelect(opt)} className={`group relative p-5 border-2 text-left transition-all duration-150 flex items-start gap-4 hover:shadow-md active:scale-[0.99] ${answers[currentQ.id] === opt ? 'border-[#004d00] bg-green-50' : 'border-gray-200 bg-white hover:border-green-300'}`}>
+                      <span className={`shrink-0 w-8 h-8 flex items-center justify-center font-black text-sm border transition-colors ${answers[currentQ.id] === opt ? 'bg-[#004d00] text-white border-[#004d00]' : 'bg-gray-100 text-gray-500 border-gray-300 group-hover:bg-white'}`}>{opt}</span>
+                      <span className={`font-medium text-base mt-1 ${answers[currentQ.id] === opt ? 'text-[#004d00] font-bold' : 'text-gray-700'}`}>{currentQ[`option_${opt.toLowerCase()}`]}</span>
                     </button>
                   ))}
                 </div>
               </div>
             </div>
           </div>
-          <div className="fixed bottom-0 left-0 right-0 md:relative bg-white border-t border-gray-200 p-4 flex justify-between items-center shrink-0 z-[170] md:pr-72">
-            <button onClick={() => navigateTo(Math.max(0, currentQIndex - 1))} disabled={currentQIndex === 0} className="px-6 py-3 font-bold text-gray-400 text-xs uppercase tracking-widest disabled:opacity-30 hover:text-green-900 transition-colors">Previous</button>
-            <button onClick={() => navigateTo(Math.min(questions.length - 1, currentQIndex + 1))} disabled={isLastQuestion} className={`px-10 py-3 rounded-xl font-black uppercase text-xs shadow-lg transition-transform active:scale-95 ${isLastQuestion ? 'bg-gray-200 text-gray-400' : 'bg-green-900 text-white'}`}>Next Question</button>
+          <div className="fixed bottom-0 left-0 right-0 md:relative bg-white border-t border-gray-200 p-4 flex justify-between items-center shrink-0 z-[170] md:pr-80 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+            <button onClick={() => navigateTo(Math.max(0, currentQIndex - 1))} disabled={currentQIndex === 0} className="flex items-center gap-2 px-6 py-3 font-black text-gray-400 hover:text-[#004d00] disabled:opacity-30 disabled:hover:text-gray-400 transition-colors uppercase tracking-widest text-xs">[ PREV ]</button>
+            <button onClick={() => navigateTo(Math.min(questions.length - 1, currentQIndex + 1))} disabled={currentQIndex === questions.length - 1} className="flex items-center gap-2 px-8 py-3 font-black uppercase tracking-widest text-xs transition-all shadow-lg border-b-4 active:border-b-0 active:translate-y-1 bg-[#004d00] text-white border-green-900 hover:bg-green-900">[ NEXT ]</button>
           </div>
         </div>
-        <aside className={`fixed inset-0 z-[190] bg-black/60 backdrop-blur-sm flex justify-end transition-opacity duration-300 md:static md:bg-transparent md:backdrop-blur-none md:w-72 md:border-l md:border-gray-200 ${showMap ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none md:opacity-100 md:pointer-events-auto'}`} onClick={() => setShowMap(false)}>
-          <div className={`bg-white w-72 h-full shadow-2xl flex flex-col transition-transform duration-300 ${showMap ? 'translate-x-0' : 'translate-x-full md:translate-x-0'}`} onClick={e => e.stopPropagation()}>
-            <div className="p-5 bg-green-900 text-white font-black text-xs uppercase flex justify-between items-center shrink-0 tracking-widest"><span className="flex items-center gap-2"><Grid size={14} /> Question Matrix</span><button onClick={() => setShowMap(false)} className="md:hidden bg-white/20 p-1 rounded hover:bg-white/30"><X size={16}/></button></div>
-            <div className="flex-1 overflow-y-auto p-5 custom-scrollbar bg-gray-50"><div className="grid grid-cols-5 gap-3">{questions.map((q, i) => (<button key={q.id} onClick={() => navigateTo(i)} className={`h-10 rounded-lg text-xs font-black transition-all border-2 ${getMapColor(i, q.id)}`}>{i + 1}</button>))}</div></div>
-            <div className="p-5 bg-white border-t border-gray-200 grid grid-cols-2 gap-3 text-[9px] font-bold uppercase text-gray-500"><div className="flex items-center gap-2"><div className="w-3 h-3 bg-green-100 border border-green-300 rounded-full"></div> Answered</div><div className="flex items-center gap-2"><div className="w-3 h-3 bg-green-800 rounded-full"></div> Current</div><div className="flex items-center gap-2"><div className="w-3 h-3 bg-white border border-gray-300 rounded-full"></div> Pending</div></div>
-          </div>
+        <aside className={`absolute inset-0 z-[180] bg-white flex flex-col transition-transform duration-300 md:relative md:translate-x-0 md:w-80 md:border-l border-gray-200 shadow-2xl md:shadow-none ${showMap ? 'translate-x-0' : 'translate-x-full'}`}>
+          <div className="p-4 bg-[#004d00] text-white font-black text-xs uppercase flex justify-between items-center shrink-0 tracking-widest"><span className="flex items-center gap-2"><Grid size={14} /> Matrix</span><button onClick={() => setShowMap(false)} className="md:hidden p-1 hover:bg-white/20 rounded"><X size={18}/></button></div>
+          <div className="flex-1 overflow-y-auto p-4 custom-scrollbar bg-gray-50"><div className="grid grid-cols-5 gap-2">{questions.map((q, i) => (<button key={q.id} onClick={() => navigateTo(i)} className={`h-10 w-full text-xs font-black transition-all border ${getMapColor(i, q.id)}`}>{i + 1}</button>))}</div></div>
+          <div className="p-4 bg-white border-t border-gray-200"><div className="grid grid-cols-2 gap-3 text-[10px] font-bold text-gray-500 uppercase tracking-wider"><div className="flex items-center gap-2"><div className="w-3 h-3 bg-green-100 border border-green-300"></div> Answered</div><div className="flex items-center gap-2"><div className="w-3 h-3 bg-[#004d00]"></div> Active</div><div className="flex items-center gap-2"><div className="w-3 h-3 bg-white border border-gray-300"></div> Pending</div></div></div>
         </aside>
-        {!showMap && <button onClick={() => setShowMap(true)} className="fixed bottom-24 right-5 z-[180] bg-green-900 text-white w-14 h-14 rounded-full shadow-2xl border-4 border-white flex items-center justify-center hover:scale-110 transition-transform active:scale-95 md:hidden"><Grid size={24} /></button>}
       </div>
     </main>
   );
