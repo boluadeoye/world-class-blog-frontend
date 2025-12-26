@@ -1,4 +1,4 @@
-import pool from '../../../../lib/db';
+import pool from '../../../../../lib/db';
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
@@ -24,7 +24,6 @@ export async function POST(req) {
     }
 
     // 3. ATOMIC SECURITY: Generate New Session Token
-    // This invalidates ANY previous session on any other device.
     const sessionToken = crypto.randomBytes(32).toString('hex');
     
     await client.query(
@@ -42,7 +41,7 @@ export async function POST(req) {
         name: student.name,
         email: student.email,
         subscription_status: student.subscription_status,
-        session_token: sessionToken // Frontend must save this
+        session_token: sessionToken
       }
     }, { status: 200 });
 
