@@ -238,6 +238,8 @@ export default function ExamPage() {
   }
 
   const currentQ = questions[currentQIndex];
+  // FIX: Force ID to be string before slice
+  const safeId = student?.id ? String(student.id) : "0000";
   if (!currentQ) return <div className="h-screen flex items-center justify-center bg-white font-bold text-xs tracking-widest text-green-900">SYNCING...</div>;
 
   return (
@@ -246,7 +248,7 @@ export default function ExamPage() {
       <header className="bg-[#004d00] text-white h-16 flex justify-between items-center shadow-2xl shrink-0 z-[160] px-4 border-b-4 border-green-600">
         <div className="flex items-center gap-4">
           <div className="w-10 h-10 bg-white rounded-none flex items-center justify-center text-[#004d00] font-black text-lg shadow-inner border border-green-800">{student?.name?.charAt(0).toUpperCase()}</div>
-          <div className="hidden sm:block leading-tight"><h1 className="font-black text-xs uppercase tracking-widest">{student?.name}</h1><div className="flex items-center gap-2 text-[10px] font-mono opacity-80"><span>ID: {student?.id?.slice(0,8)}</span><span className="text-green-400">●</span><span>{course?.code}</span></div></div>
+          <div className="hidden sm:block leading-tight"><h1 className="font-black text-xs uppercase tracking-widest">{student?.name}</h1><div className="flex items-center gap-2 text-[10px] font-mono opacity-80"><span>ID: {safeId.slice(0,8)}</span><span className="text-green-400">●</span><span>{course?.code}</span></div></div>
           <button onClick={() => setShowMap(!showMap)} className="sm:hidden flex items-center gap-2 bg-white/10 px-3 py-1.5 border border-white/20 text-xs font-black uppercase tracking-widest"><Grid size={14} /> Map</button>
         </div>
         <div className="flex items-center gap-6">
@@ -278,10 +280,22 @@ export default function ExamPage() {
             <button onClick={() => navigateTo(Math.min(questions.length - 1, currentQIndex + 1))} disabled={currentQIndex === questions.length - 1} className="flex items-center gap-2 px-8 py-3 font-black uppercase tracking-widest text-xs transition-all shadow-lg border-b-4 active:border-b-0 active:translate-y-1 bg-[#004d00] text-white border-green-900 hover:bg-green-900">[ NEXT ]</button>
           </div>
         </div>
-        <aside className={`absolute inset-0 z-[180] bg-white flex flex-col transition-transform duration-300 md:relative md:translate-x-0 md:w-80 md:border-l border-gray-200 shadow-2xl md:shadow-none ${showMap ? 'translate-x-0' : 'translate-x-full'}`}>
-          <div className="p-4 bg-[#004d00] text-white font-black text-xs uppercase flex justify-between items-center shrink-0 tracking-widest"><span className="flex items-center gap-2"><Grid size={14} /> Matrix</span><button onClick={() => setShowMap(false)} className="md:hidden p-1 hover:bg-white/20 rounded"><X size={18}/></button></div>
-          <div className="flex-1 overflow-y-auto p-4 custom-scrollbar bg-gray-50"><div className="grid grid-cols-5 gap-2">{questions.map((q, i) => (<button key={q.id} onClick={() => navigateTo(i)} className={`h-10 w-full text-xs font-black transition-all border ${getMapColor(i, q.id)}`}>{i + 1}</button>))}</div></div>
-          <div className="p-4 bg-white border-t border-gray-200"><div className="grid grid-cols-2 gap-3 text-[10px] font-bold text-gray-500 uppercase tracking-wider"><div className="flex items-center gap-2"><div className="w-3 h-3 bg-green-100 border border-green-300"></div> Answered</div><div className="flex items-center gap-2"><div className="w-3 h-3 bg-[#004d00]"></div> Active</div><div className="flex items-center gap-2"><div className="w-3 h-3 bg-white border border-gray-300"></div> Pending</div></div></div>
+        <aside className={`absolute inset-0 z-[180] bg-white flex flex-col transition-transform duration-300 md:relative md:translate-x-0 md:w-80 md:border-l-4 border-gray-200 ${showMap ? 'translate-x-0' : 'translate-x-full'}`}>
+          <div className="p-4 bg-gray-100 border-b-2 border-gray-200 font-black text-gray-800 text-xs uppercase flex justify-between items-center shrink-0">
+            <span>QUESTION PALETTE</span>
+            <button onClick={() => setShowMap(false)} className="md:hidden p-2 bg-white rounded-xl shadow-sm"><X size={18}/></button>
+          </div>
+          <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+            <div className="grid grid-cols-5 gap-3">
+              {questions.map((q, i) => (
+                <button key={q.id} onClick={() => navigateTo(i)} className={`h-12 w-full rounded-xl border-2 text-sm font-black shadow-sm transition-all ${getGridColor(i, q.id)}`}>{i + 1}</button>
+              ))}
+            </div>
+          </div>
+          <div className="p-4 bg-gray-50 border-t-2 border-gray-200 grid grid-cols-2 gap-2 text-[10px] font-black">
+             <div className="flex items-center gap-2"><div className="w-3 h-3 bg-green-600 rounded"></div> ATTEMPTED</div>
+             <div className="flex items-center gap-2"><div className="w-3 h-3 bg-white border-2 border-gray-300 rounded"></div> PENDING</div>
+          </div>
         </aside>
       </div>
     </main>
