@@ -1,10 +1,10 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { User, Mail, Lock, ArrowRight, GraduationCap, Eye, EyeOff, CheckCircle, Loader2, BookOpen, AlertTriangle } from "lucide-react";
+import { User, Mail, Lock, ArrowRight, GraduationCap, Eye, EyeOff, CheckCircle, Loader2, Building2, BookOpen, AlertTriangle, XCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-/* === FUOYE DEPARTMENTS (ALPHABETICAL) === */
+/* === FUOYE DEPARTMENTS === */
 const DEPARTMENTS = [
   "Accounting", "Adult Education", "Agricultural & Bio-resources Engineering", "Agricultural Economics & Extension",
   "Agriculture", "Anatomy", "Animal & Environmental Biology", "Animal Production & Health",
@@ -24,6 +24,35 @@ const DEPARTMENTS = [
   "Sociology", "Soil Science and Land Resources Management", "Statistics", "Surveying and Geoinformatics",
   "Theatre and Media Arts", "Urban and Regional Planning", "Water Resources Management and Agrometeorology"
 ];
+
+/* === STATUS MODAL (Error/Success) === */
+function StatusModal({ type, message, onClose }) {
+  return (
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm p-6">
+      <motion.div 
+        initial={{ scale: 0.9, opacity: 0 }} 
+        animate={{ scale: 1, opacity: 1 }} 
+        className="bg-white rounded-2xl shadow-2xl max-w-xs w-full overflow-hidden"
+      >
+        <div className={`p-6 flex flex-col items-center text-center ${type === 'error' ? 'bg-red-50' : 'bg-green-50'}`}>
+          <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 ${type === 'error' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
+            {type === 'error' ? <XCircle size={32} /> : <CheckCircle size={32} />}
+          </div>
+          <h3 className={`font-black text-lg uppercase mb-2 ${type === 'error' ? 'text-red-900' : 'text-green-900'}`}>
+            {type === 'error' ? 'Access Denied' : 'Success'}
+          </h3>
+          <p className="text-gray-600 text-xs font-medium leading-relaxed mb-6">{message}</p>
+          <button 
+            onClick={onClose} 
+            className={`w-full py-3 rounded-xl font-black text-xs uppercase tracking-widest shadow-lg transition-transform active:scale-95 text-white ${type === 'error' ? 'bg-red-600 hover:bg-red-700' : 'bg-green-700 hover:bg-green-800'}`}
+          >
+            {type === 'error' ? 'Try Again' : 'Proceed'}
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
 
 /* === CONSENT MODAL === */
 function ConsentModal({ onAccept, onCancel }) {
@@ -62,6 +91,9 @@ export default function StudentLogin() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConsent, setShowConsent] = useState(false);
+  
+  // Status Modal State
+  const [statusModal, setStatusModal] = useState({ show: false, type: 'error', message: '' });
 
   const handleRegisterClick = (e) => {
     e.preventDefault();
@@ -86,11 +118,11 @@ export default function StudentLogin() {
         sessionStorage.setItem("cbt_student", JSON.stringify(data.student));
         router.push("/cbt/dashboard");
       } else {
-        alert(data.error || "Access failed");
+        setStatusModal({ show: true, type: 'error', message: data.error || "Authentication failed." });
         setLoading(false);
       }
     } catch (err) {
-      alert("Network error. Please try again.");
+      setStatusModal({ show: true, type: 'error', message: "Network connection error. Please check your internet." });
       setLoading(false);
     }
   };
@@ -101,6 +133,7 @@ export default function StudentLogin() {
       
       <AnimatePresence>
         {showConsent && <ConsentModal onAccept={() => { setShowConsent(false); submitForm(); }} onCancel={() => setShowConsent(false)} />}
+        {statusModal.show && <StatusModal type={statusModal.type} message={statusModal.message} onClose={() => setStatusModal({ ...statusModal, show: false })} />}
       </AnimatePresence>
 
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md relative z-10">
