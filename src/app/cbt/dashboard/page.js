@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { 
   LogOut, User, Trophy, BookOpen, Play, Award, 
-  ChevronDown, Info, Crown, Clock, ChevronRight, AlertTriangle, Grid 
+  ChevronDown, Info, Crown, Clock, ChevronRight, AlertTriangle 
 } from "lucide-react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -78,10 +78,10 @@ export default function StudentDashboard() {
   useEffect(() => {
     setMounted(true);
     
-    // 1. Time-Aware Greeting
+    // 1. Time-Aware Greeting (Adjusted: Evening starts at 5 PM / 17:00)
     const hour = new Date().getHours();
     if (hour < 12) setGreeting("GOOD MORNING");
-    else if (hour < 18) setGreeting("GOOD AFTERNOON");
+    else if (hour < 17) setGreeting("GOOD AFTERNOON");
     else setGreeting("GOOD EVENING");
 
     const stored = sessionStorage.getItem("cbt_student");
@@ -89,8 +89,7 @@ export default function StudentDashboard() {
     const parsed = JSON.parse(stored);
     setStudent(parsed);
 
-    // 2. STABLE AVATAR GENERATION (Micah Style - Professional)
-    // Using v7.x which is stable. 'micah' style is clean and corporate.
+    // 2. STABLE AVATAR GENERATION
     const seed = parsed.name.replace(/\s/g, '');
     setAvatarUrl(`https://api.dicebear.com/7.x/micah/svg?seed=${seed}&backgroundColor=b6e3f4`);
 
@@ -139,7 +138,7 @@ export default function StudentDashboard() {
         />
       )}
       
-      {/* === HEADER (FIXED AVATAR & GREETING) === */}
+      {/* === HEADER === */}
       <header className="bg-[#004d00] text-white pt-8 pb-16 px-6 rounded-b-[40px] shadow-2xl relative z-10">
         <div className="flex justify-between items-center mb-8">
           <div className="flex items-center gap-4">
@@ -150,10 +149,9 @@ export default function StudentDashboard() {
                   src={avatarUrl} 
                   alt="Profile" 
                   className="w-full h-full object-cover"
-                  onError={(e) => { e.target.style.display = 'none'; }} // Hide if broken
+                  onError={(e) => { e.target.style.display = 'none'; }}
                 />
               )}
-              {/* Fallback Initial if image fails */}
               {!avatarUrl && <span className="text-2xl font-black">{student.name.charAt(0)}</span>}
               
               {isPremium && (
