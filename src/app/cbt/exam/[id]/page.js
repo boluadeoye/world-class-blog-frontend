@@ -1,10 +1,12 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
+// SAFE ICONS ONLY
 import { Grid, CheckCircle, AlertOctagon, X, Crown, Sparkles, BrainCircuit, Clock, ChevronRight, Share2, BarChart2 } from "lucide-react";
 import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";
 
+// RELATIVE IMPORT
 const UpgradeModal = dynamic(() => import("../../../../components/cbt/UpgradeModal"), { ssr: false });
 
 /* === MODAL === */
@@ -34,6 +36,7 @@ export default function ExamPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  // Logic State
   const [student, setStudent] = useState(null);
   const [course, setCourse] = useState(null);
   const [questions, setQuestions] = useState([]);
@@ -55,6 +58,7 @@ export default function ExamPage() {
 
   const getStorageKey = useCallback((email) => `cbt_session_${params.id}_${email}`, [params.id]);
 
+  // 1. Init
   useEffect(() => {
     setMounted(true);
     const studentData = sessionStorage.getItem("cbt_student");
@@ -77,7 +81,7 @@ export default function ExamPage() {
         const data = await res.json();
 
         if (res.status === 401) { 
-          alert("Session Expired.");
+          alert("Session Expired: You logged in on another device.");
           router.push("/cbt"); 
           return; 
         }
@@ -95,6 +99,7 @@ export default function ExamPage() {
           setTimeLeft(session.timeLeft);
           setCurrentQIndex(session.currentIndex || 0);
         } else {
+          // Time Control Logic
           const requestedDuration = searchParams.get('duration');
           const finalDuration = (data.isPremium && requestedDuration) ? parseInt(requestedDuration) : (data.course?.duration || 15);
           setTimeLeft(finalDuration * 60);
@@ -104,6 +109,7 @@ export default function ExamPage() {
     loadExam();
   }, [params.id, router, getStorageKey, searchParams]);
 
+  // 2. Submit
   const submitExam = useCallback(async () => {
     setIsSubmitted(true);
     let correctCount = 0;
@@ -130,6 +136,7 @@ export default function ExamPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [questions, answers, student, course, getStorageKey]);
 
+  // 3. Timer
   useEffect(() => {
     if (!mounted || loading || isSubmitted || error || timeLeft === null || showUpgrade) return;
     const interval = setInterval(() => {
@@ -147,7 +154,8 @@ export default function ExamPage() {
     return () => clearInterval(interval);
   }, [loading, isSubmitted, error, timeLeft, showUpgrade, mounted, answers, currentQIndex, student, getStorageKey, submitExam]);
 
-  const confirmSubmit = () => setModalConfig({ show: true, title: "FINISH EXAM?", message: "You are about to submit your answers.", type: "warning", action: submitExam });
+  // Actions
+  const confirmSubmit = () => setModalConfig({ show: true, title: "FINISH EXAM?", message: "You are about to submit your answers. This action cannot be undone.", type: "warning", action: submitExam });
   const handleSelect = (option) => { if (!isSubmitted) setAnswers(prev => ({ ...prev, [questions[currentQIndex].id]: option })); };
   const formatTime = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
   const navigateTo = (index) => { setCurrentQIndex(index); setShowMap(false); };
@@ -167,7 +175,8 @@ export default function ExamPage() {
     } catch (e) { alert("Analysis failed."); } finally { setAnalyzing(false); }
   };
 
-  const getMapColor = (index, qId) => {
+  // CORRECTED NAME: getGridColor (Was getMapColor in some versions, causing the crash)
+  const getGridColor = (index, qId) => {
     if (currentQIndex === index) return "bg-green-800 text-white border-green-900 ring-2 ring-green-300";
     if (answers[qId]) return "bg-green-100 text-green-800 border-green-200";
     return "bg-white text-gray-400 border-gray-200";
@@ -238,7 +247,7 @@ export default function ExamPage() {
   }
 
   const currentQ = questions[currentQIndex];
-  // FIX: Force ID to be string before slice
+  // Safe ID handling for header
   const safeId = student?.id ? String(student.id) : "0000";
   if (!currentQ) return <div className="h-screen flex items-center justify-center bg-white font-bold text-xs tracking-widest text-green-900">SYNCING...</div>;
 
