@@ -1,8 +1,8 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-// SAFE ICONS ONLY - Added ChevronLeft to ensure no crashes
-import { Grid, CheckCircle, AlertOctagon, X, Crown, Sparkles, BrainCircuit, Clock, ChevronRight, ChevronLeft, BarChart2 } from "lucide-react";
+// SAFE ICONS ONLY
+import { Grid, CheckCircle, AlertOctagon, X, Crown, Sparkles, BrainCircuit } from "lucide-react";
 import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";
 
@@ -14,16 +14,16 @@ function ConfirmModal({ isOpen, title, message, onConfirm, onCancel, type = "war
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-xs w-full overflow-hidden transform transition-all scale-100">
-        <div className={`p-4 flex items-center gap-3 ${type === 'danger' ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-800'}`}>
+      <div className="bg-white rounded-lg shadow-2xl max-w-xs w-full overflow-hidden">
+        <div className={`p-4 flex items-center gap-3 ${type === 'danger' ? 'bg-red-600 text-white' : 'bg-green-800 text-white'}`}>
           {type === 'danger' ? <AlertOctagon size={20} /> : <CheckCircle size={20} />}
-          <h3 className="font-black text-sm uppercase tracking-wide">{title}</h3>
+          <h3 className="font-bold text-sm uppercase">{title}</h3>
         </div>
         <div className="p-6">
-          <p className="text-gray-600 text-xs font-bold mb-6 leading-relaxed">{message}</p>
+          <p className="text-gray-700 text-sm font-medium mb-6">{message}</p>
           <div className="flex gap-3">
-            {!singleButton && <button onClick={onCancel} className="flex-1 py-3 border-2 border-gray-100 rounded-xl text-xs font-black text-gray-400 hover:bg-gray-50">CANCEL</button>}
-            <button onClick={onConfirm} className={`flex-1 py-3 rounded-xl text-xs font-black text-white shadow-lg ${type === 'danger' ? 'bg-red-600' : 'bg-green-800'}`}>{singleButton ? "CLOSE" : "CONFIRM"}</button>
+            {!singleButton && <button onClick={onCancel} className="flex-1 py-2 border border-gray-300 rounded text-sm font-bold text-gray-600 hover:bg-gray-50">CANCEL</button>}
+            <button onClick={onConfirm} className={`flex-1 py-2 rounded text-sm font-bold text-white ${type === 'danger' ? 'bg-red-600' : 'bg-green-800'}`}>{singleButton ? "CLOSE" : "CONFIRM"}</button>
           </div>
         </div>
       </div>
@@ -81,7 +81,7 @@ export default function ExamPage() {
         const data = await res.json();
 
         if (res.status === 401) { 
-          alert("Session Expired: You logged in on another device.");
+          alert("Session Expired.");
           router.push("/cbt"); 
           return; 
         }
@@ -154,7 +154,7 @@ export default function ExamPage() {
   }, [loading, isSubmitted, error, timeLeft, showUpgrade, mounted, answers, currentQIndex, student, getStorageKey, submitExam]);
 
   // Actions
-  const confirmSubmit = () => setModalConfig({ show: true, title: "FINISH EXAM?", message: "You are about to submit your answers. This action cannot be undone.", type: "warning", action: submitExam });
+  const confirmSubmit = () => setModalConfig({ show: true, title: "SUBMIT EXAM?", message: "Are you sure you want to end this session?", type: "warning", action: submitExam });
   const handleSelect = (option) => { if (!isSubmitted) setAnswers(prev => ({ ...prev, [questions[currentQIndex].id]: option })); };
   const formatTime = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
   const navigateTo = (index) => { setCurrentQIndex(index); setShowMap(false); };
@@ -175,66 +175,68 @@ export default function ExamPage() {
   };
 
   const getGridColor = (index, qId) => {
-    if (currentQIndex === index) return "bg-green-800 text-white border-green-900 ring-2 ring-green-300";
+    if (currentQIndex === index) return "bg-[#1a4d2e] text-white border-[#1a4d2e]";
     if (answers[qId]) return "bg-green-100 text-green-800 border-green-200";
-    return "bg-white text-gray-400 border-gray-200";
+    return "bg-white text-gray-500 border-gray-300";
   };
 
   if (!mounted) return null;
   if (showUpgrade) return <div className="min-h-screen flex items-center justify-center bg-white"><UpgradeModal student={student} onClose={() => router.push('/cbt/dashboard')} onSuccess={() => window.location.reload()} /></div>;
-  if (loading) return <div className="min-h-screen flex items-center justify-center bg-white text-green-900 font-black text-sm tracking-widest animate-pulse">LOADING ENGINE...</div>;
+  if (loading) return <div className="min-h-screen flex items-center justify-center bg-white text-green-900 font-bold text-sm tracking-widest">LOADING...</div>;
   if (error) return <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6 text-center text-red-600 font-bold gap-4"><p>{error}</p><button onClick={() => window.location.reload()} className="bg-black text-white px-6 py-2 rounded text-xs">RETRY</button></div>;
 
+  // === RESULT VIEW ===
   if (isSubmitted) {
     const percentage = Math.round((score / questions.length) * 100);
     return (
-      <main className="min-h-screen bg-[#f8fafc] font-sans pb-20">
-        <header className="bg-[#002b00] text-white pt-10 pb-20 px-6 rounded-b-[3rem] shadow-2xl relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
-          <div className="relative z-10 flex justify-between items-start mb-8">
-            <div><div className="text-[10px] font-bold text-green-400 uppercase tracking-widest mb-1">Session Closed</div><h1 className="font-black text-2xl tracking-tight">{course?.code}</h1></div>
-            <button onClick={() => router.push('/cbt/dashboard')} className="bg-white/10 backdrop-blur-md border border-white/10 px-5 py-2 rounded-full text-[10px] font-bold uppercase hover:bg-white hover:text-[#002b00] transition-colors">Exit</button>
-          </div>
-          <div className="relative z-10 flex flex-col items-center">
-            <div className={`text-7xl font-black tracking-tighter ${percentage >= 50 ? 'text-white' : 'text-red-400'}`}>{percentage}<span className="text-3xl text-green-500/50">%</span></div>
-            <div className="flex gap-6 mt-4"><div className="text-center"><p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Score</p><p className="text-lg font-black">{score}/{questions.length}</p></div><div className="w-[1px] bg-white/10"></div><div className="text-center"><p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Status</p><p className={`text-lg font-black ${percentage >= 50 ? 'text-green-400' : 'text-red-400'}`}>{percentage >= 50 ? 'PASSED' : 'FAILED'}</p></div></div>
-          </div>
+      <main className="min-h-screen bg-gray-50 font-sans pb-20">
+        <header className="bg-[#1a4d2e] text-white p-6 shadow-md flex justify-between items-center sticky top-0 z-50">
+          <h1 className="font-bold tracking-wide text-sm">RESULT FEEDBACK</h1>
+          <button onClick={() => router.push('/cbt/dashboard')} className="text-xs bg-white text-[#1a4d2e] px-4 py-1.5 rounded font-bold uppercase">Exit</button>
         </header>
-        <div className="max-w-3xl mx-auto px-6 -mt-10 relative z-20">
-          <div className="bg-white rounded-2xl shadow-lg p-1.5 mb-6 flex gap-2 border border-gray-100">
-            <button onClick={() => setActiveTab("corrections")} className={`flex-1 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'corrections' ? 'bg-[#004d00] text-white shadow-md' : 'text-gray-400 hover:bg-gray-50'}`}>Corrections</button>
-            <button onClick={() => setActiveTab("ai")} className={`flex-1 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${activeTab === 'ai' ? 'bg-purple-900 text-white shadow-md' : 'text-gray-400 hover:bg-gray-50'}`}><Sparkles size={14} /> AI Strategist</button>
+        <div className="max-w-3xl mx-auto p-4">
+          <div className="bg-white border border-gray-200 rounded-lg p-6 text-center mb-6 shadow-sm">
+            <h2 className="text-gray-400 font-bold uppercase tracking-widest text-[10px] mb-2">Total Score</h2>
+            <div className={`text-6xl font-black tracking-tighter ${percentage >= 50 ? 'text-green-700' : 'text-red-600'}`}>{score}<span className="text-2xl text-gray-300">/{questions.length}</span></div>
+            <p className="text-sm font-bold mt-1 text-gray-500">{percentage}% Accuracy</p>
+          </div>
+          <div className="flex gap-2 mb-6 bg-gray-100 p-1 rounded-lg">
+            <button onClick={() => setActiveTab("corrections")} className={`flex-1 py-2 text-xs font-bold rounded transition-all ${activeTab === 'corrections' ? 'bg-white text-green-900 shadow-sm' : 'text-gray-400'}`}>CORRECTIONS</button>
+            <button onClick={() => setActiveTab("ai")} className={`flex-1 py-2 text-xs font-bold rounded transition-all flex items-center justify-center gap-1 ${activeTab === 'ai' ? 'bg-white text-purple-900 shadow-sm' : 'text-gray-400'}`}><Sparkles size={12} /> AI COACH</button>
           </div>
           {activeTab === "corrections" ? (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {questions.map((q, i) => (
-                <div key={q.id} className={`bg-white p-6 rounded-2xl shadow-sm border-l-4 ${answers[q.id] === q.correct_option ? 'border-green-500' : 'border-red-500'}`}>
-                  <div className="flex justify-between items-start mb-4"><span className="bg-gray-100 text-gray-500 px-3 py-1 rounded text-[10px] font-black uppercase tracking-widest">Question {i+1}</span>{answers[q.id] === q.correct_option ? <CheckCircle size={20} className="text-green-600" /> : <X size={20} className="text-red-500" />}</div>
-                  <p className="font-bold text-gray-900 text-sm leading-relaxed mb-4">{q.question_text}</p>
-                  <div className="grid grid-cols-2 gap-3 mb-4">
-                    <div className="bg-green-50 border border-green-100 p-3 rounded-xl"><p className="text-[10px] font-black text-green-800 uppercase mb-1">Correct Answer</p><p className="text-sm font-bold text-green-900">{q.correct_option}</p></div>
-                    {answers[q.id] !== q.correct_option && <div className="bg-red-50 border border-red-100 p-3 rounded-xl"><p className="text-[10px] font-black text-red-800 uppercase mb-1">Your Choice</p><p className="text-sm font-bold text-red-900">{answers[q.id] || "Skipped"}</p></div>}
+                <div key={q.id} className={`p-4 rounded border-l-4 bg-white shadow-sm ${answers[q.id] === q.correct_option ? 'border-green-500' : 'border-red-500'}`}>
+                  <div className="flex justify-between items-start mb-2">
+                    <span className="font-bold text-gray-400 text-xs">Q{i+1}</span>
+                    {answers[q.id] === q.correct_option ? <CheckCircle size={14} className="text-green-600" /> : <X size={14} className="text-red-500" />}
                   </div>
-                  {isPremium && q.explanation && <div className="mt-4 pt-4 border-t border-gray-100"><p className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-1 flex items-center gap-1"><BrainCircuit size={12}/> Analysis</p><p className="text-xs text-gray-600 leading-relaxed">{q.explanation}</p></div>}
+                  <p className="font-bold text-gray-800 mb-3 text-sm leading-snug">{q.question_text}</p>
+                  <div className="text-xs space-y-1">
+                    <div className="text-green-700 font-bold">Correct: {q.correct_option}</div>
+                    {answers[q.id] !== q.correct_option && <div className="text-red-600">You: {answers[q.id] || "Skipped"}</div>}
+                  </div>
+                  {isPremium && q.explanation && <div className="mt-3 p-2 bg-blue-50 text-blue-900 text-[10px] border-l-2 border-blue-400">{q.explanation}</div>}
                 </div>
               ))}
             </div>
           ) : (
-            <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden min-h-[400px] relative">
+            <div className="bg-white rounded-lg border border-purple-100 p-6 min-h-[300px]">
               {!isPremium ? (
-                <div className="absolute inset-0 z-10 bg-white/95 flex flex-col items-center justify-center text-center p-8">
-                  <div className="w-20 h-20 bg-gradient-to-br from-yellow-300 to-orange-400 rounded-full flex items-center justify-center mb-6 shadow-xl shadow-yellow-200"><Crown size={40} className="text-white" /></div>
-                  <h3 className="text-xl font-black text-gray-900 mb-2 tracking-tight">RESTRICTED INTEL</h3>
-                  <button onClick={() => setShowUpgrade(true)} className="bg-black text-white px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest shadow-lg hover:scale-105 transition-transform">Unlock Report</button>
+                <div className="text-center py-10">
+                  <Crown size={32} className="mx-auto text-yellow-500 mb-3" />
+                  <h3 className="font-bold text-gray-900 text-sm mb-2">Premium Feature</h3>
+                  <button onClick={() => setShowUpgrade(true)} className="bg-black text-white px-6 py-2 rounded text-xs font-bold">UNLOCK</button>
                 </div>
               ) : (
-                <div className="p-8">
+                <div>
                   {!analysis ? (
-                    <div className="text-center py-16">
-                      <div className="w-16 h-16 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse"><BrainCircuit size={32} className="text-purple-600" /></div>
-                      <button onClick={generateAnalysis} disabled={analyzing} className="bg-purple-900 text-white px-10 py-3 rounded-xl font-black text-xs uppercase tracking-widest shadow-xl disabled:opacity-50 hover:bg-purple-800 transition-colors">{analyzing ? "PROCESSING..." : "RUN DIAGNOSTICS"}</button>
+                    <div className="text-center py-10">
+                      <BrainCircuit size={40} className="mx-auto text-purple-200 mb-4" />
+                      <button onClick={generateAnalysis} disabled={analyzing} className="bg-purple-700 text-white px-8 py-3 rounded text-xs font-bold">{analyzing ? "ANALYZING..." : "GENERATE REPORT"}</button>
                     </div>
-                  ) : <div className="prose prose-sm max-w-none text-gray-700 bg-gray-50 p-6 rounded-2xl border border-gray-100"><ReactMarkdown>{analysis}</ReactMarkdown></div>}
+                  ) : <div className="prose prose-sm"><ReactMarkdown>{analysis}</ReactMarkdown></div>}
                 </div>
               )}
             </div>
@@ -244,78 +246,52 @@ export default function ExamPage() {
     );
   }
 
+  // === EXAM VIEW ===
   const currentQ = questions[currentQIndex];
-  const safeId = student?.id ? String(student.id) : "0000";
-  if (!currentQ) return <div className="h-screen flex items-center justify-center bg-white font-bold text-xs tracking-widest text-green-900">SYNCING...</div>;
+  const isLastQuestion = questions.length > 0 && currentQIndex === questions.length - 1;
+  if (!currentQ) return <div className="h-screen flex items-center justify-center bg-white font-bold text-xs">SYNCING...</div>;
 
   return (
     <main className="fixed inset-0 bg-gray-100 flex flex-col font-sans h-screen overflow-hidden z-[150]">
       <ConfirmModal isOpen={modalConfig.show} title={modalConfig.title} message={modalConfig.message} type={modalConfig.type} onConfirm={modalConfig.action} onCancel={() => setModalConfig({ ...modalConfig, show: false })} />
-      
-      {/* === EXECUTIVE HEADER === */}
-      <header className="bg-[#004d00] text-white h-16 flex justify-between items-center shadow-lg shrink-0 z-[160] px-6 border-b border-green-800">
-        <div className="flex items-center gap-4">
-          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-[#004d00] font-black text-lg shadow-md border-2 border-green-200">
-            {student?.name?.charAt(0).toUpperCase()}
+
+      {/* HEADER - EXACT MATCH */}
+      <header className="bg-[#1a4d2e] text-white h-14 flex justify-between items-center px-4 shadow-md shrink-0 z-[160]">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-white text-[#1a4d2e] rounded-sm flex items-center justify-center font-bold text-sm">
+            {student?.name?.charAt(0)}
           </div>
-          <div className="hidden sm:block leading-tight">
-            <h1 className="font-black text-xs uppercase tracking-widest text-green-100">{student?.name}</h1>
-            <div className="flex items-center gap-2 text-[10px] font-mono opacity-80">
-              <span>ID: {safeId.slice(0,8)}</span>
-              <span className="text-green-400">●</span>
-              <span>{course?.code}</span>
-            </div>
+          <div className="leading-tight">
+            <h1 className="font-medium text-[10px] text-gray-300 uppercase tracking-wide">CBT ENGINE V1</h1>
+            <p className="font-bold text-sm">{course?.code}</p>
           </div>
-          <button onClick={() => setShowMap(!showMap)} className="sm:hidden flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-full border border-white/20 text-[10px] font-black uppercase tracking-widest hover:bg-white/20 transition-colors">
-            <Grid size={14} /> Map
-          </button>
         </div>
-        
-        <div className="flex items-center gap-6">
-          <div className={`flex items-center gap-2 bg-black/30 px-4 py-1.5 rounded-full border border-white/10 ${timeLeft < 300 ? 'animate-pulse bg-red-900/50 border-red-500' : ''}`}>
-            <Clock size={14} className={timeLeft < 300 ? "text-red-500" : "text-green-400"} />
-            <span className={`font-mono font-black text-lg tracking-widest ${timeLeft < 300 ? "text-red-500" : "text-white"}`}>{formatTime(timeLeft || 0)}</span>
-          </div>
-          <button onClick={confirmSubmit} className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg transition-all hover:scale-105 active:scale-95">
-            Submit
-          </button>
+        <div className="flex items-center gap-4">
+          <div className="font-mono font-bold text-xl tracking-widest">{formatTime(timeLeft || 0)}</div>
+          <button onClick={confirmSubmit} className="bg-red-600 hover:bg-red-700 text-white px-4 py-1.5 rounded text-xs font-bold uppercase">Submit</button>
         </div>
       </header>
 
       <div className="flex-1 flex overflow-hidden relative">
         {/* MAIN CONTENT */}
         <div className="flex-1 flex flex-col bg-gray-50 relative z-10">
-          <div className="flex-1 overflow-y-auto p-4 md:p-8 pb-32 custom-scrollbar">
-            <div className="max-w-3xl mx-auto">
+          <div className="flex-1 overflow-y-auto p-4 pb-24">
+            <div className="max-w-2xl mx-auto">
               {/* Question Card */}
-              <div className="bg-white rounded-3xl shadow-sm border border-gray-200 p-6 md:p-10 mb-6 relative">
-                <div className="absolute top-0 right-0 bg-green-50 text-green-800 px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-bl-2xl border-b border-l border-green-100">
-                  2.0 Marks
+              <div className="bg-white border border-gray-200 rounded-lg p-5 shadow-sm mb-4 relative">
+                <div className="flex justify-between items-start mb-6">
+                  <span className="text-green-700 font-bold text-xs uppercase tracking-widest">QUESTION {currentQIndex + 1} / {questions.length}</span>
+                  <button onClick={() => setShowMap(!showMap)} className="text-[10px] font-bold text-gray-500 border border-gray-300 px-2 py-1 rounded bg-white sm:hidden">MAP</button>
                 </div>
                 
-                <div className="flex justify-between items-center mb-8 border-b border-gray-100 pb-4">
-                  <span className="font-black text-green-900 text-xs tracking-[0.2em] uppercase bg-green-50 px-3 py-1 rounded-full border border-green-100">
-                    Question {String(currentQIndex + 1).padStart(2, '0')} / {questions.length}
-                  </span>
-                </div>
+                <h2 className="text-base md:text-lg font-bold text-gray-900 leading-relaxed mb-6 select-none">{currentQ.question_text}</h2>
                 
-                <h2 className="text-lg md:text-2xl font-bold text-gray-900 leading-relaxed mb-10 select-none font-sans">
-                  {currentQ.question_text}
-                </h2>
-
-                <div className="grid gap-4 md:grid-cols-2">
+                {/* Options Grid */}
+                <div className="grid gap-3">
                   {['A','B','C','D'].map((opt) => (
-                    <button 
-                      key={opt} 
-                      onClick={() => handleSelect(opt)} 
-                      className={`group relative p-5 rounded-2xl border-2 text-left transition-all duration-150 flex items-start gap-4 hover:shadow-md active:scale-[0.99] ${answers[currentQ.id] === opt ? 'border-green-600 bg-green-50 ring-1 ring-green-600' : 'border-gray-200 bg-white hover:border-green-300'}`}
-                    >
-                      <span className={`shrink-0 w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm border transition-colors ${answers[currentQ.id] === opt ? 'bg-green-600 text-white border-green-600' : 'bg-gray-100 text-gray-500 border-gray-300 group-hover:bg-white'}`}>
-                        {opt}
-                      </span>
-                      <span className={`font-medium text-sm md:text-base mt-1 ${answers[currentQ.id] === opt ? 'text-green-900 font-bold' : 'text-gray-700'}`}>
-                        {currentQ[`option_${opt.toLowerCase()}`]}
-                      </span>
+                    <button key={opt} onClick={() => handleSelect(opt)} className={`w-full text-left p-4 rounded-lg border transition-all flex items-center gap-4 ${answers[currentQ.id] === opt ? 'border-green-600 bg-green-50 ring-1 ring-green-600' : 'border-gray-200 bg-white hover:bg-gray-50'}`}>
+                      <span className={`w-8 h-8 flex items-center justify-center font-bold text-sm rounded bg-gray-100 text-gray-600 ${answers[currentQ.id] === opt ? 'bg-green-600 text-white' : ''}`}>{opt}</span>
+                      <span className={`font-medium text-sm ${answers[currentQ.id] === opt ? 'text-green-900' : 'text-gray-700'}`}>{currentQ[`option_${opt.toLowerCase()}`]}</span>
                     </button>
                   ))}
                 </div>
@@ -324,49 +300,28 @@ export default function ExamPage() {
           </div>
 
           {/* FOOTER NAV */}
-          <div className="fixed bottom-0 left-0 right-0 md:relative bg-white border-t border-gray-200 p-4 flex justify-between items-center shrink-0 z-[170] md:pr-80 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
-            <button 
-              onClick={() => navigateTo(Math.max(0, currentQIndex - 1))} 
-              disabled={currentQIndex === 0} 
-              className="flex items-center gap-2 px-6 py-3 rounded-xl font-black text-gray-400 hover:text-green-900 hover:bg-gray-50 disabled:opacity-30 disabled:hover:bg-transparent transition-colors uppercase tracking-widest text-xs"
-            >
-              <ChevronLeft size={16} /> Previous
-            </button>
-            
-            <button 
-              onClick={() => navigateTo(Math.min(questions.length - 1, currentQIndex + 1))} 
-              disabled={currentQIndex === questions.length - 1} 
-              className="flex items-center gap-2 px-8 py-3 rounded-xl font-black uppercase tracking-widest text-xs transition-all shadow-lg bg-[#004d00] text-white hover:bg-green-900 active:scale-95"
-            >
-              Next <ChevronRight size={16} />
-            </button>
+          <div className="fixed bottom-0 left-0 right-0 md:relative bg-white border-t border-gray-200 p-4 flex justify-between items-center shrink-0 z-[170] md:pr-64">
+            <button onClick={() => navigateTo(Math.max(0, currentQIndex - 1))} disabled={currentQIndex === 0} className="font-bold text-gray-500 text-xs uppercase disabled:opacity-30">PREV</button>
+            <button onClick={() => navigateTo(Math.min(questions.length - 1, currentQIndex + 1))} disabled={isLastQuestion} className={`px-8 py-2.5 rounded font-bold uppercase text-xs shadow-sm ${isLastQuestion ? 'bg-gray-200 text-gray-400' : 'bg-[#1a4d2e] text-white'}`}>NEXT</button>
           </div>
         </div>
 
         {/* SIDEBAR PALETTE */}
-        <aside className={`absolute inset-0 z-[180] bg-white flex flex-col transition-transform duration-300 md:relative md:translate-x-0 md:w-80 md:border-l border-gray-200 shadow-2xl md:shadow-none ${showMap ? 'translate-x-0' : 'translate-x-full'}`}>
-          <div className="p-5 bg-gray-50 border-b border-gray-200 font-black text-gray-700 text-xs uppercase flex justify-between items-center shrink-0 tracking-widest">
-            <span className="flex items-center gap-2"><Grid size={14} /> Question Matrix</span>
-            <button onClick={() => setShowMap(false)} className="md:hidden p-2 bg-white rounded-xl shadow-sm hover:bg-gray-100"><X size={18}/></button>
+        <aside className={`absolute inset-0 z-[180] bg-white flex flex-col transition-transform duration-300 md:relative md:translate-x-0 md:w-64 md:border-l border-gray-200 ${showMap ? 'translate-x-0' : 'translate-x-full'}`}>
+          <div className="p-4 bg-gray-100 border-b border-gray-200 font-bold text-gray-700 text-xs uppercase flex justify-between items-center">
+            <span>Question Matrix</span>
+            <button onClick={() => setShowMap(false)} className="md:hidden"><X size={16}/></button>
           </div>
-          
-          <div className="flex-1 overflow-y-auto p-5 custom-scrollbar">
-            <div className="grid grid-cols-5 gap-3">
+          <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+            <div className="grid grid-cols-5 gap-2">
               {questions.map((q, i) => (
-                <button 
-                  key={q.id} 
-                  onClick={() => navigateTo(i)} 
-                  className={`h-10 rounded-lg text-xs font-black transition-all border-2 ${getGridColor(i, q.id)}`}
-                >
-                  {i + 1}
-                </button>
+                <button key={q.id} onClick={() => navigateTo(i)} className={`h-9 w-full rounded-sm border text-[10px] font-bold transition-all ${getGridColor(i, q.id)}`}>{i + 1}</button>
               ))}
             </div>
           </div>
-          
-          <div className="p-5 bg-gray-50 border-t border-gray-200 grid grid-cols-2 gap-3 text-[10px] font-bold uppercase text-gray-500">
-             <div className="flex items-center gap-2"><div className="w-3 h-3 bg-green-600 rounded-full"></div> Answered</div>
-             <div className="flex items-center gap-2"><div className="w-3 h-3 bg-white border-2 border-gray-300 rounded-full"></div> Pending</div>
+          <div className="p-4 bg-gray-50 border-t border-gray-200 grid grid-cols-2 gap-2 text-[9px] font-bold uppercase text-gray-500">
+             <div className="flex items-center gap-1"><div className="w-2 h-2 bg-green-100 border border-green-300"></div> Answered</div>
+             <div className="flex items-center gap-1"><div className="w-2 h-2 bg-[#1a4d2e]"></div> Current</div>
           </div>
         </aside>
       </div>
