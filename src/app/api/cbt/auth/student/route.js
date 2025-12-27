@@ -1,4 +1,4 @@
-import pool from '@/lib/db';
+import sql from '@/lib/db';
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
@@ -7,13 +7,13 @@ export async function POST(req) {
   try {
     const { email, password } = await req.json();
     
-    // The first query will wake up the DB if it's sleeping
-    const res = await pool.query('SELECT * FROM cbt_students WHERE email = $1', [email]);
+    // Neon HTTP Query - Fast, Stateless, No Connection Leaks
+    const users = await sql`SELECT * FROM cbt_students WHERE email = ${email}`;
     
-    if (res.rows.length === 0) {
+    if (users.length === 0) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
-    const student = res.rows[0];
+    const student = users[0];
 
     const valid = await bcrypt.compare(password, student.password);
     if (!valid) {
@@ -22,10 +22,12 @@ export async function POST(req) {
 
     const sessionToken = crypto.randomBytes(32).toString('hex');
     
-    await pool.query(
-      'UPDATE cbt_students SET session_token = $1, last_login = NOW() WHERE id = $2',
-      [sessionToken, student.id]
-    );
+    // Update Token & Last Login
+    await sql`
+      UPDATE cbt_students 
+      SET session_token = ${sessionToken}, last_login = NOW() 
+      WHERE id = ${student.id}
+    `;
     
     return NextResponse.json({
       success: true,
@@ -40,13 +42,8 @@ export async function POST(req) {
 
   } catch (error) {
     console.error("Login API Error:", error.message);
-    
-    // If it's a timeout, it means the DB is still waking up
-    const isTimeout = error.message.includes('timeout') || error.message.includes('Connection terminated');
-    const friendlyError = isTimeout 
-      ? "Database is waking up. Please click 'Try Again' in 5 seconds." 
-      : `System Error: ${error.message}`;
-
-    return NextResponse.json({ error: friendlyError }, { status: 500 });
+    return NextResponse.json({ 
+      error: "The database is warming up. Please try again in 3 seconds." 
+    }, { status: 500 });
   }
 }

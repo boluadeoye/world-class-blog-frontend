@@ -1,21 +1,10 @@
-import { Pool } from 'pg';
+import { neon } from '@neondatabase/serverless';
 
-if (!global.postgresPool) {
-  console.log("Initializing New Global Postgres Pool...");
-  global.postgresPool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: {
-      rejectUnauthorized: false
-    },
-    // Optimized for Serverless + Neon Free Tier
-    max: 6, 
-    connectionTimeoutMillis: 30000, // 30 seconds (Wait for DB to wake up)
-    idleTimeoutMillis: 15000,       // Close idle connections after 15s
-  });
-
-  global.postgresPool.on('error', (err) => {
-    console.error('Unexpected error on idle database client', err);
-  });
+if (!process.env.DATABASE_URL) {
+  throw new Error("DATABASE_URL is not defined in environment variables.");
 }
 
-export default global.postgresPool;
+// This creates a stateless, high-speed SQL client
+const sql = neon(process.env.DATABASE_URL);
+
+export default sql;

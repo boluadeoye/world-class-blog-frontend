@@ -14,6 +14,7 @@
     "@editorjs/image": "^2.10.3",
     "@editorjs/list": "^2.0.9",
     "@google/generative-ai": "^0.24.1",
+    "@neondatabase/serverless": "^1.0.2",
     "@next/swc-wasm-nodejs": "16.0.3",
     "@react-oauth/google": "^0.12.2",
     "@tailwindcss/typography": "^0.5.19",
