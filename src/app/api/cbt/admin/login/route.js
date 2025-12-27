@@ -1,23 +1,39 @@
-import pool from '@/lib/db';
+import sql from '@/lib/db';
+import { NextResponse } from 'next/server';
+import bcrypt from 'bcryptjs';
 
 export async function POST(req) {
   try {
     const { username, password } = await req.json();
-    const client = await pool.connect();
-    
-    const result = await client.query(
-      'SELECT * FROM cbt_admins WHERE username = $1 AND password = $2',
-      [username, password]
-    );
-    
-    client.release();
 
-    if (result.rows.length > 0) {
-      return new Response(JSON.stringify({ success: true }), { status: 200 });
-    } else {
-      return new Response(JSON.stringify({ error: "Invalid" }), { status: 401 });
+    if (!username || !password) {
+      return NextResponse.json({ error: "Missing credentials" }, { status: 400 });
     }
+
+    // 1. Fetch Admin by Username using Stateless Driver
+    const admins = await sql`SELECT * FROM cbt_admins WHERE username = ${username}`;
+
+    if (admins.length === 0) {
+      return NextResponse.json({ error: "Access Denied: User not found" }, { status: 401 });
+    }
+
+    const admin = admins[0];
+
+    // 2. Secure Bcrypt Comparison
+    const isMatch = await bcrypt.compare(password, admin.password);
+
+    if (!isMatch) {
+      return NextResponse.json({ error: "Access Denied: Incorrect Password" }, { status: 401 });
+    }
+
+    // 3. Success
+    return NextResponse.json({ 
+      success: true, 
+      message: "Welcome, Bolu. Access Granted." 
+    }, { status: 200 });
+
   } catch (error) {
-    return new Response("Server Error", { status: 500 });
+    console.error("Admin Login Error:", error);
+    return NextResponse.json({ error: "Server Error: " + error.message }, { status: 500 });
   }
 }
