@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { 
   LogOut, Trophy, BookOpen, Play, Award, 
   ChevronDown, Info, Crown, Clock, ChevronRight, 
-  AlertTriangle, Layers, Headset, History, CheckCircle, Building2
+  AlertTriangle, Layers, Headset, History, CheckCircle, Building2, Settings, Lock
 } from "lucide-react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -12,6 +12,66 @@ import StatusModal from "../../../components/cbt/StatusModal";
 
 const UpgradeModal = dynamic(() => import("../../../components/cbt/UpgradeModal"), { ssr: false });
 
+/* === 1. EXAM SETUP MODAL (RESTORED) === */
+function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
+  const [duration, setDuration] = useState(course.duration || 15);
+  
+  return (
+    <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+      <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in duration-200 border border-white">
+        <div className="bg-[#004d00] p-8 text-white relative">
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-400 to-green-400"></div>
+          <h3 className="font-black text-sm uppercase tracking-[0.2em] flex items-center gap-2">
+            <Settings size={18} /> Configure Session
+          </h3>
+          <p className="text-green-200 text-[10px] font-bold uppercase mt-2 tracking-widest">{course.code} • {course.title}</p>
+        </div>
+        
+        <div className="p-8">
+          <div className="mb-8">
+            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4">Select Duration</label>
+            <div className="grid grid-cols-4 gap-3">
+              {[15, 30, 45, 60].map((time) => (
+                <button
+                  key={time}
+                  disabled={!isPremium && time !== (course.duration || 15)}
+                  onClick={() => setDuration(time)}
+                  className={`py-4 rounded-2xl text-xs font-black transition-all relative overflow-hidden border-2 ${
+                    duration === time 
+                      ? 'border-green-600 bg-green-50 text-green-900 shadow-inner' 
+                      : 'border-gray-100 text-gray-400 bg-gray-50'
+                  } ${!isPremium && time !== (course.duration || 15) ? 'opacity-40 cursor-not-allowed' : 'hover:border-green-300'}`}
+                >
+                  {time}m
+                  {!isPremium && time !== (course.duration || 15) && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-gray-100/20">
+                      <Lock size={10} className="text-gray-400" />
+                    </div>
+                  )}
+                </button>
+              ))}
+            </div>
+            {!isPremium && (
+              <button onClick={onUpgrade} className="mt-4 w-full flex items-center justify-center gap-2 text-[9px] text-yellow-700 bg-yellow-50 p-3 rounded-xl border border-yellow-100 hover:bg-yellow-100 transition-colors">
+                <Crown size={12} fill="currentColor" />
+                <span className="font-black uppercase tracking-widest">Upgrade to unlock time control</span>
+              </button>
+            )}
+          </div>
+
+          <div className="flex gap-3">
+            <button onClick={onClose} className="flex-1 py-4 border-2 border-gray-100 rounded-2xl text-[10px] font-black text-gray-400 hover:bg-gray-50 uppercase tracking-widest transition-all">Cancel</button>
+            <button onClick={() => onStart(duration)} className="flex-[2] py-4 bg-gray-900 text-white rounded-2xl text-[10px] font-black shadow-xl hover:bg-black transition-all active:scale-95 uppercase tracking-widest flex items-center justify-center gap-2">
+              Start Mission <Play size={14} fill="currentColor" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* === 2. DISCLAIMER ACCORDION === */
 function DisclaimerCard() {
   const [isOpen, setIsOpen] = useState(true);
   return (
@@ -19,7 +79,10 @@ function DisclaimerCard() {
       <button onClick={() => setIsOpen(!isOpen)} className="w-full flex items-center justify-between p-6 text-left">
         <div className="flex items-center gap-4">
           <div className="bg-orange-100 w-10 h-10 flex items-center justify-center rounded-full text-orange-600"><Info size={20} /></div>
-          <div><h3 className="font-black text-sm text-[#5A3A29] uppercase tracking-wide">Important Disclaimer</h3><p className="text-[10px] text-orange-400 font-bold">Read before starting</p></div>
+          <div>
+            <h3 className="font-black text-sm text-[#5A3A29] uppercase tracking-wide">Important Disclaimer</h3>
+            <p className="text-[10px] text-orange-400 font-bold">Read before starting</p>
+          </div>
         </div>
         <ChevronDown size={20} className={`text-orange-300 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
@@ -37,17 +100,22 @@ function DisclaimerCard() {
   );
 }
 
-function CourseCard({ course }) {
+/* === 3. COURSE CARD === */
+function CourseCard({ course, onLaunch }) {
   return (
     <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center group active:scale-[0.98] transition-transform mb-3">
       <div className="flex items-center gap-4">
-        <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-xs border ${course.code.toUpperCase().startsWith('GST') ? 'bg-green-50 text-[#004d00] border-green-100' : 'bg-blue-50 text-blue-700 border-blue-100'}`}>{course.code.slice(0,3)}</div>
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-xs border ${course.code.toUpperCase().startsWith('GST') ? 'bg-green-50 text-[#004d00] border-green-100' : 'bg-blue-50 text-blue-700 border-blue-100'}`}>
+          {course.code.slice(0,3)}
+        </div>
         <div>
           <h3 className="font-black text-gray-900 text-xs uppercase">{course.code}</h3>
           <p className="text-[10px] text-gray-500 font-medium truncate w-40">{course.title}</p>
         </div>
       </div>
-      <Link href={`/cbt/exam/${course.id}`} className="w-9 h-9 bg-gray-900 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-[#004d00] transition-colors"><Play size={12} fill="currentColor" /></Link>
+      <button onClick={() => onLaunch(course)} className="w-9 h-9 bg-gray-900 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-[#004d00] transition-colors">
+        <Play size={12} fill="currentColor" />
+      </button>
     </div>
   );
 }
@@ -60,9 +128,11 @@ export default function StudentDashboard() {
   const [loading, setLoading] = useState(true);
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [statusModal, setStatusModal] = useState(null); // { type, title, message, actionLabel, onAction, onCancel }
-  const [greeting, setGreeting] = useState("Good Day");
+  const [statusModal, setStatusModal] = useState(null);
+  const [greeting, setGreeting] = useState("GOOD DAY");
   const [avatarUrl, setAvatarUrl] = useState("");
+  const [setupCourse, setSetupCourse] = useState(null); // NEW: Track course for setup
+
   const [gstExpanded, setGstExpanded] = useState(true);
   const [othersExpanded, setOthersExpanded] = useState(false);
 
@@ -111,16 +181,15 @@ export default function StudentDashboard() {
     fetchData();
   }, [router]);
 
+  const handleLaunchExam = (duration) => {
+    if (!setupCourse) return;
+    router.push(`/cbt/exam/${setupCourse.id}?duration=${duration}`);
+  };
+
   const triggerLogout = () => {
     setStatusModal({
-      type: 'logout',
-      title: 'Terminate Session?',
-      message: 'You are about to disconnect from the secure portal.',
-      actionLabel: 'Logout',
-      onAction: () => {
-        sessionStorage.removeItem("cbt_student");
-        router.push("/cbt");
-      },
+      type: 'logout', title: 'Terminate Session?', message: 'You are about to disconnect from the secure portal.', actionLabel: 'Logout',
+      onAction: () => { sessionStorage.removeItem("cbt_student"); router.push("/cbt"); },
       onCancel: () => setStatusModal(null)
     });
   };
@@ -141,6 +210,17 @@ export default function StudentDashboard() {
     <main className="min-h-screen bg-[#fcfdfc] font-sans text-gray-900 pb-48 relative">
       {statusModal && <StatusModal {...statusModal} />}
       {showUpgrade && <UpgradeModal student={student} onClose={() => setShowUpgrade(false)} onSuccess={() => window.location.reload()} />}
+      
+      {/* SETUP MODAL */}
+      {setupCourse && (
+        <ExamSetupModal 
+          course={setupCourse} 
+          isPremium={isPremium} 
+          onClose={() => setSetupCourse(null)} 
+          onStart={handleLaunchExam} 
+          onUpgrade={() => { setSetupCourse(null); setShowUpgrade(true); }} 
+        />
+      )}
       
       <header className="bg-[#004d00] text-white pt-8 pb-16 px-6 rounded-b-[40px] shadow-2xl relative z-10">
         <div className="flex justify-between items-center mb-8">
@@ -167,20 +247,23 @@ export default function StudentDashboard() {
 
       <div className="px-6 -mt-8 relative z-20 space-y-6">
         <DisclaimerCard />
+
         <section className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
           <button onClick={() => setGstExpanded(!gstExpanded)} className="w-full p-5 flex items-center justify-between bg-green-50/50">
             <div className="flex items-center gap-3"><BookOpen size={18} className="text-[#004d00]" /><h2 className="font-black text-xs text-gray-700 uppercase tracking-widest">General Studies</h2></div>
             <ChevronDown size={18} className={`text-gray-400 transition-transform ${gstExpanded ? 'rotate-180' : ''}`} />
           </button>
-          {gstExpanded && <div className="p-4 animate-in fade-in slide-in-from-top-2">{gstCourses.map(c => <CourseCard key={c.id} course={c} />)}</div>}
+          {gstExpanded && <div className="p-4 animate-in fade-in slide-in-from-top-2">{gstCourses.map(c => <CourseCard key={c.id} course={c} onLaunch={setSetupCourse} />)}</div>}
         </section>
+
         <section className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
           <button onClick={() => setOthersExpanded(!othersExpanded)} className="w-full p-5 flex items-center justify-between bg-blue-50/30">
             <div className="flex items-center gap-3"><Layers size={18} className="text-blue-700" /><h2 className="font-black text-xs text-gray-700 uppercase tracking-widest">Other Courses</h2></div>
             <ChevronDown size={18} className={`text-gray-400 transition-transform ${othersExpanded ? 'rotate-180' : ''}`} />
           </button>
-          {othersExpanded && <div className="p-4 animate-in fade-in slide-in-from-top-2">{otherCourses.length > 0 ? otherCourses.map(c => <CourseCard key={c.id} course={c} />) : <p className="text-center text-[10px] text-gray-400 py-4 font-bold uppercase">No departmental courses loaded</p>}</div>}
+          {othersExpanded && <div className="p-4 animate-in fade-in slide-in-from-top-2">{otherCourses.length > 0 ? otherCourses.map(c => <CourseCard key={c.id} course={c} onLaunch={setSetupCourse} />) : <p className="text-center text-[10px] text-gray-400 py-4 font-bold uppercase">No departmental courses loaded</p>}</div>}
         </section>
+
         <section>
           <div className="flex items-center gap-2 mb-4"><Trophy size={18} className="text-yellow-600" /><h2 className="font-black text-xs text-gray-500 uppercase tracking-widest">Top Performers</h2></div>
           {leaders.length > 0 ? (
@@ -205,6 +288,7 @@ export default function StudentDashboard() {
           )}
         </section>
       </div>
+
       <div className="fixed bottom-6 left-6 right-6 z-50">
         <div className="bg-white/90 backdrop-blur-xl border border-white/40 shadow-[0_10px_40px_rgba(0,0,0,0.1)] rounded-[2rem] p-4 flex items-center gap-4">
           <div className="w-10 h-10 bg-[#004d00] rounded-full flex items-center justify-center text-white shadow-md shrink-0"><Award size={18} /></div>
