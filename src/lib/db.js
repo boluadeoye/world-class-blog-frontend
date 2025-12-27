@@ -6,11 +6,11 @@ if (!global.postgresPool) {
   global.postgresPool = new Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: {
-      rejectUnauthorized: false // Required for Neon/AWS
+      rejectUnauthorized: false
     },
-    max: 10, // Strict limit to prevent exhaustion
-    idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 5000,
+    max: 5, // REDUCED to 5 to prevent hitting Neon limits
+    idleTimeoutMillis: 10000, // Close idle connections after 10 seconds
+    connectionTimeoutMillis: 5000, // Fail fast if DB is busy
   });
 }
 
