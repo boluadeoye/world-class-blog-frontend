@@ -7,7 +7,7 @@ export async function POST(req) {
   try {
     const { email, password } = await req.json();
     
-    // HTTP Query - Instant & Stateless
+    // HTTP Query - Stateless
     const users = await sql`SELECT * FROM cbt_students WHERE email = ${email}`;
     
     if (users.length === 0) {
@@ -15,6 +15,7 @@ export async function POST(req) {
     }
     const student = users[0];
 
+    // Verify Password
     const valid = await bcrypt.compare(password, student.password);
     if (!valid) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
@@ -22,6 +23,7 @@ export async function POST(req) {
 
     const sessionToken = crypto.randomBytes(32).toString('hex');
     
+    // Update Token & Last Login
     await sql`
       UPDATE cbt_students 
       SET session_token = ${sessionToken}, last_login = NOW() 
@@ -41,6 +43,6 @@ export async function POST(req) {
 
   } catch (error) {
     console.error("Login API Error:", error.message);
-    return NextResponse.json({ error: "Database warming up. Please try again in 5 seconds." }, { status: 500 });
+    return NextResponse.json({ error: `Login failed: ${error.message}` }, { status: 500 });
   }
 }
