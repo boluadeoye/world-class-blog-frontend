@@ -6,7 +6,7 @@ export default function AutoamProposal() {
   
   const handlePrint = () => {
     const originalTitle = document.title;
-    document.title = "AUTOAM_Technical_Financial_Blueprint";
+    document.title = "AUTOAM_Technical_Financial_Blueprint_v3";
     window.print();
     document.title = originalTitle;
   };
@@ -42,7 +42,7 @@ export default function AutoamProposal() {
             <span className="font-black text-2xl text-slate-900">BA</span>
           </div>
           <h1 className="text-2xl font-bold text-white mb-2">Technical & Financial Brief</h1>
-          <p className="text-slate-400 text-sm mb-8">Includes: Architecture + Budget Projection</p>
+          <p className="text-slate-400 text-sm mb-8">v3.0 • Comprehensive Budget Analysis</p>
           <button onClick={handlePrint} className="w-full flex items-center justify-center gap-3 bg-white hover:bg-slate-200 text-slate-950 font-bold py-4 rounded-xl transition-all transform hover:scale-[1.02] shadow-xl">
             <Download size={20} /> <span>Download Full PDF</span>
           </button>
@@ -63,7 +63,7 @@ export default function AutoamProposal() {
               </div>
               <div className="text-right">
                 <div className="bg-black text-white px-6 py-2 font-bold text-sm uppercase inline-block mb-1">Confidential</div>
-                <p className="text-xs font-mono font-bold">DOC-ID: ATM-FIN-V1</p>
+                <p className="text-xs font-mono font-bold">DOC-ID: ATM-FIN-V3</p>
               </div>
             </div>
 
@@ -175,36 +175,51 @@ export default function AutoamProposal() {
               <table className="w-full border-4 border-black text-sm font-bold mb-6">
                 <thead className="bg-black text-white">
                   <tr>
-                    <th className="p-3 text-left uppercase">Item</th>
-                    <th className="p-3 text-left uppercase">Monthly Cost</th>
-                    <th className="p-3 text-left uppercase">Role/Purpose</th>
+                    <th className="p-2 text-left uppercase">Item</th>
+                    <th className="p-2 text-left uppercase">Monthly Cost</th>
+                    <th className="p-2 text-left uppercase">Notes</th>
                   </tr>
                 </thead>
-                <tbody className="text-slate-900">
+                <tbody className="text-slate-900 text-xs">
                   <tr className="border-b-2 border-black bg-slate-50">
-                    <td className="p-3">Lead Engineer / CTO</td>
-                    <td className="p-3">₦500k - ₦700k</td>
-                    <td className="p-3 text-xs">Full-time Architecture & Management</td>
+                    <td className="p-2">Lead Engineer / CTO</td>
+                    <td className="p-2">₦500k - ₦700k</td>
+                    <td className="p-2">Full-time Architecture & Management</td>
                   </tr>
                   <tr className="border-b-2 border-black">
-                    <td className="p-3">Junior Support Dev</td>
-                    <td className="p-3">₦150k - ₦200k</td>
-                    <td className="p-3 text-xs">Maintenance & Bug Fixes</td>
+                    <td className="p-2">Junior Support Dev</td>
+                    <td className="p-2">₦150k - ₦200k</td>
+                    <td className="p-2">Maintenance & Bug Fixes</td>
                   </tr>
                   <tr className="border-b-2 border-black bg-slate-50">
-                    <td className="p-3">Google Maps API</td>
-                    <td className="p-3">$500 - $1,000</td>
-                    <td className="p-3 text-xs">Geolocation at Scale (10k users)</td>
+                    <td className="p-2">Google Maps API</td>
+                    <td className="p-2">$500 - $1,000</td>
+                    <td className="p-2">Geolocation at Scale (10k users)</td>
                   </tr>
                   <tr className="border-b-2 border-black">
-                    <td className="p-3">Cloud Infrastructure</td>
-                    <td className="p-3">$100 - $200</td>
-                    <td className="p-3 text-xs">AWS/DigitalOcean Hosting</td>
+                    <td className="p-2">AI Intelligence (LLM)</td>
+                    <td className="p-2">$100 - $300</td>
+                    <td className="p-2">OpenAI Token Consumption</td>
+                  </tr>
+                  <tr className="border-b-2 border-black bg-slate-50">
+                    <td className="p-2">Cloud Infrastructure</td>
+                    <td className="p-2">$100 - $200</td>
+                    <td className="p-2">AWS/DigitalOcean Hosting</td>
+                  </tr>
+                  <tr className="border-b-2 border-black">
+                    <td className="p-2">App Store Fees</td>
+                    <td className="p-2">$125 (Yearly)</td>
+                    <td className="p-2">Apple ($99) + Google Play ($25)</td>
+                  </tr>
+                  <tr className="border-b-2 border-black bg-slate-50">
+                    <td className="p-2">DevOps & Monitoring</td>
+                    <td className="p-2">$50 - $100</td>
+                    <td className="p-2">Sentry, GitHub Pro, Vercel</td>
                   </tr>
                 </tbody>
               </table>
               <div className="p-4 bg-black text-white text-center font-black uppercase text-sm">
-                Total Year 1 Tech Budget Requirement: ₦15M - ₦18M
+                Total Year 1 Tech Budget Requirement: ₦18M - ₦22M
               </div>
             </section>
 
@@ -232,7 +247,7 @@ export default function AutoamProposal() {
                 </div>
                 <div className="mt-6 pt-4 border-t-2 border-slate-200 text-center">
                   <p className="text-xs font-bold text-slate-600">
-                    *Stipend covers basic Power/Data infrastructure costs during the bootstrap phase.
+                    *Stipend covers Power/Data/Server costs during bootstrap phase.
                   </p>
                 </div>
               </div>
