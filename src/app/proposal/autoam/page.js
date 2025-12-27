@@ -1,12 +1,12 @@
 "use client";
-import { Download, ArrowLeft, WifiOff, Activity, DollarSign, ShieldCheck } from "lucide-react";
+import { Download, ArrowLeft, CheckSquare, Layers, Shield, Zap, Database, DollarSign, Briefcase } from "lucide-react";
 import Link from "next/link";
 
-export default function AutoamResponse() {
+export default function AutoamProposal() {
   
   const handlePrint = () => {
     const originalTitle = document.title;
-    document.title = "Autoam_Technical_Clarification_v1";
+    document.title = "AUTOAM_Technical_Financial_Blueprint";
     window.print();
     document.title = originalTitle;
   };
@@ -27,7 +27,7 @@ export default function AutoamResponse() {
           }
           @page { size: A4; margin: 0mm; }
           .no-print { display: none !important; }
-          .page-break { page-break-before: always; margin-top: 2rem; display: block; }
+          .page-break { page-break-before: always; margin-top: 0; display: block; }
           .avoid-break { break-inside: avoid; }
         }
       `}</style>
@@ -41,10 +41,10 @@ export default function AutoamResponse() {
           <div className="w-16 h-16 mx-auto bg-white rounded-2xl flex items-center justify-center mb-6 shadow-lg">
             <span className="font-black text-2xl text-slate-900">BA</span>
           </div>
-          <h1 className="text-2xl font-bold text-white mb-2">Technical Clarification</h1>
-          <p className="text-slate-400 text-sm mb-8">Ref: Offline Sync, Costs & Sequence</p>
+          <h1 className="text-2xl font-bold text-white mb-2">Technical & Financial Brief</h1>
+          <p className="text-slate-400 text-sm mb-8">Includes: Architecture + Budget Projection</p>
           <button onClick={handlePrint} className="w-full flex items-center justify-center gap-3 bg-white hover:bg-slate-200 text-slate-950 font-bold py-4 rounded-xl transition-all transform hover:scale-[1.02] shadow-xl">
-            <Download size={20} /> <span>Download Response PDF</span>
+            <Download size={20} /> <span>Download Full PDF</span>
           </button>
           <Link href="/" className="block mt-6 text-xs text-slate-500 hover:text-slate-300 transition-colors">← Return to Dashboard</Link>
         </div>
@@ -53,154 +53,187 @@ export default function AutoamResponse() {
       {/* === VIEW 2: THE DOCUMENT (Print Only) === */}
       <div id="print-container" className="bg-white w-full max-w-[210mm] mx-auto hidden print:block">
         
-        {/* === PAGE 1 === */}
+        {/* === PAGE 1: EXECUTIVE SUMMARY === */}
         <div className="p-[15mm] pt-[20mm] h-[297mm] relative flex flex-col justify-between">
           <div>
-            {/* Header */}
             <div className="flex justify-between items-start border-b-[6px] border-black pb-6 mb-8">
               <div>
-                <h1 className="text-5xl font-black uppercase tracking-tighter leading-none mb-2">Technical<br/>Addendum</h1>
-                <p className="text-lg font-black text-slate-600 uppercase tracking-widest">Autoam MVP</p>
+                <h1 className="text-7xl font-black uppercase tracking-tighter leading-none mb-2">Autoam</h1>
+                <p className="text-xl font-black text-slate-600 uppercase tracking-widest">Technical Blueprint</p>
               </div>
               <div className="text-right">
                 <div className="bg-black text-white px-6 py-2 font-bold text-sm uppercase inline-block mb-1">Confidential</div>
-                <p className="text-xs font-mono font-bold">DATE: DEC 08, 2025</p>
+                <p className="text-xs font-mono font-bold">DOC-ID: ATM-FIN-V1</p>
               </div>
             </div>
 
-            {/* 1. Offline Sync Spec */}
-            <section className="mb-10 avoid-break">
-              <div className="flex items-center gap-3 mb-4 border-l-[10px] border-black pl-4">
-                <WifiOff size={28} className="text-black" />
-                <h2 className="text-2xl font-black uppercase">1. Offline Sync & Reconciliation</h2>
-              </div>
-              
-              <div className="border-4 border-black p-5 mb-4">
-                <h3 className="font-black text-lg uppercase mb-2">A. Data Conflict Strategy</h3>
-                <p className="text-sm font-bold text-slate-800 mb-2">
-                  We utilize an <span className="bg-black text-white px-1">Optimistic UI</span> model with WatermelonDB (Local SQLite).
-                </p>
-                <ul className="list-disc pl-5 text-xs font-bold text-slate-700 space-y-1">
-                  <li><strong>Server-Authoritative:</strong> The server is the single source of truth.</li>
-                  <li><strong>Queue System:</strong> Offline actions (e.g., "Cancel Job") are queued locally.</li>
-                  <li><strong>Reconciliation:</strong> Upon reconnection, the queue processes. Stale actions (e.g., cancelling a completed job) are rejected.</li>
-                </ul>
-              </div>
-
-              <div className="border-4 border-black p-5">
-                <h3 className="font-black text-lg uppercase mb-2">B. Payment Integrity</h3>
-                <p className="text-sm font-bold text-slate-800 mb-2">
-                  Payments are never processed offline. To prevent double-charging during lag:
-                </p>
-                <ul className="list-disc pl-5 text-xs font-bold text-slate-700 space-y-1">
-                  <li><strong>Idempotency Keys:</strong> Every transaction request carries a unique UUID.</li>
-                  <li><strong>Duplicate Check:</strong> If a user taps "Pay" twice, the server recognizes the ID and processes only once.</li>
-                </ul>
-              </div>
+            <section className="mb-8">
+              <h2 className="text-2xl font-black uppercase border-l-[10px] border-black pl-4 mb-4">1. Executive Summary</h2>
+              <p className="text-sm leading-relaxed text-justify mb-4 font-bold text-black">
+                Autoam is engineered to be a high-availability, geolocation-centric marketplace. The architecture prioritizes <strong>Zero-Latency Dispatching</strong> and <strong>Financial Trust</strong> via escrow.
+              </p>
             </section>
 
-            {/* 2. Sequence Diagram */}
-            <section className="mb-8 avoid-break">
-              <div className="flex items-center gap-3 mb-4 border-l-[10px] border-black pl-4">
-                <Activity size={28} className="text-black" />
-                <h2 className="text-2xl font-black uppercase">2. Core Sequence Diagram</h2>
-              </div>
-              
-              <div className="bg-slate-100 border-4 border-black p-6 font-mono text-[10px] font-bold leading-relaxed whitespace-pre overflow-hidden">
-{`USER APP          SERVER (API)        MECHANIC APP
-   |                   |                   |
-   |----(SOS Req)----->|                   |
-   |                   |----(Job Alert)--->|
-   |                   |<---(Accept)-------|
-   |<---(Matched)------|                   |
-   |                   |                   |
-   |--(Tokenize Card)->|                   |
-   |                   |---(Escrow Hold)-->|
-   |                   |                   |
-   |                   |<--(Job Done)------|
-   |----(Confirm)----->|                   |
-   |                   |---(Release $$)--->|
-   |                   |                   |
-   |-----(Rate)------->|<-----(Rate)-------|
-   v                   v                   v`}
+            <section>
+              <h2 className="text-2xl font-black uppercase border-l-[10px] border-black pl-4 mb-4">2. Technology Stack</h2>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="border-4 border-black p-4">
+                  <p className="font-black text-lg">Mobile: React Native</p>
+                  <p className="text-xs font-bold text-slate-800">Offline-First, Native Maps.</p>
+                </div>
+                <div className="border-4 border-black p-4">
+                  <p className="font-black text-lg">Backend: NestJS</p>
+                  <p className="text-xs font-bold text-slate-800">Scalable Microservices.</p>
+                </div>
+                <div className="border-4 border-black p-4">
+                  <p className="font-black text-lg">Data: PostgreSQL</p>
+                  <p className="text-xs font-bold text-slate-800">Geospatial Indexing.</p>
+                </div>
+                <div className="border-4 border-black p-4">
+                  <p className="font-black text-lg">AI: OpenAI GPT-4o</p>
+                  <p className="text-xs font-bold text-slate-800">Diagnostic Assistant.</p>
+                </div>
               </div>
             </section>
           </div>
-          
-          <div className="text-right text-xs font-black text-slate-400">Page 1/2</div>
+          <div className="text-right text-xs font-black text-slate-400">Page 1/3</div>
         </div>
 
         <div className="page-break"></div>
 
-        {/* === PAGE 2 === */}
+        {/* === PAGE 2: ARCHITECTURE DIAGRAM === */}
+        <div className="p-[15mm] pt-[20mm] h-[297mm] relative flex flex-col justify-between">
+          <section className="mb-8">
+            <h2 className="text-2xl font-black uppercase border-l-[10px] border-black pl-4 mb-6">3. System Architecture</h2>
+            <div className="flex flex-col items-center gap-4 text-xs font-black uppercase">
+              <div className="flex gap-4 w-full justify-center">
+                <div className="border-[3px] border-black p-2 w-28 text-center bg-slate-100">User App</div>
+                <div className="border-[3px] border-black p-2 w-28 text-center bg-slate-100">Partner App</div>
+                <div className="border-[3px] border-black p-2 w-28 text-center bg-slate-100">Admin</div>
+              </div>
+              <div className="h-4 w-1.5 bg-black"></div>
+              <div className="border-[3px] border-black p-3 w-full max-w-md text-center bg-white">
+                API GATEWAY (Load Balancer)
+              </div>
+              <div className="h-4 w-1.5 bg-black"></div>
+              <div className="flex gap-4 w-full justify-center">
+                <div className="border-[3px] border-black p-3 w-36 text-center bg-white">CORE API</div>
+                <div className="border-[3px] border-black p-3 w-36 text-center bg-slate-800 text-white">AI ENGINE</div>
+                <div className="border-[3px] border-black p-3 w-36 text-center bg-white">DISPATCH</div>
+              </div>
+              <div className="h-4 w-1.5 bg-black"></div>
+              <div className="flex gap-4 w-full justify-center">
+                <div className="border-[3px] border-black p-2 w-28 text-center bg-slate-100">PostgreSQL</div>
+                <div className="border-[3px] border-black p-2 w-28 text-center bg-slate-100">Redis</div>
+                <div className="border-[3px] border-black p-2 w-28 text-center bg-slate-100">S3 Bucket</div>
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-black uppercase border-l-[10px] border-black pl-4 mb-6">4. Roadmap (9 Weeks)</h2>
+            <div className="border-l-[6px] border-black ml-2 space-y-0">
+              <div className="relative pl-8 pb-4">
+                <div className="absolute -left-[12px] top-0 w-5 h-5 bg-black rounded-full border-4 border-white"></div>
+                <h4 className="font-black text-sm uppercase">Phase 1: Foundation (Weeks 1-2)</h4>
+                <p className="text-xs font-bold text-slate-700">System Design, Database, UI/UX.</p>
+              </div>
+              <div className="relative pl-8 pb-4">
+                <div className="absolute -left-[12px] top-0 w-5 h-5 bg-white border-[5px] border-black rounded-full"></div>
+                <h4 className="font-black text-sm uppercase">Phase 2: Core Engine (Weeks 3-5)</h4>
+                <p className="text-xs font-bold text-slate-700">Geolocation, AI Integration, Matching.</p>
+              </div>
+              <div className="relative pl-8 pb-4">
+                <div className="absolute -left-[12px] top-0 w-5 h-5 bg-white border-[5px] border-black rounded-full"></div>
+                <h4 className="font-black text-sm uppercase">Phase 3: Ecosystem (Weeks 6-7)</h4>
+                <p className="text-xs font-bold text-slate-700">Inventory, Payments, Wallet.</p>
+              </div>
+              <div className="relative pl-8">
+                <div className="absolute -left-[12px] top-0 w-5 h-5 bg-white border-[5px] border-black rounded-full"></div>
+                <h4 className="font-black text-sm uppercase">Phase 4: Launch (Weeks 8-9)</h4>
+                <p className="text-xs font-bold text-slate-700">Beta Testing, Deployment.</p>
+              </div>
+            </div>
+          </section>
+          <div className="text-right text-xs font-black text-slate-400">Page 2/3</div>
+        </div>
+
+        <div className="page-break"></div>
+
+        {/* === PAGE 3: FINANCIALS & AGREEMENT === */}
         <div className="p-[15mm] pt-[20mm] h-[297mm] relative flex flex-col justify-between">
           
           <div>
-            {/* 3. Cost Estimates */}
-            <section className="mb-10 avoid-break">
-              <div className="flex items-center gap-3 mb-4 border-l-[10px] border-black pl-4">
-                <DollarSign size={28} className="text-black" />
-                <h2 className="text-2xl font-black uppercase">3. MVP Operational Costs</h2>
+            {/* 5. Post-Funding Budget */}
+            <section className="mb-10">
+              <div className="flex items-center gap-3 mb-6 border-l-[10px] border-black pl-4">
+                <DollarSign size={32} className="text-black" />
+                <h2 className="text-2xl font-black uppercase">5. Post-Funding Budget (Year 1)</h2>
               </div>
+              <p className="text-xs font-bold text-slate-600 mb-4 uppercase tracking-widest">Projected Monthly Burn (Scale-Up Phase)</p>
               
-              <table className="w-full border-4 border-black text-sm font-bold">
+              <table className="w-full border-4 border-black text-sm font-bold mb-6">
                 <thead className="bg-black text-white">
                   <tr>
-                    <th className="p-3 text-left uppercase">Service</th>
-                    <th className="p-3 text-left uppercase">Est. Cost (100 Users/Day)</th>
-                    <th className="p-3 text-left uppercase">Notes</th>
+                    <th className="p-3 text-left uppercase">Item</th>
+                    <th className="p-3 text-left uppercase">Monthly Cost</th>
+                    <th className="p-3 text-left uppercase">Role/Purpose</th>
                   </tr>
                 </thead>
-                <tbody className="text-slate-800">
+                <tbody className="text-slate-900">
+                  <tr className="border-b-2 border-black bg-slate-50">
+                    <td className="p-3">Lead Engineer / CTO</td>
+                    <td className="p-3">₦500k - ₦700k</td>
+                    <td className="p-3 text-xs">Full-time Architecture & Management</td>
+                  </tr>
                   <tr className="border-b-2 border-black">
+                    <td className="p-3">Junior Support Dev</td>
+                    <td className="p-3">₦150k - ₦200k</td>
+                    <td className="p-3 text-xs">Maintenance & Bug Fixes</td>
+                  </tr>
+                  <tr className="border-b-2 border-black bg-slate-50">
                     <td className="p-3">Google Maps API</td>
-                    <td className="p-3">$0 - $50 / mo</td>
-                    <td className="p-3 text-xs">Covered by $200 free monthly credit.</td>
+                    <td className="p-3">$500 - $1,000</td>
+                    <td className="p-3 text-xs">Geolocation at Scale (10k users)</td>
                   </tr>
                   <tr className="border-b-2 border-black">
-                    <td className="p-3">AI Diagnostics (LLM)</td>
-                    <td className="p-3">$10 - $20 / mo</td>
-                    <td className="p-3 text-xs">Using GPT-4o-mini (High efficiency).</td>
-                  </tr>
-                  <tr className="border-b-2 border-black">
-                    <td className="p-3">SMS (OTP/Alerts)</td>
-                    <td className="p-3">~$15 / mo</td>
-                    <td className="p-3 text-xs">Termii/Twilio. Only for critical alerts.</td>
-                  </tr>
-                  <tr>
-                    <td className="p-3">Push Notifications</td>
-                    <td className="p-3">$0 (Free)</td>
-                    <td className="p-3 text-xs">Firebase Cloud Messaging (Unlimited).</td>
+                    <td className="p-3">Cloud Infrastructure</td>
+                    <td className="p-3">$100 - $200</td>
+                    <td className="p-3 text-xs">AWS/DigitalOcean Hosting</td>
                   </tr>
                 </tbody>
               </table>
+              <div className="p-4 bg-black text-white text-center font-black uppercase text-sm">
+                Total Year 1 Tech Budget Requirement: ₦15M - ₦18M
+              </div>
             </section>
 
-            {/* 4. Payment & Fallback */}
-            <section className="mb-10 avoid-break">
-              <div className="flex items-center gap-3 mb-4 border-l-[10px] border-black pl-4">
-                <ShieldCheck size={28} className="text-black" />
-                <h2 className="text-2xl font-black uppercase">4. Payment & Fallback Strategy</h2>
+            {/* 6. Immediate Agreement */}
+            <section className="mb-8">
+              <div className="flex items-center gap-3 mb-6 border-l-[10px] border-black pl-4">
+                <Briefcase size={32} className="text-black" />
+                <h2 className="text-2xl font-black uppercase">6. Founding Engineer Agreement</h2>
               </div>
-
-              <div className="grid grid-cols-2 gap-6">
-                <div className="border-4 border-black p-5">
-                  <h3 className="font-black text-lg uppercase mb-2">Payment Provider</h3>
-                  <p className="text-xl font-black text-slate-900 mb-1">PAYSTACK</p>
-                  <ul className="list-disc pl-4 text-xs font-bold text-slate-700 space-y-1">
-                    <li><strong>Split Payments:</strong> Auto-split commission.</li>
-                    <li><strong>Escrow Native:</strong> Built-in transfer API.</li>
-                    <li><strong>Reliability:</strong> Highest success rate in NG.</li>
-                  </ul>
+              
+              <div className="border-4 border-black p-6">
+                <div className="grid grid-cols-3 gap-6 text-center">
+                  <div>
+                    <p className="text-xs font-bold text-slate-500 uppercase mb-1">Role</p>
+                    <p className="text-xl font-black">Founding Engineer</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-slate-500 uppercase mb-1">Equity</p>
+                    <p className="text-xl font-black">3% (Permanent)</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-slate-500 uppercase mb-1">Operational Stipend</p>
+                    <p className="text-xl font-black">₦80,000 / mo</p>
+                  </div>
                 </div>
-                <div className="border-4 border-black p-5">
-                  <h3 className="font-black text-lg uppercase mb-2">Socket Disconnect</h3>
-                  <p className="text-xl font-black text-slate-900 mb-1">FCM PRIORITY</p>
-                  <ul className="list-disc pl-4 text-xs font-bold text-slate-700 space-y-1">
-                    <li><strong>Primary:</strong> WebSockets (Real-time).</li>
-                    <li><strong>Fallback:</strong> Firebase Data Messages.</li>
-                    <li><strong>Logic:</strong> "Wake Up" silent push forces app sync.</li>
-                  </ul>
+                <div className="mt-6 pt-4 border-t-2 border-slate-200 text-center">
+                  <p className="text-xs font-bold text-slate-600">
+                    *Stipend covers basic Power/Data infrastructure costs during the bootstrap phase.
+                  </p>
                 </div>
               </div>
             </section>
@@ -209,7 +242,7 @@ export default function AutoamResponse() {
           {/* SIGNATURE BLOCK */}
           <footer className="pt-8 border-t-[6px] border-black flex justify-between items-end">
             <div>
-              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-6">Technical Approval</p>
+              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-6">Architectural Approval</p>
               <div className="font-serif italic text-5xl text-black mb-2" style={{ fontFamily: 'cursive' }}>
                 Boluwatife Adeoye
               </div>
@@ -224,7 +257,7 @@ export default function AutoamResponse() {
             </div>
           </footer>
           
-          <div className="absolute bottom-8 right-8 text-xs font-black text-slate-400">Page 2/2</div>
+          <div className="absolute bottom-8 right-8 text-xs font-black text-slate-400">Page 3/3</div>
         </div>
 
       </div>
