@@ -1,4 +1,4 @@
-import pool from '../../../../../lib/db';
+import sql from '@/lib/db';
 import { NextResponse } from 'next/server';
 
 export async function POST(req) {
@@ -6,7 +6,7 @@ export async function POST(req) {
     const { reference, studentId } = await req.json();
 
     if (!reference || !studentId) {
-      return NextResponse.json({ error: "Missing payment details" }, { status: 400 });
+      return NextResponse.json({ error: "Missing payment credentials." }, { status: 400 });
     }
 
     // 1. VERIFY WITH PAYSTACK
@@ -19,31 +19,29 @@ export async function POST(req) {
     const paystackData = await paystackRes.json();
 
     if (!paystackData.status || paystackData.data.status !== "success") {
-      return NextResponse.json({ error: "Payment verification failed." }, { status: 400 });
+      return NextResponse.json({ error: "Paystack could not verify this transaction." }, { status: 400 });
     }
 
-    // 2. VERIFY AMOUNT (500 Naira)
+    // 2. VERIFY AMOUNT (500 Naira = 50000 kobo)
     if (paystackData.data.amount < 50000) {
-      return NextResponse.json({ error: "Invalid amount paid." }, { status: 400 });
+      return NextResponse.json({ error: "Invalid amount detected. Transaction void." }, { status: 400 });
     }
 
-    // 3. UPGRADE USER
+    // 3. CALCULATE EXPIRY (7 Days)
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7);
 
-    const client = await pool.connect();
-    await client.query(
-      `UPDATE cbt_students
-       SET subscription_status = 'premium', premium_expires_at = $1
-       WHERE id = $2`,
-      [expiresAt, studentId]
-    );
-    client.release();
+    // 4. UPGRADE USER (Stateless Syntax)
+    await sql`
+      UPDATE cbt_students 
+      SET subscription_status = 'premium', premium_expires_at = ${expiresAt} 
+      WHERE id = ${studentId}
+    `;
 
-    return NextResponse.json({ success: true }, { status: 200 });
+    return NextResponse.json({ success: true });
 
   } catch (error) {
-    console.error("Payment Error:", error);
-    return NextResponse.json({ error: "System Error" }, { status: 500 });
+    console.error("Payment Verification Error:", error);
+    return NextResponse.json({ error: `Verification Failed: ${error.message}` }, { status: 500 });
   }
 }

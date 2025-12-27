@@ -8,32 +8,10 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import StatusModal from "../../../components/cbt/StatusModal";
 
 const UpgradeModal = dynamic(() => import("../../../components/cbt/UpgradeModal"), { ssr: false });
 
-/* === 1. LOGOUT MODAL === */
-function LogoutModal({ isOpen, onConfirm, onCancel }) {
-  if (!isOpen) return null;
-  return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-xs w-full overflow-hidden border-t-4 border-red-600">
-        <div className="p-6 text-center">
-          <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
-            <LogOut size={32} className="text-red-600" />
-          </div>
-          <h3 className="font-black text-lg uppercase text-gray-900 mb-2">Disconnect?</h3>
-          <p className="text-gray-500 text-xs font-medium mb-6">You are about to terminate your session.</p>
-          <div className="flex gap-3">
-            <button onClick={onCancel} className="flex-1 py-3 border-2 border-gray-100 rounded-xl text-xs font-black text-gray-400 hover:bg-gray-50">STAY</button>
-            <button onClick={onConfirm} className="flex-1 py-3 bg-red-600 text-white rounded-xl text-xs font-black shadow-lg hover:bg-red-700">LOGOUT</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* === 2. DISCLAIMER ACCORDION === */
 function DisclaimerCard() {
   const [isOpen, setIsOpen] = useState(true);
   return (
@@ -41,14 +19,10 @@ function DisclaimerCard() {
       <button onClick={() => setIsOpen(!isOpen)} className="w-full flex items-center justify-between p-6 text-left">
         <div className="flex items-center gap-4">
           <div className="bg-orange-100 w-10 h-10 flex items-center justify-center rounded-full text-orange-600"><Info size={20} /></div>
-          <div>
-            <h3 className="font-black text-sm text-[#5A3A29] uppercase tracking-wide">Important Disclaimer</h3>
-            <p className="text-[10px] text-orange-400 font-bold">Read before starting</p>
-          </div>
+          <div><h3 className="font-black text-sm text-[#5A3A29] uppercase tracking-wide">Important Disclaimer</h3><p className="text-[10px] text-orange-400 font-bold">Read before starting</p></div>
         </div>
         <ChevronDown size={20} className={`text-orange-300 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
-      
       {isOpen && (
         <div className="px-6 pb-8 text-xs text-[#8B5E3C] leading-relaxed">
           <p className="mb-3 font-bold text-[#5A3A29]">Strict Warning:</p>
@@ -56,7 +30,6 @@ function DisclaimerCard() {
             <li>The purpose of this mock examination is <strong>NOT</strong> to expose likely questions.</li>
             <li>The aim is to <strong>simulate the environment</strong> and prepare you psychologically for the real exam.</li>
             <li>Use this tool to practice <strong>time management</strong> and pressure handling.</li>
-            <li>Success here does not guarantee success in the main exam, but it builds the necessary resilience.</li>
           </ul>
         </div>
       )}
@@ -64,27 +37,21 @@ function DisclaimerCard() {
   );
 }
 
-/* === 3. COURSE CARD === */
 function CourseCard({ course }) {
   return (
     <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center group active:scale-[0.98] transition-transform mb-3">
       <div className="flex items-center gap-4">
-        <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-xs border ${course.code.toUpperCase().startsWith('GST') ? 'bg-green-50 text-[#004d00] border-green-100' : 'bg-blue-50 text-blue-700 border-blue-100'}`}>
-          {course.code.slice(0,3)}
-        </div>
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-xs border ${course.code.toUpperCase().startsWith('GST') ? 'bg-green-50 text-[#004d00] border-green-100' : 'bg-blue-50 text-blue-700 border-blue-100'}`}>{course.code.slice(0,3)}</div>
         <div>
           <h3 className="font-black text-gray-900 text-xs uppercase">{course.code}</h3>
           <p className="text-[10px] text-gray-500 font-medium truncate w-40">{course.title}</p>
         </div>
       </div>
-      <Link href={`/cbt/exam/${course.id}`} className="w-9 h-9 bg-gray-900 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-[#004d00] transition-colors">
-        <Play size={12} fill="currentColor" />
-      </Link>
+      <Link href={`/cbt/exam/${course.id}`} className="w-9 h-9 bg-gray-900 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-[#004d00] transition-colors"><Play size={12} fill="currentColor" /></Link>
     </div>
   );
 }
 
-/* === MAIN DASHBOARD === */
 export default function StudentDashboard() {
   const router = useRouter();
   const [student, setStudent] = useState(null);
@@ -93,10 +60,9 @@ export default function StudentDashboard() {
   const [loading, setLoading] = useState(true);
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [showLogout, setShowLogout] = useState(false);
-  const [greeting, setGreeting] = useState("GOOD DAY");
+  const [statusModal, setStatusModal] = useState(null); // { type, title, message, actionLabel, onAction, onCancel }
+  const [greeting, setGreeting] = useState("Good Day");
   const [avatarUrl, setAvatarUrl] = useState("");
-
   const [gstExpanded, setGstExpanded] = useState(true);
   const [othersExpanded, setOthersExpanded] = useState(false);
 
@@ -112,7 +78,6 @@ export default function StudentDashboard() {
     const parsed = JSON.parse(stored);
     setStudent(parsed);
 
-    // CORPORATE AVATAR LOGIC (Notionists Style)
     const seed = parsed.name.replace(/\s/g, '');
     setAvatarUrl(`https://api.dicebear.com/9.x/notionists/svg?seed=${seed}&backgroundColor=b6e3f4,c0aede,d1d4f9`);
 
@@ -146,9 +111,18 @@ export default function StudentDashboard() {
     fetchData();
   }, [router]);
 
-  const handleLogout = () => {
-    sessionStorage.removeItem("cbt_student");
-    router.push("/cbt");
+  const triggerLogout = () => {
+    setStatusModal({
+      type: 'logout',
+      title: 'Terminate Session?',
+      message: 'You are about to disconnect from the secure portal.',
+      actionLabel: 'Logout',
+      onAction: () => {
+        sessionStorage.removeItem("cbt_student");
+        router.push("/cbt");
+      },
+      onCancel: () => setStatusModal(null)
+    });
   };
 
   if (!mounted || !student) return null;
@@ -165,25 +139,24 @@ export default function StudentDashboard() {
 
   return (
     <main className="min-h-screen bg-[#fcfdfc] font-sans text-gray-900 pb-48 relative">
-      <LogoutModal isOpen={showLogout} onConfirm={handleLogout} onCancel={() => setShowLogout(false)} />
+      {statusModal && <StatusModal {...statusModal} />}
       {showUpgrade && <UpgradeModal student={student} onClose={() => setShowUpgrade(false)} onSuccess={() => window.location.reload()} />}
       
       <header className="bg-[#004d00] text-white pt-8 pb-16 px-6 rounded-b-[40px] shadow-2xl relative z-10">
         <div className="flex justify-between items-center mb-8">
           <div className="flex items-center gap-4">
-            {/* SMART CORPORATE AVATAR */}
             <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center border-2 border-white/20 shadow-lg overflow-hidden relative">
               {avatarUrl && <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />}
               {isPremium && <div className="absolute top-0 right-0 bg-yellow-400 p-1 rounded-bl-lg shadow-sm"><Crown size={10} className="text-black" fill="currentColor" /></div>}
             </div>
             <div>
-              <p className="text-green-200 text-[10px] font-black uppercase tracking-widest mb-1">{greeting}</p>
+              <p className="text-green-200 text-[10px] font-bold uppercase tracking-widest mb-1">{greeting}</p>
               <h1 className="text-xl font-black leading-none truncate w-40">{student.name.split(" ")[0]}</h1>
             </div>
           </div>
           <div className="flex gap-2">
             <a href="https://wa.me/2348106293674" target="_blank" rel="noopener noreferrer" className="bg-green-500 p-3 rounded-xl border border-white/20 text-white hover:bg-green-400 transition-all shadow-lg animate-pulse"><Headset size={20} /></a>
-            <button onClick={() => setShowLogout(true)} className="bg-[#006400] p-3 rounded-xl border border-white/10 hover:bg-red-600 transition-colors shadow-lg"><LogOut size={20} /></button>
+            <button onClick={triggerLogout} className="bg-[#006400] p-3 rounded-xl border border-white/10 hover:bg-red-600 transition-colors shadow-lg"><LogOut size={20} /></button>
           </div>
         </div>
         <div className="bg-[#003300]/50 backdrop-blur-sm border border-white/10 rounded-2xl p-5 flex items-center justify-between">
@@ -194,7 +167,6 @@ export default function StudentDashboard() {
 
       <div className="px-6 -mt-8 relative z-20 space-y-6">
         <DisclaimerCard />
-
         <section className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
           <button onClick={() => setGstExpanded(!gstExpanded)} className="w-full p-5 flex items-center justify-between bg-green-50/50">
             <div className="flex items-center gap-3"><BookOpen size={18} className="text-[#004d00]" /><h2 className="font-black text-xs text-gray-700 uppercase tracking-widest">General Studies</h2></div>
@@ -202,7 +174,6 @@ export default function StudentDashboard() {
           </button>
           {gstExpanded && <div className="p-4 animate-in fade-in slide-in-from-top-2">{gstCourses.map(c => <CourseCard key={c.id} course={c} />)}</div>}
         </section>
-
         <section className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
           <button onClick={() => setOthersExpanded(!othersExpanded)} className="w-full p-5 flex items-center justify-between bg-blue-50/30">
             <div className="flex items-center gap-3"><Layers size={18} className="text-blue-700" /><h2 className="font-black text-xs text-gray-700 uppercase tracking-widest">Other Courses</h2></div>
@@ -210,7 +181,6 @@ export default function StudentDashboard() {
           </button>
           {othersExpanded && <div className="p-4 animate-in fade-in slide-in-from-top-2">{otherCourses.length > 0 ? otherCourses.map(c => <CourseCard key={c.id} course={c} />) : <p className="text-center text-[10px] text-gray-400 py-4 font-bold uppercase">No departmental courses loaded</p>}</div>}
         </section>
-
         <section>
           <div className="flex items-center gap-2 mb-4"><Trophy size={18} className="text-yellow-600" /><h2 className="font-black text-xs text-gray-500 uppercase tracking-widest">Top Performers</h2></div>
           {leaders.length > 0 ? (
@@ -235,7 +205,6 @@ export default function StudentDashboard() {
           )}
         </section>
       </div>
-
       <div className="fixed bottom-6 left-6 right-6 z-50">
         <div className="bg-white/90 backdrop-blur-xl border border-white/40 shadow-[0_10px_40px_rgba(0,0,0,0.1)] rounded-[2rem] p-4 flex items-center gap-4">
           <div className="w-10 h-10 bg-[#004d00] rounded-full flex items-center justify-center text-white shadow-md shrink-0"><Award size={18} /></div>
