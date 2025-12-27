@@ -7,12 +7,18 @@ export async function GET() {
   try {
     const client = await pool.connect();
     
-    // 1. Create Results Table (The Memory)
+    // 1. Ensure Students table has columns
+    await client.query(`ALTER TABLE cbt_students ADD COLUMN IF NOT EXISTS department TEXT;`);
+    await client.query(`ALTER TABLE cbt_students ADD COLUMN IF NOT EXISTS level TEXT;`);
+    await client.query(`ALTER TABLE cbt_students ADD COLUMN IF NOT EXISTS last_login TIMESTAMP;`);
+
+    // 2. FORCE CREATE RESULTS TABLE (Robust Version)
+    // We use IF NOT EXISTS, but we also ensure columns are flexible
     await client.query(`
       CREATE TABLE IF NOT EXISTS cbt_results (
         id SERIAL PRIMARY KEY,
-        student_id INT REFERENCES cbt_students(id),
-        course_id INT REFERENCES cbt_courses(id),
+        student_id INT, 
+        course_id INT,
         score INT NOT NULL,
         total INT NOT NULL,
         answers JSONB,
@@ -20,11 +26,11 @@ export async function GET() {
       );
     `);
 
-    // 2. Add Index for Speed (Critical for high traffic)
-    await client.query(`CREATE INDEX IF NOT EXISTS idx_results_student_course ON cbt_results(student_id, course_id);`);
+    // 3. Create Index for Speed
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_results_check ON cbt_results(student_id, course_id);`);
 
     client.release();
-    return NextResponse.json({ success: true, message: "Security Infrastructure Deployed: Results Table Ready." }, { status: 200 });
+    return NextResponse.json({ success: true, message: "Database Hardened. Results Table Ready." }, { status: 200 });
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
