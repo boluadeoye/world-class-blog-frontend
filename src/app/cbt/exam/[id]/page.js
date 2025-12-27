@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Grid, CheckCircle, AlertOctagon, X, Crown, Sparkles, BrainCircuit, Clock, ChevronRight, ChevronLeft, AlertTriangle } from "lucide-react";
 import dynamic from "next/dynamic";
@@ -7,12 +7,11 @@ import ReactMarkdown from "react-markdown";
 
 const UpgradeModal = dynamic(() => import("../../../../components/cbt/UpgradeModal"), { ssr: false });
 
-/* === MODAL === */
-function ConfirmModal({ isOpen, title, message, onConfirm, onCancel, type = "warning", singleButton = false }) {
+function ConfirmModal({ isOpen, title, message, onConfirm, onCancel, type = "warning" }) {
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-xs w-full overflow-hidden transform transition-all scale-100">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-xs w-full overflow-hidden">
         <div className={`p-4 flex items-center gap-3 ${type === 'danger' ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-800'}`}>
           {type === 'danger' ? <AlertOctagon size={20} /> : <CheckCircle size={20} />}
           <h3 className="font-black text-sm uppercase tracking-wide">{title}</h3>
@@ -20,8 +19,8 @@ function ConfirmModal({ isOpen, title, message, onConfirm, onCancel, type = "war
         <div className="p-6">
           <p className="text-gray-600 text-xs font-bold mb-6 leading-relaxed">{message}</p>
           <div className="flex gap-3">
-            {!singleButton && <button onClick={onCancel} className="flex-1 py-3 border-2 border-gray-100 rounded-xl text-xs font-black text-gray-400 hover:bg-gray-50">CANCEL</button>}
-            <button onClick={onConfirm} className={`flex-1 py-3 rounded-xl text-xs font-black text-white shadow-lg ${type === 'danger' ? 'bg-red-600' : 'bg-green-800'}`}>{singleButton ? "CLOSE" : "CONFIRM"}</button>
+            <button onClick={onCancel} className="flex-1 py-3 border-2 border-gray-100 rounded-xl text-xs font-black text-gray-400 hover:bg-gray-50">CANCEL</button>
+            <button onClick={onConfirm} className={`flex-1 py-3 rounded-xl text-xs font-black text-white shadow-lg ${type === 'danger' ? 'bg-red-600' : 'bg-green-800'}`}>CONFIRM</button>
           </div>
         </div>
       </div>
@@ -29,7 +28,7 @@ function ConfirmModal({ isOpen, title, message, onConfirm, onCancel, type = "war
   );
 }
 
-export default function ExamPage() {
+function ExamContent() {
   const params = useParams();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -59,20 +58,8 @@ export default function ExamPage() {
     setMounted(true);
     const studentData = sessionStorage.getItem("cbt_student");
     if (!studentData) { router.push("/cbt"); return; }
-
-    let parsedStudent;
-    try {
-      parsedStudent = JSON.parse(studentData);
-      setStudent(parsedStudent);
-    } catch (e) { router.push("/cbt"); return; }
-
-    // TIMEOUT LOGIC: Force stop spinning after 15 seconds
-    const timeoutId = setTimeout(() => {
-      if (loading) {
-        setLoading(false);
-        setError("Connection Timeout. Server is busy.");
-      }
-    }, 15000);
+    const parsedStudent = JSON.parse(studentData);
+    setStudent(parsedStudent);
 
     async function loadExam() {
       try {
@@ -81,11 +68,19 @@ export default function ExamPage() {
           studentId: parsedStudent.id,
           token: parsedStudent.session_token || ""
         });
+        
         const res = await fetch(`/api/cbt/exam?${query.toString()}`);
+        
+        // DEFENSIVE CHECK: Ensure response is JSON
+        const contentType = res.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+          throw new Error("Server returned an invalid response. Please try again.");
+        }
+
         const data = await res.json();
 
         if (res.status === 401) { 
-          alert("Session Expired: You logged in on another device.");
+          alert(data.error || "Session Expired.");
           router.push("/cbt"); 
           return; 
         }
@@ -107,10 +102,13 @@ export default function ExamPage() {
           const finalDuration = (data.isPremium && requestedDuration) ? parseInt(requestedDuration) : (data.course?.duration || 15);
           setTimeLeft(finalDuration * 60);
         }
-      } catch (e) { setError(e.message); } finally { setLoading(false); clearTimeout(timeoutId); }
+      } catch (e) { 
+        setError(e.message); 
+      } finally { 
+        setLoading(false); 
+      }
     }
     loadExam();
-    return () => clearTimeout(timeoutId);
   }, [params.id, router, getStorageKey, searchParams]);
 
   const submitExam = useCallback(async () => {
@@ -156,7 +154,7 @@ export default function ExamPage() {
     return () => clearInterval(interval);
   }, [loading, isSubmitted, error, timeLeft, showUpgrade, mounted, answers, currentQIndex, student, getStorageKey, submitExam]);
 
-  const confirmSubmit = () => setModalConfig({ show: true, title: "FINISH EXAM?", message: "You are about to submit your answers.", type: "warning", action: submitExam });
+  const confirmSubmit = () => setModalConfig({ show: true, title: "FINISH EXAM?", message: "You are about to submit your answers.", onConfirm: submitExam, onCancel: () => setModalConfig({ show: false }) });
   const handleSelect = (option) => { if (!isSubmitted) setAnswers(prev => ({ ...prev, [questions[currentQIndex].id]: option })); };
   const formatTime = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
   const navigateTo = (index) => { setCurrentQIndex(index); setShowMap(false); };
@@ -184,29 +182,9 @@ export default function ExamPage() {
 
   if (!mounted) return null;
   if (showUpgrade) return <div className="min-h-screen flex items-center justify-center bg-white"><UpgradeModal student={student} onClose={() => router.push('/cbt/dashboard')} onSuccess={() => window.location.reload()} /></div>;
-  
-  // === LOADING STATE ===
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-white text-green-900 font-black text-sm tracking-widest animate-pulse">LOADING ENGINE...</div>;
-  
-  // === ERROR STATE ===
-  if (error) return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6 text-center">
-      <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4 text-red-600"><AlertTriangle size={32} /></div>
-      <p className="text-red-600 font-bold mb-4">{error}</p>
-      <button onClick={() => window.location.reload()} className="bg-black text-white px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest shadow-lg">RETRY CONNECTION</button>
-    </div>
-  );
+  if (error) return <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6 text-center text-red-600 font-bold gap-4"><p>{error}</p><button onClick={() => window.location.reload()} className="bg-black text-white px-6 py-2 rounded text-xs">RETRY CONNECTION</button></div>;
 
-  // === EMPTY STATE ===
-  if (questions.length === 0) return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6 text-center">
-      <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mb-4 text-yellow-600"><AlertTriangle size={32} /></div>
-      <p className="text-gray-500 font-bold mb-4">No Questions Found</p>
-      <button onClick={() => router.push('/cbt/dashboard')} className="bg-green-900 text-white px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest shadow-lg">RETURN TO DASHBOARD</button>
-    </div>
-  );
-
-  // === RESULT VIEW ===
   if (isSubmitted) {
     const percentage = Math.round((score / questions.length) * 100);
     return (
@@ -308,24 +286,20 @@ export default function ExamPage() {
             <button onClick={() => navigateTo(Math.min(questions.length - 1, currentQIndex + 1))} disabled={currentQIndex === questions.length - 1} className="flex items-center gap-2 px-8 py-3 font-black uppercase tracking-widest text-xs transition-all shadow-lg border-b-4 active:border-b-0 active:translate-y-1 bg-[#004d00] text-white border-green-900 hover:bg-green-900">[ NEXT ]</button>
           </div>
         </div>
-        <aside className={`absolute inset-0 z-[180] bg-white flex flex-col transition-transform duration-300 md:relative md:translate-x-0 md:w-80 md:border-l-4 border-gray-200 ${showMap ? 'translate-x-0' : 'translate-x-full'}`}>
-          <div className="p-4 bg-gray-100 border-b-2 border-gray-200 font-black text-gray-800 text-xs uppercase flex justify-between items-center shrink-0">
-            <span>QUESTION PALETTE</span>
-            <button onClick={() => setShowMap(false)} className="md:hidden p-2 bg-white rounded-xl shadow-sm"><X size={18}/></button>
-          </div>
-          <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
-            <div className="grid grid-cols-5 gap-3">
-              {questions.map((q, i) => (
-                <button key={q.id} onClick={() => navigateTo(i)} className={`h-12 w-full rounded-xl border-2 text-sm font-black shadow-sm transition-all ${getGridColor(i, q.id)}`}>{i + 1}</button>
-              ))}
-            </div>
-          </div>
-          <div className="p-4 bg-gray-50 border-t-2 border-gray-200 grid grid-cols-2 gap-2 text-[10px] font-black">
-             <div className="flex items-center gap-2"><div className="w-3 h-3 bg-green-600 rounded"></div> ATTEMPTED</div>
-             <div className="flex items-center gap-2"><div className="w-3 h-3 bg-white border-2 border-gray-300 rounded"></div> PENDING</div>
-          </div>
+        <aside className={`absolute inset-0 z-[180] bg-white flex flex-col transition-transform duration-300 md:relative md:translate-x-0 md:w-80 md:border-l border-gray-200 shadow-2xl md:shadow-none ${showMap ? 'translate-x-0' : 'translate-x-full'}`}>
+          <div className="p-4 bg-[#004d00] text-white font-black text-xs uppercase flex justify-between items-center shrink-0 tracking-widest"><span className="flex items-center gap-2"><Grid size={14} /> Matrix</span><button onClick={() => setShowMap(false)} className="md:hidden p-1 hover:bg-white/20 rounded"><X size={18}/></button></div>
+          <div className="flex-1 overflow-y-auto p-4 custom-scrollbar bg-gray-50"><div className="grid grid-cols-5 gap-2">{questions.map((q, i) => (<button key={q.id} onClick={() => navigateTo(i)} className={`h-10 w-full text-xs font-black transition-all border ${getGridColor(i, q.id)}`}>{i + 1}</button>))}</div></div>
+          <div className="p-4 bg-white border-t border-gray-200"><div className="grid grid-cols-2 gap-3 text-[10px] font-bold text-gray-500 uppercase tracking-wider"><div className="flex items-center gap-2"><div className="w-3 h-3 bg-green-100 border border-green-300"></div> Answered</div><div className="flex items-center gap-2"><div className="w-3 h-3 bg-[#004d00]"></div> Active</div><div className="flex items-center gap-2"><div className="w-3 h-3 bg-white border border-gray-300"></div> Pending</div></div></div>
         </aside>
       </div>
     </main>
+  );
+}
+
+export default function ExamPageWrapper() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-white text-green-900 font-black text-sm tracking-widest animate-pulse">INITIALIZING...</div>}>
+      <ExamContent />
+    </Suspense>
   );
 }
