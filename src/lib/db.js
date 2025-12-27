@@ -8,9 +8,10 @@ if (!global.postgresPool) {
     ssl: {
       rejectUnauthorized: false
     },
-    max: 5, // REDUCED to 5 to prevent hitting Neon limits
-    idleTimeoutMillis: 10000, // Close idle connections after 10 seconds
-    connectionTimeoutMillis: 5000, // Fail fast if DB is busy
+    // CRITICAL SERVERLESS SETTINGS
+    max: 1, // Force 1 connection per lambda to prevent exhaustion
+    idleTimeoutMillis: 5000, // Close immediately if not used
+    connectionTimeoutMillis: 5000, // Fail fast
   });
 }
 

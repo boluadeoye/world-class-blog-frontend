@@ -4,14 +4,12 @@ import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 
 export async function POST(req) {
-  let client;
   try {
     const { email, password } = await req.json();
     
-    // Set a strict timeout for this connection attempt
-    client = await pool.connect();
+    // USE POOL.QUERY DIRECTLY (Auto-Connect/Auto-Release)
+    const res = await pool.query('SELECT * FROM cbt_students WHERE email = $1', [email]);
     
-    const res = await client.query('SELECT * FROM cbt_students WHERE email = $1', [email]);
     if (res.rows.length === 0) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
@@ -24,7 +22,8 @@ export async function POST(req) {
 
     const sessionToken = crypto.randomBytes(32).toString('hex');
     
-    await client.query(
+    // Update Token
+    await pool.query(
       'UPDATE cbt_students SET session_token = $1, last_login = NOW() WHERE id = $2',
       [sessionToken, student.id]
     );
@@ -42,9 +41,6 @@ export async function POST(req) {
 
   } catch (error) {
     console.error("Login Error:", error);
-    // CRITICAL CHANGE: Return the ACTUAL error message so we can debug
-    return NextResponse.json({ error: `DB Error: ${error.message}` }, { status: 500 });
-  } finally {
-    if (client) client.release();
+    return NextResponse.json({ error: `System Error: ${error.message}` }, { status: 500 });
   }
 }
