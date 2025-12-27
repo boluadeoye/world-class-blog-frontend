@@ -84,7 +84,7 @@ function CourseCard({ course }) {
   );
 }
 
-/* === MAIN DASHBOARD COMPONENT === */
+/* === MAIN DASHBOARD === */
 export default function StudentDashboard() {
   const router = useRouter();
   const [student, setStudent] = useState(null);
@@ -94,10 +94,9 @@ export default function StudentDashboard() {
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [showLogout, setShowLogout] = useState(false);
-  const [greeting, setGreeting] = useState("Good Day");
+  const [greeting, setGreeting] = useState("GOOD DAY");
   const [avatarUrl, setAvatarUrl] = useState("");
 
-  // Accordion States
   const [gstExpanded, setGstExpanded] = useState(true);
   const [othersExpanded, setOthersExpanded] = useState(false);
 
@@ -113,8 +112,9 @@ export default function StudentDashboard() {
     const parsed = JSON.parse(stored);
     setStudent(parsed);
 
+    // CORPORATE AVATAR LOGIC (Notionists Style)
     const seed = parsed.name.replace(/\s/g, '');
-    setAvatarUrl(`https://api.dicebear.com/7.x/micah/svg?seed=${seed}&backgroundColor=b6e3f4`);
+    setAvatarUrl(`https://api.dicebear.com/9.x/notionists/svg?seed=${seed}&backgroundColor=b6e3f4,c0aede,d1d4f9`);
 
     async function fetchData() {
       try {
@@ -171,12 +171,13 @@ export default function StudentDashboard() {
       <header className="bg-[#004d00] text-white pt-8 pb-16 px-6 rounded-b-[40px] shadow-2xl relative z-10">
         <div className="flex justify-between items-center mb-8">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-[#006400] rounded-2xl flex items-center justify-center border-2 border-white/20 shadow-lg overflow-hidden relative">
+            {/* SMART CORPORATE AVATAR */}
+            <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center border-2 border-white/20 shadow-lg overflow-hidden relative">
               {avatarUrl && <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />}
               {isPremium && <div className="absolute top-0 right-0 bg-yellow-400 p-1 rounded-bl-lg shadow-sm"><Crown size={10} className="text-black" fill="currentColor" /></div>}
             </div>
             <div>
-              <p className="text-green-200 text-[10px] font-bold uppercase tracking-widest mb-1">{greeting}</p>
+              <p className="text-green-200 text-[10px] font-black uppercase tracking-widest mb-1">{greeting}</p>
               <h1 className="text-xl font-black leading-none truncate w-40">{student.name.split(" ")[0]}</h1>
             </div>
           </div>
@@ -218,7 +219,7 @@ export default function StudentDashboard() {
                 <div key={i} className="min-w-[180px] bg-gray-50 rounded-2xl p-5 border border-gray-100 flex flex-col items-center text-center relative">
                   {i === 0 && <div className="absolute -top-2 -right-2 bg-yellow-400 text-white p-1 rounded-full shadow-sm"><Crown size={12} fill="currentColor" /></div>}
                   <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-black text-sm mb-3 overflow-hidden border-2 ${i === 0 ? 'border-yellow-400' : 'border-gray-100'}`}>
-                    <img src={`https://api.dicebear.com/7.x/micah/svg?seed=${user.name.replace(/\s/g, '')}&backgroundColor=transparent`} alt={user.name} className="w-full h-full object-cover" />
+                    <img src={`https://api.dicebear.com/9.x/notionists/svg?seed=${user.name.replace(/\s/g, '')}&backgroundColor=transparent`} alt={user.name} className="w-full h-full object-cover" />
                   </div>
                   <h3 className="font-black text-xs text-gray-900 truncate w-full mb-1 uppercase tracking-tighter">{user.name}</h3>
                   <div className="flex items-center gap-1 text-[8px] text-blue-600 font-black uppercase mb-3 bg-blue-50 px-2 py-0.5 rounded">
