@@ -7,7 +7,7 @@ export async function POST(req) {
   try {
     const { email, password } = await req.json();
     
-    // Neon HTTP Query - Fast, Stateless, No Connection Leaks
+    // HTTP Query - Instant & Stateless
     const users = await sql`SELECT * FROM cbt_students WHERE email = ${email}`;
     
     if (users.length === 0) {
@@ -22,7 +22,6 @@ export async function POST(req) {
 
     const sessionToken = crypto.randomBytes(32).toString('hex');
     
-    // Update Token & Last Login
     await sql`
       UPDATE cbt_students 
       SET session_token = ${sessionToken}, last_login = NOW() 
@@ -42,8 +41,6 @@ export async function POST(req) {
 
   } catch (error) {
     console.error("Login API Error:", error.message);
-    return NextResponse.json({ 
-      error: "The database is warming up. Please try again in 3 seconds." 
-    }, { status: 500 });
+    return NextResponse.json({ error: "Database warming up. Please try again in 5 seconds." }, { status: 500 });
   }
 }
