@@ -1,18 +1,20 @@
-import pool from '../../../../lib/db'; // Fixed: 4 levels up
+import pool from '../../../../lib/db';
+import { NextResponse } from 'next/server';
 
 export async function POST(req) {
   try {
-    const { student_id, course_id, score, total } = await req.json();
+    const { studentId, courseId, score, total, answers } = await req.json();
     const client = await pool.connect();
-    
+
     await client.query(
-      'INSERT INTO cbt_results (student_id, course_id, score, total_questions) VALUES ($1, $2, $3, $4)',
-      [student_id, course_id, score, total]
+      'INSERT INTO cbt_results (student_id, course_id, score, total, answers) VALUES ($1, $2, $3, $4, $5)',
+      [studentId, courseId, score, total, JSON.stringify(answers)]
     );
-    
+
     client.release();
-    return new Response(JSON.stringify({ success: true }), { status: 200 });
+    return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {
-    return new Response(error.message, { status: 500 });
+    console.error("Save Error:", error);
+    return NextResponse.json({ error: "Failed to save result" }, { status: 500 });
   }
 }

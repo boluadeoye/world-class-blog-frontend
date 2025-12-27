@@ -2,8 +2,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { 
-  LogOut, User, Trophy, BookOpen, Play, Award, 
-  ChevronDown, Info, Crown, Clock, ChevronRight, AlertTriangle, Settings, Lock 
+  LogOut, Trophy, BookOpen, Play, Award, 
+  ChevronDown, Info, Crown, Clock, ChevronRight, AlertTriangle, Layers 
 } from "lucide-react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -32,39 +32,6 @@ function LogoutModal({ isOpen, onConfirm, onCancel }) {
   );
 }
 
-/* === EXAM SETUP MODAL === */
-function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
-  const [duration, setDuration] = useState(course.duration || 15);
-  return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden">
-        <div className="bg-[#004d00] p-6 text-white">
-          <h3 className="font-black text-sm uppercase tracking-widest flex items-center gap-2"><Settings size={16} /> Configure Session</h3>
-          <p className="text-green-200 text-xs mt-1">{course.code}: {course.title}</p>
-        </div>
-        <div className="p-6">
-          <div className="mb-6">
-            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Select Duration</label>
-            <div className="grid grid-cols-4 gap-2">
-              {[15, 30, 45, 60].map((time) => (
-                <button key={time} disabled={!isPremium && time !== (course.duration || 15)} onClick={() => setDuration(time)} className={`py-3 rounded-xl text-xs font-bold border-2 transition-all relative overflow-hidden ${duration === time ? 'border-green-600 bg-green-50 text-green-900' : 'border-gray-100 text-gray-400'}`}>
-                  {time}m
-                  {!isPremium && time !== (course.duration || 15) && <div className="absolute inset-0 bg-gray-100/50 flex items-center justify-center"><Lock size={12} className="text-gray-400" /></div>}
-                </button>
-              ))}
-            </div>
-            {!isPremium && <div onClick={onUpgrade} className="mt-3 flex items-center gap-2 text-[10px] text-yellow-600 bg-yellow-50 p-2 rounded-lg cursor-pointer hover:bg-yellow-100"><Crown size={12} /> <span className="font-bold">Upgrade to customize time</span></div>}
-          </div>
-          <div className="flex gap-3">
-            <button onClick={onClose} className="flex-1 py-4 border-2 border-gray-100 rounded-xl text-xs font-black text-gray-400 uppercase tracking-widest">Cancel</button>
-            <button onClick={() => onStart(duration)} className="flex-[2] py-4 bg-green-900 text-white rounded-xl text-xs font-black shadow-xl hover:bg-green-800 uppercase tracking-widest flex items-center justify-center gap-2">Start Exam <Play size={14} fill="currentColor" /></button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 /* === DISCLAIMER ACCORDION === */
 function DisclaimerCard() {
   const [isOpen, setIsOpen] = useState(true);
@@ -73,10 +40,14 @@ function DisclaimerCard() {
       <button onClick={() => setIsOpen(!isOpen)} className="w-full flex items-center justify-between p-6 text-left">
         <div className="flex items-center gap-4">
           <div className="bg-orange-100 w-10 h-10 flex items-center justify-center rounded-full text-orange-600"><Info size={20} /></div>
-          <div><h3 className="font-black text-sm text-[#5A3A29] uppercase tracking-wide">Important Disclaimer</h3><p className="text-[10px] text-orange-400 font-bold">Read before starting</p></div>
+          <div>
+            <h3 className="font-black text-sm text-[#5A3A29] uppercase tracking-wide">Important Disclaimer</h3>
+            <p className="text-[10px] text-orange-400 font-bold">Read before starting</p>
+          </div>
         </div>
         <ChevronDown size={20} className={`text-orange-300 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
+      
       {isOpen && (
         <div className="px-6 pb-8 text-xs text-[#8B5E3C] leading-relaxed">
           <p className="mb-3 font-bold text-[#5A3A29]">Strict Warning:</p>
@@ -84,9 +55,30 @@ function DisclaimerCard() {
             <li>The purpose of this mock examination is <strong>NOT</strong> to expose likely questions.</li>
             <li>The aim is to <strong>simulate the environment</strong> and prepare you psychologically for the real exam.</li>
             <li>Use this tool to practice <strong>time management</strong> and pressure handling.</li>
+            <li>Success here does not guarantee success in the main exam, but it builds the necessary resilience.</li>
           </ul>
         </div>
       )}
+    </div>
+  );
+}
+
+/* === COURSE CARD COMPONENT === */
+function CourseCard({ course, router }) {
+  return (
+    <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center group active:scale-[0.98] transition-transform">
+      <div className="flex items-center gap-4">
+        <div className={`w-12 h-12 rounded-xl flex items-center justify-center font-black text-sm border ${course.code.startsWith('GST') ? 'bg-green-50 text-[#004d00] border-green-100' : 'bg-gray-50 text-gray-700 border-gray-200'}`}>
+          {course.code.slice(0,3)}
+        </div>
+        <div>
+          <h3 className="font-black text-gray-900 text-sm">{course.code}</h3>
+          <p className="text-[10px] text-gray-500 font-medium uppercase tracking-wide">{course.title}</p>
+        </div>
+      </div>
+      <Link href={`/cbt/exam/${course.id}`} className={`w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-colors ${course.code.startsWith('GST') ? 'bg-[#004d00] text-white hover:bg-green-800' : 'bg-gray-800 text-white hover:bg-black'}`}>
+        <Play size={14} fill="currentColor" />
+      </Link>
     </div>
   );
 }
@@ -102,7 +94,6 @@ export default function StudentDashboard() {
   const [showLogout, setShowLogout] = useState(false);
   const [greeting, setGreeting] = useState("Good Day");
   const [avatarUrl, setAvatarUrl] = useState("");
-  const [setupCourse, setSetupCourse] = useState(null);
 
   useEffect(() => {
     setMounted(true);
@@ -121,15 +112,6 @@ export default function StudentDashboard() {
 
     async function fetchData() {
       try {
-        // 1. SYNC SESSION WITH DATABASE (The Fix)
-        const syncRes = await fetch(`/api/cbt/auth/student-status?id=${parsed.id}`);
-        const syncData = await syncRes.json();
-        if (syncRes.ok) {
-          const updatedStudent = { ...parsed, subscription_status: syncData.status };
-          setStudent(updatedStudent);
-          sessionStorage.setItem("cbt_student", JSON.stringify(updatedStudent));
-        }
-
         const courseRes = await fetch(`/api/cbt/courses?studentId=${parsed.id}`);
         const courseData = await courseRes.json();
         setCourses(Array.isArray(courseData.courses) ? courseData.courses : []);
@@ -151,13 +133,12 @@ export default function StudentDashboard() {
     router.push("/cbt");
   };
 
-  const handleLaunchExam = (duration) => {
-    if (!setupCourse) return;
-    router.push(`/cbt/exam/${setupCourse.id}?duration=${duration}`);
-  };
-
   if (!mounted || !student) return null;
   const isPremium = student.subscription_status === 'premium';
+  
+  // FILTER COURSES
+  const gstCourses = courses.filter(c => c.code.startsWith("GST"));
+  const otherCourses = courses.filter(c => !c.code.startsWith("GST"));
 
   if (loading) return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#004d00] gap-4">
@@ -170,8 +151,8 @@ export default function StudentDashboard() {
     <main className="min-h-screen bg-[#fcfdfc] font-sans text-gray-900 pb-40 relative">
       <LogoutModal isOpen={showLogout} onConfirm={handleLogout} onCancel={() => setShowLogout(false)} />
       {showUpgrade && <UpgradeModal student={student} onClose={() => setShowUpgrade(false)} onSuccess={() => window.location.reload()} />}
-      {setupCourse && <ExamSetupModal course={setupCourse} isPremium={isPremium} onClose={() => setSetupCourse(null)} onStart={handleLaunchExam} onUpgrade={() => { setSetupCourse(null); setShowUpgrade(true); }} />}
       
+      {/* HEADER */}
       <header className="bg-[#004d00] text-white pt-8 pb-16 px-6 rounded-b-[40px] shadow-2xl relative z-10">
         <div className="flex justify-between items-center mb-8">
           <div className="flex items-center gap-4">
@@ -194,23 +175,37 @@ export default function StudentDashboard() {
 
       <div className="px-6 -mt-8 relative z-20 space-y-8">
         <DisclaimerCard />
-        <section>
-          <div className="flex items-center gap-2 mb-4"><BookOpen size={18} className="text-[#004d00]" /><h2 className="font-black text-xs text-gray-500 uppercase tracking-widest">Available Courses</h2></div>
-          <div className="grid gap-4">
-            {courses.map((course) => (
-              <div key={course.id} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center group active:scale-[0.98] transition-transform">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center text-[#004d00] font-black text-sm border border-green-100">{course.code.slice(0,3)}</div>
-                  <div><h3 className="font-black text-gray-900 text-sm">{course.code}</h3><p className="text-[10px] text-gray-500 font-medium uppercase tracking-wide">{course.title}</p></div>
-                </div>
-                <button onClick={() => setSetupCourse(course)} className="bg-black text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg group-hover:bg-[#004d00] transition-colors"><Play size={14} fill="currentColor" /></button>
-              </div>
-            ))}
-          </div>
-        </section>
+
+        {/* === SECTION 1: GENERAL STUDIES (GST) === */}
+        {gstCourses.length > 0 && (
+          <section>
+            <div className="flex items-center gap-2 mb-4">
+              <BookOpen size={18} className="text-[#004d00]" />
+              <h2 className="font-black text-xs text-gray-500 uppercase tracking-widest">General Studies</h2>
+            </div>
+            <div className="grid gap-4">
+              {gstCourses.map((course) => <CourseCard key={course.id} course={course} router={router} />)}
+            </div>
+          </section>
+        )}
+
+        {/* === SECTION 2: DEPARTMENTAL & OTHERS === */}
+        {otherCourses.length > 0 && (
+          <section>
+            <div className="flex items-center gap-2 mb-4">
+              <Layers size={18} className="text-gray-600" />
+              <h2 className="font-black text-xs text-gray-500 uppercase tracking-widest">Departmental Courses</h2>
+            </div>
+            <div className="grid gap-4">
+              {otherCourses.map((course) => <CourseCard key={course.id} course={course} router={router} />)}
+            </div>
+          </section>
+        )}
+
+        {/* === LEADERBOARD === */}
         <section>
           <div className="flex items-center gap-2 mb-4"><Trophy size={18} className="text-yellow-600" /><h2 className="font-black text-xs text-gray-500 uppercase tracking-widest">Top Performers</h2></div>
-          {leaders.length > 0 && (
+          {leaders.length > 0 ? (
             <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-4 overflow-x-auto flex gap-4 custom-scrollbar">
               {leaders.map((user, i) => (
                 <div key={i} className="min-w-[140px] bg-gray-50 rounded-2xl p-4 border border-gray-100 flex flex-col items-center text-center relative">
@@ -222,10 +217,21 @@ export default function StudentDashboard() {
                 </div>
               ))}
             </div>
+          ) : (
+            <div className="text-center py-8 bg-gray-50 rounded-2xl border border-gray-100"><p className="text-gray-400 text-xs font-medium">Leaderboard updating...</p></div>
           )}
         </section>
       </div>
-      <div className="fixed bottom-6 left-6 right-6 z-50"><div className="bg-white/90 backdrop-blur-xl border border-white/40 shadow-[0_10px_40px_rgba(0,0,0,0.1)] rounded-[2rem] p-4 flex items-center gap-4"><div className="w-10 h-10 bg-[#004d00] rounded-full flex items-center justify-center text-white shadow-md shrink-0"><Award size={18} /></div><div className="flex-1 min-w-0"><p className="text-[8px] font-black text-gray-400 uppercase tracking-[0.2em] mb-0.5">Engineered By</p><h4 className="font-black text-xs text-gray-900 truncate">BOLU ADEOYE</h4><p className="text-[9px] text-[#004d00] font-bold truncate opacity-80">Dept. of English & Literary Studies</p></div><div className="h-8 w-[1px] bg-gray-200 mx-1"></div><div className="text-right shrink-0"><p className="text-[8px] font-black text-gray-300 uppercase tracking-widest">FUOYE</p><p className="text-[10px] font-black text-gray-900">2026</p></div></div></div>
+
+      {/* === FOOTER === */}
+      <div className="fixed bottom-6 left-6 right-6 z-50">
+        <div className="bg-white/90 backdrop-blur-xl border border-white/40 shadow-[0_10px_40px_rgba(0,0,0,0.1)] rounded-[2rem] p-4 flex items-center gap-4">
+          <div className="w-10 h-10 bg-[#004d00] rounded-full flex items-center justify-center text-white shadow-md shrink-0"><Award size={18} /></div>
+          <div className="flex-1 min-w-0"><p className="text-[8px] font-black text-gray-400 uppercase tracking-[0.2em] mb-0.5">Engineered By</p><h4 className="font-black text-xs text-gray-900 truncate">BOLU ADEOYE</h4><p className="text-[9px] text-[#004d00] font-bold truncate opacity-80">Dept. of English & Literary Studies</p></div>
+          <div className="h-8 w-[1px] bg-gray-200 mx-1"></div>
+          <div className="text-right shrink-0"><p className="text-[8px] font-black text-gray-300 uppercase tracking-widest">FUOYE</p><p className="text-[10px] font-black text-gray-900">2026</p></div>
+        </div>
+      </div>
     </main>
   );
 }
