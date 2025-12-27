@@ -24,3 +24,25 @@ export async function POST(req) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
+export async function DELETE(req) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get('id');
+
+    if (!id) return NextResponse.json({ error: "Missing Course ID" }, { status: 400 });
+
+    // NUCLEAR CASCADE: Delete everything linked to this course ID
+    // 1. Delete Questions
+    await sql`DELETE FROM cbt_questions WHERE course_id = ${id}`;
+    // 2. Delete Results
+    await sql`DELETE FROM cbt_results WHERE course_id = ${id}`;
+    // 3. Delete the Course itself
+    await sql`DELETE FROM cbt_courses WHERE id = ${id}`;
+
+    return NextResponse.json({ success: true, message: "Course and all associated data wiped." });
+  } catch (error) {
+    console.error("Delete Error:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
