@@ -23,19 +23,36 @@ function TimeUpOverlay() {
   );
 }
 
-/* === 2. SUBMIT MODAL === */
-function SubmitModal({ isOpen, onConfirm, onCancel }) {
+/* === 2. DETAILED SUBMIT MODAL === */
+function SubmitModal({ isOpen, onConfirm, onCancel, answeredCount, totalCount }) {
   if (!isOpen) return null;
+  const pendingCount = totalCount - answeredCount;
+  
   return (
-    <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/90 backdrop-blur-sm p-6">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-sm w-full overflow-hidden border border-green-100">
-        <div className="bg-green-50 p-6 flex flex-col items-center text-center">
-          <CheckCircle size={40} className="text-green-600 mb-2" />
-          <h3 className="font-black text-xl text-green-900 uppercase">Finalize?</h3>
+    <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/90 backdrop-blur-sm p-6 animate-in fade-in duration-200">
+      <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-sm w-full overflow-hidden border border-green-100">
+        <div className="bg-green-50 p-8 flex flex-col items-center text-center border-b border-green-100">
+          <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mb-4 shadow-sm border border-green-100">
+            <CheckCircle size={32} className="text-green-600" />
+          </div>
+          <h3 className="font-black text-2xl text-green-900 uppercase tracking-tighter">Final Audit</h3>
+          
+          <div className="mt-4 w-full space-y-2">
+            <div className="flex justify-between items-center bg-white/50 p-3 rounded-xl border border-green-100">
+              <span className="text-[10px] font-black text-gray-400 uppercase">Answered</span>
+              <span className="text-sm font-black text-green-700">{answeredCount} / {totalCount}</span>
+            </div>
+            {pendingCount > 0 && (
+              <div className="flex justify-between items-center bg-red-50 p-3 rounded-xl border border-red-100">
+                <span className="text-[10px] font-black text-red-400 uppercase">Pending</span>
+                <span className="text-sm font-black text-red-600">{pendingCount} Left</span>
+              </div>
+            )}
+          </div>
         </div>
-        <div className="p-4 bg-white flex gap-3">
-          <button onClick={onCancel} className="flex-1 py-3 border-2 border-gray-100 rounded-xl text-xs font-black text-gray-400 uppercase">Review</button>
-          <button onClick={onConfirm} className="flex-[1.5] py-3 bg-[#004d00] text-white rounded-xl text-xs font-black shadow-lg uppercase">Submit</button>
+        <div className="p-6 bg-white flex gap-4">
+          <button onClick={onCancel} className="flex-1 py-4 border-2 border-gray-100 rounded-2xl text-xs font-black text-gray-400 hover:bg-gray-50 uppercase tracking-widest transition-all">Review</button>
+          <button onClick={onConfirm} className="flex-[1.5] py-4 bg-[#004d00] text-white rounded-2xl text-xs font-black shadow-xl hover:bg-green-900 transition-all active:scale-95 uppercase tracking-widest">Submit Now</button>
         </div>
       </div>
     </div>
@@ -169,7 +186,7 @@ function ExamContent() {
 
   if (!mounted) return null;
   if (showUpgrade) return <div className="min-h-screen flex items-center justify-center bg-white"><UpgradeModal student={student} onClose={() => router.push('/cbt/dashboard')} onSuccess={() => window.location.reload()} /></div>;
-  if (loading) return <div className="min-h-screen flex items-center justify-center bg-white text-green-900 font-black text-sm tracking-widest animate-pulse">INITIALIZING...</div>;
+  if (loading) return <div className="min-h-screen flex items-center justify-center bg-white text-green-900 font-black text-sm tracking-widest animate-pulse">INITIALIZING TERMINAL...</div>;
   if (error) return <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6 text-center text-red-600 font-bold gap-4"><p>{error}</p><button onClick={() => window.location.reload()} className="bg-black text-white px-6 py-2 rounded text-xs">RETRY</button></div>;
 
   if (isSubmitted) {
@@ -179,7 +196,7 @@ function ExamContent() {
         <header className="bg-[#002b00] text-white pt-6 pb-12 px-6 rounded-b-[2.5rem] shadow-2xl relative overflow-hidden">
           <div className="relative z-10 flex justify-between items-start mb-6">
             <div><div className="text-[10px] font-bold text-green-400 uppercase tracking-widest mb-1">Session Closed</div><h1 className="font-black text-xl tracking-tight">{course?.code}</h1></div>
-            <button onClick={() => router.push('/cbt/dashboard')} className="bg-white/10 border border-white/10 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase">Exit</button>
+            <button onClick={() => router.push('/cbt/dashboard')} className="bg-white/10 border border-white/20 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase">Exit</button>
           </div>
           <div className="relative z-10 flex flex-col items-center">
             <div className={`text-6xl font-black tracking-tighter ${percentage >= 50 ? 'text-white' : 'text-red-400'}`}>{percentage}%</div>
@@ -221,7 +238,7 @@ function ExamContent() {
                   {!analysis ? (
                     <div className="text-center py-10">
                       <BrainCircuit size={40} className="mx-auto text-purple-600 mb-4 animate-pulse" />
-                      <button onClick={generateAnalysis} disabled={analyzing} className="bg-purple-900 text-white px-8 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest">{analyzing ? "Computing..." : "Run Diagnostics"}</button>
+                      <button onClick={generateAnalysis} disabled={analyzing} className="bg-purple-900 text-white px-10 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest">{analyzing ? "Computing..." : "Run Diagnostics"}</button>
                     </div>
                   ) : <div className="prose prose-sm max-w-none text-gray-700"><ReactMarkdown>{analysis}</ReactMarkdown></div>}
                 </div>
@@ -235,14 +252,22 @@ function ExamContent() {
 
   const currentQ = questions[currentQIndex];
   const safeId = student?.id ? String(student.id) : "0000";
+  const answeredCount = Object.keys(answers).length;
+
   if (!currentQ) return <div className="h-screen flex items-center justify-center bg-white font-bold text-xs tracking-widest text-green-900">SYNCING...</div>;
 
   return (
     <main className="h-screen flex flex-col bg-[#f8fafc] font-sans overflow-hidden select-none">
       {isTimeUp && <TimeUpOverlay />}
-      <SubmitModal isOpen={showSubmitModal} onConfirm={submitExam} onCancel={() => setShowSubmitModal(false)} />
+      <SubmitModal 
+        isOpen={showSubmitModal} 
+        onConfirm={submitExam} 
+        onCancel={() => setShowSubmitModal(false)} 
+        answeredCount={answeredCount}
+        totalCount={questions.length}
+      />
       
-      {/* HEADER: COMPACT & VISIBLE */}
+      {/* HEADER */}
       <header className="h-14 bg-[#004d00] text-white flex justify-between items-center px-4 shrink-0 z-[160] border-b border-green-800">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-[#004d00] font-black text-sm shadow-inner">{student?.name?.charAt(0).toUpperCase()}</div>
@@ -263,30 +288,30 @@ function ExamContent() {
 
       {/* CONTENT AREA: NO SCROLL */}
       <div className="flex-1 flex flex-col p-3 overflow-hidden relative">
-        <div className="flex-1 bg-white rounded-3xl shadow-xl shadow-green-900/5 border border-gray-100 p-4 flex flex-col justify-between relative overflow-hidden">
+        <div className="flex-1 bg-white rounded-3xl shadow-xl shadow-green-900/5 border border-gray-100 p-5 flex flex-col justify-between relative overflow-hidden">
           
           {/* Question Header */}
-          <div className="flex justify-between items-center mb-2 shrink-0">
+          <div className="flex justify-between items-center mb-4 shrink-0">
             <span className="font-black text-green-900 text-[9px] tracking-[0.2em] uppercase bg-green-50 px-2 py-1 rounded-lg border border-green-100">Q {String(currentQIndex + 1).padStart(2, '0')} / {questions.length}</span>
             <span className="text-[9px] font-black text-gray-300 uppercase tracking-widest">2.0 Marks</span>
           </div>
           
-          {/* Question Text: Scrollable only if text is massive */}
-          <div className="flex-1 flex items-center justify-center py-2 overflow-y-auto custom-scrollbar">
-            <h2 className="text-sm md:text-lg font-bold text-gray-900 leading-snug text-center px-2">
+          {/* Question Text: LEFT ALIGNED & FLEX-1 */}
+          <div className="flex-1 flex flex-col justify-center py-4 overflow-y-auto custom-scrollbar">
+            <h2 className="text-base md:text-xl font-bold text-gray-900 leading-relaxed text-left px-1">
               {currentQ.question_text}
             </h2>
           </div>
 
-          {/* Options Grid: Tighter & Visible */}
-          <div className="grid grid-cols-1 gap-2 mt-2 shrink-0">
+          {/* Options Grid: NUDGED UP (Reduced margin) */}
+          <div className="grid grid-cols-1 gap-2.5 mt-2 shrink-0">
             {['A','B','C','D'].map((opt) => (
               <button 
                 key={opt} 
                 onClick={() => handleSelect(opt)} 
-                className={`group p-3 rounded-2xl border-2 text-left transition-all flex items-center gap-3 active:scale-[0.98] ${answers[currentQ.id] === opt ? 'border-green-600 bg-green-50' : 'border-gray-100 bg-white'}`}
+                className={`group p-4 rounded-2xl border-2 text-left transition-all flex items-center gap-4 active:scale-[0.98] ${answers[currentQ.id] === opt ? 'border-green-600 bg-green-50 shadow-sm' : 'border-gray-100 bg-white'}`}
               >
-                <span className={`shrink-0 w-7 h-7 rounded-xl flex items-center justify-center font-black text-xs border transition-colors ${answers[currentQ.id] === opt ? 'bg-green-600 text-white border-green-600' : 'bg-gray-50 text-gray-400 border-gray-200'}`}>
+                <span className={`shrink-0 w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs border transition-colors ${answers[currentQ.id] === opt ? 'bg-green-600 text-white border-green-600' : 'bg-gray-50 text-gray-400 border-gray-200 group-hover:bg-white'}`}>
                   {opt}
                 </span>
                 <span className={`font-bold text-xs leading-tight ${answers[currentQ.id] === opt ? 'text-green-900' : 'text-gray-600'}`}>
@@ -298,7 +323,7 @@ function ExamContent() {
         </div>
       </div>
 
-      {/* FOOTER: FIXED & COMPACT */}
+      {/* FOOTER */}
       <footer className="h-16 bg-white border-t border-gray-100 flex justify-between items-center px-6 shrink-0">
         <button 
           onClick={() => navigateTo(Math.max(0, currentQIndex - 1))} 
@@ -324,7 +349,7 @@ function ExamContent() {
         </button>
       </footer>
 
-      {/* MATRIX DRAWER: SLIDE UP (50% HEIGHT) */}
+      {/* MATRIX DRAWER */}
       <aside className={`fixed inset-x-0 bottom-0 z-[200] bg-white rounded-t-[2.5rem] shadow-[0_-20px_50px_rgba(0,0,0,0.1)] transition-transform duration-300 border-t border-gray-100 ${showMap ? 'translate-y-0' : 'translate-y-full'} h-[60vh] flex flex-col`}>
         <div className="p-6 bg-gray-50 border-b border-gray-100 flex justify-between items-center shrink-0 rounded-t-[2.5rem]">
           <span className="font-black text-xs uppercase tracking-widest text-gray-700 flex items-center gap-2"><Grid size={16} /> Question Matrix</span>
