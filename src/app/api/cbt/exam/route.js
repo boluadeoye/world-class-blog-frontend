@@ -11,9 +11,9 @@ export async function GET(req) {
 
   if (!courseId) return NextResponse.json({ error: "Missing Course ID" }, { status: 400 });
 
-  try {
-    const client = await pool.connect();
+  const client = await pool.connect(); // OPEN CONNECTION
 
+  try {
     let isPremium = false;
     let attempts = 0;
 
@@ -28,8 +28,7 @@ export async function GET(req) {
         
         // KILL SWITCH
         if (student.session_token !== token) {
-          client.release();
-          return NextResponse.json({ error: "Session Terminated. Logged in on another device." }, { status: 401 });
+          return NextResponse.json({ error: "Session Terminated." }, { status: 401 });
         }
 
         // CHECK PREMIUM
@@ -37,7 +36,7 @@ export async function GET(req) {
         const expiresAt = new Date(student.premium_expires_at);
         isPremium = student.subscription_status === 'premium' && expiresAt > now;
 
-        // COUNT ATTEMPTS (Using String Comparison)
+        // COUNT ATTEMPTS
         try {
             const historyRes = await client.query(
                 'SELECT COUNT(*) FROM cbt_results WHERE student_id = $1 AND course_id = $2',
@@ -52,9 +51,8 @@ export async function GET(req) {
 
     // FREEMIUM BLOCKADE
     if (!isPremium && attempts >= 2) {
-      client.release();
       return NextResponse.json({ 
-        error: "Free Limit Reached. You have used your 2 free attempts. Upgrade to Premium." 
+        error: "Free Limit Reached. Upgrade to Premium." 
       }, { status: 403 });
     }
 
@@ -65,8 +63,6 @@ export async function GET(req) {
       'SELECT * FROM cbt_questions WHERE course_id = $1 ORDER BY RANDOM() LIMIT $2', 
       [courseId, limit]
     );
-
-    client.release();
 
     // DATA SANITIZATION
     const sanitizedQuestions = questionsRes.rows.map(q => {
@@ -84,6 +80,9 @@ export async function GET(req) {
     }, { status: 200 });
 
   } catch (error) {
+    console.error("Exam API Error:", error);
     return NextResponse.json({ error: "System Error" }, { status: 500 });
+  } finally {
+    client.release(); // CRITICAL: ALWAYS RELEASE CONNECTION
   }
 }

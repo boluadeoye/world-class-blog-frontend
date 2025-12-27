@@ -4,14 +4,14 @@ import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 
 export async function POST(req) {
+  const client = await pool.connect(); // OPEN CONNECTION
+
   try {
     const { email, password } = await req.json();
-    const client = await pool.connect();
     
     // 1. Find Student
     const res = await client.query('SELECT * FROM cbt_students WHERE email = $1', [email]);
     if (res.rows.length === 0) {
-      client.release();
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
     const student = res.rows[0];
@@ -19,11 +19,10 @@ export async function POST(req) {
     // 2. Verify Password
     const valid = await bcrypt.compare(password, student.password);
     if (!valid) {
-      client.release();
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
-    // 3. ATOMIC SECURITY: Generate New Session Token
+    // 3. ATOMIC SECURITY
     const sessionToken = crypto.randomBytes(32).toString('hex');
     
     await client.query(
@@ -31,9 +30,6 @@ export async function POST(req) {
       [sessionToken, student.id]
     );
     
-    client.release();
-
-    // 4. Return Student Data + Token
     return NextResponse.json({
       success: true,
       student: {
@@ -47,5 +43,7 @@ export async function POST(req) {
 
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
+  } finally {
+    client.release(); // CRITICAL: ALWAYS RELEASE CONNECTION
   }
 }

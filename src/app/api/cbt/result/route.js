@@ -2,18 +2,15 @@ import pool from '../../../../lib/db';
 import { NextResponse } from 'next/server';
 
 export async function POST(req) {
+  const client = await pool.connect(); // OPEN CONNECTION
+
   try {
     const body = await req.json();
     const { studentId, courseId, score, total, answers } = body;
 
-    // Debug Log (Check Vercel Logs if this fails)
-    console.log("Saving Result:", { studentId, courseId, score });
-
     if (!studentId || !courseId) {
       return NextResponse.json({ error: "Missing ID" }, { status: 400 });
     }
-
-    const client = await pool.connect();
 
     // Save as String (Safe Mode)
     await client.query(
@@ -21,10 +18,12 @@ export async function POST(req) {
       [String(studentId), String(courseId), score, total, JSON.stringify(answers)]
     );
 
-    client.release();
     return NextResponse.json({ success: true }, { status: 200 });
+
   } catch (error) {
     console.error("Save Result Error:", error);
     return NextResponse.json({ error: "Failed to save result" }, { status: 500 });
+  } finally {
+    client.release(); // CRITICAL: ALWAYS RELEASE CONNECTION
   }
 }
