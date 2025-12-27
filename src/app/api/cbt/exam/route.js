@@ -14,7 +14,6 @@ export async function GET(req) {
   try {
     const client = await pool.connect();
 
-    // 1. AUTHENTICATION & SECURITY
     let isPremium = false;
     let attempts = 0;
 
@@ -38,32 +37,29 @@ export async function GET(req) {
         const expiresAt = new Date(student.premium_expires_at);
         isPremium = student.subscription_status === 'premium' && expiresAt > now;
 
-        // COUNT PAST ATTEMPTS (Strict Enforcement)
-        // We assume you have a 'cbt_results' table. If not, this check returns 0 and allows access (safe fail).
+        // COUNT ATTEMPTS (Using String Comparison)
         try {
             const historyRes = await client.query(
                 'SELECT COUNT(*) FROM cbt_results WHERE student_id = $1 AND course_id = $2',
-                [studentId, courseId]
+                [String(studentId), String(courseId)]
             );
             attempts = parseInt(historyRes.rows[0].count);
         } catch (err) {
-            // Table might not exist yet, allow pass for now
-            console.warn("Could not check attempts history:", err.message);
+            console.warn("History check failed:", err);
         }
       }
     }
 
-    // 2. THE FREEMIUM BLOCKADE
+    // FREEMIUM BLOCKADE
     if (!isPremium && attempts >= 2) {
       client.release();
       return NextResponse.json({ 
-        error: "Free Limit Reached. You have used your 2 free attempts for this course. Upgrade to Premium for unlimited access." 
+        error: "Free Limit Reached. You have used your 2 free attempts. Upgrade to Premium." 
       }, { status: 403 });
     }
 
-    // 3. FETCH CONTENT
-    const limit = isPremium ? 100 : 30; // Taste vs Feast
-
+    // FETCH CONTENT
+    const limit = isPremium ? 100 : 30;
     const courseRes = await client.query('SELECT * FROM cbt_courses WHERE id = $1', [courseId]);
     const questionsRes = await client.query(
       'SELECT * FROM cbt_questions WHERE course_id = $1 ORDER BY RANDOM() LIMIT $2', 
@@ -72,10 +68,10 @@ export async function GET(req) {
 
     client.release();
 
-    // 4. DATA SANITIZATION
+    // DATA SANITIZATION
     const sanitizedQuestions = questionsRes.rows.map(q => {
       if (!isPremium) {
-        const { explanation, ...safeQuestion } = q; // Strip intel
+        const { explanation, ...safeQuestion } = q;
         return safeQuestion;
       }
       return q;
@@ -88,7 +84,6 @@ export async function GET(req) {
     }, { status: 200 });
 
   } catch (error) {
-    console.error("Exam API Error:", error);
     return NextResponse.json({ error: "System Error" }, { status: 500 });
   }
 }

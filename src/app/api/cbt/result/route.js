@@ -6,19 +6,19 @@ export async function POST(req) {
     const body = await req.json();
     const { studentId, courseId, score, total, answers } = body;
 
+    // Debug Log (Check Vercel Logs if this fails)
+    console.log("Saving Result:", { studentId, courseId, score });
+
     if (!studentId || !courseId) {
       return NextResponse.json({ error: "Missing ID" }, { status: 400 });
     }
 
     const client = await pool.connect();
 
-    // Force IDs to Integers to match standard DB schemas
-    const sId = parseInt(studentId);
-    const cId = parseInt(courseId);
-
+    // Save as String (Safe Mode)
     await client.query(
       'INSERT INTO cbt_results (student_id, course_id, score, total, answers) VALUES ($1, $2, $3, $4, $5)',
-      [sId, cId, score, total, JSON.stringify(answers)]
+      [String(studentId), String(courseId), score, total, JSON.stringify(answers)]
     );
 
     client.release();
