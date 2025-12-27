@@ -7,21 +7,22 @@ import ReactMarkdown from "react-markdown";
 
 const UpgradeModal = dynamic(() => import("../../../../components/cbt/UpgradeModal"), { ssr: false });
 
-function ConfirmModal({ isOpen, title, message, onConfirm, onCancel, type = "warning" }) {
+/* === PREMIUM SUBMIT MODAL === */
+function SubmitModal({ isOpen, onConfirm, onCancel }) {
   if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-xs w-full overflow-hidden">
-        <div className={`p-4 flex items-center gap-3 ${type === 'danger' ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-800'}`}>
-          {type === 'danger' ? <AlertOctagon size={20} /> : <CheckCircle size={20} />}
-          <h3 className="font-black text-sm uppercase tracking-wide">{title}</h3>
-        </div>
-        <div className="p-6">
-          <p className="text-gray-600 text-xs font-bold mb-6 leading-relaxed">{message}</p>
-          <div className="flex gap-3">
-            <button onClick={onCancel} className="flex-1 py-3 border-2 border-gray-100 rounded-xl text-xs font-black text-gray-400 hover:bg-gray-50">CANCEL</button>
-            <button onClick={onConfirm} className={`flex-1 py-3 rounded-xl text-xs font-black text-white shadow-lg ${type === 'danger' ? 'bg-red-600' : 'bg-green-800'}`}>CONFIRM</button>
+    <div className="fixed inset-0 z-[300] flex items-center justify-center bg-[#001a00]/90 backdrop-blur-md p-6">
+      <div className="bg-white rounded-3xl shadow-2xl max-w-sm w-full overflow-hidden border border-green-100">
+        <div className="bg-green-50 p-8 flex flex-col items-center text-center">
+          <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mb-4 shadow-sm border border-green-100">
+            <CheckCircle size={40} className="text-green-600" />
           </div>
+          <h3 className="font-black text-2xl text-green-900 uppercase tracking-tighter">Finalize?</h3>
+          <p className="text-green-700/70 text-sm font-medium mt-2">Ensure you have reviewed all questions. This action is permanent.</p>
+        </div>
+        <div className="p-6 bg-white flex gap-4">
+          <button onClick={onCancel} className="flex-1 py-4 border-2 border-gray-100 rounded-2xl text-xs font-black text-gray-400 hover:bg-gray-50 uppercase tracking-widest transition-all">Review</button>
+          <button onClick={onConfirm} className="flex-[1.5] py-4 bg-[#004d00] text-white rounded-2xl text-xs font-black shadow-xl hover:bg-green-900 transition-all active:scale-95 uppercase tracking-widest">Submit Exam</button>
         </div>
       </div>
     </div>
@@ -47,7 +48,7 @@ function ExamContent() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [score, setScore] = useState(0);
   const [showMap, setShowMap] = useState(false);
-  const [modalConfig, setModalConfig] = useState({ show: false });
+  const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [activeTab, setActiveTab] = useState("corrections");
   const [analysis, setAnalysis] = useState(null);
   const [analyzing, setAnalyzing] = useState(false);
@@ -68,25 +69,13 @@ function ExamContent() {
           studentId: parsedStudent.id,
           token: parsedStudent.session_token || ""
         });
-        
         const res = await fetch(`/api/cbt/exam?${query.toString()}`);
-        
-        // DEFENSIVE CHECK: Ensure response is JSON
-        const contentType = res.headers.get("content-type");
-        if (!contentType || !contentType.includes("application/json")) {
-          throw new Error("Server returned an invalid response. Please try again.");
+        if (!res.ok) {
+            if (res.status === 401) { alert("Session Expired."); router.push("/cbt"); return; }
+            if (res.status === 403) { setShowUpgrade(true); setLoading(false); return; }
+            throw new Error("Failed to load exam data.");
         }
-
         const data = await res.json();
-
-        if (res.status === 401) { 
-          alert(data.error || "Session Expired.");
-          router.push("/cbt"); 
-          return; 
-        }
-        if (res.status === 403) { setShowUpgrade(true); setLoading(false); return; }
-        if (!res.ok) throw new Error(data.error || "Failed to load");
-
         setCourse(data.course);
         setQuestions(data.questions || []);
         setIsPremium(data.isPremium);
@@ -102,21 +91,19 @@ function ExamContent() {
           const finalDuration = (data.isPremium && requestedDuration) ? parseInt(requestedDuration) : (data.course?.duration || 15);
           setTimeLeft(finalDuration * 60);
         }
-      } catch (e) { 
-        setError(e.message); 
-      } finally { 
-        setLoading(false); 
-      }
+      } catch (e) { setError(e.message); } finally { setLoading(false); }
     }
     loadExam();
   }, [params.id, router, getStorageKey, searchParams]);
 
   const submitExam = useCallback(async () => {
-    setIsSubmitted(true);
     let correctCount = 0;
     questions.forEach(q => { if (answers[q.id] === q.correct_option) correctCount++; });
     setScore(correctCount);
-    
+    setIsSubmitted(true);
+    setShowSubmitModal(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
     if (student && course) {
         try {
             await fetch('/api/cbt/result', {
@@ -133,8 +120,6 @@ function ExamContent() {
         } catch(e) { console.error("Save failed", e); }
         localStorage.removeItem(getStorageKey(student.email));
     }
-    setModalConfig({ show: false });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [questions, answers, student, course, getStorageKey]);
 
   useEffect(() => {
@@ -154,7 +139,6 @@ function ExamContent() {
     return () => clearInterval(interval);
   }, [loading, isSubmitted, error, timeLeft, showUpgrade, mounted, answers, currentQIndex, student, getStorageKey, submitExam]);
 
-  const confirmSubmit = () => setModalConfig({ show: true, title: "FINISH EXAM?", message: "You are about to submit your answers.", onConfirm: submitExam, onCancel: () => setModalConfig({ show: false }) });
   const handleSelect = (option) => { if (!isSubmitted) setAnswers(prev => ({ ...prev, [questions[currentQIndex].id]: option })); };
   const formatTime = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
   const navigateTo = (index) => { setCurrentQIndex(index); setShowMap(false); };
@@ -175,15 +159,15 @@ function ExamContent() {
   };
 
   const getGridColor = (index, qId) => {
-    if (currentQIndex === index) return "bg-green-800 text-white border-green-900 ring-2 ring-green-300";
+    if (currentQIndex === index) return "bg-[#004d00] text-white border-[#004d00] ring-2 ring-green-200";
     if (answers[qId]) return "bg-green-100 text-green-800 border-green-200";
     return "bg-white text-gray-400 border-gray-200";
   };
 
   if (!mounted) return null;
   if (showUpgrade) return <div className="min-h-screen flex items-center justify-center bg-white"><UpgradeModal student={student} onClose={() => router.push('/cbt/dashboard')} onSuccess={() => window.location.reload()} /></div>;
-  if (loading) return <div className="min-h-screen flex items-center justify-center bg-white text-green-900 font-black text-sm tracking-widest animate-pulse">LOADING ENGINE...</div>;
-  if (error) return <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6 text-center text-red-600 font-bold gap-4"><p>{error}</p><button onClick={() => window.location.reload()} className="bg-black text-white px-6 py-2 rounded text-xs">RETRY CONNECTION</button></div>;
+  if (loading) return <div className="min-h-screen flex items-center justify-center bg-white text-green-900 font-black text-sm tracking-widest animate-pulse">INITIALIZING TERMINAL...</div>;
+  if (error) return <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6 text-center text-red-600 font-bold gap-4"><p>{error}</p><button onClick={() => window.location.reload()} className="bg-black text-white px-6 py-2 rounded text-xs">RETRY</button></div>;
 
   if (isSubmitted) {
     const percentage = Math.round((score / questions.length) * 100);
@@ -249,32 +233,34 @@ function ExamContent() {
   if (!currentQ) return <div className="h-screen flex items-center justify-center bg-white font-bold text-xs tracking-widest text-green-900">SYNCING...</div>;
 
   return (
-    <main className="fixed inset-0 bg-gray-100 flex flex-col font-sans h-screen overflow-hidden z-[150]">
-      <ConfirmModal isOpen={modalConfig.show} title={modalConfig.title} message={modalConfig.message} type={modalConfig.type} onConfirm={modalConfig.action} onCancel={() => setModalConfig({ ...modalConfig, show: false })} />
-      <header className="bg-[#004d00] text-white h-16 flex justify-between items-center shadow-2xl shrink-0 z-[160] px-4 border-b-4 border-green-600">
+    <main className="fixed inset-0 bg-gray-50 flex flex-col font-sans h-screen overflow-hidden z-[150]">
+      <SubmitModal isOpen={showSubmitModal} onConfirm={submitExam} onCancel={() => setShowSubmitModal(false)} />
+      
+      <header className="bg-[#004d00] text-white h-16 flex justify-between items-center shadow-lg shrink-0 z-[160] px-6 border-b border-green-800">
         <div className="flex items-center gap-4">
-          <div className="w-10 h-10 bg-white rounded-none flex items-center justify-center text-[#004d00] font-black text-lg shadow-inner border border-green-800">{student?.name?.charAt(0).toUpperCase()}</div>
-          <div className="hidden sm:block leading-tight"><h1 className="font-black text-xs uppercase tracking-widest">{student?.name}</h1><div className="flex items-center gap-2 text-[10px] font-mono opacity-80"><span>ID: {safeId.slice(0,8)}</span><span className="text-green-400">●</span><span>{course?.code}</span></div></div>
-          <button onClick={() => setShowMap(!showMap)} className="sm:hidden flex items-center gap-2 bg-white/10 px-3 py-1.5 border border-white/20 text-xs font-black uppercase tracking-widest"><Grid size={14} /> Map</button>
+          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-[#004d00] font-black text-lg shadow-md border-2 border-green-200">{student?.name?.charAt(0).toUpperCase()}</div>
+          <div className="hidden sm:block leading-tight"><h1 className="font-black text-xs uppercase tracking-widest text-green-100">{student?.name}</h1><div className="flex items-center gap-2 text-[10px] font-mono opacity-80"><span>ID: {safeId.slice(0,8)}</span><span className="text-green-400">●</span><span>{course?.code}</span></div></div>
+          <button onClick={() => setShowMap(!showMap)} className="sm:hidden flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-full border border-white/20 text-[10px] font-black uppercase tracking-widest hover:bg-white/20 transition-colors"><Grid size={14} /> Map</button>
         </div>
         <div className="flex items-center gap-6">
-          <div className={`flex items-center gap-2 bg-black/40 px-4 py-1.5 border border-green-800 ${timeLeft < 300 ? 'animate-pulse bg-red-900/50 border-red-500' : ''}`}><span className="text-green-500 font-black text-xs">TIME:</span><span className={`font-mono font-black text-xl tracking-widest ${timeLeft < 300 ? "text-red-500" : "text-white"}`}>{formatTime(timeLeft || 0)}</span></div>
-          <button onClick={confirmSubmit} className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 text-xs font-black uppercase tracking-widest shadow-lg transition-all hover:scale-105 border-b-4 border-red-900 active:border-b-0 active:translate-y-1">Submit</button>
+          <div className={`flex items-center gap-2 bg-black/30 px-4 py-1.5 rounded-full border border-white/10 ${timeLeft < 300 ? 'animate-pulse bg-red-900/50 border-red-500' : ''}`}><Clock size={14} className={timeLeft < 300 ? "text-red-500" : "text-green-400"} /><span className={`font-mono font-black text-lg tracking-widest ${timeLeft < 300 ? "text-red-500" : "text-white"}`}>{formatTime(timeLeft || 0)}</span></div>
+          <button onClick={() => setShowSubmitModal(true)} className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg transition-all hover:scale-105 active:scale-95">Submit</button>
         </div>
       </header>
+
       <div className="flex-1 flex overflow-hidden relative">
-        <div className="flex-1 flex flex-col bg-[#f0f2f5] relative z-10">
+        <div className="flex-1 flex flex-col bg-gray-50 relative z-10">
           <div className="flex-1 overflow-y-auto p-4 md:p-8 pb-32 custom-scrollbar">
-            <div className="max-w-4xl mx-auto">
-              <div className="bg-white shadow-sm border-t-4 border-[#004d00] p-6 md:p-10 mb-6 relative">
-                <div className="absolute top-0 right-0 bg-gray-100 px-3 py-1 text-[10px] font-black text-gray-400 uppercase tracking-widest">Single Choice</div>
-                <div className="flex justify-between items-center mb-8 border-b border-gray-100 pb-4"><span className="font-black text-[#004d00] text-xs tracking-[0.2em] uppercase bg-green-50 px-3 py-1 border border-green-100">Question {String(currentQIndex + 1).padStart(2, '0')} / {questions.length}</span></div>
-                <h2 className="text-xl md:text-2xl font-bold text-gray-900 leading-relaxed mb-10 select-none font-sans">{currentQ.question_text}</h2>
+            <div className="max-w-3xl mx-auto">
+              <div className="bg-white rounded-3xl shadow-sm border border-gray-200 p-6 md:p-10 mb-6 relative">
+                <div className="absolute top-0 right-0 bg-green-50 text-green-800 px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-bl-2xl border-b border-l border-green-100">2.0 Marks</div>
+                <div className="flex justify-between items-center mb-8 border-b border-gray-100 pb-4"><span className="font-black text-green-900 text-xs tracking-[0.2em] uppercase bg-green-50 px-3 py-1 rounded-lg border border-green-100">Question {String(currentQIndex + 1).padStart(2, '0')} / {questions.length}</span></div>
+                <h2 className="text-lg md:text-2xl font-bold text-gray-900 leading-relaxed mb-10 select-none font-sans">{currentQ.question_text}</h2>
                 <div className="grid gap-4 md:grid-cols-2">
                   {['A','B','C','D'].map((opt) => (
-                    <button key={opt} onClick={() => handleSelect(opt)} className={`group relative p-5 border-2 text-left transition-all duration-150 flex items-start gap-4 hover:shadow-md active:scale-[0.99] ${answers[currentQ.id] === opt ? 'border-[#004d00] bg-green-50' : 'border-gray-200 bg-white hover:border-green-300'}`}>
-                      <span className={`shrink-0 w-8 h-8 flex items-center justify-center font-black text-sm border transition-colors ${answers[currentQ.id] === opt ? 'bg-[#004d00] text-white border-[#004d00]' : 'bg-gray-100 text-gray-500 border-gray-300 group-hover:bg-white'}`}>{opt}</span>
-                      <span className={`font-medium text-base mt-1 ${answers[currentQ.id] === opt ? 'text-[#004d00] font-bold' : 'text-gray-700'}`}>{currentQ[`option_${opt.toLowerCase()}`]}</span>
+                    <button key={opt} onClick={() => handleSelect(opt)} className={`group relative p-5 rounded-2xl border-2 text-left transition-all duration-150 flex items-start gap-4 hover:shadow-md active:scale-[0.99] ${answers[currentQ.id] === opt ? 'border-green-600 bg-green-50 ring-1 ring-green-600' : 'border-gray-200 bg-white hover:border-green-300'}`}>
+                      <span className={`shrink-0 w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm border transition-colors ${answers[currentQ.id] === opt ? 'bg-green-600 text-white border-green-600' : 'bg-gray-100 text-gray-500 border-gray-300 group-hover:bg-white'}`}>{opt}</span>
+                      <span className={`font-medium text-sm md:text-base mt-1 ${answers[currentQ.id] === opt ? 'text-green-900 font-bold' : 'text-gray-700'}`}>{currentQ[`option_${opt.toLowerCase()}`]}</span>
                     </button>
                   ))}
                 </div>
@@ -282,14 +268,14 @@ function ExamContent() {
             </div>
           </div>
           <div className="fixed bottom-0 left-0 right-0 md:relative bg-white border-t border-gray-200 p-4 flex justify-between items-center shrink-0 z-[170] md:pr-80 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
-            <button onClick={() => navigateTo(Math.max(0, currentQIndex - 1))} disabled={currentQIndex === 0} className="flex items-center gap-2 px-6 py-3 font-black text-gray-400 hover:text-[#004d00] disabled:opacity-30 disabled:hover:text-gray-400 transition-colors uppercase tracking-widest text-xs">[ PREV ]</button>
-            <button onClick={() => navigateTo(Math.min(questions.length - 1, currentQIndex + 1))} disabled={currentQIndex === questions.length - 1} className="flex items-center gap-2 px-8 py-3 font-black uppercase tracking-widest text-xs transition-all shadow-lg border-b-4 active:border-b-0 active:translate-y-1 bg-[#004d00] text-white border-green-900 hover:bg-green-900">[ NEXT ]</button>
+            <button onClick={() => navigateTo(Math.max(0, currentQIndex - 1))} disabled={currentQIndex === 0} className="flex items-center gap-2 px-6 py-3 font-black text-gray-400 hover:text-green-900 hover:bg-gray-50 disabled:opacity-30 disabled:hover:bg-transparent transition-colors uppercase tracking-widest text-xs"><ChevronLeft size={16} /> Previous</button>
+            <button onClick={() => navigateTo(Math.min(questions.length - 1, currentQIndex + 1))} disabled={currentQIndex === questions.length - 1} className="flex items-center gap-2 px-8 py-3 rounded-xl font-black uppercase tracking-widest text-xs transition-all shadow-lg bg-[#004d00] text-white hover:bg-green-900 active:scale-95">Next <ChevronRight size={16} /></button>
           </div>
         </div>
         <aside className={`absolute inset-0 z-[180] bg-white flex flex-col transition-transform duration-300 md:relative md:translate-x-0 md:w-80 md:border-l border-gray-200 shadow-2xl md:shadow-none ${showMap ? 'translate-x-0' : 'translate-x-full'}`}>
-          <div className="p-4 bg-[#004d00] text-white font-black text-xs uppercase flex justify-between items-center shrink-0 tracking-widest"><span className="flex items-center gap-2"><Grid size={14} /> Matrix</span><button onClick={() => setShowMap(false)} className="md:hidden p-1 hover:bg-white/20 rounded"><X size={18}/></button></div>
-          <div className="flex-1 overflow-y-auto p-4 custom-scrollbar bg-gray-50"><div className="grid grid-cols-5 gap-2">{questions.map((q, i) => (<button key={q.id} onClick={() => navigateTo(i)} className={`h-10 w-full text-xs font-black transition-all border ${getGridColor(i, q.id)}`}>{i + 1}</button>))}</div></div>
-          <div className="p-4 bg-white border-t border-gray-200"><div className="grid grid-cols-2 gap-3 text-[10px] font-bold text-gray-500 uppercase tracking-wider"><div className="flex items-center gap-2"><div className="w-3 h-3 bg-green-100 border border-green-300"></div> Answered</div><div className="flex items-center gap-2"><div className="w-3 h-3 bg-[#004d00]"></div> Active</div><div className="flex items-center gap-2"><div className="w-3 h-3 bg-white border border-gray-300"></div> Pending</div></div></div>
+          <div className="p-5 bg-gray-50 border-b border-gray-200 font-black text-gray-700 text-xs uppercase flex justify-between items-center shrink-0 tracking-widest"><span className="flex items-center gap-2"><Grid size={14} /> Question Matrix</span><button onClick={() => setShowMap(false)} className="md:hidden p-2 bg-white rounded-xl shadow-sm hover:bg-gray-100"><X size={18}/></button></div>
+          <div className="flex-1 overflow-y-auto p-5 custom-scrollbar"><div className="grid grid-cols-5 gap-3">{questions.map((q, i) => (<button key={q.id} onClick={() => navigateTo(i)} className={`h-10 rounded-lg text-xs font-black transition-all border-2 ${getGridColor(i, q.id)}`}>{i + 1}</button>))}</div></div>
+          <div className="p-5 bg-gray-50 border-t border-gray-200 grid grid-cols-2 gap-3 text-[10px] font-bold uppercase text-gray-500"><div className="flex items-center gap-2"><div className="w-3 h-3 bg-green-600 rounded-full"></div> Answered</div><div className="flex items-center gap-2"><div className="w-3 h-3 bg-white border-2 border-gray-300 rounded-full"></div> Pending</div></div>
         </aside>
       </div>
     </main>
