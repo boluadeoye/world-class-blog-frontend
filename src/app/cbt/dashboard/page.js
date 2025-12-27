@@ -11,13 +11,16 @@ import dynamic from "next/dynamic";
 
 const UpgradeModal = dynamic(() => import("../../../components/cbt/UpgradeModal"), { ssr: false });
 
+/* === 1. LOGOUT MODAL === */
 function LogoutModal({ isOpen, onConfirm, onCancel }) {
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
       <div className="bg-white rounded-2xl shadow-2xl max-w-xs w-full overflow-hidden border-t-4 border-red-600">
         <div className="p-6 text-center">
-          <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4"><LogOut size={32} className="text-red-600" /></div>
+          <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+            <LogOut size={32} className="text-red-600" />
+          </div>
           <h3 className="font-black text-lg uppercase text-gray-900 mb-2">Disconnect?</h3>
           <p className="text-gray-500 text-xs font-medium mb-6">You are about to terminate your session.</p>
           <div className="flex gap-3">
@@ -30,21 +33,58 @@ function LogoutModal({ isOpen, onConfirm, onCancel }) {
   );
 }
 
+/* === 2. DISCLAIMER ACCORDION === */
+function DisclaimerCard() {
+  const [isOpen, setIsOpen] = useState(true);
+  return (
+    <div className="bg-[#FFF8F0] border border-orange-100 rounded-3xl overflow-hidden mb-8 shadow-sm">
+      <button onClick={() => setIsOpen(!isOpen)} className="w-full flex items-center justify-between p-6 text-left">
+        <div className="flex items-center gap-4">
+          <div className="bg-orange-100 w-10 h-10 flex items-center justify-center rounded-full text-orange-600"><Info size={20} /></div>
+          <div>
+            <h3 className="font-black text-sm text-[#5A3A29] uppercase tracking-wide">Important Disclaimer</h3>
+            <p className="text-[10px] text-orange-400 font-bold">Read before starting</p>
+          </div>
+        </div>
+        <ChevronDown size={20} className={`text-orange-300 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+      </button>
+      
+      {isOpen && (
+        <div className="px-6 pb-8 text-xs text-[#8B5E3C] leading-relaxed">
+          <p className="mb-3 font-bold text-[#5A3A29]">Strict Warning:</p>
+          <ul className="list-disc pl-4 space-y-2 font-medium">
+            <li>The purpose of this mock examination is <strong>NOT</strong> to expose likely questions.</li>
+            <li>The aim is to <strong>simulate the environment</strong> and prepare you psychologically for the real exam.</li>
+            <li>Use this tool to practice <strong>time management</strong> and pressure handling.</li>
+            <li>Success here does not guarantee success in the main exam, but it builds the necessary resilience.</li>
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* === 3. COURSE CARD === */
 function CourseCard({ course }) {
   return (
     <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center group active:scale-[0.98] transition-transform mb-3">
       <div className="flex items-center gap-4">
-        <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-xs border ${course.code.toUpperCase().startsWith('GST') ? 'bg-green-50 text-[#004d00] border-green-100' : 'bg-blue-50 text-blue-700 border-blue-100'}`}>{course.code.slice(0,3)}</div>
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-xs border ${course.code.toUpperCase().startsWith('GST') ? 'bg-green-50 text-[#004d00] border-green-100' : 'bg-blue-50 text-blue-700 border-blue-100'}`}>
+          {course.code.slice(0,3)}
+        </div>
         <div>
           <h3 className="font-black text-gray-900 text-xs uppercase">{course.code}</h3>
           <p className="text-[10px] text-gray-500 font-medium truncate w-40">{course.title}</p>
         </div>
       </div>
-      <Link href={`/cbt/exam/${course.id}`} className="w-9 h-9 bg-gray-900 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-[#004d00] transition-colors"><Play size={12} fill="currentColor" /></Link>
+      <Link href={`/cbt/exam/${course.id}`} className="w-9 h-9 bg-gray-900 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-[#004d00] transition-colors">
+        <Play size={12} fill="currentColor" />
+      </Link>
     </div>
   );
 }
 
+/* === MAIN DASHBOARD COMPONENT === */
 export default function StudentDashboard() {
   const router = useRouter();
   const [student, setStudent] = useState(null);
@@ -56,6 +96,8 @@ export default function StudentDashboard() {
   const [showLogout, setShowLogout] = useState(false);
   const [greeting, setGreeting] = useState("Good Day");
   const [avatarUrl, setAvatarUrl] = useState("");
+
+  // Accordion States
   const [gstExpanded, setGstExpanded] = useState(true);
   const [othersExpanded, setOthersExpanded] = useState(false);
 
@@ -168,24 +210,20 @@ export default function StudentDashboard() {
           {othersExpanded && <div className="p-4 animate-in fade-in slide-in-from-top-2">{otherCourses.length > 0 ? otherCourses.map(c => <CourseCard key={c.id} course={c} />) : <p className="text-center text-[10px] text-gray-400 py-4 font-bold uppercase">No departmental courses loaded</p>}</div>}
         </section>
 
-        {/* === LEADERBOARD (WITH DEPARTMENTS) === */}
         <section>
           <div className="flex items-center gap-2 mb-4"><Trophy size={18} className="text-yellow-600" /><h2 className="font-black text-xs text-gray-500 uppercase tracking-widest">Top Performers</h2></div>
           {leaders.length > 0 ? (
             <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-4 overflow-x-auto flex gap-4 custom-scrollbar">
               {leaders.map((user, i) => (
                 <div key={i} className="min-w-[180px] bg-gray-50 rounded-2xl p-5 border border-gray-100 flex flex-col items-center text-center relative">
-                  {i === 0 && <div className="absolute -top-2 -right-2 bg-yellow-400 text-white p-1.5 rounded-full shadow-sm"><Crown size={12} fill="currentColor" /></div>}
+                  {i === 0 && <div className="absolute -top-2 -right-2 bg-yellow-400 text-white p-1 rounded-full shadow-sm"><Crown size={12} fill="currentColor" /></div>}
                   <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-black text-sm mb-3 overflow-hidden border-2 ${i === 0 ? 'border-yellow-400' : 'border-gray-100'}`}>
                     <img src={`https://api.dicebear.com/7.x/micah/svg?seed=${user.name.replace(/\s/g, '')}&backgroundColor=transparent`} alt={user.name} className="w-full h-full object-cover" />
                   </div>
                   <h3 className="font-black text-xs text-gray-900 truncate w-full mb-1 uppercase tracking-tighter">{user.name}</h3>
-                  
-                  {/* DEPARTMENT DISPLAY */}
                   <div className="flex items-center gap-1 text-[8px] text-blue-600 font-black uppercase mb-3 bg-blue-50 px-2 py-0.5 rounded">
                     <Building2 size={10} /> {user.department || "General"}
                   </div>
-                  
                   <div className="bg-[#004d00] text-white px-4 py-1 rounded-full text-[10px] font-black shadow-md">{user.score}%</div>
                   <p className="text-[8px] text-gray-400 mt-2 font-bold uppercase">{user.course_code}</p>
                 </div>
@@ -206,7 +244,10 @@ export default function StudentDashboard() {
             <p className="text-[9px] text-[#004d00] font-bold truncate opacity-80">In conjunction with Abel Kings Educational Center</p>
           </div>
           <div className="h-8 w-[1px] bg-gray-200 mx-1"></div>
-          <div className="text-right shrink-0"><p className="text-[8px] font-black text-gray-300 uppercase tracking-widest">FUOYE</p><p className="text-[10px] font-black text-gray-900">2026</p></div>
+          <div className="text-right shrink-0">
+            <p className="text-[8px] font-black text-gray-300 uppercase tracking-widest">FUOYE</p>
+            <p className="text-[10px] font-black text-gray-900">2026</p>
+          </div>
         </div>
       </div>
     </main>
