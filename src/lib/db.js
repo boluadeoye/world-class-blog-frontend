@@ -1,20 +1,21 @@
 import { Pool } from 'pg';
 
-let pool;
-
 if (!global.postgresPool) {
+  console.log("Initializing New Global Postgres Pool...");
   global.postgresPool = new Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: {
       rejectUnauthorized: false
     },
-    // CRITICAL SERVERLESS SETTINGS
-    max: 1, // Force 1 connection per lambda to prevent exhaustion
-    idleTimeoutMillis: 5000, // Close immediately if not used
-    connectionTimeoutMillis: 5000, // Fail fast
+    // Optimized for Serverless + Neon Free Tier
+    max: 6, 
+    connectionTimeoutMillis: 30000, // 30 seconds (Wait for DB to wake up)
+    idleTimeoutMillis: 15000,       // Close idle connections after 15s
+  });
+
+  global.postgresPool.on('error', (err) => {
+    console.error('Unexpected error on idle database client', err);
   });
 }
 
-pool = global.postgresPool;
-
-export default pool;
+export default global.postgresPool;
