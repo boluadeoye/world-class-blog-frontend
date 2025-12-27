@@ -1,13 +1,14 @@
-import pool from '../../../../../lib/db';
+import pool from '@/lib/db'; // Using Absolute Import
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 
 export async function POST(req) {
-  const client = await pool.connect(); // OPEN CONNECTION
-
+  let client;
   try {
     const { email, password } = await req.json();
+    
+    client = await pool.connect();
     
     // 1. Find Student
     const res = await client.query('SELECT * FROM cbt_students WHERE email = $1', [email]);
@@ -22,9 +23,10 @@ export async function POST(req) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
-    // 3. ATOMIC SECURITY
+    // 3. ATOMIC SECURITY: Generate New Session Token
     const sessionToken = crypto.randomBytes(32).toString('hex');
     
+    // Update Last Login & Token
     await client.query(
       'UPDATE cbt_students SET session_token = $1, last_login = NOW() WHERE id = $2',
       [sessionToken, student.id]
@@ -42,8 +44,9 @@ export async function POST(req) {
     }, { status: 200 });
 
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("Login Error:", error);
+    return NextResponse.json({ error: "Database Connection Failed. Please try again." }, { status: 500 });
   } finally {
-    client.release(); // CRITICAL: ALWAYS RELEASE CONNECTION
+    if (client) client.release(); // CRITICAL: RELEASE THE CONNECTION
   }
 }

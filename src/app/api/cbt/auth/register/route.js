@@ -1,9 +1,10 @@
-import pool from '../../../../../lib/db';
+import pool from '@/lib/db'; // Using Absolute Import
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 
 export async function POST(req) {
+  let client;
   try {
     const { name, email, password, department, level } = await req.json();
 
@@ -11,12 +12,11 @@ export async function POST(req) {
       return NextResponse.json({ error: "All fields are required" }, { status: 400 });
     }
 
-    const client = await pool.connect();
+    client = await pool.connect();
 
     // 1. Check Email
     const check = await client.query('SELECT id FROM cbt_students WHERE email = $1', [email]);
     if (check.rows.length > 0) {
-      client.release();
       return NextResponse.json({ error: "Email already registered" }, { status: 400 });
     }
 
@@ -27,13 +27,11 @@ export async function POST(req) {
     // 3. Insert
     const res = await client.query(
       `INSERT INTO cbt_students 
-       (name, email, password, department, level, session_token, subscription_status, created_at) 
-       VALUES ($1, $2, $3, $4, $5, $6, 'free', NOW()) 
+       (name, email, password, department, level, session_token, subscription_status, created_at, last_login) 
+       VALUES ($1, $2, $3, $4, $5, $6, 'free', NOW(), NOW()) 
        RETURNING id, name, email, subscription_status`,
       [name, email, hashedPassword, department, level || '100', sessionToken]
     );
-
-    client.release();
 
     const student = res.rows[0];
     student.session_token = sessionToken;
@@ -42,6 +40,8 @@ export async function POST(req) {
 
   } catch (error) {
     console.error("Register Error:", error);
-    return NextResponse.json({ error: "Registration failed. Please try again." }, { status: 500 });
+    return NextResponse.json({ error: "Registration failed." }, { status: 500 });
+  } finally {
+    if (client) client.release();
   }
 }

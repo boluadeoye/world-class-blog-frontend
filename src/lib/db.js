@@ -8,7 +8,7 @@ if (!global.postgresPool) {
     ssl: {
       rejectUnauthorized: false // Required for Neon/AWS
     },
-    max: 10, // Limit connections to prevent crashing
+    max: 10, // Strict limit to prevent exhaustion
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 5000,
   });
