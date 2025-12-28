@@ -1,69 +1,31 @@
 import { NextResponse } from 'next/server';
-
 export async function POST(req) {
   try {
     const { studentName, courseCode, score, total, failedQuestions } = await req.json();
-    const firstName = studentName.split(' ')[0];
-
+    const firstName = studentName ? studentName.split(' ')[0] : "Student";
     if (!failedQuestions || failedQuestions.length === 0) {
-      return NextResponse.json({ analysis: `### Absolute Mastery Achieved\n\nCongratulations, **${firstName}**. Your performance in **${courseCode}** is flawless. You have demonstrated a 100% cognitive alignment with the course objectives. No corrective measures are required.` });
+      return NextResponse.json({ analysis: `### Flawless Execution, ${firstName}\n\nYou have achieved absolute mastery in **${courseCode}**. Your cognitive alignment with the subject matter is perfect. No further intervention is required.` });
     }
-
-    const prompt = `
-    SYSTEM ROLE: Senior Academic Strategist.
-    TASK: Provide a direct, second-person diagnostic briefing for ${firstName}.
-    
-    CONTEXT:
-    - Course: ${courseCode}
-    - Performance: ${score}/${total}
-    - Data: ${JSON.stringify(failedQuestions)}
-    
-    STRICT INSTRUCTIONS:
-    - Speak DIRECTLY to the student using "You", "Your", and "${firstName}".
-    - Tone: Authoritative, encouraging, and direct.
-    
-    STRICT MARKDOWN STRUCTURE:
-    # EXECUTIVE SUMMARY
-    [A 2-sentence direct assessment of ${firstName}'s standing. e.g., "${firstName}, you have shown..."]
-
-    # COGNITIVE DIAGNOSTICS
-    [Identify the *nature* of their errors. Use sophisticated academic language but address them directly.]
-
-    # YOUR CRITICAL KNOWLEDGE GAPS
-    - **Gap 1:** [Description]
-    - **Gap 2:** [Description]
-
-    # YOUR TACTICAL RECOVERY ROADMAP
-    1. **Immediate Action:** [Specific study task]
-    2. **Conceptual Shift:** [How to rethink the topic]
-    3. **Final Polish:** [Preparation tip]
-
-    STYLE: Professional, Classic, Sophisticated. Use bold text for emphasis.
-    `;
-
+    const prompt = `Act as a Senior Academic Strategist. Provide a direct, second-person diagnostic briefing for ${firstName}.
+    Context: Course ${courseCode}, Score ${score}/${total}.
+    Data: ${JSON.stringify(failedQuestions)}
+    Rules:
+    1. Speak DIRECTLY to ${firstName} using "You" and "Your".
+    2. Structure: # EXECUTIVE SUMMARY, # COGNITIVE DIAGNOSTICS, # YOUR KNOWLEDGE GAPS, # YOUR RECOVERY ROADMAP.
+    3. Tone: Professional, strict, but highly encouraging.
+    4. Style: Use Markdown. Bold key terms.`;
     const aiRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
-      headers: {
-        "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
-        "Content-Type": "application/json"
-      },
+      headers: { "Authorization": `Bearer ${process.env.GROQ_API_KEY}`, "Content-Type": "application/json" },
       body: JSON.stringify({
         model: "llama-3.3-70b-versatile",
         messages: [{ role: "user", content: prompt }],
-        temperature: 0.4,
-        max_tokens: 1000
+        temperature: 0.4, max_tokens: 1000
       })
     });
-
     const aiData = await aiRes.json();
-    const content = aiData.choices?.[0]?.message?.content;
-
-    if (!content) throw new Error("AI returned empty content");
-
-    return NextResponse.json({ analysis: content });
-
+    return NextResponse.json({ analysis: aiData.choices?.[0]?.message?.content || "Briefing unavailable." });
   } catch (error) {
-    console.error("AI API Error:", error);
-    return NextResponse.json({ error: "AI Service Failed to generate report." }, { status: 500 });
+    return NextResponse.json({ error: "AI Service Failed" }, { status: 500 });
   }
 }
