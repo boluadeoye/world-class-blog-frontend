@@ -22,7 +22,7 @@ export async function POST(req) {
     [A 2-sentence high-level assessment of the student's current standing.]
 
     # COGNITIVE DIAGNOSTICS
-    [Identify the *nature* of their errors. Are they rushing? Is it a lack of theoretical depth? Use sophisticated academic language.]
+    [Identify the *nature* of their errors. Use sophisticated academic language.]
 
     # CRITICAL KNOWLEDGE GAPS
     - **Gap 1:** [Description]
@@ -51,9 +51,16 @@ export async function POST(req) {
     });
 
     const aiData = await aiRes.json();
-    return NextResponse.json({ analysis: aiData.choices?.[0]?.message?.content });
+    const content = aiData.choices?.[0]?.message?.content;
+
+    if (!content) {
+      throw new Error("AI returned empty content");
+    }
+
+    return NextResponse.json({ analysis: content });
 
   } catch (error) {
-    return NextResponse.json({ error: "AI Service Failed" }, { status: 500 });
+    console.error("AI API Error:", error);
+    return NextResponse.json({ error: "AI Service Failed to generate report." }, { status: 500 });
   }
 }

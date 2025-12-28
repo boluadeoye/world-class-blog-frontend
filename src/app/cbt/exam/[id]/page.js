@@ -4,7 +4,7 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { 
   Grid, CheckCircle, AlertOctagon, X, Crown, Sparkles, 
   BrainCircuit, Clock, ChevronRight, ChevronLeft, ShieldAlert, 
-  Loader2, BookOpen, Target, Zap, FileText, Compass
+  Loader2, BookOpen, Target, Zap, FileText, Lock, ShieldCheck
 } from "lucide-react";
 import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";
@@ -49,7 +49,7 @@ function SubmitModal({ isOpen, onConfirm, onCancel, answeredCount, totalCount })
         </div>
         <div className="p-6 bg-white flex gap-4">
           <button onClick={onCancel} className="flex-1 py-4 border-2 border-gray-100 rounded-2xl text-[10px] font-black text-gray-400 hover:bg-gray-50 uppercase tracking-widest transition-all">Review</button>
-          <button onClick={onConfirm} className={`flex-[1.5] py-4 bg-[#004d00] text-white rounded-2xl text-[10px] font-black shadow-xl hover:bg-green-900 uppercase tracking-widest`}>Submit Now</button>
+          <button onClick={onConfirm} className="flex-[1.5] py-4 bg-[#004d00] text-white rounded-2xl text-[10px] font-black shadow-xl hover:bg-green-900 uppercase tracking-widest">Submit Now</button>
         </div>
       </div>
     </div>
@@ -181,8 +181,9 @@ function ExamContent() {
         body: JSON.stringify({ studentName: student.name, courseCode: course.code, score, total: questions.length, failedQuestions }) 
       });
       const data = await res.json();
+      if (data.error) throw new Error(data.error);
       setAnalysis(data.analysis);
-    } catch (e) { alert("AI Service error."); } finally { setAnalyzing(false); }
+    } catch (e) { alert(e.message || "AI Service error."); } finally { setAnalyzing(false); }
   };
 
   const getGridColor = (index, qId) => {
@@ -194,7 +195,7 @@ function ExamContent() {
   if (!mounted) return null;
   if (showUpgrade) return <div className="min-h-screen flex items-center justify-center bg-white"><UpgradeModal student={student} onClose={() => router.push('/cbt/dashboard')} onSuccess={() => window.location.reload()} /></div>;
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-white text-green-900 font-black text-sm tracking-widest animate-pulse uppercase">Syncing Terminal...</div>;
-  if (error) return <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6 text-center text-red-600 font-bold gap-4"><p>{error}</p><button onClick={() => window.location.reload()} className="bg-black text-white px-6 py-2 rounded text-xs">RETRY</button></div>;
+  if (error) return <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6 text-center text-red-600 font-bold gap-4"><p>{error}</p><button onClick={() => window.location.reload()} className="bg-black text-white px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest">Retry Connection</button></div>;
 
   const marksPerQuestion = questions.length > 0 ? (100 / questions.length).toFixed(1) : 0;
 
@@ -207,7 +208,7 @@ function ExamContent() {
           <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
           <div className="relative z-10 flex justify-between items-start mb-8">
             <div><div className="text-[9px] font-black text-green-400 uppercase tracking-widest mb-1">Session Closed</div><h1 className="font-black text-2xl tracking-tight">{course?.code}</h1></div>
-            <button onClick={() => router.push('/cbt/dashboard')} className="bg-white/10 backdrop-blur-md border border-white/10 px-5 py-2 rounded-full text-[10px] font-bold uppercase hover:bg-white hover:text-[#002b00] transition-colors">Exit</button>
+            <button onClick={() => router.push('/cbt/dashboard')} className="bg-white/10 backdrop-blur-md border border-white/10 px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest">Exit</button>
           </div>
           <div className="relative z-10 flex flex-col items-center">
              <div className="w-32 h-32 flex items-center justify-center relative">
@@ -246,19 +247,34 @@ function ExamContent() {
               ))}
             </div>
           ) : (
-            /* === CLASSIC AI STUDY ROOM === */
-            <div className="bg-white rounded-[2.5rem] shadow-2xl border border-gray-100 overflow-hidden min-h-[600px] relative">
+            /* === PREMIUM VAULT: RESTRICTED INTEL CARD === */
+            <div className="bg-[#0a0a0a] rounded-[2.5rem] shadow-2xl border border-yellow-900/30 overflow-hidden min-h-[500px] relative group">
               {!isPremium ? (
-                <div className="absolute inset-0 z-10 bg-white/95 flex flex-col items-center justify-center text-center p-10">
-                  <div className="w-24 h-24 bg-gradient-to-br from-yellow-300 to-orange-500 rounded-[2rem] flex items-center justify-center mb-8 shadow-xl shadow-orange-200 animate-bounce"><Crown size={48} className="text-white" /></div>
-                  <h3 className="text-2xl font-black text-gray-900 mb-3 tracking-tighter uppercase">Restricted Intel</h3>
-                  <p className="text-gray-500 text-sm mb-10 max-w-xs font-medium leading-relaxed">Unlock your personalized AI Study Plan to bridge your knowledge gaps.</p>
-                  <button onClick={() => setShowUpgrade(true)} className="bg-gray-900 text-white px-12 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-2xl hover:bg-black transition-all">Unlock Study Plan</button>
+                <div className="absolute inset-0 z-10 bg-gradient-to-b from-black via-[#0a0a0a] to-[#1a1a1a] flex flex-col items-center justify-center text-center p-10">
+                  <div className="relative mb-10">
+                    <div className="absolute inset-0 bg-yellow-500 blur-[80px] opacity-20 group-hover:opacity-40 transition-opacity animate-pulse"></div>
+                    <div className="w-28 h-28 bg-gradient-to-br from-yellow-400 via-orange-600 to-yellow-700 rounded-[2.5rem] flex items-center justify-center relative z-10 shadow-[0_0_50px_rgba(234,179,8,0.3)] transform group-hover:scale-110 transition-transform duration-700">
+                      <Lock size={48} className="text-white drop-shadow-2xl" strokeWidth={2.5} />
+                    </div>
+                  </div>
+                  <div className="relative z-10">
+                    <h3 className="text-3xl font-black text-white mb-4 tracking-tighter uppercase italic">Confidential Briefing</h3>
+                    <p className="text-gray-400 text-sm mb-12 max-w-xs font-medium leading-relaxed">
+                      Your cognitive performance data is locked. Access the <span className="text-yellow-500 font-bold">AI Tactical Roadmap</span> to secure your success.
+                    </p>
+                    <button onClick={() => setShowUpgrade(true)} className="bg-yellow-500 text-black px-12 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.3em] shadow-[0_10px_40px_rgba(234,179,8,0.4)] hover:bg-white hover:scale-105 transition-all active:scale-95">
+                      Unlock The Vault
+                    </button>
+                  </div>
+                  {/* Confidential Watermark */}
+                  <div className="absolute bottom-6 left-0 w-full text-center opacity-5 pointer-events-none">
+                    <p className="text-[40px] font-black uppercase tracking-[0.5em] whitespace-nowrap">CLASSIFIED • CLASSIFIED • CLASSIFIED</p>
+                  </div>
                 </div>
               ) : (
                 <div className="p-0">
                   {!analysis ? (
-                    <div className="text-center py-32 px-8">
+                    <div className="text-center py-32 px-8 bg-white">
                       <div className="w-20 h-20 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse"><BrainCircuit size={40} className="text-purple-600" /></div>
                       <h3 className="font-black text-gray-900 text-xs uppercase tracking-widest mb-2">Analyzing Performance</h3>
                       <p className="text-gray-400 text-[10px] mb-8 uppercase tracking-widest">Crafting personalized recovery roadmap...</p>
@@ -266,36 +282,28 @@ function ExamContent() {
                     </div>
                   ) : (
                     <div className="bg-[#fcfcfc] min-h-[600px] animate-in fade-in duration-700">
-                      {/* AI Header */}
                       <div className="bg-purple-900 text-white p-10 pb-20 rounded-b-[3.5rem] shadow-lg relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-20 -mt-20 blur-3xl"></div>
-                        <div className="relative z-10">
+                        <div className="relative z-10 text-left">
                           <div className="flex items-center gap-3 mb-4">
                             <div className="bg-white/20 p-2 rounded-lg backdrop-blur-md"><Sparkles size={20} /></div>
                             <span className="text-[10px] font-black uppercase tracking-[0.3em] text-purple-200">Intelligence Briefing</span>
                           </div>
                           <h3 className="text-3xl font-black uppercase tracking-tighter leading-none">Tactical Brief</h3>
-                          <p className="text-purple-300 text-xs font-bold uppercase tracking-widest mt-3 opacity-80">Personalized Recovery Plan for ${student?.name}</p>
+                          <p className="text-purple-300 text-xs font-bold uppercase tracking-widest mt-3 opacity-80">Personalized Recovery Plan for {student?.name}</p>
                         </div>
                       </div>
 
-                      {/* AI Content - Classic Pacing */}
                       <div className="px-6 -mt-12 pb-20">
-                        <div className="bg-white rounded-[2.5rem] shadow-xl border border-purple-100 p-8 md:p-12">
+                        <div className="bg-white rounded-[2.5rem] shadow-xl border border-purple-100 p-8 md:p-12 text-left">
                           <div className="prose prose-sm max-w-none 
                             prose-headings:font-black prose-headings:uppercase prose-headings:tracking-widest prose-headings:text-gray-900 prose-headings:border-b prose-headings:border-purple-50 prose-headings:pb-4 prose-headings:mt-12 first:prose-headings:mt-0
                             prose-p:text-gray-700 prose-p:leading-[1.8] prose-p:text-base prose-p:mb-8
-                            prose-li:text-gray-700 prose-li:mb-4 prose-strong:text-purple-800 prose-strong:font-black
-                            text-left">
+                            prose-li:text-gray-700 prose-li:mb-4 prose-strong:text-purple-800 prose-strong:font-black">
                              <ReactMarkdown>{analysis}</ReactMarkdown>
                           </div>
-                          
-                          {/* Classic Footer Anchor */}
                           <div className="mt-16 pt-8 border-t border-gray-50 flex items-center justify-between opacity-40">
-                            <div className="flex items-center gap-2">
-                              <BrainCircuit size={14} />
-                              <span className="text-[8px] font-black uppercase tracking-widest">Bolu Adeoye AI Engine</span>
-                            </div>
+                            <div className="flex items-center gap-2"><BrainCircuit size={14} /><span className="text-[8px] font-black uppercase tracking-widest">Bolu Adeoye AI Engine</span></div>
                             <span className="text-[8px] font-black uppercase tracking-widest">Classified Document</span>
                           </div>
                         </div>
@@ -343,31 +351,18 @@ function ExamContent() {
 
       <div className="flex-1 flex flex-col p-4 overflow-hidden relative">
         <div className="flex-1 bg-white rounded-[2.5rem] shadow-2xl shadow-green-900/5 border border-gray-100 p-6 flex flex-col justify-between relative overflow-hidden">
-          
           <div className="flex justify-between items-center mb-4 shrink-0">
             <span className="font-black text-green-900 text-[9px] tracking-[0.2em] uppercase bg-green-50 px-2 py-1 rounded-lg border border-green-100">Q {String(currentQIndex + 1).padStart(2, '0')} / {questions.length}</span>
             <span className="text-[9px] font-black text-gray-300 uppercase tracking-widest">{marksPerQuestion} Marks</span>
           </div>
-          
           <div className="flex-1 flex flex-col justify-center py-4 overflow-y-auto custom-scrollbar pr-2">
-            <h2 className="text-base md:text-xl font-bold text-gray-900 leading-relaxed text-left">
-              {currentQ.question_text}
-            </h2>
+            <h2 className="text-base md:text-xl font-bold text-gray-900 leading-relaxed text-left">{currentQ.question_text}</h2>
           </div>
-
           <div className="grid grid-cols-1 gap-2.5 mt-4 shrink-0">
             {['A','B','C','D'].map((opt) => (
-              <button 
-                key={opt} 
-                onClick={() => handleSelect(opt)} 
-                className={`group p-4 rounded-3xl border-2 text-left transition-all duration-200 flex items-center gap-4 active:scale-[0.98] ${answers[currentQ.id] === opt ? 'border-green-600 bg-green-50 ring-2 ring-green-100' : 'border-gray-100 bg-white'}`}
-              >
-                <span className={`shrink-0 w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs border transition-colors ${answers[currentQ.id] === opt ? 'bg-green-600 text-white border-green-600' : 'bg-gray-50 text-gray-400 border-gray-200 group-hover:bg-white'}`}>
-                  {opt}
-                </span>
-                <span className={`font-bold text-xs leading-tight ${answers[currentQ.id] === opt ? 'text-green-900 font-black' : 'text-gray-600'}`}>
-                  {currentQ[`option_${opt.toLowerCase()}`]}
-                </span>
+              <button key={opt} onClick={() => handleSelect(opt)} className={`group p-4 rounded-3xl border-2 text-left transition-all duration-200 flex items-center gap-4 active:scale-[0.98] ${answers[currentQ.id] === opt ? 'border-green-600 bg-green-50 ring-2 ring-green-100' : 'border-gray-100 bg-white'}`}>
+                <span className={`shrink-0 w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs border transition-colors ${answers[currentQ.id] === opt ? 'bg-green-600 text-white border-green-600' : 'bg-gray-50 text-gray-400 border-gray-200 group-hover:bg-white'}`}>{opt}</span>
+                <span className={`font-bold text-xs leading-tight ${answers[currentQ.id] === opt ? 'text-green-900 font-black' : 'text-gray-600'}`}>{currentQ[`option_${opt.toLowerCase()}`]}</span>
               </button>
             ))}
           </div>
@@ -375,47 +370,15 @@ function ExamContent() {
       </div>
 
       <footer className="h-16 bg-white border-t border-gray-100 flex justify-between items-center px-8 shrink-0">
-        <button 
-          onClick={() => navigateTo(Math.max(0, currentQIndex - 1))} 
-          disabled={currentQIndex === 0} 
-          className="text-[10px] font-black text-gray-400 uppercase tracking-widest disabled:opacity-10 transition-colors hover:text-green-900"
-        >
-          [ PREV ]
-        </button>
-        
-        <button 
-          onClick={() => setShowMap(true)} 
-          className="bg-gray-100 text-gray-700 p-3.5 rounded-[1.2rem] hover:bg-green-50 hover:text-green-900 transition-all active:scale-95"
-        >
-          <Grid size={22} />
-        </button>
-
-        <button 
-          onClick={() => navigateTo(Math.min(questions.length - 1, currentQIndex + 1))} 
-          disabled={currentQIndex === questions.length - 1} 
-          className={`px-10 py-3.5 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all shadow-lg ${currentQIndex === questions.length - 1 ? 'bg-gray-100 text-gray-400 border border-gray-200' : 'bg-[#004d00] text-white hover:bg-green-900 active:scale-95'}`}
-        >
-          Next
-        </button>
+        <button onClick={() => navigateTo(Math.max(0, currentQIndex - 1))} disabled={currentQIndex === 0} className="text-[10px] font-black text-gray-400 uppercase tracking-widest disabled:opacity-10 transition-colors hover:text-green-900">[ PREV ]</button>
+        <button onClick={() => setShowMap(true)} className="bg-gray-100 text-gray-700 p-3.5 rounded-[1.2rem] hover:bg-green-50 hover:text-green-900 transition-all active:scale-95"><Grid size={22} /></button>
+        <button onClick={() => navigateTo(Math.min(questions.length - 1, currentQIndex + 1))} disabled={isLastQ} className={`px-10 py-3.5 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all shadow-lg ${isLastQ ? 'bg-gray-100 text-gray-400 border border-gray-200' : 'bg-[#004d00] text-white hover:bg-green-900 active:scale-95'}`}>Next</button>
       </footer>
 
       <aside className={`fixed inset-x-0 bottom-0 z-[250] bg-white rounded-t-[3rem] shadow-[0_-20px_50px_rgba(0,0,0,0.15)] transition-transform duration-500 border-t border-gray-100 ${showMap ? 'translate-y-0' : 'translate-y-full'} h-[60vh] flex flex-col`}>
-        <div className="p-6 bg-gray-50 border-b border-gray-100 flex justify-between items-center shrink-0 rounded-t-[3rem]">
-          <span className="font-black text-xs uppercase tracking-widest text-gray-700 flex items-center gap-2"><Grid size={16} /> Question Matrix</span>
-          <button onClick={() => setShowMap(false)} className="p-2.5 bg-gray-200 text-gray-600 rounded-2xl hover:bg-gray-300 transition-colors"><X size={20}/></button>
-        </div>
-        <div className="flex-1 overflow-y-auto p-6 custom-scrollbar bg-white">
-          <div className="grid grid-cols-5 gap-3.5">
-            {questions.map((q, i) => (
-              <button key={q.id} onClick={() => navigateTo(i)} className={`h-12 rounded-2xl text-xs font-black transition-all border-2 ${getGridColor(i, q.id)} shadow-sm`}>{i + 1}</button>
-            ))}
-          </div>
-        </div>
-        <div className="p-6 bg-gray-50 border-t border-gray-100 grid grid-cols-3 gap-2 text-[8px] font-black uppercase tracking-tighter text-center">
-           <div className="flex flex-col items-center gap-1.5"><div className="w-8 h-1.5 bg-emerald-600 rounded-full"></div> <span className="text-emerald-900">Secured</span></div>
-           <div className="flex flex-col items-center gap-1.5"><div className="w-8 h-1.5 bg-yellow-400 rounded-full"></div> <span className="text-yellow-700">Active</span></div>
-           <div className="flex flex-col items-center gap-1.5"><div className="w-8 h-1.5 bg-red-50 border border-red-100 rounded-full"></div> <span className="text-red-400">Open</span></div>
-        </div>
+        <div className="p-6 bg-gray-50 border-b border-gray-100 flex justify-between items-center shrink-0 rounded-t-[3rem]"><span className="font-black text-xs uppercase tracking-widest text-gray-700 flex items-center gap-2"><Grid size={16} /> Question Matrix</span><button onClick={() => setShowMap(false)} className="p-2.5 bg-gray-200 text-gray-600 rounded-2xl hover:bg-gray-300 transition-colors"><X size={20}/></button></div>
+        <div className="flex-1 overflow-y-auto p-6 custom-scrollbar bg-white"><div className="grid grid-cols-5 gap-3.5">{questions.map((q, i) => (<button key={q.id} onClick={() => navigateTo(i)} className={`h-12 rounded-2xl text-xs font-black transition-all border-2 ${getGridColor(i, q.id)} shadow-sm`}>{i + 1}</button>))}</div></div>
+        <div className="p-6 bg-gray-50 border-t border-gray-100 grid grid-cols-3 gap-2 text-[8px] font-black uppercase tracking-tighter text-center"><div className="flex flex-col items-center gap-1.5"><div className="w-8 h-1.5 bg-emerald-600 rounded-full"></div> <span className="text-emerald-900">Secured</span></div><div className="flex flex-col items-center gap-1.5"><div className="w-8 h-1.5 bg-yellow-400 rounded-full"></div> <span className="text-yellow-700">Active</span></div><div className="flex flex-col items-center gap-1.5"><div className="w-8 h-1.5 bg-red-50 border border-red-100 rounded-full"></div> <span className="text-red-400">Open</span></div></div>
       </aside>
     </main>
   );
