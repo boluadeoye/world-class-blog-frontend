@@ -8,11 +8,12 @@ export default function UpgradeModal({ student, onClose, onSuccess }) {
   const [verifying, setVerifying] = useState(false);
   const [status, setStatus] = useState(null);
 
+  // LIVE CONFIGURATION: Pointing to Environment Variables
   const config = {
     reference: (new Date()).getTime().toString(),
     email: student.email,
-    amount: 50000,
-    publicKey: "pk_test_1654a27f4eae7ea41981edeb2ec5993c029e361d",
+    amount: 50000, // 500 Naira in kobo
+    publicKey: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY, 
   };
 
   const benefits = [
@@ -48,7 +49,6 @@ export default function UpgradeModal({ student, onClose, onSuccess }) {
       
       <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
         <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-sm w-full overflow-hidden relative border border-white animate-in zoom-in duration-300">
-          {/* FIXED: High-Contrast Close Button */}
           <button onClick={onClose} className="absolute top-6 right-6 p-2 bg-black/10 hover:bg-black/20 text-black rounded-full transition-colors z-20">
             <X size={18} strokeWidth={3} />
           </button>
