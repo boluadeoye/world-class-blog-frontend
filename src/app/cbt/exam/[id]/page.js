@@ -15,7 +15,7 @@ function TimeUpOverlay() {
   return (
     <div className="fixed inset-0 z-[600] bg-[#050505] flex flex-col items-center justify-center text-white p-6 animate-in fade-in duration-500">
       <div className="w-24 h-24 bg-red-600/10 border-2 border-red-600 rounded-full flex items-center justify-center mb-6">
-        <Clock size={48} className="text-red-500 animate-spin" />
+        <Clock size={48} className="text-red-500 animate-spin-slow" />
       </div>
       <h2 className="text-3xl font-black uppercase tracking-[0.2em] mb-2 text-center">Time Expired</h2>
       <p className="text-emerald-500 font-bold text-xs uppercase tracking-widest animate-pulse">Securing Responses...</p>
@@ -141,14 +141,18 @@ function ExamContent() {
     }
   }, [questions, answers, student, course, getStorageKey]);
 
+  const handleAutoSubmit = useCallback(() => {
+    setIsTimeUp(true);
+    setTimeout(() => { submitExam(); }, 3000);
+  }, [submitExam]);
+
   useEffect(() => {
     if (!mounted || loading || isSubmitted || error || timeLeft === null || showUpgrade || isTimeUp) return;
     const interval = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 0) { 
           clearInterval(interval); 
-          setIsTimeUp(true);
-          setTimeout(submitExam, 3000);
+          handleAutoSubmit(); 
           return 0; 
         }
         const newTime = prev - 1;
@@ -159,7 +163,7 @@ function ExamContent() {
       });
     }, 1000);
     return () => clearInterval(interval);
-  }, [loading, isSubmitted, error, timeLeft, showUpgrade, mounted, answers, currentQIndex, student, getStorageKey, submitExam, isTimeUp]);
+  }, [loading, isSubmitted, error, timeLeft, showUpgrade, mounted, answers, currentQIndex, student, getStorageKey, handleAutoSubmit, isTimeUp]);
 
   const handleSelect = (option) => { if (!isSubmitted && !isTimeUp) setAnswers(prev => ({ ...prev, [questions[currentQIndex].id]: option })); };
   const formatTime = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
@@ -192,7 +196,6 @@ function ExamContent() {
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-white text-green-900 font-black text-sm tracking-widest animate-pulse uppercase">Syncing Terminal...</div>;
   if (error) return <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6 text-center text-red-600 font-bold gap-4"><p>{error}</p><button onClick={() => window.location.reload()} className="bg-black text-white px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest">Retry Connection</button></div>;
 
-  // INTELLIGENT MARK CALCULATION
   const marksPerQuestion = questions.length > 0 ? (100 / questions.length).toFixed(1) : 0;
 
   if (isSubmitted) {
@@ -243,12 +246,23 @@ function ExamContent() {
               ))}
             </div>
           ) : (
-            <div className="bg-white rounded-[2.5rem] shadow-xl border border-gray-100 overflow-hidden min-h-[500px] relative">
+            /* === DYNAMIC CHARMING RESTRICTED INTEL CARD === */
+            <div className="bg-white rounded-[2.5rem] shadow-2xl border border-gray-100 overflow-hidden min-h-[500px] relative group">
               {!isPremium ? (
-                <div className="absolute inset-0 z-10 bg-white/95 flex flex-col items-center justify-center text-center p-8">
-                  <div className="w-20 h-20 bg-gradient-to-br from-yellow-300 to-orange-400 rounded-full flex items-center justify-center mb-6 shadow-xl shadow-yellow-200 animate-bounce"><Crown size={40} className="text-white" /></div>
-                  <h3 className="text-xl font-black text-gray-900 mb-2 tracking-tighter">RESTRICTED INTEL</h3>
-                  <button onClick={() => setShowUpgrade(true)} className="bg-black text-white px-8 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg">Unlock Study Plan</button>
+                <div className="absolute inset-0 z-10 bg-gradient-to-b from-white via-white to-yellow-50/30 flex flex-col items-center justify-center text-center p-10">
+                  <div className="relative mb-8">
+                    <div className="absolute inset-0 bg-yellow-400 blur-3xl opacity-20 group-hover:opacity-40 transition-opacity animate-pulse"></div>
+                    <div className="w-24 h-24 bg-gradient-to-br from-yellow-300 to-orange-500 rounded-[2rem] flex items-center justify-center relative z-10 shadow-xl shadow-orange-200 transform group-hover:rotate-12 transition-transform duration-500">
+                      <Crown size={48} className="text-white drop-shadow-md" />
+                    </div>
+                  </div>
+                  <h3 className="text-2xl font-black text-gray-900 mb-3 tracking-tighter uppercase">Restricted Intel</h3>
+                  <p className="text-gray-500 text-sm mb-10 max-w-xs font-medium leading-relaxed">
+                    Your performance data is ready. Unlock your <span className="text-orange-600 font-bold">Personalized AI Study Plan</span> to bridge your knowledge gaps.
+                  </p>
+                  <button onClick={() => setShowUpgrade(true)} className="bg-gray-900 text-white px-12 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-2xl hover:bg-black hover:scale-105 transition-all active:scale-95">
+                    Unlock Study Plan
+                  </button>
                 </div>
               ) : (
                 <div className="p-0">
@@ -318,7 +332,6 @@ function ExamContent() {
           
           <div className="flex justify-between items-center mb-4 shrink-0">
             <span className="font-black text-green-900 text-[9px] tracking-[0.2em] uppercase bg-green-50 px-2 py-1 rounded-lg border border-green-100">Q {String(currentQIndex + 1).padStart(2, '0')} / {questions.length}</span>
-            {/* DYNAMIC MARK ALLOCATION */}
             <span className="text-[9px] font-black text-gray-300 uppercase tracking-widest">{marksPerQuestion} Marks</span>
           </div>
           
