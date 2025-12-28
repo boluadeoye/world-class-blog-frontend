@@ -5,8 +5,6 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    // We fetch the top 10 scores. 
-    // We join cbt_results with cbt_students to get the Department and Name.
     const leaders = await sql`
       SELECT 
         s.name, 
@@ -20,10 +18,24 @@ export async function GET() {
       ORDER BY r.score DESC
       LIMIT 10
     `;
-
     return NextResponse.json(leaders);
   } catch (error) {
-    console.error("Leaderboard API Error:", error);
+    console.error("Leaderboard GET Error:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
+export async function DELETE(req) {
+  try {
+    // NUCLEAR COMMAND: Wipe all results
+    await sql`DELETE FROM cbt_results`;
+    
+    return NextResponse.json({ 
+      success: true, 
+      message: "Leaderboard has been purged. All student scores reset to zero." 
+    });
+  } catch (error) {
+    console.error("Leaderboard RESET Error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
