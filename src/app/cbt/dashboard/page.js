@@ -12,7 +12,6 @@ import StatusModal from "../../../components/cbt/StatusModal";
 
 const UpgradeModal = dynamic(() => import("../../../components/cbt/UpgradeModal"), { ssr: false });
 
-/* === 1. EXAM SETUP MODAL === */
 function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
   const [duration, setDuration] = useState(course.duration || 15);
   const isBlocked = !isPremium && course.user_attempts >= 2;
@@ -55,7 +54,6 @@ function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
   );
 }
 
-/* === 2. DISCLAIMER ACCORDION === */
 function DisclaimerCard() {
   const [isOpen, setIsOpen] = useState(true);
   return (
@@ -81,7 +79,6 @@ function DisclaimerCard() {
   );
 }
 
-/* === 3. COURSE CARD === */
 function CourseCard({ course, onLaunch, variant = "green", isPremium }) {
   const isGst = variant === "green";
   const isBlocked = !isPremium && course.user_attempts >= 2;
@@ -173,7 +170,7 @@ export default function StudentDashboard() {
   );
 
   return (
-    <main className="min-h-screen bg-[#fcfdfc] font-sans text-gray-900 pb-32 relative">
+    <main className="min-h-screen bg-[#fcfdfc] font-sans text-gray-900 pb-48 relative">
       {statusModal && <StatusModal {...statusModal} />}
       {showUpgrade && <UpgradeModal student={student} onClose={() => setShowUpgrade(false)} onSuccess={() => window.location.reload()} />}
       {setupCourse && <ExamSetupModal course={setupCourse} isPremium={isPremium} onClose={() => setSetupCourse(null)} onStart={(dur) => router.push(`/cbt/exam/${setupCourse.id}?duration=${dur}`)} onUpgrade={() => { setSetupCourse(null); setShowUpgrade(true); }} />}
@@ -203,24 +200,38 @@ export default function StudentDashboard() {
 
       <div className="px-6 -mt-8 relative z-20 space-y-6">
         <DisclaimerCard />
+
+        {/* === EXAM HISTORY (WITH COLOR LOGIC) === */}
         <section>
           <div className="flex items-center gap-2 mb-4"><History size={18} className="text-gray-400" /><h2 className="font-black text-xs text-gray-500 uppercase tracking-widest">Exam History</h2></div>
           {examHistory.length > 0 ? (
             <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden divide-y divide-gray-50">
-              {examHistory.map((item) => (
-                <div key={item.id} className="p-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400 font-black text-[10px]">{item.course_code.slice(0,3)}</div>
-                    <div><p className="font-black text-xs text-gray-900 uppercase">{item.course_code}</p><p className="text-[9px] text-gray-400 font-bold uppercase">{new Date(item.created_at).toLocaleDateString()}</p></div>
+              {examHistory.map((item) => {
+                const pct = Math.round((item.score / item.total) * 100);
+                // COLOR LOGIC: <40 Red, 40-59 Yellow, 60+ Green
+                let colorClass = "text-emerald-700 bg-emerald-50 border-emerald-100";
+                if (pct < 40) colorClass = "text-red-700 bg-red-50 border-red-100";
+                else if (pct < 60) colorClass = "text-amber-700 bg-amber-50 border-amber-100";
+
+                return (
+                  <div key={item.id} className="p-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400 font-black text-[10px]">{item.course_code.slice(0,3)}</div>
+                      <div><p className="font-black text-xs text-gray-900 uppercase">{item.course_code}</p><p className="text-[9px] text-gray-400 font-bold uppercase">{new Date(item.created_at).toLocaleDateString()}</p></div>
+                    </div>
+                    <div className={`text-right px-3 py-1 rounded-xl border ${colorClass}`}>
+                      <p className="font-black text-sm">{pct}%</p>
+                      <p className="text-[8px] font-black uppercase opacity-70">{item.score}/{item.total}</p>
+                    </div>
                   </div>
-                  <div className="text-right"><p className="font-black text-sm text-green-700">{Math.round((item.score / item.total) * 100)}%</p><p className="text-[9px] text-gray-400 font-bold uppercase">{item.score}/{item.total}</p></div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <div className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm text-center"><p className="text-[10px] font-black text-gray-300 uppercase tracking-widest">No missions completed yet</p></div>
           )}
         </section>
+
         <section className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
           <button onClick={() => setGstExpanded(!gstExpanded)} className="w-full p-5 flex items-center justify-between bg-green-50/50">
             <div className="flex items-center gap-3"><BookOpen size={18} className="text-[#004d00]" /><h2 className="font-black text-xs text-gray-700 uppercase tracking-widest">General Studies</h2></div>
@@ -228,6 +239,7 @@ export default function StudentDashboard() {
           </button>
           {gstExpanded && <div className="p-4 animate-in fade-in slide-in-from-top-2">{gstCourses.map(c => <CourseCard key={c.id} course={c} onLaunch={setSetupCourse} variant="green" isPremium={isPremium} />)}</div>}
         </section>
+
         <section className="bg-[#f0f4ff] rounded-[2.5rem] shadow-xl shadow-blue-900/5 border border-blue-100 p-6">
           <div className="flex items-center justify-between mb-6"><div className="flex items-center gap-3"><div className="bg-blue-600 p-2 rounded-xl text-white shadow-lg shadow-blue-200"><Layers size={18} /></div><h2 className="font-black text-sm text-blue-900 uppercase tracking-widest">Other Courses</h2></div><Sparkles size={16} className="text-blue-400 animate-pulse" /></div>
           <div className="space-y-1">{otherCourses.slice(0, 2).map(c => <CourseCard key={c.id} course={c} onLaunch={setSetupCourse} variant="blue" isPremium={isPremium} />)}</div>
@@ -238,14 +250,17 @@ export default function StudentDashboard() {
             </div>
           )}
         </section>
+
         <section>
           <div className="flex items-center gap-2 mb-4"><Trophy size={18} className="text-yellow-600" /><h2 className="font-black text-xs text-gray-500 uppercase tracking-widest">Top Performers</h2></div>
           {leaders.length > 0 ? (
             <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-4 overflow-x-auto flex gap-4 custom-scrollbar">
               {leaders.map((user, i) => (
-                <div key={i} className="min-w-[180px] bg-gray-50 rounded-2xl p-5 border border-gray-100 flex flex-col items-center text-center relative">
+                <div key={i} className="min-w-[180px] bg-gray-50 rounded-2xl p-5 border border-gray-100 flex flex-col items-center text-center relative transition-transform hover:-translate-y-1">
                   {i === 0 && <div className="absolute -top-2 -right-2 bg-yellow-400 text-white p-1 rounded-full shadow-sm"><Crown size={12} fill="currentColor" /></div>}
-                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-black text-sm mb-3 overflow-hidden border-2 ${i === 0 ? 'border-yellow-400' : 'border-gray-100'}`}><img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${user.name.replace(/\s/g, '')}&backgroundColor=transparent`} alt={user.name} className="w-full h-full object-cover" /></div>
+                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-black text-sm mb-3 overflow-hidden border-2 ${i === 0 ? 'border-yellow-400' : 'border-gray-100'}`}>
+                    <img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${user.name.replace(/\s/g, '')}&backgroundColor=transparent`} alt={user.name} className="w-full h-full object-cover" />
+                  </div>
                   <h3 className="font-black text-xs text-gray-900 truncate w-full mb-1 uppercase tracking-tighter">{user.name}</h3>
                   <div className="flex items-center gap-1 text-[8px] text-blue-600 font-black uppercase mb-3 bg-blue-50 px-2 py-0.5 rounded"><Building2 size={10} /> {user.department || "General"}</div>
                   <div className="bg-[#004d00] text-white px-4 py-1 rounded-full text-[10px] font-black shadow-md">{user.score}%</div>
@@ -259,28 +274,14 @@ export default function StudentDashboard() {
         </section>
       </div>
 
-      {/* === SLEEK MINIMALIST FOOTER === */}
       <div className="fixed bottom-4 left-4 right-4 z-40 max-w-2xl mx-auto">
         <div className="bg-white/90 backdrop-blur-md border border-green-100 shadow-lg rounded-2xl py-2.5 px-5 flex items-center justify-between">
           <div className="flex items-center gap-3 flex-1 min-w-0">
-            <div className="w-8 h-8 bg-[#004d00] rounded-lg flex items-center justify-center text-white shrink-0">
-              <Award size={16} />
-            </div>
-            <div className="min-w-0">
-              <h4 className="font-black text-[11px] text-gray-900 leading-none mb-1 uppercase tracking-tight">Bolu Adeoye</h4>
-              <p className="text-[8px] text-green-700 font-bold truncate uppercase tracking-tighter">
-                Dept. of English & Literary Studies
-              </p>
-            </div>
+            <div className="w-8 h-8 bg-[#004d00] rounded-lg flex items-center justify-center text-white shrink-0"><Award size={16} /></div>
+            <div className="min-w-0"><h4 className="font-black text-[11px] text-gray-900 leading-none mb-1 uppercase tracking-tight">Bolu Adeoye</h4><p className="text-[8px] text-green-700 font-bold truncate uppercase tracking-tighter">Dept. of English & Literary Studies</p></div>
           </div>
-          
           <div className="h-6 w-[1px] bg-gray-200 mx-4"></div>
-          
-          <div className="text-right shrink-0">
-            <p className="text-[7px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Partner</p>
-            <p className="text-[9px] font-black text-gray-900 leading-none uppercase">Abel Kings</p>
-            <p className="text-[7px] font-bold text-green-600 uppercase tracking-tighter">Tutorial Center</p>
-          </div>
+          <div className="text-right shrink-0"><p className="text-[7px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Partner</p><p className="text-[9px] font-black text-gray-900 leading-none uppercase">Abel Kings</p><p className="text-[7px] font-bold text-green-600 uppercase tracking-tighter">Tutorial Center</p></div>
         </div>
       </div>
     </main>
