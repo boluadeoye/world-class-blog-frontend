@@ -4,7 +4,7 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { 
   Grid, CheckCircle, AlertOctagon, X, Crown, Sparkles, 
   BrainCircuit, Clock, ChevronRight, ChevronLeft, ShieldAlert, 
-  Loader2, BookOpen, Target, Zap 
+  Loader2, BookOpen, Target, Zap, FileText, Compass
 } from "lucide-react";
 import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";
@@ -49,7 +49,7 @@ function SubmitModal({ isOpen, onConfirm, onCancel, answeredCount, totalCount })
         </div>
         <div className="p-6 bg-white flex gap-4">
           <button onClick={onCancel} className="flex-1 py-4 border-2 border-gray-100 rounded-2xl text-[10px] font-black text-gray-400 hover:bg-gray-50 uppercase tracking-widest transition-all">Review</button>
-          <button onClick={onConfirm} className="flex-[1.5] py-4 bg-[#004d00] text-white rounded-2xl text-[10px] font-black shadow-xl hover:bg-green-900 uppercase tracking-widest">Submit Now</button>
+          <button onClick={onConfirm} className={`flex-[1.5] py-4 bg-[#004d00] text-white rounded-2xl text-[10px] font-black shadow-xl hover:bg-green-900 uppercase tracking-widest`}>Submit Now</button>
         </div>
       </div>
     </div>
@@ -194,7 +194,7 @@ function ExamContent() {
   if (!mounted) return null;
   if (showUpgrade) return <div className="min-h-screen flex items-center justify-center bg-white"><UpgradeModal student={student} onClose={() => router.push('/cbt/dashboard')} onSuccess={() => window.location.reload()} /></div>;
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-white text-green-900 font-black text-sm tracking-widest animate-pulse uppercase">Syncing Terminal...</div>;
-  if (error) return <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6 text-center text-red-600 font-bold gap-4"><p>{error}</p><button onClick={() => window.location.reload()} className="bg-black text-white px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest">Retry Connection</button></div>;
+  if (error) return <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6 text-center text-red-600 font-bold gap-4"><p>{error}</p><button onClick={() => window.location.reload()} className="bg-black text-white px-6 py-2 rounded text-xs">RETRY</button></div>;
 
   const marksPerQuestion = questions.length > 0 ? (100 / questions.length).toFixed(1) : 0;
 
@@ -246,43 +246,57 @@ function ExamContent() {
               ))}
             </div>
           ) : (
-            /* === DYNAMIC CHARMING RESTRICTED INTEL CARD === */
-            <div className="bg-white rounded-[2.5rem] shadow-2xl border border-gray-100 overflow-hidden min-h-[500px] relative group">
+            /* === CLASSIC AI STUDY ROOM === */
+            <div className="bg-white rounded-[2.5rem] shadow-2xl border border-gray-100 overflow-hidden min-h-[600px] relative">
               {!isPremium ? (
-                <div className="absolute inset-0 z-10 bg-gradient-to-b from-white via-white to-yellow-50/30 flex flex-col items-center justify-center text-center p-10">
-                  <div className="relative mb-8">
-                    <div className="absolute inset-0 bg-yellow-400 blur-3xl opacity-20 group-hover:opacity-40 transition-opacity animate-pulse"></div>
-                    <div className="w-24 h-24 bg-gradient-to-br from-yellow-300 to-orange-500 rounded-[2rem] flex items-center justify-center relative z-10 shadow-xl shadow-orange-200 transform group-hover:rotate-12 transition-transform duration-500">
-                      <Crown size={48} className="text-white drop-shadow-md" />
-                    </div>
-                  </div>
+                <div className="absolute inset-0 z-10 bg-white/95 flex flex-col items-center justify-center text-center p-10">
+                  <div className="w-24 h-24 bg-gradient-to-br from-yellow-300 to-orange-500 rounded-[2rem] flex items-center justify-center mb-8 shadow-xl shadow-orange-200 animate-bounce"><Crown size={48} className="text-white" /></div>
                   <h3 className="text-2xl font-black text-gray-900 mb-3 tracking-tighter uppercase">Restricted Intel</h3>
-                  <p className="text-gray-500 text-sm mb-10 max-w-xs font-medium leading-relaxed">
-                    Your performance data is ready. Unlock your <span className="text-orange-600 font-bold">Personalized AI Study Plan</span> to bridge your knowledge gaps.
-                  </p>
-                  <button onClick={() => setShowUpgrade(true)} className="bg-gray-900 text-white px-12 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-2xl hover:bg-black hover:scale-105 transition-all active:scale-95">
-                    Unlock Study Plan
-                  </button>
+                  <p className="text-gray-500 text-sm mb-10 max-w-xs font-medium leading-relaxed">Unlock your personalized AI Study Plan to bridge your knowledge gaps.</p>
+                  <button onClick={() => setShowUpgrade(true)} className="bg-gray-900 text-white px-12 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-2xl hover:bg-black transition-all">Unlock Study Plan</button>
                 </div>
               ) : (
                 <div className="p-0">
                   {!analysis ? (
-                    <div className="text-center py-24 px-8">
-                      <div className="w-16 h-16 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse"><BrainCircuit size={32} className="text-purple-600" /></div>
-                      <h3 className="font-black text-gray-900 text-xs uppercase tracking-widest mb-2">Analyzing Patterns</h3>
+                    <div className="text-center py-32 px-8">
+                      <div className="w-20 h-20 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse"><BrainCircuit size={40} className="text-purple-600" /></div>
+                      <h3 className="font-black text-gray-900 text-xs uppercase tracking-widest mb-2">Analyzing Performance</h3>
                       <p className="text-gray-400 text-[10px] mb-8 uppercase tracking-widest">Crafting personalized recovery roadmap...</p>
                       <button onClick={generateAnalysis} disabled={analyzing} className="bg-purple-900 text-white px-10 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl active:scale-95 transition-all">{analyzing ? "PROCESSING..." : "GENERATE REPORT"}</button>
                     </div>
                   ) : (
-                    <div className="bg-white min-h-[500px] animate-in fade-in duration-500">
-                      <div className="bg-purple-900 text-white p-8 pb-14 rounded-b-[2.5rem]">
-                        <h3 className="font-black text-xl flex items-center gap-2 uppercase tracking-tighter"><Sparkles size={20} /> Tactical Brief</h3>
-                        <p className="text-purple-300 text-[10px] font-bold uppercase tracking-[0.2em] mt-1">Cognitive Recovery Plan</p>
+                    <div className="bg-[#fcfcfc] min-h-[600px] animate-in fade-in duration-700">
+                      {/* AI Header */}
+                      <div className="bg-purple-900 text-white p-10 pb-20 rounded-b-[3.5rem] shadow-lg relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-20 -mt-20 blur-3xl"></div>
+                        <div className="relative z-10">
+                          <div className="flex items-center gap-3 mb-4">
+                            <div className="bg-white/20 p-2 rounded-lg backdrop-blur-md"><Sparkles size={20} /></div>
+                            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-purple-200">Intelligence Briefing</span>
+                          </div>
+                          <h3 className="text-3xl font-black uppercase tracking-tighter leading-none">Tactical Brief</h3>
+                          <p className="text-purple-300 text-xs font-bold uppercase tracking-widest mt-3 opacity-80">Personalized Recovery Plan for ${student?.name}</p>
+                        </div>
                       </div>
-                      <div className="px-6 -mt-8 pb-12">
-                        <div className="bg-white rounded-3xl shadow-xl border border-purple-100 p-8 text-gray-800">
-                          <div className="prose prose-sm max-w-none text-gray-800 leading-relaxed font-medium">
+
+                      {/* AI Content - Classic Pacing */}
+                      <div className="px-6 -mt-12 pb-20">
+                        <div className="bg-white rounded-[2.5rem] shadow-xl border border-purple-100 p-8 md:p-12">
+                          <div className="prose prose-sm max-w-none 
+                            prose-headings:font-black prose-headings:uppercase prose-headings:tracking-widest prose-headings:text-gray-900 prose-headings:border-b prose-headings:border-purple-50 prose-headings:pb-4 prose-headings:mt-12 first:prose-headings:mt-0
+                            prose-p:text-gray-700 prose-p:leading-[1.8] prose-p:text-base prose-p:mb-8
+                            prose-li:text-gray-700 prose-li:mb-4 prose-strong:text-purple-800 prose-strong:font-black
+                            text-left">
                              <ReactMarkdown>{analysis}</ReactMarkdown>
+                          </div>
+                          
+                          {/* Classic Footer Anchor */}
+                          <div className="mt-16 pt-8 border-t border-gray-50 flex items-center justify-between opacity-40">
+                            <div className="flex items-center gap-2">
+                              <BrainCircuit size={14} />
+                              <span className="text-[8px] font-black uppercase tracking-widest">Bolu Adeoye AI Engine</span>
+                            </div>
+                            <span className="text-[8px] font-black uppercase tracking-widest">Classified Document</span>
                           </div>
                         </div>
                       </div>
@@ -292,6 +306,38 @@ function ExamContent() {
               )}
             </div>
           )}
+        </div>
+      </main>
+    );
+  }
+
+  const currentQ = questions[currentQIndex];
+  const safeId = student?.id ? String(student.id) : "0000";
+  const answeredCount = Object.keys(answers).length;
+  const isLastQ = currentQIndex === questions.length - 1;
+
+  if (!currentQ) return <div className="h-screen flex items-center justify-center bg-white font-black text-xs tracking-[0.3em] uppercase text-green-900">Synchronizing...</div>;
+
+  return (
+    <main className="h-screen flex flex-col bg-[#f0f2f5] font-sans overflow-hidden select-none">
+      {isTimeUp && <TimeUpOverlay />}
+      <SubmitModal isOpen={showSubmitModal} onConfirm={submitExam} onCancel={() => setShowSubmitModal(false)} answeredCount={answeredCount} totalCount={questions.length} />
+      
+      <header className="h-14 bg-[#004d00] text-white flex justify-between items-center px-4 shrink-0 z-[160] border-b border-green-800">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-[#004d00] font-black text-sm shadow-inner">{student?.name?.charAt(0).toUpperCase()}</div>
+          <div className="leading-tight">
+            <h1 className="font-black text-[10px] uppercase tracking-widest text-green-100 truncate w-24">{student?.name}</h1>
+            <p className="text-[9px] font-mono opacity-70 tracking-tighter uppercase">{course?.code}</p>
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-3">
+          <div className={`flex items-center gap-2 bg-black/30 px-3 py-1.5 rounded-full border border-white/10 ${timeLeft < 300 ? 'animate-pulse bg-red-900/50 border-red-500' : ''}`}>
+            <Clock size={12} className={timeLeft < 300 ? "text-red-500" : "text-green-400"} />
+            <span className={`font-mono font-black text-sm tracking-widest ${timeLeft < 300 ? "text-red-500" : "text-white"}`}>{formatTime(timeLeft || 0)}</span>
+          </div>
+          <button onClick={() => setShowSubmitModal(true)} className="bg-red-600 text-white px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest shadow-lg active:scale-95 transition-all">Submit</button>
         </div>
       </header>
 
