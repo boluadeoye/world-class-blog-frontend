@@ -193,7 +193,7 @@ export default function StudentDashboard() {
           </div>
         </div>
         <div className="bg-[#003300]/50 backdrop-blur-sm border border-white/10 rounded-2xl p-5 flex items-center justify-between">
-          <div><p className="text-[10px] font-bold text-green-400 uppercase tracking-wider mb-1">Current Session</p><p className="font-black text-sm text-white">FUOYE 2026 GST MOCK</p></div>
+          <div><p className="text-[10px] font-bold text-green-400 uppercase tracking-wider mb-1">Current Session</p><p className="font-black text-sm text-white">ExamForge 2026 GST MOCK</p></div>
           <div className="bg-white text-[#004d00] px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wide shadow-sm">Active</div>
         </div>
       </header>

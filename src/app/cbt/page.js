@@ -212,7 +212,7 @@ export default function StudentLogin() {
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md relative z-10">
         <div className="text-center mb-8">
           <div className="inline-flex p-4 bg-white rounded-2xl shadow-xl shadow-green-900/5 mb-4 border border-green-50"><GraduationCap size={40} className="text-green-700" /></div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight mb-1 uppercase leading-none">FUOYE CBT <span className="text-green-700">2026</span></h1>
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight mb-1 uppercase leading-none">ExamForge <span className="text-green-700">2026</span></h1>
           <p className="text-slate-500 font-bold text-xs tracking-widest uppercase mt-2">Mock Examination Portal</p>
         </div>
 
