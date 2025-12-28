@@ -31,7 +31,7 @@ export default function UpgradeModal({ student, onClose, onSuccess }) {
         body: JSON.stringify({ reference: reference.reference, studentId: student.id }),
       });
       if (res.ok) {
-        setStatus({ type: 'success', title: 'Access Granted', message: 'Premium features are now active on your account.' });
+        setStatus({ type: 'success', title: 'Access Granted', message: 'Premium features are now active.' });
       } else {
         setStatus({ type: 'error', title: 'Verification Failed', message: 'Payment could not be confirmed.' });
       }
@@ -48,7 +48,10 @@ export default function UpgradeModal({ student, onClose, onSuccess }) {
       
       <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
         <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-sm w-full overflow-hidden relative border border-white animate-in zoom-in duration-300">
-          <button onClick={onClose} className="absolute top-6 right-6 p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors z-20"><X size={16} /></button>
+          {/* FIXED: High-Contrast Close Button */}
+          <button onClick={onClose} className="absolute top-6 right-6 p-2 bg-black/10 hover:bg-black/20 text-black rounded-full transition-colors z-20">
+            <X size={18} strokeWidth={3} />
+          </button>
           
           <div className="bg-gradient-to-br from-yellow-400 via-orange-500 to-yellow-600 p-10 text-center text-white relative">
             <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>

@@ -207,7 +207,7 @@ function ExamContent() {
           <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
           <div className="relative z-10 flex justify-between items-start mb-8">
             <div><div className="text-[9px] font-black text-green-400 uppercase tracking-widest mb-1">Session Closed</div><h1 className="font-black text-2xl tracking-tight">{course?.code}</h1></div>
-            <button onClick={() => router.push('/cbt/dashboard')} className="bg-white/10 backdrop-blur-md border border-white/10 px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest">Exit</button>
+            <button onClick={() => router.push('/cbt/dashboard')} className="bg-white/10 backdrop-blur-md border border-white/10 px-5 py-2 rounded-full text-[10px] font-bold uppercase hover:bg-white hover:text-[#002b00] transition-colors">Exit</button>
           </div>
           <div className="relative z-10 flex flex-col items-center">
              <div className="w-32 h-32 flex items-center justify-center relative">
@@ -293,38 +293,6 @@ function ExamContent() {
             </div>
           )}
         </div>
-      </main>
-    );
-  }
-
-  const currentQ = questions[currentQIndex];
-  const safeId = student?.id ? String(student.id) : "0000";
-  const answeredCount = Object.keys(answers).length;
-  const isLastQ = currentQIndex === questions.length - 1;
-
-  if (!currentQ) return <div className="h-screen flex items-center justify-center bg-white font-black text-xs tracking-[0.3em] uppercase text-green-900">Synchronizing...</div>;
-
-  return (
-    <main className="h-screen flex flex-col bg-[#f0f2f5] font-sans overflow-hidden select-none">
-      {isTimeUp && <TimeUpOverlay />}
-      <SubmitModal isOpen={showSubmitModal} onConfirm={submitExam} onCancel={() => setShowSubmitModal(false)} answeredCount={answeredCount} totalCount={questions.length} />
-      
-      <header className="h-14 bg-[#004d00] text-white flex justify-between items-center px-4 shrink-0 z-[160] border-b border-green-800">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-[#004d00] font-black text-sm shadow-inner">{student?.name?.charAt(0).toUpperCase()}</div>
-          <div className="leading-tight">
-            <h1 className="font-black text-[10px] uppercase tracking-widest text-green-100 truncate w-24">{student?.name}</h1>
-            <p className="text-[9px] font-mono opacity-70 tracking-tighter uppercase">{course?.code}</p>
-          </div>
-        </div>
-        
-        <div className="flex items-center gap-3">
-          <div className={`flex items-center gap-2 bg-black/30 px-3 py-1.5 rounded-full border border-white/10 ${timeLeft < 300 ? 'animate-pulse bg-red-900/50 border-red-500' : ''}`}>
-            <Clock size={12} className={timeLeft < 300 ? "text-red-500" : "text-green-400"} />
-            <span className={`font-mono font-black text-sm tracking-widest ${timeLeft < 300 ? "text-red-500" : "text-white"}`}>{formatTime(timeLeft || 0)}</span>
-          </div>
-          <button onClick={() => setShowSubmitModal(true)} className="bg-red-600 text-white px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest shadow-lg active:scale-95 transition-all">Submit</button>
-        </div>
       </header>
 
       <div className="flex-1 flex flex-col p-4 overflow-hidden relative">
@@ -378,8 +346,8 @@ function ExamContent() {
 
         <button 
           onClick={() => navigateTo(Math.min(questions.length - 1, currentQIndex + 1))} 
-          disabled={isLastQ} 
-          className={`px-10 py-3.5 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all shadow-lg ${isLastQ ? 'bg-gray-100 text-gray-400 border border-gray-200' : 'bg-[#004d00] text-white hover:bg-green-900 active:scale-95'}`}
+          disabled={currentQIndex === questions.length - 1} 
+          className={`px-10 py-3.5 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all shadow-lg ${currentQIndex === questions.length - 1 ? 'bg-gray-100 text-gray-400 border border-gray-200' : 'bg-[#004d00] text-white hover:bg-green-900 active:scale-95'}`}
         >
           Next
         </button>
