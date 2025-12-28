@@ -4,61 +4,16 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { 
   Grid, CheckCircle, AlertOctagon, X, Crown, Sparkles, 
   BrainCircuit, Clock, ChevronRight, ChevronLeft, ShieldAlert, 
-  Loader2, BookOpen, Target, Zap, Lock, ShieldCheck, AlertTriangle
+  Loader2, BookOpen, Target, Zap, FileText, Lock, ShieldCheck
 } from "lucide-react";
 import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";
 
 const UpgradeModal = dynamic(() => import("../../../../components/cbt/UpgradeModal"), { ssr: false });
 
-/* === 1. ELITE PAYWALL SCREEN === */
-function FreeLimitScreen({ onUpgrade, onBack }) {
-  return (
-    <div className="fixed inset-0 z-[600] bg-white flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-500">
-      <div className="absolute inset-0 opacity-[0.03] bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] pointer-events-none"></div>
-      
-      <div className="relative mb-10">
-        <div className="absolute inset-0 bg-yellow-400 blur-[60px] opacity-20 animate-pulse"></div>
-        <div className="w-24 h-24 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-[2rem] flex items-center justify-center relative z-10 shadow-2xl shadow-orange-200">
-          <Crown size={48} className="text-white drop-shadow-lg" />
-        </div>
-      </div>
-
-      <h2 className="text-3xl font-black text-gray-900 uppercase tracking-tighter mb-4">Free Access Exhausted</h2>
-      <p className="text-gray-500 text-sm mb-10 max-w-xs font-medium leading-relaxed">
-        You have reached the limit for free attempts. Upgrade to <span className="text-green-700 font-bold">Premium</span> to secure unlimited access and elite features.
-      </p>
-
-      <div className="w-full max-w-xs space-y-3 mb-12">
-        {[
-          "Unlimited Exam Retakes",
-          "Full 100+ Question Bank",
-          "Personalized AI Study Room",
-          "Custom Exam Durations"
-        ].map((text, i) => (
-          <div key={i} className="flex items-center gap-3 text-left bg-gray-50 p-3 rounded-xl border border-gray-100">
-            <CheckCircle size={16} className="text-green-600 shrink-0" />
-            <span className="text-[10px] font-black text-gray-600 uppercase tracking-widest">{text}</span>
-          </div>
-        ))}
-      </div>
-
-      <div className="w-full max-w-xs space-y-4">
-        <button onClick={onUpgrade} className="w-full py-5 bg-gray-900 text-white rounded-2xl font-black text-xs uppercase tracking-[0.3em] shadow-2xl hover:bg-black transition-all active:scale-95">
-          Upgrade Now — ₦500
-        </button>
-        <button onClick={onBack} className="w-full py-4 text-gray-400 font-black text-[10px] uppercase tracking-widest hover:text-gray-600 transition-colors">
-          Return to Dashboard
-        </button>
-      </div>
-    </div>
-  );
-}
-
-/* === 2. TIME EXPIRED OVERLAY === */
 function TimeUpOverlay() {
   return (
-    <div className="fixed inset-0 z-[600] bg-[#050505] flex flex-col items-center justify-center text-white p-6">
+    <div className="fixed inset-0 z-[600] bg-[#050505] flex flex-col items-center justify-center text-white p-6 animate-in fade-in duration-500">
       <div className="w-24 h-24 bg-red-600/10 border-2 border-red-600 rounded-full flex items-center justify-center mb-6">
         <Clock size={48} className="text-red-500 animate-spin-slow" />
       </div>
@@ -68,7 +23,6 @@ function TimeUpOverlay() {
   );
 }
 
-/* === 3. AUDIT SUBMIT MODAL === */
 function SubmitModal({ isOpen, onConfirm, onCancel, answeredCount, totalCount }) {
   if (!isOpen) return null;
   const pendingCount = totalCount - answeredCount;
@@ -142,7 +96,7 @@ function ExamContent() {
         const res = await fetch(`/api/cbt/exam?${query.toString()}`);
         if (!res.ok) {
             if (res.status === 401) { router.push("/cbt"); return; }
-            if (res.status === 403) { setError("LIMIT_REACHED"); setLoading(false); return; }
+            if (res.status === 403) { setShowUpgrade(true); setLoading(false); return; }
             throw new Error("Data retrieval failed.");
         }
         const data = await res.json();
@@ -239,12 +193,8 @@ function ExamContent() {
 
   if (!mounted) return null;
   if (showUpgrade) return <div className="min-h-screen flex items-center justify-center bg-white"><UpgradeModal student={student} onClose={() => router.push('/cbt/dashboard')} onSuccess={() => window.location.reload()} /></div>;
-  
-  // === ELITE PAYWALL TRIGGER ===
-  if (error === "LIMIT_REACHED") return <FreeLimitScreen onUpgrade={() => setShowUpgrade(true)} onBack={() => router.push('/cbt/dashboard')} />;
-  
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-white text-green-900 font-black text-sm tracking-widest animate-pulse uppercase">Syncing Terminal...</div>;
-  if (error) return <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6 text-center text-red-600 font-bold gap-4"><p>{error}</p><button onClick={() => window.location.reload()} className="bg-black text-white px-6 py-2 rounded text-xs">RETRY</button></div>;
+  if (error) return <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6 text-center text-red-600 font-bold gap-4"><p>{error}</p><button onClick={() => window.location.reload()} className="bg-black text-white px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest">Retry Connection</button></div>;
 
   const marksPerQuestion = questions.length > 0 ? (100 / questions.length).toFixed(1) : 0;
 
@@ -278,7 +228,7 @@ function ExamContent() {
         <div className="max-w-3xl mx-auto px-4 -mt-10 relative z-20">
           <div className="bg-white rounded-2xl shadow-lg p-1.5 mb-6 flex gap-2 border border-gray-100">
             <button onClick={() => setActiveTab("corrections")} className={`flex-1 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'corrections' ? 'bg-[#004d00] text-white shadow-md' : 'text-gray-400'}`}>Corrections</button>
-            <button onClick={() => setActiveTab("ai")} className={`flex-1 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${activeTab === 'ai' ? 'bg-purple-900 text-white shadow-md' : 'text-gray-400'}`}><Sparkles size={14} /> Study Room</button>
+            <button onClick={() => setActiveTab("ai")} className={`flex-1 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${activeTab === 'ai' ? 'bg-purple-900 text-white shadow-md' : 'text-gray-400'}`}><Sparkles size={14} /> Intelligence</button>
           </div>
 
           {activeTab === "corrections" ? (
@@ -296,42 +246,28 @@ function ExamContent() {
               ))}
             </div>
           ) : (
-            /* === DYNAMIC CHARMING RESTRICTED INTEL CARD === */
-            <div className="bg-[#0a0a0a] rounded-[2.5rem] shadow-2xl border border-yellow-900/30 overflow-hidden min-h-[500px] relative group">
+            /* === MASTERY FORGE (AI SECTION) === */
+            <div className="bg-white rounded-[2.5rem] shadow-2xl border border-gray-100 overflow-hidden min-h-[500px] relative">
               {!isPremium ? (
-                <div className="absolute inset-0 z-10 bg-gradient-to-b from-black via-[#0a0a0a] to-[#1a1a1a] flex flex-col items-center justify-center text-center p-10">
-                  <div className="relative mb-10">
-                    <div className="absolute inset-0 bg-yellow-500 blur-[80px] opacity-20 group-hover:opacity-40 transition-opacity animate-pulse"></div>
-                    <div className="w-28 h-28 bg-gradient-to-br from-yellow-400 via-orange-600 to-yellow-700 rounded-[2.5rem] flex items-center justify-center relative z-10 shadow-[0_0_50px_rgba(234,179,8,0.3)] transform group-hover:scale-110 transition-transform duration-700">
-                      <Lock size={48} className="text-white drop-shadow-2xl" strokeWidth={2.5} />
-                    </div>
-                  </div>
-                  <div className="relative z-10">
-                    <h3 className="text-3xl font-black text-white mb-4 tracking-tighter uppercase italic">Confidential Briefing</h3>
-                    <p className="text-gray-400 text-sm mb-12 max-w-xs font-medium leading-relaxed">
-                      Your cognitive performance data is locked. Access the <span className="text-yellow-500 font-bold">AI Tactical Roadmap</span> to secure your success.
-                    </p>
-                    <button onClick={() => setShowUpgrade(true)} className="bg-yellow-500 text-black px-12 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.3em] shadow-[0_10px_40px_rgba(234,179,8,0.4)] hover:bg-white hover:scale-105 transition-all active:scale-95">
-                      Unlock The Vault
-                    </button>
-                  </div>
-                  {/* Confidential Watermark */}
-                  <div className="absolute bottom-6 left-0 w-full text-center opacity-5 pointer-events-none">
-                    <p className="text-[40px] font-black uppercase tracking-[0.5em] whitespace-nowrap">CLASSIFIED • CLASSIFIED • CLASSIFIED</p>
-                  </div>
+                <div className="absolute inset-0 z-10 bg-white/95 flex flex-col items-center justify-center text-center p-10">
+                  <div className="w-24 h-24 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-[2rem] flex items-center justify-center mb-8 shadow-xl shadow-orange-200 animate-bounce"><Crown size={48} className="text-white" /></div>
+                  <h3 className="text-2xl font-black text-gray-900 mb-3 tracking-tighter uppercase">Restricted Intel</h3>
+                  <p className="text-gray-500 text-sm mb-10 max-w-xs font-medium leading-relaxed">Unlock your personalized AI Study Plan to bridge your knowledge gaps.</p>
+                  <button onClick={() => setShowUpgrade(true)} className="bg-gray-900 text-white px-12 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-2xl hover:bg-black transition-all">Unlock Study Plan</button>
                 </div>
               ) : (
                 <div className="p-0">
                   {!analysis ? (
                     <div className="text-center py-32 px-8 bg-white">
-                      <div className="w-16 h-16 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse"><BrainCircuit size={40} className="text-purple-600" /></div>
+                      <div className="w-16 h-16 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse"><BrainCircuit size={40} className="text-purple-600" /></div>
                       <h3 className="font-black text-gray-900 text-xs uppercase tracking-widest mb-2">Analyzing Performance</h3>
                       <p className="text-gray-400 text-[10px] mb-8 uppercase tracking-widest">Crafting personalized recovery roadmap...</p>
                       <button onClick={generateAnalysis} disabled={analyzing} className="bg-purple-900 text-white px-10 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl active:scale-95 transition-all">{analyzing ? "PROCESSING..." : "GENERATE REPORT"}</button>
                     </div>
                   ) : (
                     <div className="bg-[#fcfcfc] min-h-[600px] animate-in fade-in duration-700">
-                      <div className="bg-purple-900 text-white p-10 pb-20 rounded-b-[3.5rem] shadow-lg relative overflow-hidden">
+                      {/* FIXED: Integrated Header to prevent overlap */}
+                      <div className="bg-purple-900 text-white p-10 pb-12 rounded-t-[2.5rem] shadow-lg relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-20 -mt-20 blur-3xl"></div>
                         <div className="relative z-10 text-left">
                           <div className="flex items-center gap-3 mb-4">
@@ -343,26 +279,24 @@ function ExamContent() {
                         </div>
                       </div>
 
-                      <div className="px-6 -mt-12 pb-20">
-                        <div className="bg-white rounded-[2.5rem] shadow-xl border border-purple-100 p-8 md:p-12 text-left border-l-[8px] border-l-purple-600">
-                          <div className="text-gray-800 leading-relaxed font-medium space-y-6">
-                             <ReactMarkdown 
-                               components={{
-                                 h1: ({node, children, ...props}) => <h1 className="text-xl font-black text-gray-900 uppercase tracking-widest border-b border-purple-100 pb-2 mt-8 first:mt-0">{children}</h1>,
-                                 h2: ({node, children, ...props}) => <h2 className="text-lg font-bold text-purple-900 mt-6 mb-3">{children}</h2>,
-                                 p: ({node, children, ...props}) => <p className="text-sm text-gray-600 mb-4 leading-7">{children}</p>,
-                                 ul: ({node, children, ...props}) => <ul className="list-disc pl-5 space-y-2 text-sm text-gray-700">{children}</ul>,
-                                 li: ({node, children, ...props}) => <li className="pl-1">{children}</li>,
-                                 strong: ({node, children, ...props}) => <strong className="font-black text-purple-800">{children}</strong>
-                               }}
-                             >
-                               {analysis}
-                             </ReactMarkdown>
-                          </div>
-                          <div className="mt-16 pt-8 border-t border-gray-50 flex items-center justify-between opacity-40">
-                            <div className="flex items-center gap-2"><BrainCircuit size={14} /><span className="text-[8px] font-black uppercase tracking-widest">Bolu Adeoye AI Engine</span></div>
-                            <span className="text-[8px] font-black uppercase tracking-widest">Classified Document</span>
-                          </div>
+                      <div className="p-8 md:p-12 text-left border-l-[8px] border-l-purple-600 bg-white">
+                        <div className="text-gray-800 leading-relaxed font-medium space-y-6">
+                           <ReactMarkdown 
+                             components={{
+                               h1: ({children}) => <h1 className="text-xl font-black text-gray-900 uppercase tracking-widest border-b border-purple-100 pb-2 mt-8 first:mt-0">{children}</h1>,
+                               h2: ({children}) => <h2 className="text-lg font-bold text-purple-900 mt-6 mb-3">{children}</h2>,
+                               p: ({children}) => <p className="text-sm text-gray-600 mb-4 leading-7">{children}</p>,
+                               ul: ({children}) => <ul className="list-disc pl-5 space-y-2 text-sm text-gray-700">{children}</ul>,
+                               li: ({children}) => <li className="pl-1">{children}</li>,
+                               strong: ({children}) => <strong className="font-black text-purple-800">{children}</strong>
+                             }}
+                           >
+                             {analysis}
+                           </ReactMarkdown>
+                        </div>
+                        <div className="mt-16 pt-8 border-t border-gray-50 flex items-center justify-between opacity-40">
+                          <div className="flex items-center gap-2"><BrainCircuit size={14} /><span className="text-[8px] font-black uppercase tracking-widest">ExamForge AI Engine</span></div>
+                          <span className="text-[8px] font-black uppercase tracking-widest">Classified Document</span>
                         </div>
                       </div>
                     </div>
