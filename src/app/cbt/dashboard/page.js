@@ -173,7 +173,7 @@ export default function StudentDashboard() {
   );
 
   return (
-    <main className="min-h-screen bg-[#fcfdfc] font-sans text-gray-900 pb-48 relative">
+    <main className="min-h-screen bg-[#fcfdfc] font-sans text-gray-900 pb-32 relative">
       {statusModal && <StatusModal {...statusModal} />}
       {showUpgrade && <UpgradeModal student={student} onClose={() => setShowUpgrade(false)} onSuccess={() => window.location.reload()} />}
       {setupCourse && <ExamSetupModal course={setupCourse} isPremium={isPremium} onClose={() => setSetupCourse(null)} onStart={(dur) => router.push(`/cbt/exam/${setupCourse.id}?duration=${dur}`)} onUpgrade={() => { setSetupCourse(null); setShowUpgrade(true); }} />}
@@ -259,50 +259,30 @@ export default function StudentDashboard() {
         </section>
       </div>
 
-      {/* === LIVE SIGNATURE FOOTER === */}
-      <div className="fixed bottom-6 left-6 right-6 z-50">
-        <div className="bg-white/90 backdrop-blur-xl border border-white/40 shadow-[0_10px_40px_rgba(0,0,0,0.15)] rounded-[2rem] p-4 flex items-center gap-4 max-w-2xl mx-auto overflow-hidden relative group">
-          {/* LIVE ANIMATED BACKGROUND (AURORA EFFECT) */}
-          <div className="absolute inset-0 opacity-20 pointer-events-none overflow-hidden">
-            <div className="absolute -inset-[100%] bg-gradient-to-r from-emerald-500 via-yellow-200 to-green-600 animate-aurora"></div>
-          </div>
-
-          <div className="w-12 h-12 bg-[#004d00] rounded-2xl flex items-center justify-center text-white shadow-lg shrink-0 relative z-10">
-            <Award size={24} />
+      {/* === SLEEK MINIMALIST FOOTER === */}
+      <div className="fixed bottom-4 left-4 right-4 z-40 max-w-2xl mx-auto">
+        <div className="bg-white/90 backdrop-blur-md border border-green-100 shadow-lg rounded-2xl py-2.5 px-5 flex items-center justify-between">
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <div className="w-8 h-8 bg-[#004d00] rounded-lg flex items-center justify-center text-white shrink-0">
+              <Award size={16} />
+            </div>
+            <div className="min-w-0">
+              <h4 className="font-black text-[11px] text-gray-900 leading-none mb-1 uppercase tracking-tight">Bolu Adeoye</h4>
+              <p className="text-[8px] text-green-700 font-bold truncate uppercase tracking-tighter">
+                Dept. of English & Literary Studies
+              </p>
+            </div>
           </div>
           
-          <div className="flex-1 min-w-0 relative z-10">
-            <p className="text-[8px] font-black text-gray-400 uppercase tracking-[0.3em] mb-0.5">Lead Engineer</p>
-            {/* THE LIVE NAME LABEL */}
-            <h4 className="font-black text-sm text-gray-900 tracking-tighter flex items-center gap-2">
-              BOLU ADEOYE 
-              <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-ping"></span>
-            </h4>
-            <p className="text-[9px] text-[#004d00] font-bold truncate opacity-90 uppercase tracking-tighter">
-              Dept. of English & Literary Studies
-            </p>
-          </div>
-
-          <div className="h-10 w-[1px] bg-gray-200 mx-1 relative z-10"></div>
+          <div className="h-6 w-[1px] bg-gray-200 mx-4"></div>
           
-          <div className="text-right shrink-0 relative z-10">
-            <p className="text-[7px] font-black text-gray-400 uppercase tracking-widest mb-1">In Conjunction With</p>
-            <p className="text-[10px] font-black text-gray-900 leading-none">ABEL KINGS</p>
-            <p className="text-[8px] font-bold text-green-700 uppercase tracking-tighter">Tutorial Center</p>
+          <div className="text-right shrink-0">
+            <p className="text-[7px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Partner</p>
+            <p className="text-[9px] font-black text-gray-900 leading-none uppercase">Abel Kings</p>
+            <p className="text-[7px] font-bold text-green-600 uppercase tracking-tighter">Tutorial Center</p>
           </div>
         </div>
       </div>
-
-      {/* CSS FOR THE LIVE AURORA EFFECT */}
-      <style jsx global>{`
-        @keyframes aurora {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        .animate-aurora {
-          animation: aurora 15s linear infinite;
-        }
-      `}</style>
     </main>
   );
 }
