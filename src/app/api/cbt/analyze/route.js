@@ -3,37 +3,42 @@ import { NextResponse } from 'next/server';
 export async function POST(req) {
   try {
     const { studentName, courseCode, score, total, failedQuestions } = await req.json();
+    const firstName = studentName.split(' ')[0];
 
     if (!failedQuestions || failedQuestions.length === 0) {
-      return NextResponse.json({ analysis: `### Absolute Mastery Achieved\n\nCongratulations, **${studentName}**. Your performance in **${courseCode}** is flawless. You have demonstrated a 100% cognitive alignment with the course objectives. No corrective measures are required.` });
+      return NextResponse.json({ analysis: `### Absolute Mastery Achieved\n\nCongratulations, **${firstName}**. Your performance in **${courseCode}** is flawless. You have demonstrated a 100% cognitive alignment with the course objectives. No corrective measures are required.` });
     }
 
     const prompt = `
     SYSTEM ROLE: Senior Academic Strategist.
-    TASK: Provide a "Classic & Premium" diagnostic briefing for ${studentName}.
+    TASK: Provide a direct, second-person diagnostic briefing for ${firstName}.
     
     CONTEXT:
     - Course: ${courseCode}
     - Performance: ${score}/${total}
     - Data: ${JSON.stringify(failedQuestions)}
     
+    STRICT INSTRUCTIONS:
+    - Speak DIRECTLY to the student using "You", "Your", and "${firstName}".
+    - Tone: Authoritative, encouraging, and direct.
+    
     STRICT MARKDOWN STRUCTURE:
     # EXECUTIVE SUMMARY
-    [A 2-sentence high-level assessment of the student's current standing.]
+    [A 2-sentence direct assessment of ${firstName}'s standing. e.g., "${firstName}, you have shown..."]
 
     # COGNITIVE DIAGNOSTICS
-    [Identify the *nature* of their errors. Use sophisticated academic language.]
+    [Identify the *nature* of their errors. Use sophisticated academic language but address them directly.]
 
-    # CRITICAL KNOWLEDGE GAPS
+    # YOUR CRITICAL KNOWLEDGE GAPS
     - **Gap 1:** [Description]
     - **Gap 2:** [Description]
 
-    # TACTICAL RECOVERY ROADMAP
+    # YOUR TACTICAL RECOVERY ROADMAP
     1. **Immediate Action:** [Specific study task]
     2. **Conceptual Shift:** [How to rethink the topic]
     3. **Final Polish:** [Preparation tip]
 
-    STYLE: Authoritative, Classic, Sophisticated. Use bold text for emphasis.
+    STYLE: Professional, Classic, Sophisticated. Use bold text for emphasis.
     `;
 
     const aiRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -53,9 +58,7 @@ export async function POST(req) {
     const aiData = await aiRes.json();
     const content = aiData.choices?.[0]?.message?.content;
 
-    if (!content) {
-      throw new Error("AI returned empty content");
-    }
+    if (!content) throw new Error("AI returned empty content");
 
     return NextResponse.json({ analysis: content });
 

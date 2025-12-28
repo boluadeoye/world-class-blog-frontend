@@ -9,7 +9,6 @@ import {
 import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";
 
-// FIXED: Correct path depth (4 levels up to reach src/)
 const UpgradeModal = dynamic(() => import("../../../../components/cbt/UpgradeModal"), { ssr: false });
 
 function TimeUpOverlay() {
@@ -247,41 +246,31 @@ function ExamContent() {
               ))}
             </div>
           ) : (
-            /* === PREMIUM VAULT: RESTRICTED INTEL CARD === */
-            <div className="bg-[#0a0a0a] rounded-[2.5rem] shadow-2xl border border-yellow-900/30 overflow-hidden min-h-[500px] relative group">
+            <div className="bg-white rounded-[2.5rem] shadow-2xl border border-gray-100 overflow-hidden min-h-[500px] relative group">
               {!isPremium ? (
-                <div className="absolute inset-0 z-10 bg-gradient-to-b from-black via-[#0a0a0a] to-[#1a1a1a] flex flex-col items-center justify-center text-center p-10">
-                  <div className="relative mb-10">
-                    <div className="absolute inset-0 bg-yellow-500 blur-[80px] opacity-20 group-hover:opacity-40 transition-opacity animate-pulse"></div>
-                    <div className="w-28 h-28 bg-gradient-to-br from-yellow-400 via-orange-600 to-yellow-700 rounded-[2.5rem] flex items-center justify-center relative z-10 shadow-[0_0_50px_rgba(234,179,8,0.3)] transform group-hover:scale-110 transition-transform duration-700">
-                      <Lock size={48} className="text-white drop-shadow-2xl" strokeWidth={2.5} />
+                <div className="absolute inset-0 z-10 bg-gradient-to-b from-white via-white to-yellow-50/30 flex flex-col items-center justify-center text-center p-10">
+                  <div className="relative mb-8">
+                    <div className="absolute inset-0 bg-yellow-400 blur-3xl opacity-20 group-hover:opacity-40 transition-opacity animate-pulse"></div>
+                    <div className="w-24 h-24 bg-gradient-to-br from-yellow-300 to-orange-500 rounded-[2rem] flex items-center justify-center relative z-10 shadow-xl shadow-orange-200 transform group-hover:rotate-12 transition-transform duration-500">
+                      <Lock size={48} className="text-white drop-shadow-md" />
                     </div>
                   </div>
-                  <div className="relative z-10">
-                    <h3 className="text-3xl font-black text-white mb-4 tracking-tighter uppercase italic">Confidential Briefing</h3>
-                    <p className="text-gray-400 text-sm mb-12 max-w-xs font-medium leading-relaxed">
-                      Your cognitive performance data is locked. Access the <span className="text-yellow-500 font-bold">AI Tactical Roadmap</span> to secure your success.
-                    </p>
-                    <button onClick={() => setShowUpgrade(true)} className="bg-yellow-500 text-black px-12 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.3em] shadow-[0_10px_40px_rgba(234,179,8,0.4)] hover:bg-white hover:scale-105 transition-all active:scale-95">
-                      Unlock The Vault
-                    </button>
-                  </div>
-                  <div className="absolute bottom-6 left-0 w-full text-center opacity-5 pointer-events-none">
-                    <p className="text-[40px] font-black uppercase tracking-[0.5em] whitespace-nowrap">CLASSIFIED • CLASSIFIED • CLASSIFIED</p>
-                  </div>
+                  <h3 className="text-2xl font-black text-gray-900 mb-3 tracking-tighter uppercase">Restricted Intel</h3>
+                  <p className="text-gray-500 text-sm mb-10 max-w-xs font-medium leading-relaxed">Your performance data is ready. Unlock your Personalized AI Study Plan to bridge your knowledge gaps.</p>
+                  <button onClick={() => setShowUpgrade(true)} className="bg-gray-900 text-white px-12 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-2xl hover:bg-black hover:scale-105 transition-all active:scale-95">Unlock Study Plan</button>
                 </div>
               ) : (
                 <div className="p-0">
                   {!analysis ? (
-                    <div className="text-center py-32 px-8 bg-white">
-                      <div className="w-16 h-16 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse"><BrainCircuit size={40} className="text-purple-600" /></div>
-                      <h3 className="font-black text-gray-900 text-xs uppercase tracking-widest mb-2">Analyzing Performance</h3>
+                    <div className="text-center py-24 px-8 bg-white">
+                      <div className="w-16 h-16 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse"><BrainCircuit size={32} className="text-purple-600" /></div>
+                      <h3 className="font-black text-gray-900 text-xs uppercase tracking-widest mb-2">Analyzing Patterns</h3>
                       <p className="text-gray-400 text-[10px] mb-8 uppercase tracking-widest">Crafting personalized recovery roadmap...</p>
                       <button onClick={generateAnalysis} disabled={analyzing} className="bg-purple-900 text-white px-10 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl active:scale-95 transition-all">{analyzing ? "PROCESSING..." : "GENERATE REPORT"}</button>
                     </div>
                   ) : (
                     <div className="bg-[#fcfcfc] min-h-[600px] animate-in fade-in duration-700">
-                      <div className="bg-purple-900 text-white p-10 pb-20 rounded-b-[3.5rem] shadow-lg relative overflow-hidden">
+                      <div className="bg-purple-900 text-white p-10 pb-16 rounded-b-[3.5rem] shadow-lg relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-20 -mt-20 blur-3xl"></div>
                         <div className="relative z-10 text-left">
                           <div className="flex items-center gap-3 mb-4">
@@ -293,8 +282,8 @@ function ExamContent() {
                         </div>
                       </div>
 
-                      <div className="px-6 -mt-12 pb-20">
-                        <div className="bg-white rounded-[2.5rem] shadow-xl border border-purple-100 p-8 md:p-12 text-left">
+                      <div className="px-6 -mt-10 pb-20">
+                        <div className="bg-white rounded-[2.5rem] shadow-xl border border-purple-100 p-8 md:p-12 text-left border-l-[8px] border-l-purple-600">
                           <div className="text-gray-800 leading-relaxed font-medium space-y-6">
                              <ReactMarkdown 
                                components={{
