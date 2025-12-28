@@ -4,7 +4,7 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { 
   Grid, CheckCircle, AlertOctagon, X, Crown, Sparkles, 
   BrainCircuit, Clock, ChevronRight, ChevronLeft, ShieldAlert, 
-  Loader2, BookOpen, Target, Zap, Lock, FileText
+  Loader2, BookOpen, Target, Zap, FileText, Lock
 } from "lucide-react";
 import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";
@@ -115,7 +115,7 @@ function ExamContent() {
           const finalDuration = (data.isPremium && requestedDuration) ? parseInt(requestedDuration) : (data.course?.duration || 15);
           setTimeLeft(finalDuration * 60);
         }
-      } catch (e) { setError(e.message); } finally { setLoading(false); }
+      } catch (e) { setError(String(e.message)); } finally { setLoading(false); }
     }
     loadExam();
   }, [params.id, router, getStorageKey, searchParams]);
@@ -181,7 +181,7 @@ function ExamContent() {
         body: JSON.stringify({ studentName: student.name, courseCode: course.code, score, total: questions.length, failedQuestions }) 
       });
       const data = await res.json();
-      setAnalysis(data.analysis);
+      setAnalysis(String(data.analysis)); // Ensure string
     } catch (e) { alert("AI Service error."); } finally { setAnalyzing(false); }
   };
 
@@ -246,23 +246,12 @@ function ExamContent() {
               ))}
             </div>
           ) : (
-            /* === UPGRADED RESTRICTED INTEL CARD === */
-            <div className="bg-white rounded-[2.5rem] shadow-2xl border border-gray-100 overflow-hidden min-h-[500px] relative group">
+            <div className="bg-white rounded-[2.5rem] shadow-2xl border border-gray-100 overflow-hidden min-h-[500px] relative">
               {!isPremium ? (
-                <div className="absolute inset-0 z-10 bg-gradient-to-b from-white via-white to-yellow-50/30 flex flex-col items-center justify-center text-center p-10">
-                  <div className="relative mb-8">
-                    <div className="absolute inset-0 bg-yellow-400 blur-3xl opacity-20 group-hover:opacity-40 transition-opacity animate-pulse"></div>
-                    <div className="w-24 h-24 bg-gradient-to-br from-yellow-300 to-orange-500 rounded-[2rem] flex items-center justify-center relative z-10 shadow-xl shadow-orange-200 transform group-hover:rotate-12 transition-transform duration-500">
-                      <Lock size={48} className="text-white drop-shadow-md" />
-                    </div>
-                  </div>
-                  <h3 className="text-2xl font-black text-gray-900 mb-3 tracking-tighter uppercase">Restricted Intel</h3>
-                  <p className="text-gray-500 text-sm mb-10 max-w-xs font-medium leading-relaxed">
-                    Your performance data is ready. Unlock your <span className="text-orange-600 font-bold">Personalized AI Study Plan</span> to bridge your knowledge gaps.
-                  </p>
-                  <button onClick={() => setShowUpgrade(true)} className="bg-gray-900 text-white px-12 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-2xl hover:bg-black hover:scale-105 transition-all active:scale-95">
-                    Unlock Study Plan
-                  </button>
+                <div className="absolute inset-0 z-10 bg-white/95 flex flex-col items-center justify-center text-center p-8">
+                  <div className="w-20 h-20 bg-gradient-to-br from-yellow-300 to-orange-400 rounded-full flex items-center justify-center mb-6 shadow-xl shadow-yellow-200"><Crown size={40} className="text-white" /></div>
+                  <h3 className="text-xl font-black text-gray-900 mb-2 tracking-tight">RESTRICTED INTEL</h3>
+                  <button onClick={() => setShowUpgrade(true)} className="bg-black text-white px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest shadow-lg hover:scale-105 transition-transform">Unlock Report</button>
                 </div>
               ) : (
                 <div className="p-0">
@@ -289,20 +278,11 @@ function ExamContent() {
 
                       <div className="px-6 -mt-12 pb-20">
                         <div className="bg-white rounded-[2.5rem] shadow-xl border border-purple-100 p-8 md:p-12 text-left">
-                          {/* MANUALLY STYLED MARKDOWN CONTAINER - NO PROSE */}
-                          <div className="text-gray-800 leading-relaxed font-medium space-y-6">
-                             <ReactMarkdown 
-                               components={{
-                                 h1: ({node, ...props}) => <h1 className="text-xl font-black text-gray-900 uppercase tracking-widest border-b border-purple-100 pb-2 mt-8 first:mt-0" {...props} />,
-                                 h2: ({node, ...props}) => <h2 className="text-lg font-bold text-purple-900 mt-6 mb-3" {...props} />,
-                                 p: ({node, ...props}) => <p className="text-sm text-gray-600 mb-4 leading-7" {...props} />,
-                                 ul: ({node, ...props}) => <ul className="list-disc pl-5 space-y-2 text-sm text-gray-700" {...props} />,
-                                 li: ({node, ...props}) => <li className="pl-1" {...props} />,
-                                 strong: ({node, ...props}) => <strong className="font-black text-purple-800" {...props} />
-                               }}
-                             >
-                               {analysis}
-                             </ReactMarkdown>
+                          <div className="prose prose-sm max-w-none 
+                            prose-headings:font-black prose-headings:uppercase prose-headings:tracking-widest prose-headings:text-gray-900 prose-headings:border-b prose-headings:border-purple-50 prose-headings:pb-4 prose-headings:mt-12 first:prose-headings:mt-0
+                            prose-p:text-gray-700 prose-p:leading-[1.8] prose-p:text-base prose-p:mb-8
+                            prose-li:text-gray-700 prose-li:mb-4 prose-strong:text-purple-800 prose-strong:font-black">
+                             <ReactMarkdown>{analysis}</ReactMarkdown>
                           </div>
                           <div className="mt-16 pt-8 border-t border-gray-50 flex items-center justify-between opacity-40">
                             <div className="flex items-center gap-2"><BrainCircuit size={14} /><span className="text-[8px] font-black uppercase tracking-widest">Bolu Adeoye AI Engine</span></div>
