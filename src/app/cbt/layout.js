@@ -1,19 +1,20 @@
 export const metadata = {
   metadataBase: new URL('https://boluadeoye.com.ng'),
-  title: "ExamForge | Professional CBT Simulator",
-  description: "Forge your academic success with ExamForge. The elite psychological preparation portal for 2026 GST examinations.",
-  keywords: ["ExamForge", "CBT Simulator", "Bolu Adeoye", "GST Mock Exam", "Academic Excellence"],
+  title: "ExamPrep Terminal | Professional CBT Simulator",
+  description: "The elite psychological preparation portal for university examinations. Practice time management, build resilience, and master your courses in a high-fidelity environment.",
+  keywords: ["ExamPrep", "CBT Simulator", "Bolu Adeoye", "University Mock Exams"],
+  authors: [{ name: "Bolu Adeoye" }],
   openGraph: {
-    title: "ExamForge: Forge Your Success",
-    description: "High-fidelity CBT environment for 2026 GST Mock Exams. Engineered for speed, accuracy, and psychological readiness.",
+    title: "ExamPrep Terminal: Elite Mock Examination Portal",
+    description: "Secure your 'A' grade in a real-time CBT environment. Engineered for speed, accuracy, and psychological readiness.",
     url: "/cbt",
-    siteName: "ExamForge Terminal",
+    siteName: "ExamPrep Ecosystem",
     images: [
       {
         url: "https://res.cloudinary.com/dwbjb3svx/image/upload/f_jpg,q_auto:good,w_1200/v1766912213/blog_assets/ogd5twhezpdtb4wd4daq.png",
         width: 1200,
         height: 630,
-        alt: "ExamForge Professional Interface",
+        alt: "ExamPrep Terminal Interface",
       },
     ],
     locale: "en_NG",
@@ -21,8 +22,8 @@ export const metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "ExamForge | Professional CBT Simulator",
-    description: "Elite CBT simulation for 2026 GST candidates.",
+    title: "ExamPrep Terminal | Elite Mock Exams",
+    description: "High-fidelity CBT simulation for university students.",
     images: ["https://res.cloudinary.com/dwbjb3svx/image/upload/f_jpg,q_auto:good,w_1200/v1766912213/blog_assets/ogd5twhezpdtb4wd4daq.png"],
   },
 };
