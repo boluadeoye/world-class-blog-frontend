@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { 
   LogOut, Trophy, BookOpen, Play, Award, 
   ChevronDown, Info, Crown, Clock, ChevronRight, 
-  AlertTriangle, Layers, Headset, History, CheckCircle, Building2, Settings, Lock
+  AlertTriangle, Layers, Headset, History, CheckCircle, Building2, Settings, Lock, Sparkles
 } from "lucide-react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -12,58 +12,32 @@ import StatusModal from "../../../components/cbt/StatusModal";
 
 const UpgradeModal = dynamic(() => import("../../../components/cbt/UpgradeModal"), { ssr: false });
 
-/* === 1. EXAM SETUP MODAL (RESTORED) === */
 function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
   const [duration, setDuration] = useState(course.duration || 15);
-  
   return (
     <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
       <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in duration-200 border border-white">
         <div className="bg-[#004d00] p-8 text-white relative">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-400 to-green-400"></div>
-          <h3 className="font-black text-sm uppercase tracking-[0.2em] flex items-center gap-2">
-            <Settings size={18} /> Configure Session
-          </h3>
+          <h3 className="font-black text-sm uppercase tracking-[0.2em] flex items-center gap-2"><Settings size={18} /> Configure Session</h3>
           <p className="text-green-200 text-[10px] font-bold uppercase mt-2 tracking-widest">{course.code} • {course.title}</p>
         </div>
-        
         <div className="p-8">
           <div className="mb-8">
             <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4">Select Duration</label>
             <div className="grid grid-cols-4 gap-3">
               {[15, 30, 45, 60].map((time) => (
-                <button
-                  key={time}
-                  disabled={!isPremium && time !== (course.duration || 15)}
-                  onClick={() => setDuration(time)}
-                  className={`py-4 rounded-2xl text-xs font-black transition-all relative overflow-hidden border-2 ${
-                    duration === time 
-                      ? 'border-green-600 bg-green-50 text-green-900 shadow-inner' 
-                      : 'border-gray-100 text-gray-400 bg-gray-50'
-                  } ${!isPremium && time !== (course.duration || 15) ? 'opacity-40 cursor-not-allowed' : 'hover:border-green-300'}`}
-                >
+                <button key={time} disabled={!isPremium && time !== (course.duration || 15)} onClick={() => setDuration(time)} className={`py-4 rounded-2xl text-xs font-black transition-all relative overflow-hidden border-2 ${duration === time ? 'border-green-600 bg-green-50 text-green-900 shadow-inner' : 'border-gray-100 text-gray-400 bg-gray-50'} ${!isPremium && time !== (course.duration || 15) ? 'opacity-40 cursor-not-allowed' : 'hover:border-green-300'}`}>
                   {time}m
-                  {!isPremium && time !== (course.duration || 15) && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-gray-100/20">
-                      <Lock size={10} className="text-gray-400" />
-                    </div>
-                  )}
+                  {!isPremium && time !== (course.duration || 15) && <div className="absolute inset-0 flex items-center justify-center bg-gray-100/20"><Lock size={10} className="text-gray-400" /></div>}
                 </button>
               ))}
             </div>
-            {!isPremium && (
-              <button onClick={onUpgrade} className="mt-4 w-full flex items-center justify-center gap-2 text-[9px] text-yellow-700 bg-yellow-50 p-3 rounded-xl border border-yellow-100 hover:bg-yellow-100 transition-colors">
-                <Crown size={12} fill="currentColor" />
-                <span className="font-black uppercase tracking-widest">Upgrade to unlock time control</span>
-              </button>
-            )}
+            {!isPremium && <button onClick={onUpgrade} className="mt-4 w-full flex items-center justify-center gap-2 text-[9px] text-yellow-700 bg-yellow-50 p-3 rounded-xl border border-yellow-100 hover:bg-yellow-100 transition-colors"><Crown size={12} fill="currentColor" /><span className="font-black uppercase tracking-widest">Upgrade to unlock time control</span></button>}
           </div>
-
           <div className="flex gap-3">
             <button onClick={onClose} className="flex-1 py-4 border-2 border-gray-100 rounded-2xl text-[10px] font-black text-gray-400 hover:bg-gray-50 uppercase tracking-widest transition-all">Cancel</button>
-            <button onClick={() => onStart(duration)} className="flex-[2] py-4 bg-gray-900 text-white rounded-2xl text-[10px] font-black shadow-xl hover:bg-black transition-all active:scale-95 uppercase tracking-widest flex items-center justify-center gap-2">
-              Start Mission <Play size={14} fill="currentColor" />
-            </button>
+            <button onClick={() => onStart(duration)} className="flex-[2] py-4 bg-gray-900 text-white rounded-2xl text-[10px] font-black shadow-xl hover:bg-black transition-all active:scale-95 uppercase tracking-widest flex items-center justify-center gap-2">Start Mission <Play size={14} fill="currentColor" /></button>
           </div>
         </div>
       </div>
@@ -71,7 +45,6 @@ function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
   );
 }
 
-/* === 2. DISCLAIMER ACCORDION === */
 function DisclaimerCard() {
   const [isOpen, setIsOpen] = useState(true);
   return (
@@ -79,10 +52,7 @@ function DisclaimerCard() {
       <button onClick={() => setIsOpen(!isOpen)} className="w-full flex items-center justify-between p-6 text-left">
         <div className="flex items-center gap-4">
           <div className="bg-orange-100 w-10 h-10 flex items-center justify-center rounded-full text-orange-600"><Info size={20} /></div>
-          <div>
-            <h3 className="font-black text-sm text-[#5A3A29] uppercase tracking-wide">Important Disclaimer</h3>
-            <p className="text-[10px] text-orange-400 font-bold">Read before starting</p>
-          </div>
+          <div><h3 className="font-black text-sm text-[#5A3A29] uppercase tracking-wide">Important Disclaimer</h3><p className="text-[10px] text-orange-400 font-bold">Read before starting</p></div>
         </div>
         <ChevronDown size={20} className={`text-orange-300 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
@@ -100,12 +70,12 @@ function DisclaimerCard() {
   );
 }
 
-/* === 3. COURSE CARD === */
-function CourseCard({ course, onLaunch }) {
+function CourseCard({ course, onLaunch, variant = "green" }) {
+  const isGst = variant === "green";
   return (
     <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center group active:scale-[0.98] transition-transform mb-3">
       <div className="flex items-center gap-4">
-        <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-xs border ${course.code.toUpperCase().startsWith('GST') ? 'bg-green-50 text-[#004d00] border-green-100' : 'bg-blue-50 text-blue-700 border-blue-100'}`}>
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-xs border ${isGst ? 'bg-green-50 text-[#004d00] border-green-100' : 'bg-blue-50 text-blue-700 border-blue-100'}`}>
           {course.code.slice(0,3)}
         </div>
         <div>
@@ -113,7 +83,7 @@ function CourseCard({ course, onLaunch }) {
           <p className="text-[10px] text-gray-500 font-medium truncate w-40">{course.title}</p>
         </div>
       </div>
-      <button onClick={() => onLaunch(course)} className="w-9 h-9 bg-gray-900 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-[#004d00] transition-colors">
+      <button onClick={() => onLaunch(course)} className={`w-9 h-9 rounded-full flex items-center justify-center shadow-lg transition-colors ${isGst ? 'bg-gray-900 text-white hover:bg-[#004d00]' : 'bg-blue-900 text-white hover:bg-blue-950'}`}>
         <Play size={12} fill="currentColor" />
       </button>
     </div>
@@ -131,7 +101,7 @@ export default function StudentDashboard() {
   const [statusModal, setStatusModal] = useState(null);
   const [greeting, setGreeting] = useState("GOOD DAY");
   const [avatarUrl, setAvatarUrl] = useState("");
-  const [setupCourse, setSetupCourse] = useState(null); // NEW: Track course for setup
+  const [setupCourse, setSetupCourse] = useState(null);
 
   const [gstExpanded, setGstExpanded] = useState(true);
   const [othersExpanded, setOthersExpanded] = useState(false);
@@ -158,25 +128,17 @@ export default function StudentDashboard() {
           fetch(`/api/cbt/courses?studentId=${parsed.id}`),
           fetch('/api/cbt/leaderboard')
         ]);
-
         const syncData = await syncRes.json();
         if (syncRes.ok) {
           const updated = { ...parsed, subscription_status: syncData.status };
           setStudent(updated);
           sessionStorage.setItem("cbt_student", JSON.stringify(updated));
         }
-
         const courseData = await courseRes.json();
         setCourses(Array.isArray(courseData.courses) ? courseData.courses : []);
-
         const lbData = await lbRes.json();
         setLeaders(Array.isArray(lbData) ? lbData : []); 
-
-      } catch (e) {
-        console.error("Load Error", e);
-      } finally {
-        setLoading(false);
-      }
+      } catch (e) { console.error(e); } finally { setLoading(false); }
     }
     fetchData();
   }, [router]);
@@ -198,6 +160,10 @@ export default function StudentDashboard() {
   const isPremium = student.subscription_status === 'premium';
   const gstCourses = courses.filter(c => c.code.toUpperCase().startsWith("GST"));
   const otherCourses = courses.filter(c => !c.code.toUpperCase().startsWith("GST"));
+  
+  // FEATURED OTHERS: Show first 2 departmental courses
+  const featuredOthers = otherCourses.slice(0, 2);
+  const remainingOthers = otherCourses.slice(2);
 
   if (loading) return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#004d00] gap-4">
@@ -210,17 +176,7 @@ export default function StudentDashboard() {
     <main className="min-h-screen bg-[#fcfdfc] font-sans text-gray-900 pb-48 relative">
       {statusModal && <StatusModal {...statusModal} />}
       {showUpgrade && <UpgradeModal student={student} onClose={() => setShowUpgrade(false)} onSuccess={() => window.location.reload()} />}
-      
-      {/* SETUP MODAL */}
-      {setupCourse && (
-        <ExamSetupModal 
-          course={setupCourse} 
-          isPremium={isPremium} 
-          onClose={() => setSetupCourse(null)} 
-          onStart={handleLaunchExam} 
-          onUpgrade={() => { setSetupCourse(null); setShowUpgrade(true); }} 
-        />
-      )}
+      {setupCourse && <ExamSetupModal course={setupCourse} isPremium={isPremium} onClose={() => setSetupCourse(null)} onStart={handleLaunchExam} onUpgrade={() => { setSetupCourse(null); setShowUpgrade(true); }} />}
       
       <header className="bg-[#004d00] text-white pt-8 pb-16 px-6 rounded-b-[40px] shadow-2xl relative z-10">
         <div className="flex justify-between items-center mb-8">
@@ -248,36 +204,59 @@ export default function StudentDashboard() {
       <div className="px-6 -mt-8 relative z-20 space-y-6">
         <DisclaimerCard />
 
+        {/* === GST SECTION === */}
         <section className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
           <button onClick={() => setGstExpanded(!gstExpanded)} className="w-full p-5 flex items-center justify-between bg-green-50/50">
             <div className="flex items-center gap-3"><BookOpen size={18} className="text-[#004d00]" /><h2 className="font-black text-xs text-gray-700 uppercase tracking-widest">General Studies</h2></div>
             <ChevronDown size={18} className={`text-gray-400 transition-transform ${gstExpanded ? 'rotate-180' : ''}`} />
           </button>
-          {gstExpanded && <div className="p-4 animate-in fade-in slide-in-from-top-2">{gstCourses.map(c => <CourseCard key={c.id} course={c} onLaunch={setSetupCourse} />)}</div>}
+          {gstExpanded && <div className="p-4 animate-in fade-in slide-in-from-top-2">{gstCourses.map(c => <CourseCard key={c.id} course={c} onLaunch={setSetupCourse} variant="green" />)}</div>}
         </section>
 
-        <section className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-          <button onClick={() => setOthersExpanded(!othersExpanded)} className="w-full p-5 flex items-center justify-between bg-blue-50/30">
-            <div className="flex items-center gap-3"><Layers size={18} className="text-blue-700" /><h2 className="font-black text-xs text-gray-700 uppercase tracking-widest">Other Courses</h2></div>
-            <ChevronDown size={18} className={`text-gray-400 transition-transform ${othersExpanded ? 'rotate-180' : ''}`} />
-          </button>
-          {othersExpanded && <div className="p-4 animate-in fade-in slide-in-from-top-2">{otherCourses.length > 0 ? otherCourses.map(c => <CourseCard key={c.id} course={c} onLaunch={setSetupCourse} />) : <p className="text-center text-[10px] text-gray-400 py-4 font-bold uppercase">No departmental courses loaded</p>}</div>}
+        {/* === OTHER COURSES (ENHANCED) === */}
+        <section className="bg-[#f0f4ff] rounded-[2.5rem] shadow-xl shadow-blue-900/5 border border-blue-100 p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="bg-blue-600 p-2 rounded-xl text-white shadow-lg shadow-blue-200"><Layers size={18} /></div>
+              <h2 className="font-black text-sm text-blue-900 uppercase tracking-widest">Other Courses</h2>
+            </div>
+            <Sparkles size={16} className="text-blue-400 animate-pulse" />
+          </div>
+
+          {/* Featured Others */}
+          <div className="space-y-1">
+            {featuredOthers.length > 0 ? featuredOthers.map(c => <CourseCard key={c.id} course={c} onLaunch={setSetupCourse} variant="blue" />) : <p className="text-center text-[10px] text-blue-400 py-4 font-bold uppercase">No departmental courses loaded</p>}
+          </div>
+
+          {/* Collapsible Others */}
+          {remainingOthers.length > 0 && (
+            <div className="mt-4">
+              <button onClick={() => setOthersExpanded(!othersExpanded)} className="w-full py-3 bg-white/50 border border-blue-200 rounded-2xl text-[10px] font-black text-blue-600 uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-white transition-all">
+                {othersExpanded ? "Hide Extra Units" : `View ${remainingOthers.length} More Units`}
+                <ChevronDown size={14} className={`transition-transform ${othersExpanded ? 'rotate-180' : ''}`} />
+              </button>
+              {othersExpanded && (
+                <div className="mt-4 space-y-1 animate-in fade-in slide-in-from-top-2">
+                  {remainingOthers.map(c => <CourseCard key={c.id} course={c} onLaunch={setSetupCourse} variant="blue" />)}
+                </div>
+              )}
+            </div>
+          )}
         </section>
 
+        {/* === LEADERBOARD === */}
         <section>
           <div className="flex items-center gap-2 mb-4"><Trophy size={18} className="text-yellow-600" /><h2 className="font-black text-xs text-gray-500 uppercase tracking-widest">Top Performers</h2></div>
           {leaders.length > 0 ? (
             <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-4 overflow-x-auto flex gap-4 custom-scrollbar">
               {leaders.map((user, i) => (
                 <div key={i} className="min-w-[180px] bg-gray-50 rounded-2xl p-5 border border-gray-100 flex flex-col items-center text-center relative">
-                  {i === 0 && <div className="absolute -top-2 -right-2 bg-yellow-400 text-white p-1 rounded-full shadow-sm"><Crown size={12} fill="currentColor" /></div>}
+                  {i === 0 && <div className="absolute -top-2 -right-2 bg-yellow-400 text-white p-1.5 rounded-full shadow-sm"><Crown size={12} fill="currentColor" /></div>}
                   <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-black text-sm mb-3 overflow-hidden border-2 ${i === 0 ? 'border-yellow-400' : 'border-gray-100'}`}>
                     <img src={`https://api.dicebear.com/9.x/notionists/svg?seed=${user.name.replace(/\s/g, '')}&backgroundColor=transparent`} alt={user.name} className="w-full h-full object-cover" />
                   </div>
                   <h3 className="font-black text-xs text-gray-900 truncate w-full mb-1 uppercase tracking-tighter">{user.name}</h3>
-                  <div className="flex items-center gap-1 text-[8px] text-blue-600 font-black uppercase mb-3 bg-blue-50 px-2 py-0.5 rounded">
-                    <Building2 size={10} /> {user.department || "General"}
-                  </div>
+                  <div className="flex items-center gap-1 text-[8px] text-blue-600 font-black uppercase mb-3 bg-blue-50 px-2 py-0.5 rounded"><Building2 size={10} /> {user.department || "General"}</div>
                   <div className="bg-[#004d00] text-white px-4 py-1 rounded-full text-[10px] font-black shadow-md">{user.score}%</div>
                   <p className="text-[8px] text-gray-400 mt-2 font-bold uppercase">{user.course_code}</p>
                 </div>
