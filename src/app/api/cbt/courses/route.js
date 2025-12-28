@@ -8,16 +8,21 @@ export async function GET(req) {
     const { searchParams } = new URL(req.url);
     const studentId = searchParams.get('studentId');
 
-    if (!studentId) return NextResponse.json({ error: "Missing Student ID" }, { status: 400 });
+    let courses;
 
-    // Fetch courses and sub-query the attempt count for THIS specific student
-    const courses = await sql`
-      SELECT 
-        c.*, 
-        (SELECT COUNT(*) FROM cbt_results r WHERE r.course_id = c.id::text AND r.student_id = ${String(studentId)}) as user_attempts
-      FROM cbt_courses c 
-      ORDER BY c.created_at DESC
-    `;
+    if (studentId) {
+      // STUDENT MODE: Fetch with attempt counts
+      courses = await sql`
+        SELECT 
+          c.*, 
+          (SELECT COUNT(*) FROM cbt_results r WHERE r.course_id = c.id::text AND r.student_id = ${String(studentId)}) as user_attempts
+        FROM cbt_courses c 
+        ORDER BY c.created_at DESC
+      `;
+    } else {
+      // ADMIN MODE: Fetch all courses normally
+      courses = await sql`SELECT * FROM cbt_courses ORDER BY created_at DESC`;
+    }
 
     return NextResponse.json({ courses }, { status: 200 });
   } catch (error) {
