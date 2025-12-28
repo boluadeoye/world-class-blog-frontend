@@ -1,20 +1,20 @@
 export const metadata = {
   metadataBase: new URL('https://boluadeoye.com.ng'),
-  title: "ExamPrep Terminal | Professional CBT Simulator",
-  description: "The elite psychological preparation portal for university examinations. Practice time management, build resilience, and master your courses in a high-fidelity environment.",
-  keywords: ["ExamPrep", "CBT Simulator", "Bolu Adeoye", "University Mock Exams"],
+  title: "ExamForge Terminal | Professional CBT Simulator",
+  description: "The elite psychological preparation portal for university examinations. Practice time management, build resilience, and forge your success in a high-fidelity environment.",
+  keywords: ["ExamForge", "CBT Simulator", "Bolu Adeoye", "University Mock Exams", "FUOYE"],
   authors: [{ name: "Bolu Adeoye" }],
   openGraph: {
-    title: "ExamPrep Terminal: Elite Mock Examination Portal",
-    description: "Secure your 'A' grade in a real-time CBT environment. Engineered for speed, accuracy, and psychological readiness.",
+    title: "ExamForge Terminal: Elite Mock Examination Portal",
+    description: "Forge your 'A' grade in a real-time CBT environment. Engineered for speed, accuracy, and psychological readiness.",
     url: "/cbt",
-    siteName: "ExamPrep Ecosystem",
+    siteName: "ExamForge Ecosystem",
     images: [
       {
         url: "https://res.cloudinary.com/dwbjb3svx/image/upload/f_jpg,q_auto:good,w_1200/v1766912213/blog_assets/ogd5twhezpdtb4wd4daq.png",
         width: 1200,
         height: 630,
-        alt: "ExamPrep Terminal Interface",
+        alt: "ExamForge Terminal Interface",
       },
     ],
     locale: "en_NG",
@@ -22,9 +22,15 @@ export const metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "ExamPrep Terminal | Elite Mock Exams",
+    title: "ExamForge Terminal | Elite Mock Exams",
     description: "High-fidelity CBT simulation for university students.",
     images: ["https://res.cloudinary.com/dwbjb3svx/image/upload/f_jpg,q_auto:good,w_1200/v1766912213/blog_assets/ogd5twhezpdtb4wd4daq.png"],
+  },
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
   },
 };
 

@@ -35,7 +35,7 @@ export default function GodMode() {
             <h1 className="text-4xl font-black text-white tracking-tighter flex items-center gap-3">
               <Terminal className="text-green-500" size={32} /> GOD_MODE
             </h1>
-            <p className="text-[10px] font-mono text-gray-500 uppercase tracking-[0.3em] mt-2">Bolu Adeoye Ecosystem • Live Intelligence Feed</p>
+            <p className="text-[10px] font-mono text-gray-500 uppercase tracking-[0.3em] mt-2">ExamForge Ecosystem • Live Intelligence Feed</p>
           </div>
           <button onClick={fetchPulse} className={`p-4 rounded-2xl bg-white/5 border border-white/10 transition-all ${pulse ? 'rotate-180 text-green-500' : ''}`}><RefreshCw size={20} /></button>
         </div>
