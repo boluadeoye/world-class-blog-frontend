@@ -11,7 +11,6 @@ import ReactMarkdown from "react-markdown";
 
 const UpgradeModal = dynamic(() => import("../../../../components/cbt/UpgradeModal"), { ssr: false });
 
-/* === 1. TIME EXPIRED OVERLAY === */
 function TimeUpOverlay() {
   return (
     <div className="fixed inset-0 z-[600] bg-[#050505] flex flex-col items-center justify-center text-white p-6 animate-in fade-in duration-500">
@@ -24,7 +23,6 @@ function TimeUpOverlay() {
   );
 }
 
-/* === 2. AUDIT SUBMIT MODAL === */
 function SubmitModal({ isOpen, onConfirm, onCancel, answeredCount, totalCount }) {
   if (!isOpen) return null;
   const pendingCount = totalCount - answeredCount;
@@ -50,7 +48,7 @@ function SubmitModal({ isOpen, onConfirm, onCancel, answeredCount, totalCount })
           </div>
         </div>
         <div className="p-6 bg-white flex gap-4">
-          <button onClick={onCancel} className="flex-1 py-4 border-2 border-gray-100 rounded-2xl text-[10px] font-black text-gray-400 hover:bg-gray-50 uppercase tracking-widest">Review</button>
+          <button onClick={onCancel} className="flex-1 py-4 border-2 border-gray-100 rounded-2xl text-[10px] font-black text-gray-400 hover:bg-gray-50 uppercase tracking-widest transition-all">Review</button>
           <button onClick={onConfirm} className="flex-[1.5] py-4 bg-[#004d00] text-white rounded-2xl text-[10px] font-black shadow-xl hover:bg-green-900 uppercase tracking-widest">Submit Now</button>
         </div>
       </div>
@@ -194,6 +192,9 @@ function ExamContent() {
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-white text-green-900 font-black text-sm tracking-widest animate-pulse uppercase">Syncing Terminal...</div>;
   if (error) return <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6 text-center text-red-600 font-bold gap-4"><p>{error}</p><button onClick={() => window.location.reload()} className="bg-black text-white px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest">Retry Connection</button></div>;
 
+  // INTELLIGENT MARK CALCULATION
+  const marksPerQuestion = questions.length > 0 ? (100 / questions.length).toFixed(1) : 0;
+
   if (isSubmitted) {
     const percentage = Math.round((score / questions.length) * 100);
     const answeredCount = Object.keys(answers).length;
@@ -234,7 +235,7 @@ function ExamContent() {
                   <div className="flex justify-between items-start mb-4"><span className="bg-gray-100 text-gray-500 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest">Question {i+1}</span>{answers[q.id] === q.correct_option ? <CheckCircle size={20} className="text-green-600" /> : <X size={20} className="text-red-500" />}</div>
                   <p className="font-bold text-gray-900 text-sm leading-relaxed mb-6">{q.question_text}</p>
                   <div className="grid grid-cols-2 gap-3 mb-4">
-                    <div className="bg-green-50 border border-green-100 p-3 rounded-xl"><p className="text-[9px] font-black text-green-800 uppercase mb-1">Correct</p><p className="text-xs font-bold text-green-900">{q.correct_option}</p></div>
+                    <div className="bg-green-50 border border-green-100 p-3 rounded-xl"><p className="text-[9px] font-black text-green-800 uppercase mb-1">Correct</p><p className="text-sm font-bold text-green-900">{q.correct_option}</p></div>
                     {answers[q.id] !== q.correct_option && <div className="bg-red-50 border border-red-100 p-3 rounded-xl"><p className="text-[9px] font-black text-red-800 uppercase mb-1">Yours</p><p className="text-sm font-bold text-red-900">{answers[q.id] || "Skipped"}</p></div>}
                   </div>
                   {isPremium && q.explanation && <div className="mt-4 pt-4 border-t border-gray-100"><p className="text-[9px] font-black text-blue-600 uppercase tracking-widest mb-1">Concept Brief</p><p className="text-xs text-gray-600 leading-relaxed bg-blue-50/30 p-3 rounded-xl border border-blue-100 italic">{q.explanation}</p></div>}
@@ -247,7 +248,7 @@ function ExamContent() {
                 <div className="absolute inset-0 z-10 bg-white/95 flex flex-col items-center justify-center text-center p-8">
                   <div className="w-20 h-20 bg-gradient-to-br from-yellow-300 to-orange-400 rounded-full flex items-center justify-center mb-6 shadow-xl shadow-yellow-200 animate-bounce"><Crown size={40} className="text-white" /></div>
                   <h3 className="text-xl font-black text-gray-900 mb-2 tracking-tighter">RESTRICTED INTEL</h3>
-                  <button onClick={() => setShowUpgrade(true)} className="bg-black text-white px-10 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg">Unlock Study Plan</button>
+                  <button onClick={() => setShowUpgrade(true)} className="bg-black text-white px-8 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg">Unlock Study Plan</button>
                 </div>
               ) : (
                 <div className="p-0">
@@ -256,7 +257,7 @@ function ExamContent() {
                       <div className="w-16 h-16 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse"><BrainCircuit size={32} className="text-purple-600" /></div>
                       <h3 className="font-black text-gray-900 text-xs uppercase tracking-widest mb-2">Analyzing Patterns</h3>
                       <p className="text-gray-400 text-[10px] mb-8 uppercase tracking-widest">Crafting personalized recovery roadmap...</p>
-                      <button onClick={generateAnalysis} disabled={analyzing} className="bg-purple-900 text-white px-10 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl active:scale-95 transition-all">{analyzing ? "PROCESSING..." : "GENERATE REPORT"}</button>
+                      <button onClick={generateAnalysis} disabled={analyzing} className="bg-purple-900 text-white px-10 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl active:scale-95 transition-all">{analyzing ? "PROCESSING..." : "GENERATE REPORT"}</button>
                     </div>
                   ) : (
                     <div className="bg-white min-h-[500px] animate-in fade-in duration-500">
@@ -294,7 +295,6 @@ function ExamContent() {
       {isTimeUp && <TimeUpOverlay />}
       <SubmitModal isOpen={showSubmitModal} onConfirm={submitExam} onCancel={() => setShowSubmitModal(false)} answeredCount={answeredCount} totalCount={questions.length} />
       
-      {/* HEADER */}
       <header className="h-14 bg-[#004d00] text-white flex justify-between items-center px-4 shrink-0 z-[160] border-b border-green-800">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-[#004d00] font-black text-sm shadow-inner">{student?.name?.charAt(0).toUpperCase()}</div>
@@ -313,13 +313,13 @@ function ExamContent() {
         </div>
       </header>
 
-      {/* CONTENT AREA: STRICT ONE-PAGE */}
       <div className="flex-1 flex flex-col p-4 overflow-hidden relative">
         <div className="flex-1 bg-white rounded-[2.5rem] shadow-2xl shadow-green-900/5 border border-gray-100 p-6 flex flex-col justify-between relative overflow-hidden">
           
           <div className="flex justify-between items-center mb-4 shrink-0">
             <span className="font-black text-green-900 text-[9px] tracking-[0.2em] uppercase bg-green-50 px-2 py-1 rounded-lg border border-green-100">Q {String(currentQIndex + 1).padStart(2, '0')} / {questions.length}</span>
-            <span className="text-[9px] font-black text-gray-300 uppercase tracking-widest">2.0 Marks</span>
+            {/* DYNAMIC MARK ALLOCATION */}
+            <span className="text-[9px] font-black text-gray-300 uppercase tracking-widest">{marksPerQuestion} Marks</span>
           </div>
           
           <div className="flex-1 flex flex-col justify-center py-4 overflow-y-auto custom-scrollbar pr-2">
@@ -347,7 +347,6 @@ function ExamContent() {
         </div>
       </div>
 
-      {/* FOOTER */}
       <footer className="h-16 bg-white border-t border-gray-100 flex justify-between items-center px-8 shrink-0">
         <button 
           onClick={() => navigateTo(Math.max(0, currentQIndex - 1))} 
@@ -373,7 +372,6 @@ function ExamContent() {
         </button>
       </footer>
 
-      {/* MATRIX DRAWER (50% HEIGHT) */}
       <aside className={`fixed inset-x-0 bottom-0 z-[250] bg-white rounded-t-[3rem] shadow-[0_-20px_50px_rgba(0,0,0,0.15)] transition-transform duration-500 border-t border-gray-100 ${showMap ? 'translate-y-0' : 'translate-y-full'} h-[60vh] flex flex-col`}>
         <div className="p-6 bg-gray-50 border-b border-gray-100 flex justify-between items-center shrink-0 rounded-t-[3rem]">
           <span className="font-black text-xs uppercase tracking-widest text-gray-700 flex items-center gap-2"><Grid size={16} /> Question Matrix</span>
