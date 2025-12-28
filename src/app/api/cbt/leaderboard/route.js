@@ -5,6 +5,8 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
+    // THE ELITE FILTER: Only fetch scores where percentage >= 60%
+    // We use a float cast to ensure precision during division
     const leaders = await sql`
       SELECT 
         s.name, 
@@ -15,21 +17,22 @@ export async function GET() {
       FROM cbt_results r
       JOIN cbt_students s ON r.student_id = s.id::text
       JOIN cbt_courses c ON r.course_id = c.id::text
+      WHERE r.total > 0 AND ((r.score::float / r.total::float) * 100) >= 60
       ORDER BY r.score DESC
       LIMIT 10
     `;
+
     return NextResponse.json(leaders);
   } catch (error) {
+    console.error("Leaderboard API Error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 
 export async function DELETE() {
   try {
-    // PURGE ONLY THE PUBLIC LEADERBOARD
-    // This does NOT touch cbt_permanent_logs, so security remains intact.
     await sql`DELETE FROM cbt_results`;
-    return NextResponse.json({ success: true, message: "Leaderboard purged successfully." });
+    return NextResponse.json({ success: true, message: "Leaderboard purged." });
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
