@@ -9,10 +9,17 @@ export async function POST(req) {
       return NextResponse.json({ error: "Invalid Data" }, { status: 400 });
     }
 
-    // Stateless Insert
+    // DUAL-WRITE PROTOCOL
+    // 1. Write to Public Leaderboard (Wipeable)
     await sql`
       INSERT INTO cbt_results (student_id, course_id, score, total, answers) 
       VALUES (${String(studentId)}, ${String(courseId)}, ${score}, ${total}, ${JSON.stringify(answers)})
+    `;
+
+    // 2. Write to Permanent Security Ledger (Non-Wipeable)
+    await sql`
+      INSERT INTO cbt_permanent_logs (student_id, course_id) 
+      VALUES (${String(studentId)}, ${String(courseId)})
     `;
 
     return NextResponse.json({ success: true });
