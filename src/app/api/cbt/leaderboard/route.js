@@ -20,22 +20,17 @@ export async function GET() {
     `;
     return NextResponse.json(leaders);
   } catch (error) {
-    console.error("Leaderboard GET Error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 
-export async function DELETE(req) {
+export async function DELETE() {
   try {
-    // NUCLEAR COMMAND: Wipe all results
+    // PURGE ONLY THE PUBLIC LEADERBOARD
+    // This does NOT touch cbt_permanent_logs, so security remains intact.
     await sql`DELETE FROM cbt_results`;
-    
-    return NextResponse.json({ 
-      success: true, 
-      message: "Leaderboard has been purged. All student scores reset to zero." 
-    });
+    return NextResponse.json({ success: true, message: "Leaderboard purged successfully." });
   } catch (error) {
-    console.error("Leaderboard RESET Error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
