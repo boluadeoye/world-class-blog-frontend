@@ -5,14 +5,13 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(req) {
   try {
-    // Fetch all students, ordered by most recent registration
+    // REMOVED phone_number to match your actual schema
     const students = await sql`
       SELECT 
         id, 
         name, 
         email, 
         department, 
-        phone_number, 
         subscription_status, 
         to_char(created_at, 'YYYY-MM-DD HH24:MI:SS') as joined_at
       FROM cbt_students 
