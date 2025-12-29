@@ -11,40 +11,85 @@ import StatusModal from "../../../components/cbt/StatusModal";
 
 const UpgradeModal = dynamic(() => import("../../../components/cbt/UpgradeModal"), { ssr: false });
 
-/* === 1. COMPACT EXAM SETUP MODAL === */
+/* === 1. LUXURIOUS EXAM SETUP MODAL === */
 function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
   const [duration, setDuration] = useState(course.duration || 15);
   const isBlocked = !isPremium && course.user_attempts >= 2;
+
   return (
-    <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden border border-white animate-in zoom-in duration-200">
-        <div className={`${isBlocked ? 'bg-red-900' : 'bg-[#004d00]'} p-6 text-white relative`}>
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-400 to-green-400"></div>
-          <h3 className="font-black text-xs uppercase tracking-widest flex items-center gap-2">
-            {isBlocked ? <Lock size={14} /> : <Settings size={14} />} {isBlocked ? "Access Denied" : "Session Config"}
-          </h3>
+    <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-300">
+      <div className="bg-white rounded-[2.5rem] shadow-[0_0_50px_rgba(0,0,0,0.3)] w-full max-w-sm overflow-hidden border border-white relative">
+        
+        <div className={`${isBlocked ? 'bg-red-900' : 'bg-[#004d00]'} p-8 text-white relative overflow-hidden`}>
+          <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-yellow-400 via-orange-500 to-yellow-400"></div>
+          <div className="relative z-10">
+            <h3 className="font-black text-sm uppercase tracking-[0.2em] flex items-center gap-3 mb-2">
+              {isBlocked ? <Lock size={18} className="text-yellow-400" /> : <Settings size={18} className="text-green-300" />}
+              {isBlocked ? "Vault Locked" : "Session Config"}
+            </h3>
+            <p className="text-green-200 text-[10px] font-bold uppercase tracking-widest opacity-80">{course.code} • {course.title}</p>
+          </div>
         </div>
-        <div className="p-6">
+        
+        <div className="p-8 bg-white">
           {isBlocked ? (
-            <div className="text-center py-2">
-              <div className="w-12 h-12 bg-red-50 text-red-600 rounded-xl flex items-center justify-center mx-auto mb-4 border border-red-100"><Lock size={24} /></div>
-              <p className="text-gray-600 text-xs font-bold mb-6">Free limit reached (2/2 attempts). Upgrade to continue.</p>
-              <button onClick={onUpgrade} className="w-full py-3.5 bg-yellow-500 text-black rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg mb-3">Upgrade to Premium</button>
-              <button onClick={onClose} className="text-[10px] font-black text-gray-400 uppercase tracking-widest" >Close</button>
+            <div className="text-center py-4">
+              <div className="relative mb-8 inline-block">
+                <div className="absolute inset-0 bg-red-500 blur-2xl opacity-20 animate-pulse"></div>
+                <div className="w-20 h-20 bg-red-50 text-red-600 rounded-[2rem] flex items-center justify-center relative z-10 border border-red-100 shadow-inner">
+                  <Lock size={36} strokeWidth={2.5} />
+                </div>
+              </div>
+              <h4 className="text-xl font-black text-gray-900 uppercase tracking-tighter mb-3">Limit Reached</h4>
+              <p className="text-gray-500 text-xs font-medium mb-10 leading-relaxed">You have exhausted your free attempts. Secure <span className="text-green-700 font-bold">Premium Clearance</span> to forge ahead.</p>
+              <button onClick={onUpgrade} className="w-full py-5 bg-gray-900 text-white rounded-2xl font-black text-xs uppercase tracking-[0.3em] shadow-2xl hover:bg-black transition-all active:scale-95 mb-4">Unlock Unlimited Access</button>
+              <button onClick={onClose} className="text-[10px] font-black text-gray-400 uppercase tracking-widest hover:text-gray-600 transition-colors">Close Terminal</button>
             </div>
           ) : (
             <>
-              <div className="mb-6">
-                <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-3">Duration</label>
-                <div className="grid grid-cols-4 gap-2">
-                  {[15, 30, 45, 60].map((time) => (
-                    <button key={time} disabled={!isPremium && time !== (course.duration || 15)} onClick={() => setDuration(time)} className={`py-3 rounded-xl text-[10px] font-black transition-all border-2 ${duration === time ? 'border-green-600 bg-green-50 text-green-900' : 'border-gray-100 text-gray-400 bg-gray-50'}`}>{time}m</button>
-                  ))}
+              <div className="mb-8">
+                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-5 ml-1">Select Duration</label>
+                <div className="grid grid-cols-4 gap-3">
+                  {[15, 30, 45, 60].map((time) => {
+                    const isRestricted = !isPremium && time !== 15;
+                    return (
+                      <button
+                        key={time}
+                        disabled={isRestricted}
+                        onClick={() => setDuration(time)}
+                        className={`py-4 rounded-2xl text-xs font-black transition-all relative overflow-hidden border-2 ${
+                          duration === time 
+                            ? 'border-green-600 bg-green-50 text-green-900 shadow-md' 
+                            : 'border-gray-100 text-gray-400 bg-gray-50'
+                        } ${isRestricted ? 'opacity-40 grayscale cursor-not-allowed' : 'hover:border-green-300'}`}
+                      >
+                        {time}m
+                        {isRestricted && (
+                          <div className="absolute inset-0 flex items-center justify-center bg-white/10">
+                            <Lock size={10} className="text-gray-400" />
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
+                
+                {!isPremium && (
+                  <button 
+                    onClick={onUpgrade}
+                    className="mt-6 w-full flex items-center justify-center gap-3 text-[10px] text-yellow-700 bg-yellow-50 p-4 rounded-2xl border border-yellow-100 hover:bg-yellow-100 transition-all group"
+                  >
+                    <Crown size={14} className="group-hover:rotate-12 transition-transform" fill="currentColor" />
+                    <span className="font-black uppercase tracking-widest">Upgrade to unlock time control</span>
+                  </button>
+                )}
               </div>
-              <div className="flex gap-3">
-                <button onClick={onClose} className="flex-1 py-3.5 border-2 border-gray-100 rounded-xl text-[10px] font-black text-gray-400 uppercase tracking-widest">Cancel</button>
-                <button onClick={() => onStart(duration)} className="flex-[2] py-3.5 bg-gray-900 text-white rounded-xl text-[10px] font-black shadow-xl hover:bg-black active:scale-95 uppercase tracking-widest flex items-center justify-center gap-2">Start <Play size={12} fill="currentColor" /></button>
+
+              <div className="flex gap-4">
+                <button onClick={onClose} className="flex-1 py-4 border-2 border-gray-100 rounded-2xl text-[10px] font-black text-gray-400 hover:bg-gray-50 uppercase tracking-widest transition-all">Cancel</button>
+                <button onClick={() => onStart(duration)} className="flex-[2] py-4 bg-gray-900 text-white rounded-2xl text-[10px] font-black shadow-xl hover:bg-black active:scale-95 uppercase tracking-widest flex items-center justify-center gap-2">
+                  Start <Play size={14} fill="currentColor" />
+                </button>
               </div>
             </>
           )}
@@ -58,21 +103,24 @@ function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
 function DisclaimerCard() {
   const [isOpen, setIsOpen] = useState(true);
   return (
-    <div className="bg-[#FFF8F0] border border-orange-100 rounded-3xl overflow-hidden mb-6 shadow-sm">
-      <button onClick={() => setIsOpen(!isOpen)} className="w-full flex items-center justify-between p-5 text-left">
-        <div className="flex items-center gap-4">
-          <div className="bg-orange-100 w-10 h-10 flex items-center justify-center rounded-full text-orange-600"><Info size={20} /></div>
-          <div><h3 className="font-black text-sm text-[#5A3A29] uppercase tracking-wide">Important Disclaimer</h3><p className="text-[10px] text-orange-400 font-bold">Read before starting</p></div>
+    <div className="bg-[#FFF8F0] border border-orange-100 rounded-[2.5rem] overflow-hidden mb-8 shadow-sm">
+      <button onClick={() => setIsOpen(!isOpen)} className="w-full flex items-center justify-between p-7 text-left">
+        <div className="flex items-center gap-5">
+          <div className="bg-orange-100 w-12 h-12 flex items-center justify-center rounded-2xl text-orange-600 shadow-inner"><Info size={24} /></div>
+          <div>
+            <h3 className="font-black text-sm text-[#5A3A29] uppercase tracking-widest">Important Disclaimer</h3>
+            <p className="text-[10px] text-orange-400 font-bold uppercase tracking-tighter">Read before starting</p>
+          </div>
         </div>
-        <ChevronDown size={20} className={`text-orange-300 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown size={20} className={`text-orange-300 transition-transform duration-500 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
       {isOpen && (
-        <div className="px-6 pb-6 text-[11px] text-[#8B5E3C] leading-relaxed border-t border-orange-50 pt-4">
-          <p className="mb-2 font-bold text-[#5A3A29]">Strict Warning:</p>
-          <ul className="list-disc pl-4 space-y-1 font-medium">
-            <li>Purpose: Psychological preparation and time management.</li>
-            <li>This is <strong>NOT</strong> an "expo" or a leak of real questions.</li>
-            <li>Success here builds resilience for the main exam.</li>
+        <div className="px-8 pb-10 text-xs text-[#8B5E3C] leading-relaxed animate-in slide-in-from-top-4 duration-500">
+          <p className="mb-4 font-black text-[#5A3A29] uppercase tracking-widest border-b border-orange-100 pb-2">Strict Warning:</p>
+          <ul className="space-y-3 font-medium">
+            <li className="flex gap-3"><span className="text-orange-400 font-black">•</span> <span>The purpose of this mock examination is <strong>NOT</strong> to expose likely questions.</span></li>
+            <li className="flex gap-3"><span className="text-orange-400 font-black">•</span> <span>The aim is to <strong>simulate the environment</strong> and prepare you psychologically for the real exam.</span></li>
+            <li className="flex gap-3"><span className="text-orange-400 font-black">•</span> <span>Use this tool to practice <strong>time management</strong> and pressure handling.</span></li>
           </ul>
         </div>
       )}
@@ -80,25 +128,23 @@ function DisclaimerCard() {
   );
 }
 
-/* === 3. COMPACT COURSE CARD === */
+/* === 3. COURSE CARD === */
 function CourseCard({ course, onLaunch, variant = "green", isPremium }) {
   const isGst = variant === "green";
   const isBlocked = !isPremium && course.user_attempts >= 2;
   return (
-    <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center group active:scale-[0.98] transition-transform mb-3">
-      <div className="flex items-center gap-4">
-        <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-xs border ${isGst ? 'bg-green-50 text-[#004d00] border-green-100' : 'bg-blue-50 text-blue-700 border-blue-100'}`}>{course.code.slice(0,3)}</div>
+    <div className="bg-white p-5 rounded-[2rem] shadow-sm border border-gray-100 flex justify-between items-center group active:scale-[0.98] transition-transform mb-4">
+      <div className="flex items-center gap-5">
+        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-black text-sm border ${isGst ? 'bg-green-50 text-[#004d00] border-green-100' : 'bg-blue-50 text-blue-700 border-blue-100'}`}>
+          {course.code.slice(0,3)}
+        </div>
         <div>
-          <h3 className="font-black text-gray-900 text-xs uppercase">{course.code}</h3>
+          <h3 className="font-black text-gray-900 text-sm uppercase tracking-tight">{course.code}</h3>
           <p className="text-[10px] text-gray-500 font-medium truncate w-40">{course.title}</p>
         </div>
       </div>
-      {/* FIXED: Direct button with high z-index for instant response */}
-      <button 
-        onClick={(e) => { e.preventDefault(); onLaunch(course); }} 
-        className={`w-9 h-9 rounded-full flex items-center justify-center shadow-lg transition-colors z-10 ${isBlocked ? 'bg-red-50 text-red-400 border border-red-100' : isGst ? 'bg-gray-900 text-white hover:bg-[#004d00]' : 'bg-blue-900 text-white hover:bg-blue-950'}`}
-      >
-        {isBlocked ? <Lock size={14} /> : <Play size={12} fill="currentColor" />}
+      <button onClick={() => onLaunch(course)} className={`w-11 h-11 rounded-full flex items-center justify-center shadow-lg transition-all ${isBlocked ? 'bg-red-50 text-red-400 border border-red-100' : isGst ? 'bg-gray-900 text-white hover:bg-[#004d00]' : 'bg-blue-900 text-white hover:bg-blue-950'}`}>
+        {isBlocked ? <Lock size={16} /> : <Play size={16} fill="currentColor" />}
       </button>
     </div>
   );
@@ -211,8 +257,6 @@ export default function StudentDashboard() {
 
       <div className="px-6 -mt-8 relative z-20 space-y-6">
         <DisclaimerCard />
-        
-        {/* === EXAM HISTORY === */}
         <section>
           <div className="flex items-center gap-2 mb-4"><History size={18} className="text-gray-400" /><h2 className="font-black text-xs text-gray-500 uppercase tracking-widest">Exam History</h2></div>
           {examHistory.length > 0 ? (
@@ -223,13 +267,13 @@ export default function StudentDashboard() {
                 if (pct < 40) colorClass = "text-red-700 bg-red-50 border-red-100";
                 else if (pct < 60) colorClass = "text-amber-700 bg-amber-50 border-amber-100";
                 return (
-                  <div key={item.id} className="p-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
+                  <div key={item.id} className="p-5 flex items-center justify-between hover:bg-gray-50 transition-colors">
                     <div className="flex items-center gap-4">
-                      <div className="w-9 h-9 bg-gray-100 rounded-xl flex items-center justify-center text-gray-400 font-black text-[10px]">{item.course_code.slice(0,3)}</div>
+                      <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center text-gray-400 font-black text-[10px]">{item.course_code.slice(0,3)}</div>
                       <div><p className="font-black text-xs text-gray-900 uppercase">{item.course_code}</p><p className="text-[9px] text-gray-400 font-bold uppercase">{new Date(item.created_at).toLocaleDateString()}</p></div>
                     </div>
-                    <div className={`text-right px-3 py-1 rounded-xl border ${colorClass}`}>
-                      <p className="font-black text-xs">{pct}%</p>
+                    <div className={`text-right px-4 py-1.5 rounded-2xl border ${colorClass}`}>
+                      <p className="font-black text-sm">{pct}%</p>
                       <p className="text-[8px] font-black uppercase opacity-70">{item.score}/{item.total}</p>
                     </div>
                   </div>
@@ -237,40 +281,34 @@ export default function StudentDashboard() {
               })}
             </div>
           ) : (
-            <div className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm text-center"><p className="text-[10px] font-black text-gray-300 uppercase tracking-widest">No missions completed yet</p></div>
+            <div className="bg-white rounded-[2.5rem] p-10 border border-gray-100 shadow-sm text-center"><p className="text-[10px] font-black text-gray-300 uppercase tracking-widest">No missions completed yet</p></div>
           )}
         </section>
-
-        {/* === GST COURSES === */}
-        <section className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-          <button onClick={() => setGstExpanded(!gstExpanded)} className="w-full p-5 flex items-center justify-between bg-green-50/50">
+        <section className="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden">
+          <button onClick={() => setGstExpanded(!gstExpanded)} className="w-full p-6 flex items-center justify-between bg-green-50/50">
             <div className="flex items-center gap-3"><BookOpen size={18} className="text-[#004d00]" /><h2 className="font-black text-xs text-gray-700 uppercase tracking-widest">General Studies</h2></div>
             <ChevronDown size={18} className={`text-gray-400 transition-transform ${gstExpanded ? 'rotate-180' : ''}`} />
           </button>
-          {gstExpanded && <div className="p-4 animate-in fade-in slide-in-from-top-2">{gstCourses.map(c => <CourseCard key={c.id} course={c} onLaunch={setSetupCourse} variant="green" isPremium={isPremium} />)}</div>}
+          {gstExpanded && <div className="p-5 animate-in fade-in slide-in-from-top-2">{gstCourses.map(c => <CourseCard key={c.id} course={c} onLaunch={setSetupCourse} variant="green" isPremium={isPremium} />)}</div>}
         </section>
-
-        {/* === OTHER COURSES === */}
         <section className="bg-[#f0f4ff] rounded-[2.5rem] shadow-xl shadow-blue-900/5 border border-blue-100 p-6">
           <div className="flex items-center justify-between mb-6"><div className="flex items-center gap-3"><div className="bg-blue-600 p-2 rounded-xl text-white shadow-lg shadow-blue-200"><Layers size={18} /></div><h2 className="font-black text-sm text-blue-900 uppercase tracking-widest">Other Courses</h2></div><Sparkles size={16} className="text-blue-400 animate-pulse" /></div>
           <div className="space-y-1">{otherCourses.slice(0, 2).map(c => <CourseCard key={c.id} course={c} onLaunch={setSetupCourse} variant="blue" isPremium={isPremium} />)}</div>
           {otherCourses.length > 2 && (
             <div className="mt-4">
-              <button onClick={() => setOthersExpanded(!othersExpanded)} className="w-full py-3 bg-white/50 border border-blue-200 rounded-2xl text-[10px] font-black text-blue-600 uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-white transition-all">{othersExpanded ? "Hide Extra Units" : `View ${otherCourses.length - 2} More Units`}<ChevronDown size={14} className={`transition-transform ${othersExpanded ? 'rotate-180' : ''}`} /></button>
+              <button onClick={() => setOthersExpanded(!othersExpanded)} className="w-full py-4 bg-white/50 border border-blue-200 rounded-2xl text-[10px] font-black text-blue-600 uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-white transition-all">{othersExpanded ? "Hide Extra Units" : `View ${otherCourses.length - 2} More Units`}<ChevronDown size={14} className={`transition-transform ${othersExpanded ? 'rotate-180' : ''}`} /></button>
               {othersExpanded && <div className="mt-4 space-y-1 animate-in fade-in slide-in-from-top-2">{otherCourses.slice(2).map(c => <CourseCard key={c.id} course={c} onLaunch={setSetupCourse} variant="blue" isPremium={isPremium} />)}</div>}
             </div>
           )}
         </section>
-
-        {/* === LEADERBOARD === */}
         <section>
           <div className="flex items-center gap-2 mb-4"><Trophy size={18} className="text-yellow-600" /><h2 className="font-black text-xs text-gray-500 uppercase tracking-widest">Top Performers</h2></div>
           {leaders.length > 0 ? (
-            <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-4 overflow-x-auto flex gap-4 custom-scrollbar">
+            <div className="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 p-5 overflow-x-auto flex gap-5 custom-scrollbar">
               {leaders.map((user, i) => (
-                <div key={i} className="min-w-[180px] bg-gray-50 rounded-2xl p-5 border border-gray-100 flex flex-col items-center text-center relative transition-transform hover:-translate-y-1">
+                <div key={i} className="min-w-[180px] bg-gray-50 rounded-[2rem] p-6 border border-gray-100 flex flex-col items-center text-center relative transition-transform hover:-translate-y-1">
                   {i === 0 && <div className="absolute -top-2 -right-2 bg-yellow-400 text-white p-1 rounded-full shadow-sm"><Crown size={12} fill="currentColor" /></div>}
-                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-black text-sm mb-3 overflow-hidden border-2 ${i === 0 ? 'border-yellow-400' : 'border-gray-100'}`}><img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${user.name.replace(/\s/g, '')}&backgroundColor=transparent`} alt={user.name} className="w-full h-full object-cover" /></div>
+                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-black text-sm mb-4 overflow-hidden border-2 ${i === 0 ? 'border-yellow-400' : 'border-gray-100'}`}><img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${user.name.replace(/\s/g, '')}&backgroundColor=transparent`} alt={user.name} className="w-full h-full object-cover" /></div>
                   <h3 className="font-black text-xs text-gray-900 truncate w-full mb-1 uppercase tracking-tighter">{user.name}</h3>
                   <div className="flex items-center gap-1 text-[8px] text-blue-600 font-black uppercase mb-3 bg-blue-50 px-2 py-0.5 rounded"><Building2 size={10} /> {user.department || "General"}</div>
                   <div className="bg-[#004d00] text-white px-4 py-1 rounded-full text-[10px] font-black shadow-md">{user.score}%</div>
@@ -279,12 +317,11 @@ export default function StudentDashboard() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-12 bg-white rounded-3xl border border-gray-100"><p className="text-gray-400 text-[10px] font-black uppercase tracking-widest">Awaiting First Contender</p></div>
+            <div className="text-center py-12 bg-white rounded-[2.5rem] border border-gray-100"><p className="text-gray-400 text-[10px] font-black uppercase tracking-widest">Awaiting First Contender</p></div>
           )}
         </section>
       </div>
 
-      {/* === SLEEK MINIMALIST FOOTER === */}
       <div className="fixed bottom-4 left-4 right-4 z-40 max-w-2xl mx-auto">
         <div className="bg-white/90 backdrop-blur-md border border-green-100 shadow-lg rounded-2xl py-2.5 px-5 flex items-center justify-between">
           <div className="flex items-center gap-3 flex-1 min-w-0">
