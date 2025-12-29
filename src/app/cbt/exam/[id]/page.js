@@ -1,9 +1,9 @@
 "use client";
 import { useState, useEffect, useCallback, Suspense } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { 
-  Grid, CheckCircle, AlertOctagon, X, Crown, Sparkles, 
-  BrainCircuit, Clock, ChevronRight, ChevronLeft, ShieldAlert, 
+import {
+  Grid, CheckCircle, AlertOctagon, X, Crown, Sparkles,
+  BrainCircuit, Clock, ChevronRight, ChevronLeft, ShieldAlert,
   Loader2, BookOpen, Target, Zap, FileText, Lock, ShieldCheck
 } from "lucide-react";
 import dynamic from "next/dynamic";
@@ -150,10 +150,10 @@ function ExamContent() {
     if (!mounted || loading || isSubmitted || error || timeLeft === null || showUpgrade || isTimeUp) return;
     const interval = setInterval(() => {
       setTimeLeft((prev) => {
-        if (prev <= 0) { 
-          clearInterval(interval); 
-          handleAutoSubmit(); 
-          return 0; 
+        if (prev <= 0) {
+          clearInterval(interval);
+          handleAutoSubmit();
+          return 0;
         }
         const newTime = prev - 1;
         if (student && newTime % 5 === 0) {
@@ -175,10 +175,10 @@ function ExamContent() {
       question_text: q.question_text, correct_option: q.correct_option, user_choice: answers[q.id] || "Skipped"
     }));
     try {
-      const res = await fetch("/api/cbt/analyze", { 
-        method: "POST", 
-        headers: { "Content-Type": "application/json" }, 
-        body: JSON.stringify({ studentName: student.name, courseCode: course.code, score, total: questions.length, failedQuestions }) 
+      const res = await fetch("/api/cbt/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ studentName: student.name, courseCode: course.code, score, total: questions.length, failedQuestions })
       });
       const data = await res.json();
       setAnalysis(String(data.analysis));
@@ -210,21 +210,21 @@ function ExamContent() {
             <button onClick={() => router.push('/cbt/dashboard')} className="bg-white/10 backdrop-blur-md border border-white/10 px-5 py-2 rounded-full text-[10px] font-bold uppercase hover:bg-white hover:text-[#002b00] transition-colors">Exit</button>
           </div>
           <div className="relative z-10 flex flex-col items-center">
-             <div className="w-32 h-32 flex items-center justify-center relative">
+            <div className="w-32 h-32 flex items-center justify-center relative">
                 <svg className="absolute w-full h-full" viewBox="0 0 36 36">
                   <path className="text-white/10" strokeDasharray="100, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" strokeWidth="2.5" />
                   <path className={percentage >= 50 ? "text-emerald-500" : "text-red-500"} strokeDasharray={`${percentage}, 100`} d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" strokeWidth="2.5" />
                 </svg>
                 <div className="text-4xl font-black">{percentage}%</div>
-             </div>
-             <div className="mt-6 flex gap-4 text-[10px] font-black uppercase tracking-widest text-gray-400">
+            </div>
+            <div className="mt-6 flex gap-4 text-[10px] font-black uppercase tracking-widest text-gray-400">
                <span>Score: {score}/{questions.length}</span>
                <span className="w-1 h-1 bg-gray-600 rounded-full mt-1.5"></span>
                <span>Answered: {answeredCount}</span>
              </div>
           </div>
         </header>
-
+        
         <div className="max-w-3xl mx-auto px-4 -mt-10 relative z-20">
           <div className="bg-white rounded-2xl shadow-lg p-1.5 mb-6 flex gap-2 border border-gray-100">
             <button onClick={() => setActiveTab("corrections")} className={`flex-1 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'corrections' ? 'bg-[#004d00] text-white shadow-md' : 'text-gray-400'}`}>Corrections</button>
@@ -233,17 +233,41 @@ function ExamContent() {
 
           {activeTab === "corrections" ? (
             <div className="space-y-4">
-              {questions.map((q, i) => (
-                <div key={q.id} className={`bg-white p-6 rounded-3xl shadow-sm border-l-[6px] ${answers[q.id] === q.correct_option ? 'border-green-500' : 'border-red-500'}`}>
-                  <div className="flex justify-between items-start mb-4"><span className="bg-gray-100 text-gray-500 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest">Question {i+1}</span>{answers[q.id] === q.correct_option ? <CheckCircle size={20} className="text-green-600" /> : <X size={20} className="text-red-500" />}</div>
-                  <p className="font-bold text-gray-900 text-sm leading-relaxed mb-6">{q.question_text}</p>
-                  <div className="grid grid-cols-2 gap-3 mb-4">
-                    <div className="bg-green-50 border border-green-100 p-3 rounded-xl"><p className="text-[9px] font-black text-green-800 uppercase mb-1">Correct</p><p className="text-sm font-bold text-green-900">{q.correct_option}</p></div>
-                    {answers[q.id] !== q.correct_option && <div className="bg-red-50 border border-red-100 p-3 rounded-xl"><p className="text-[9px] font-black text-red-800 uppercase mb-1">Yours</p><p className="text-sm font-bold text-red-900">{answers[q.id] || "Skipped"}</p></div>}
+              {questions.map((q, i) => {
+                // SURGICAL FIX: Get the full text of the correct option
+                const correctKey = `option_${q.correct_option.toLowerCase()}`;
+                const correctText = q[correctKey] || "Option text unavailable";
+                
+                return (
+                  <div key={q.id} className={`bg-white p-6 rounded-3xl shadow-sm border-l-[6px] ${answers[q.id] === q.correct_option ? 'border-green-500' : 'border-red-500'}`}>
+                    <div className="flex justify-between items-start mb-4"><span className="bg-gray-100 text-gray-500 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest">Question {i+1}</span>{answers[q.id] === q.correct_option ? <CheckCircle size={20} className="text-green-600" /> : <X size={20} className="text-red-500" />}</div>
+                    <p className="font-bold text-gray-900 text-sm leading-relaxed mb-6">{q.question_text}</p>
+                    <div className="grid grid-cols-1 gap-3 mb-4">
+                      <div className="bg-green-50 border border-green-100 p-4 rounded-xl">
+                        <p className="text-[9px] font-black text-green-800 uppercase mb-1 flex items-center gap-2"><CheckCircle size={12}/> Correct Answer</p>
+                        <p className="text-sm font-bold text-green-900 leading-snug">
+                          <span className="font-black mr-2">{q.correct_option}.</span>
+                          {correctText}
+                        </p>
+                      </div>
+                      {answers[q.id] !== q.correct_option && (
+                        <div className="bg-red-50 border border-red-100 p-4 rounded-xl">
+                          <p className="text-[9px] font-black text-red-800 uppercase mb-1 flex items-center gap-2"><X size={12}/> Your Selection</p>
+                          <p className="text-sm font-bold text-red-900">
+                            {answers[q.id] ? (
+                              <>
+                                <span className="font-black mr-2">{answers[q.id]}.</span>
+                                {q[`option_${answers[q.id].toLowerCase()}`] || "Option text unavailable"}
+                              </>
+                            ) : "Skipped"}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                    {isPremium && q.explanation && <div className="mt-4 pt-4 border-t border-gray-100"><p className="text-[9px] font-black text-blue-600 uppercase tracking-widest mb-1">Concept Brief</p><p className="text-xs text-gray-600 leading-relaxed bg-blue-50/30 p-3 rounded-xl border border-blue-100 italic">{q.explanation}</p></div>}
                   </div>
-                  {isPremium && q.explanation && <div className="mt-4 pt-4 border-t border-gray-100"><p className="text-[9px] font-black text-blue-600 uppercase tracking-widest mb-1">Concept Brief</p><p className="text-xs text-gray-600 leading-relaxed bg-blue-50/30 p-3 rounded-xl border border-blue-100 italic">{q.explanation}</p></div>}
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             /* === PREMIUM VAULT: RESTRICTED INTEL CARD === */
@@ -294,7 +318,7 @@ function ExamContent() {
 
                       <div className="p-8 md:p-12 text-left border-l-[8px] border-l-purple-600 bg-white">
                         <div className="text-gray-800 leading-relaxed font-medium space-y-6">
-                           <ReactMarkdown 
+                           <ReactMarkdown
                              components={{
                                h1: ({children}) => <h1 className="text-xl font-black text-gray-900 uppercase tracking-widest border-b border-purple-100 pb-2 mt-8 first:mt-0">{children}</h1>,
                                h2: ({children}) => <h2 className="text-lg font-bold text-purple-900 mt-6 mb-3">{children}</h2>,
@@ -343,7 +367,6 @@ function ExamContent() {
             <p className="text-[9px] font-mono opacity-70 tracking-tighter uppercase">{course?.code}</p>
           </div>
         </div>
-        
         <div className="flex items-center gap-3">
           <div className={`flex items-center gap-2 bg-black/30 px-3 py-1.5 rounded-full border border-white/10 ${timeLeft < 300 ? 'animate-pulse bg-red-900/50 border-red-500' : ''}`}>
             <Clock size={12} className={timeLeft < 300 ? "text-red-500" : "text-green-400"} />
@@ -372,13 +395,13 @@ function ExamContent() {
           </div>
         </div>
       </div>
-
+      
       <footer className="h-16 bg-white border-t border-gray-100 flex justify-between items-center px-8 shrink-0">
         <button onClick={() => navigateTo(Math.max(0, currentQIndex - 1))} disabled={currentQIndex === 0} className="text-[10px] font-black text-gray-400 uppercase tracking-widest disabled:opacity-10 transition-colors hover:text-green-900">[ PREV ]</button>
         <button onClick={() => setShowMap(true)} className="bg-gray-100 text-gray-700 p-3.5 rounded-[1.2rem] hover:bg-green-50 hover:text-green-900 transition-all active:scale-95"><Grid size={22} /></button>
         <button onClick={() => navigateTo(Math.min(questions.length - 1, currentQIndex + 1))} disabled={currentQIndex === questions.length - 1} className={`px-10 py-3.5 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all shadow-lg ${currentQIndex === questions.length - 1 ? 'bg-gray-100 text-gray-400 border border-gray-200' : 'bg-[#004d00] text-white hover:bg-green-900 active:scale-95'}`}>Next</button>
       </footer>
-
+      
       <aside className={`fixed inset-x-0 bottom-0 z-[250] bg-white rounded-t-[3rem] shadow-[0_-20px_50px_rgba(0,0,0,0.15)] transition-transform duration-500 border-t border-gray-100 ${showMap ? 'translate-y-0' : 'translate-y-full'} h-[60vh] flex flex-col`}>
         <div className="p-6 bg-gray-50 border-b border-gray-100 flex justify-between items-center shrink-0 rounded-t-[3rem]"><span className="font-black text-xs uppercase tracking-widest text-gray-700 flex items-center gap-2"><Grid size={16} /> Question Matrix</span><button onClick={() => setShowMap(false)} className="p-2.5 bg-gray-200 text-gray-600 rounded-2xl hover:bg-gray-300 transition-colors"><X size={20}/></button></div>
         <div className="flex-1 overflow-y-auto p-6 custom-scrollbar bg-white"><div className="grid grid-cols-5 gap-3.5">{questions.map((q, i) => (<button key={q.id} onClick={() => navigateTo(i)} className={`h-12 rounded-2xl text-xs font-black transition-all border-2 ${getGridColor(i, q.id)} shadow-sm`}>{i + 1}</button>))}</div></div>
