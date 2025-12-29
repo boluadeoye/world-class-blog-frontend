@@ -20,11 +20,11 @@ export async function GET(req) {
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 30);
     
+    // REMOVED updated_at to prevent schema error
     await sql`
       UPDATE cbt_students 
       SET subscription_status = 'premium', 
-          premium_expires_at = ${expiresAt.toISOString()},
-          updated_at = NOW()
+          premium_expires_at = ${expiresAt.toISOString()}
       WHERE id = ${user.id}
     `;
     
