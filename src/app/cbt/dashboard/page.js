@@ -4,7 +4,8 @@ import { useRouter } from "next/navigation";
 import { 
   LogOut, Trophy, BookOpen, Play, Award, 
   ChevronDown, Info, Crown, Clock, ChevronRight, 
-  AlertTriangle, Layers, Headset, History, CheckCircle, Building2, Settings, Lock, Sparkles
+  AlertTriangle, Layers, Headset, History, CheckCircle, Building2, Settings, Lock, Sparkles,
+  ChevronUp
 } from "lucide-react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -67,7 +68,7 @@ function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
   );
 }
 
-/* === 2. DISCLAIMER ACCORDION (SLEEK VERSION) === */
+/* === 2. DISCLAIMER ACCORDION (UPDATED WARNINGS) === */
 function DisclaimerCard() {
   const [isOpen, setIsOpen] = useState(true);
   return (
@@ -86,6 +87,7 @@ function DisclaimerCard() {
             <li className="flex gap-2"><span className="text-orange-400 font-black">•</span> <span>The purpose of this mock is <strong>NOT</strong> to expose likely questions.</span></li>
             <li className="flex gap-2"><span className="text-orange-400 font-black">•</span> <span>The aim is to <strong>simulate the environment</strong> psychologically.</span></li>
             <li className="flex gap-2"><span className="text-orange-400 font-black">•</span> <span>Use this to practice <strong>time management</strong>.</span></li>
+            <li className="flex gap-2"><span className="text-orange-400 font-black">•</span> <span>Success here <strong>does not guarantee success</strong> in the main exam; this is purely for preparation.</span></li>
           </ul>
         </div>
       )}
@@ -93,7 +95,7 @@ function DisclaimerCard() {
   );
 }
 
-/* === 3. COURSE CARD (TIGHTENED & SLEEK) === */
+/* === 3. COURSE CARD (SLEEK) === */
 function CourseCard({ course, onLaunch, variant = "green", isPremium }) {
   const isGst = variant === "green";
   const isBlocked = !isPremium && course.user_attempts >= 2;
@@ -126,6 +128,7 @@ export default function StudentDashboard() {
   const [setupCourse, setSetupCourse] = useState(null);
   const [gstExpanded, setGstExpanded] = useState(true);
   const [othersExpanded, setOthersExpanded] = useState(false);
+  const [historyExpanded, setHistoryExpanded] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -180,6 +183,9 @@ export default function StudentDashboard() {
   const gstCourses = courses.filter(c => c.code.toUpperCase().startsWith("GST"));
   const otherCourses = courses.filter(c => !c.code.toUpperCase().startsWith("GST"));
 
+  // History Logic
+  const visibleHistory = historyExpanded ? examHistory : examHistory.slice(0, 2);
+
   if (loading) return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#004d00] gap-4">
       <div className="w-12 h-12 border-4 border-white/20 border-t-white rounded-full animate-spin"></div>
@@ -188,7 +194,7 @@ export default function StudentDashboard() {
   );
 
   return (
-    <main className="min-h-screen bg-[#fcfdfc] font-sans text-gray-900 pb-40 relative">
+    <main className="min-h-screen bg-[#fcfdfc] font-sans text-gray-900 pb-48 relative">
       {statusModal && <StatusModal {...statusModal} />}
       {showUpgrade && <UpgradeModal student={student} onClose={() => setShowUpgrade(false)} onSuccess={() => window.location.reload()} />}
       {setupCourse && <ExamSetupModal course={setupCourse} isPremium={isPremium} onClose={() => setSetupCourse(null)} onStart={(dur) => router.push(`/cbt/exam/${setupCourse.id}?duration=${dur}`)} onUpgrade={() => { setSetupCourse(null); setShowUpgrade(true); }} />}
@@ -207,16 +213,17 @@ export default function StudentDashboard() {
             </div>
           </div>
           <div className="flex gap-2">
-            <a href="https://wa.me/2348106293674" target="_blank" rel="noopener noreferrer" className="bg-green-500/20 p-3 rounded-xl border border-white/10 text-white hover:bg-green-500 transition-all backdrop-blur-sm"><Headset size={18} /></a>
+            {/* PULSING SUPPORT BEACON */}
+            <a href="https://wa.me/2348106293674" target="_blank" rel="noopener noreferrer" className="bg-green-500 p-3 rounded-xl border border-green-400 text-white shadow-[0_0_15px_rgba(34,197,94,0.6)] animate-pulse hover:scale-105 transition-all"><Headset size={18} /></a>
             <button onClick={triggerLogout} className="bg-green-500/20 p-3 rounded-xl border border-white/10 hover:bg-red-600 transition-colors backdrop-blur-sm"><LogOut size={18} /></button>
           </div>
         </div>
         
-        {/* === SESSION CARD (MATCHING REFERENCE) === */}
+        {/* === SESSION CARD (UPDATED TITLE) === */}
         <div className="bg-[#003300] border border-white/5 rounded-2xl p-5 flex items-center justify-between shadow-inner">
           <div>
             <p className="text-[9px] font-bold text-green-400 uppercase tracking-wider mb-1">Current Session</p>
-            <p className="font-black text-xs text-white tracking-wide">FUOYE 2026 GST MOCK</p>
+            <p className="font-black text-xs text-white tracking-wide">EXAMFORGE SESSION 2026</p>
           </div>
           <div className="bg-white text-[#004d00] px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wide shadow-sm">Active</div>
         </div>
@@ -225,18 +232,25 @@ export default function StudentDashboard() {
       <div className="px-5 -mt-8 relative z-20 space-y-6">
         <DisclaimerCard />
 
-        {/* === EXAM HISTORY (SLEEK) === */}
+        {/* === EXAM HISTORY (COLLAPSIBLE) === */}
         <section>
-          <div className="flex items-center gap-2 mb-3 px-1"><History size={14} className="text-gray-400" /><h2 className="font-black text-[10px] text-gray-400 uppercase tracking-widest">Exam History</h2></div>
+          <div className="flex items-center justify-between mb-3 px-1">
+            <div className="flex items-center gap-2"><History size={14} className="text-gray-400" /><h2 className="font-black text-[10px] text-gray-400 uppercase tracking-widest">Exam History</h2></div>
+            {examHistory.length > 2 && (
+              <button onClick={() => setHistoryExpanded(!historyExpanded)} className="text-[9px] font-bold text-green-600 uppercase tracking-wider flex items-center gap-1">
+                {historyExpanded ? "Show Less" : "View All"} {historyExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+              </button>
+            )}
+          </div>
           {examHistory.length > 0 ? (
             <div className="space-y-2">
-              {examHistory.map((item) => {
+              {visibleHistory.map((item) => {
                 const pct = Math.round((item.score / item.total) * 100);
                 let colorClass = "text-emerald-700 bg-emerald-50 border-emerald-100";
                 if (pct < 40) colorClass = "text-red-700 bg-red-50 border-red-100";
                 else if (pct < 60) colorClass = "text-amber-700 bg-amber-50 border-amber-100";
                 return (
-                  <div key={item.id} className="bg-white p-3 rounded-2xl border border-gray-50 shadow-sm flex items-center justify-between">
+                  <div key={item.id} className="bg-white p-3 rounded-2xl border border-gray-50 shadow-sm flex items-center justify-between animate-in fade-in slide-in-from-top-1">
                     <div className="flex items-center gap-3">
                       <div className="w-9 h-9 bg-gray-50 rounded-lg flex items-center justify-center text-gray-400 font-black text-[9px] border border-gray-100">{item.course_code.slice(0,3)}</div>
                       <div><p className="font-black text-[10px] text-gray-900 uppercase">{item.course_code}</p><p className="text-[8px] text-gray-400 font-bold uppercase">{new Date(item.created_at).toLocaleDateString()}</p></div>
@@ -254,7 +268,7 @@ export default function StudentDashboard() {
           )}
         </section>
 
-        {/* === GST COURSES (TIGHTENED) === */}
+        {/* === GST COURSES === */}
         <section>
            <div className="flex items-center justify-between mb-3 px-1">
              <div className="flex items-center gap-2"><BookOpen size={14} className="text-[#004d00]" /><h2 className="font-black text-[10px] text-gray-500 uppercase tracking-widest">General Studies</h2></div>
@@ -263,7 +277,7 @@ export default function StudentDashboard() {
           {gstExpanded && <div className="animate-in fade-in slide-in-from-top-2">{gstCourses.map(c => <CourseCard key={c.id} course={c} onLaunch={setSetupCourse} variant="green" isPremium={isPremium} />)}</div>}
         </section>
 
-        {/* === OTHER COURSES (TIGHTENED) === */}
+        {/* === OTHER COURSES === */}
         <section className="bg-[#f0f4ff] rounded-[2rem] shadow-sm border border-blue-50 p-5">
           <div className="flex items-center justify-between mb-4"><div className="flex items-center gap-2"><div className="bg-blue-600 p-1.5 rounded-lg text-white shadow-md"><Layers size={12} /></div><h2 className="font-black text-[10px] text-blue-900 uppercase tracking-widest">Other Courses</h2></div><Sparkles size={12} className="text-blue-400 animate-pulse" /></div>
           <div className="space-y-1">{otherCourses.slice(0, 2).map(c => <CourseCard key={c.id} course={c} onLaunch={setSetupCourse} variant="blue" isPremium={isPremium} />)}</div>
@@ -275,7 +289,7 @@ export default function StudentDashboard() {
           )}
         </section>
 
-        {/* === LEADERBOARD (COMPACT) === */}
+        {/* === LEADERBOARD === */}
         <section>
           <div className="flex items-center gap-2 mb-3 px-1"><Trophy size={14} className="text-yellow-600" /><h2 className="font-black text-[10px] text-gray-500 uppercase tracking-widest">Top Performers</h2></div>
           {leaders.length > 0 ? (
