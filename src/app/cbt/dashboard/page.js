@@ -5,7 +5,7 @@ import {
   LogOut, Trophy, BookOpen, Play, Award, 
   ChevronDown, Info, Crown, Clock, ChevronRight, 
   AlertTriangle, Layers, Headset, History, CheckCircle, Building2, Settings, Lock, Sparkles,
-  ChevronUp
+  ChevronUp, GraduationCap, FileText
 } from "lucide-react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -186,6 +186,9 @@ export default function StudentDashboard() {
   // History Logic
   const visibleHistory = historyExpanded ? examHistory : examHistory.slice(0, 2);
 
+  // Leaderboard Logic (Strict Filter: >= 60%)
+  const qualifiedLeaders = leaders.filter(user => user.score >= 60);
+
   if (loading) return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#004d00] gap-4">
       <div className="w-12 h-12 border-4 border-white/20 border-t-white rounded-full animate-spin"></div>
@@ -289,22 +292,88 @@ export default function StudentDashboard() {
           )}
         </section>
 
-        {/* === LEADERBOARD === */}
+        {/* === LEADERBOARD (PREMIUM REDESIGN + FILTER) === */}
         <section>
-          <div className="flex items-center gap-2 mb-3 px-1"><Trophy size={14} className="text-yellow-600" /><h2 className="font-black text-[10px] text-gray-500 uppercase tracking-widest">Top Performers</h2></div>
-          {leaders.length > 0 ? (
-            <div className="bg-white rounded-[2rem] shadow-sm border border-gray-50 p-4 overflow-x-auto flex gap-4 custom-scrollbar">
-              {leaders.map((user, i) => (
-                <div key={i} className="min-w-[140px] bg-gray-50 rounded-2xl p-4 border border-gray-100 flex flex-col items-center text-center relative">
-                  {i === 0 && <div className="absolute -top-1 -right-1 bg-yellow-400 text-white p-1 rounded-full shadow-sm"><Crown size={8} fill="currentColor" /></div>}
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-xs mb-2 overflow-hidden border ${i === 0 ? 'border-yellow-400' : 'border-gray-100'}`}><img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${user.name.replace(/\s/g, '')}&backgroundColor=transparent`} alt={user.name} className="w-full h-full object-cover" /></div>
-                  <h3 className="font-black text-[10px] text-gray-900 truncate w-full mb-0.5 uppercase tracking-tighter">{user.name}</h3>
-                  <div className="bg-[#004d00] text-white px-3 py-0.5 rounded-full text-[9px] font-black shadow-sm mt-1">{user.score}%</div>
-                </div>
-              ))}
+          <div className="flex items-center justify-between mb-4 px-2">
+            <div className="flex items-center gap-2">
+              <div className="relative">
+                <Trophy size={16} className="text-yellow-600" />
+                <span className="absolute -top-1 -right-1 flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-yellow-500"></span>
+                </span>
+              </div>
+              <h2 className="font-black text-[10px] text-gray-500 uppercase tracking-widest">Top Performers</h2>
+            </div>
+            <div className="flex items-center gap-1.5 bg-green-50 px-2 py-1 rounded-full border border-green-100">
+              <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
+              <span className="text-[8px] font-black text-green-700 uppercase tracking-tight">Live Ranking</span>
+            </div>
+          </div>
+
+          {qualifiedLeaders.length > 0 ? (
+            <div className="flex gap-4 overflow-x-auto pb-4 px-2 -mx-2 custom-scrollbar snap-x">
+              {qualifiedLeaders.map((user, i) => {
+                const isFirst = i === 0;
+                const isSecond = i === 1;
+                const isThird = i === 2;
+                
+                let borderColor = "border-gray-100";
+                let shadowClass = "shadow-sm";
+                let rankBadge = null;
+
+                if (isFirst) {
+                  borderColor = "border-yellow-200";
+                  shadowClass = "shadow-lg shadow-yellow-100/50";
+                  rankBadge = <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-yellow-400 to-yellow-600 text-white px-3 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest shadow-sm flex items-center gap-1"><Crown size={8} fill="currentColor" /> 1st Place</div>;
+                } else if (isSecond) {
+                  borderColor = "border-gray-200";
+                  rankBadge = <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest shadow-sm">2nd</div>;
+                } else if (isThird) {
+                  borderColor = "border-orange-100";
+                  rankBadge = <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest shadow-sm">3rd</div>;
+                }
+
+                return (
+                  <div key={i} className={`min-w-[160px] bg-white rounded-[1.5rem] p-5 border ${borderColor} ${shadowClass} flex flex-col items-center text-center relative mt-3 snap-center group`}>
+                    {rankBadge}
+                    
+                    <div className={`relative mb-3 transition-transform duration-300 group-hover:scale-105`}>
+                      <div className={`w-16 h-16 rounded-2xl flex items-center justify-center overflow-hidden border-2 ${isFirst ? 'border-yellow-400 p-0.5' : 'border-gray-50'}`}>
+                        <img 
+                          src={`https://api.dicebear.com/7.x/notionists/svg?seed=${user.name.replace(/\s/g, '')}&backgroundColor=transparent`} 
+                          alt={user.name} 
+                          className="w-full h-full object-cover rounded-xl bg-gray-50" 
+                        />
+                      </div>
+                      {isFirst && <div className="absolute -bottom-1 -right-1 bg-yellow-400 text-white p-1 rounded-full border-2 border-white"><Sparkles size={8} fill="currentColor" /></div>}
+                    </div>
+
+                    <h3 className="font-black text-[11px] text-gray-900 truncate w-full mb-1 uppercase tracking-tight leading-tight">{user.name}</h3>
+                    
+                    {/* DEPARTMENT & COURSE BADGE */}
+                    <div className="flex flex-col items-center gap-1 w-full mb-3">
+                      <div className="flex items-center gap-1 text-[8px] text-gray-400 font-bold uppercase tracking-wide truncate max-w-full">
+                        <GraduationCap size={10} />
+                        <span className="truncate">{user.department || "Student"}</span>
+                      </div>
+                      <div className="bg-blue-50 text-blue-700 px-2 py-0.5 rounded-md text-[7px] font-black uppercase tracking-wider border border-blue-100 flex items-center gap-1">
+                        <FileText size={8} /> {user.course_code || "GEN"}
+                      </div>
+                    </div>
+                    
+                    <div className={`w-full py-1.5 rounded-xl text-[10px] font-black flex items-center justify-center gap-1 ${isFirst ? 'bg-[#004d00] text-white shadow-md shadow-green-900/20' : 'bg-gray-50 text-gray-600'}`}>
+                      <span>{user.score}%</span>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           ) : (
-            <div className="text-center py-8 bg-white rounded-2xl border border-gray-50"><p className="text-gray-300 text-[9px] font-black uppercase tracking-widest">Awaiting Rankings...</p></div>
+            <div className="text-center py-10 bg-white rounded-[2rem] border border-dashed border-gray-200">
+              <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3 animate-pulse"><Trophy size={20} className="text-gray-300" /></div>
+              <p className="text-gray-400 text-[9px] font-black uppercase tracking-widest">No High Flyers Yet (60%+)</p>
+            </div>
           )}
         </section>
       </div>
