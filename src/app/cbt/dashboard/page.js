@@ -11,7 +11,7 @@ import StatusModal from "../../../components/cbt/StatusModal";
 
 const UpgradeModal = dynamic(() => import("../../../components/cbt/UpgradeModal"), { ssr: false });
 
-/* === 1. COMPACT SETUP MODAL === */
+/* === 1. EXAM SETUP MODAL (FIXED: UPGRADE CTA RESTORED) === */
 function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
   const [duration, setDuration] = useState(course.duration || 15);
   const isBlocked = !isPremium && course.user_attempts >= 2;
@@ -23,6 +23,7 @@ function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
           <h3 className="font-black text-xs uppercase tracking-widest flex items-center gap-2">
             {isBlocked ? <Lock size={14} /> : <Settings size={14} />} {isBlocked ? "Access Denied" : "Session Config"}
           </h3>
+          <p className="text-green-200 text-[10px] font-bold uppercase mt-1 tracking-widest">{course.code} • {course.title}</p>
         </div>
         <div className="p-6">
           {isBlocked ? (
@@ -46,6 +47,14 @@ function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
                     );
                   })}
                 </div>
+                
+                {/* RESTORED: UPGRADE ADVICE */}
+                {!isPremium && (
+                  <button onClick={onUpgrade} className="mt-4 w-full flex items-center justify-center gap-2 text-[9px] text-yellow-700 bg-yellow-50 p-3 rounded-xl border border-yellow-100 hover:bg-yellow-100 transition-colors">
+                    <Crown size={12} fill="currentColor" />
+                    <span className="font-black uppercase tracking-widest">Upgrade to unlock time control</span>
+                  </button>
+                )}
               </div>
               <div className="flex gap-3">
                 <button onClick={onClose} className="flex-1 py-3.5 border-2 border-gray-100 rounded-xl text-[10px] font-black text-gray-400 uppercase tracking-widest">Cancel</button>
@@ -59,24 +68,48 @@ function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
   );
 }
 
-/* === 2. SLEEK COURSE CARD === */
+/* === 2. DISCLAIMER ACCORDION (RESTORED) === */
+function DisclaimerCard() {
+  const [isOpen, setIsOpen] = useState(true);
+  return (
+    <div className="bg-[#FFF8F0] border border-orange-100 rounded-3xl overflow-hidden mb-6 shadow-sm">
+      <button onClick={() => setIsOpen(!isOpen)} className="w-full flex items-center justify-between p-5 text-left">
+        <div className="flex items-center gap-4">
+          <div className="bg-orange-100 w-10 h-10 flex items-center justify-center rounded-full text-orange-600"><Info size={20} /></div>
+          <div><h3 className="font-black text-sm text-[#5A3A29] uppercase tracking-wide">Important Disclaimer</h3><p className="text-[10px] text-orange-400 font-bold">Read before starting</p></div>
+        </div>
+        <ChevronDown size={20} className={`text-orange-300 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+      </button>
+      {isOpen && (
+        <div className="px-6 pb-6 text-[11px] text-[#8B5E3C] leading-relaxed border-t border-orange-50 pt-4">
+          <p className="mb-2 font-bold text-[#5A3A29]">Strict Warning:</p>
+          <ul className="list-disc pl-4 space-y-1 font-medium">
+            <li>Purpose: Psychological preparation and time management.</li>
+            <li>This is <strong>NOT</strong> an "expo" or a leak of real questions.</li>
+            <li>Success here builds resilience for the main exam.</li>
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* === 3. COURSE CARD === */
 function CourseCard({ course, onLaunch, variant = "green", isPremium }) {
   const isGst = variant === "green";
   const isBlocked = !isPremium && course.user_attempts >= 2;
   return (
-    <div className="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center group active:scale-[0.98] transition-transform mb-2">
-      <div className="flex items-center gap-3">
-        <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-[10px] border ${isGst ? 'bg-green-50 text-[#004d00] border-green-100' : 'bg-blue-50 text-blue-700 border-blue-100'}`}>
-          {course.code.slice(0,3)}
-        </div>
-        <div className="min-w-0">
-          <h3 className="font-black text-gray-900 text-xs uppercase truncate w-32">{course.code}</h3>
-          <p className="text-[9px] text-gray-400 font-medium truncate w-40">{course.title}</p>
+    <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center group active:scale-[0.98] transition-transform mb-3">
+      <div className="flex items-center gap-4">
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-xs border ${isGst ? 'bg-green-50 text-[#004d00] border-green-100' : 'bg-blue-50 text-blue-700 border-blue-100'}`}>{course.code.slice(0,3)}</div>
+        <div>
+          <h3 className="font-black text-gray-900 text-xs uppercase">{course.code}</h3>
+          <p className="text-[10px] text-gray-500 font-medium truncate w-40">{course.title}</p>
         </div>
       </div>
       <button 
         onClick={(e) => { e.preventDefault(); onLaunch(course); }} 
-        className={`w-8 h-8 rounded-full flex items-center justify-center shadow-md transition-all ${isBlocked ? 'bg-red-50 text-red-400' : isGst ? 'bg-gray-900 text-white hover:bg-[#004d00]' : 'bg-blue-900 text-white hover:bg-blue-950'}`}
+        className={`w-9 h-9 rounded-full flex items-center justify-center shadow-lg transition-colors z-10 ${isBlocked ? 'bg-red-50 text-red-400 border border-red-100' : isGst ? 'bg-gray-900 text-white hover:bg-[#004d00]' : 'bg-blue-900 text-white hover:bg-blue-950'}`}
       >
         {isBlocked ? <Lock size={12} /> : <Play size={12} fill="currentColor" />}
       </button>
@@ -155,91 +188,97 @@ export default function StudentDashboard() {
 
   if (loading) return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#004d00] gap-4">
-      <div className="w-10 h-10 border-4 border-white/20 border-t-white rounded-full animate-spin"></div>
-      <p className="text-white font-black text-[10px] uppercase tracking-[0.3em]">Loading HQ...</p>
+      <div className="w-12 h-12 border-4 border-white/20 border-t-white rounded-full animate-spin"></div>
+      <p className="text-white font-black text-xs uppercase tracking-[0.3em]">Loading HQ...</p>
     </div>
   );
 
   return (
-    <main className="min-h-screen bg-[#fcfdfc] font-sans text-gray-900 pb-32 relative">
+    <main className="min-h-screen bg-[#fcfdfc] font-sans text-gray-900 pb-48 relative">
       {statusModal && <StatusModal {...statusModal} />}
       {showUpgrade && <UpgradeModal student={student} onClose={() => setShowUpgrade(false)} onSuccess={() => window.location.reload()} />}
       {setupCourse && <ExamSetupModal course={setupCourse} isPremium={isPremium} onClose={() => setSetupCourse(null)} onStart={(dur) => router.push(`/cbt/exam/${setupCourse.id}?duration=${dur}`)} onUpgrade={() => { setSetupCourse(null); setShowUpgrade(true); }} />}
       
-      <header className="bg-[#004d00] text-white pt-6 pb-12 px-6 rounded-b-[35px] shadow-xl relative z-10">
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center gap-3">
-            <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center border-2 border-white/20 shadow-lg overflow-hidden relative">
+      <header className="bg-[#004d00] text-white pt-8 pb-16 px-6 rounded-b-[40px] shadow-2xl relative z-10">
+        <div className="flex justify-between items-center mb-8">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center border-2 border-white/20 shadow-lg overflow-hidden relative">
               {avatarUrl && <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />}
               {isPremium && <div className="absolute top-0 right-0 bg-yellow-400 p-1 rounded-bl-lg shadow-sm"><Crown size={10} className="text-black" fill="currentColor" /></div>}
             </div>
             <div>
-              <p className="text-green-200 text-[9px] font-bold uppercase tracking-widest mb-0.5">{greeting}</p>
-              <h1 className="text-lg font-black leading-none truncate w-40">{student.name.split(" ")[0]}</h1>
+              <p className="text-green-200 text-[10px] font-bold uppercase tracking-widest mb-1">{greeting}</p>
+              <h1 className="text-xl font-black leading-none truncate w-40">{student.name.split(" ")[0]}</h1>
             </div>
           </div>
           <div className="flex gap-2">
-            <a href="https://wa.me/2348106293674" target="_blank" rel="noopener noreferrer" className="bg-green-500 p-2.5 rounded-xl border border-white/20 text-white shadow-lg animate-pulse"><Headset size={18} /></a>
-            <button onClick={triggerLogout} className="bg-[#006400] p-2.5 rounded-xl border border-white/10 hover:bg-red-600 transition-colors shadow-lg"><LogOut size={18} /></button>
+            <a href="https://wa.me/2348106293674" target="_blank" rel="noopener noreferrer" className="bg-green-500 p-3 rounded-xl border border-white/20 text-white hover:bg-green-400 transition-all shadow-lg animate-pulse"><Headset size={20} /></a>
+            <button onClick={triggerLogout} className="bg-[#006400] p-3 rounded-xl border border-white/10 hover:bg-red-600 transition-colors shadow-lg"><LogOut size={20} /></button>
           </div>
         </div>
-        <div className="bg-[#003300]/50 backdrop-blur-sm border border-white/10 rounded-2xl p-4 flex items-center justify-between">
-          <div><p className="text-[9px] font-bold text-green-400 uppercase tracking-wider mb-0.5">Current Session</p><p className="font-black text-xs text-white">EXAMFORGE SESSION 2026</p></div>
-          <div className="bg-white text-[#004d00] px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-wide shadow-sm">Active</div>
+        <div className="bg-[#003300]/50 backdrop-blur-sm border border-white/10 rounded-2xl p-5 flex items-center justify-between">
+          <div><p className="text-[10px] font-bold text-green-400 uppercase tracking-wider mb-1">Current Session</p><p className="font-black text-sm text-white">EXAMFORGE SESSION 2026</p></div>
+          <div className="bg-white text-[#004d00] px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wide shadow-sm">Active</div>
         </div>
       </header>
 
-      <div className="px-6 -mt-6 relative z-20 space-y-5">
+      <div className="px-6 -mt-8 relative z-20 space-y-6">
+        {/* RESTORED DISCLAIMER */}
+        <DisclaimerCard />
+
         {/* === GST SECTION === */}
         <section className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-          <button onClick={() => setGstExpanded(!gstExpanded)} className="w-full p-4 flex items-center justify-between bg-green-50/50">
-            <div className="flex items-center gap-3"><BookOpen size={16} className="text-[#004d00]" /><h2 className="font-black text-[11px] text-gray-700 uppercase tracking-widest">General Studies</h2></div>
-            <ChevronDown size={16} className={`text-gray-400 transition-transform ${gstExpanded ? 'rotate-180' : ''}`} />
+          <button onClick={() => setGstExpanded(!gstExpanded)} className="w-full p-5 flex items-center justify-between bg-green-50/50">
+            <div className="flex items-center gap-3"><BookOpen size={18} className="text-[#004d00]" /><h2 className="font-black text-xs text-gray-700 uppercase tracking-widest">General Studies</h2></div>
+            <ChevronDown size={18} className={`text-gray-400 transition-transform ${gstExpanded ? 'rotate-180' : ''}`} />
           </button>
-          {gstExpanded && <div className="p-3 animate-in fade-in slide-in-from-top-2">{gstCourses.map(c => <CourseCard key={c.id} course={c} onLaunch={setSetupCourse} variant="green" isPremium={isPremium} />)}</div>}
+          {gstExpanded && <div className="p-4 animate-in fade-in slide-in-from-top-2">{gstCourses.map(c => <CourseCard key={c.id} course={c} onLaunch={setSetupCourse} variant="green" isPremium={isPremium} />)}</div>}
         </section>
 
         {/* === OTHER COURSES === */}
-        <section className="bg-[#f0f4ff] rounded-[2rem] shadow-xl shadow-blue-900/5 border border-blue-100 p-4">
-          <div className="flex items-center justify-between mb-4"><div className="flex items-center gap-3"><div className="bg-blue-600 p-1.5 rounded-lg text-white shadow-lg shadow-blue-200"><Layers size={14} /></div><h2 className="font-black text-[11px] text-blue-900 uppercase tracking-widest">Other Courses</h2></div><Sparkles size={14} className="text-blue-400 animate-pulse" /></div>
+        <section className="bg-[#f0f4ff] rounded-[2.5rem] shadow-xl shadow-blue-900/5 border border-blue-100 p-6">
+          <div className="flex items-center justify-between mb-6"><div className="flex items-center gap-3"><div className="bg-blue-600 p-2 rounded-xl text-white shadow-lg shadow-blue-200"><Layers size={18} /></div><h2 className="font-black text-sm text-blue-900 uppercase tracking-widest">Other Courses</h2></div><Sparkles size={16} className="text-blue-400 animate-pulse" /></div>
           <div className="space-y-1">{otherCourses.slice(0, 2).map(c => <CourseCard key={c.id} course={c} onLaunch={setSetupCourse} variant="blue" isPremium={isPremium} />)}</div>
           {otherCourses.length > 2 && (
-            <div className="mt-3">
-              <button onClick={() => setOthersExpanded(!othersExpanded)} className="w-full py-2.5 bg-white/50 border border-blue-200 rounded-xl text-[9px] font-black text-blue-600 uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-white transition-all">{othersExpanded ? "Hide Units" : `View ${otherCourses.length - 2} More`}<ChevronDown size={12} className={`transition-transform ${othersExpanded ? 'rotate-180' : ''}`} /></button>
-              {othersExpanded && <div className="mt-3 space-y-1 animate-in fade-in slide-in-from-top-2">{otherCourses.slice(2).map(c => <CourseCard key={c.id} course={c} onLaunch={setSetupCourse} variant="blue" isPremium={isPremium} />)}</div>}
+            <div className="mt-4">
+              <button onClick={() => setOthersExpanded(!othersExpanded)} className="w-full py-3 bg-white/50 border border-blue-200 rounded-2xl text-[10px] font-black text-blue-600 uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-white transition-all">{othersExpanded ? "Hide Extra Units" : `View ${otherCourses.length - 2} More Units`}<ChevronDown size={14} className={`transition-transform ${othersExpanded ? 'rotate-180' : ''}`} /></button>
+              {othersExpanded && <div className="mt-4 space-y-1 animate-in fade-in slide-in-from-top-2">{otherCourses.slice(2).map(c => <CourseCard key={c.id} course={c} onLaunch={setSetupCourse} variant="blue" isPremium={isPremium} />)}</div>}
             </div>
           )}
         </section>
 
         {/* === LEADERBOARD === */}
         <section>
-          <div className="flex items-center gap-2 mb-3"><Trophy size={16} className="text-yellow-600" /><h2 className="font-black text-[11px] text-gray-500 uppercase tracking-widest">Top Performers</h2></div>
+          <div className="flex items-center gap-2 mb-4"><Trophy size={18} className="text-yellow-600" /><h2 className="font-black text-xs text-gray-500 uppercase tracking-widest">Top Performers</h2></div>
           {leaders.length > 0 ? (
             <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-4 overflow-x-auto flex gap-4 custom-scrollbar">
               {leaders.map((user, i) => (
-                <div key={i} className="min-w-[160px] bg-gray-50 rounded-2xl p-4 border border-gray-100 flex flex-col items-center text-center relative">
+                <div key={i} className="min-w-[180px] bg-gray-50 rounded-2xl p-5 border border-gray-100 flex flex-col items-center text-center relative transition-transform hover:-translate-y-1">
                   {i === 0 && <div className="absolute -top-2 -right-2 bg-yellow-400 text-white p-1 rounded-full shadow-sm"><Crown size={12} fill="currentColor" /></div>}
-                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-sm mb-3 overflow-hidden border-2 ${i === 0 ? 'border-yellow-400' : 'border-gray-100'}`}><img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${user.name.replace(/\s/g, '')}&backgroundColor=transparent`} alt={user.name} className="w-full h-full object-cover" /></div>
-                  <h3 className="font-black text-[10px] text-gray-900 truncate w-full mb-1 uppercase tracking-tighter">{user.name}</h3>
-                  <div className="flex items-center gap-1 text-[7px] text-blue-600 font-black uppercase mb-2 bg-blue-50 px-2 py-0.5 rounded"><Building2 size={8} /> {user.department || "General"}</div>
-                  <div className="bg-[#004d00] text-white px-3 py-0.5 rounded-full text-[9px] font-black shadow-md">{user.score}%</div>
+                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-black text-sm mb-3 overflow-hidden border-2 ${i === 0 ? 'border-yellow-400' : 'border-gray-100'}`}>
+                    <img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${user.name.replace(/\s/g, '')}&backgroundColor=transparent`} alt={user.name} className="w-full h-full object-cover" />
+                  </div>
+                  <h3 className="font-black text-xs text-gray-900 truncate w-full mb-1 uppercase tracking-tighter">{user.name}</h3>
+                  <div className="flex items-center gap-1 text-[8px] text-blue-600 font-black uppercase mb-3 bg-blue-50 px-2 py-0.5 rounded"><Building2 size={10} /> {user.department || "General"}</div>
+                  <div className="bg-[#004d00] text-white px-4 py-1 rounded-full text-[10px] font-black shadow-md">{user.score}%</div>
+                  <p className="text-[8px] text-gray-400 mt-2 font-bold uppercase">{user.course_code}</p>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="text-center py-8 bg-white rounded-3xl border border-gray-100"><p className="text-gray-400 text-[9px] font-black uppercase tracking-widest">Awaiting Rankings...</p></div>
+            <div className="text-center py-12 bg-white rounded-3xl border border-gray-100"><p className="text-gray-400 text-[10px] font-black uppercase tracking-widest">Awaiting First Contender</p></div>
           )}
         </section>
       </div>
 
       <div className="fixed bottom-4 left-4 right-4 z-40 max-w-2xl mx-auto">
-        <div className="bg-white/90 backdrop-blur-md border border-green-100 shadow-lg rounded-2xl py-2 px-5 flex items-center justify-between">
+        <div className="bg-white/90 backdrop-blur-md border border-green-100 shadow-lg rounded-2xl py-2.5 px-5 flex items-center justify-between">
           <div className="flex items-center gap-3 flex-1 min-w-0">
-            <div className="w-7 h-7 bg-[#004d00] rounded-lg flex items-center justify-center text-white shrink-0"><Award size={14} /></div>
-            <div className="min-w-0"><h4 className="font-black text-[10px] text-gray-900 leading-none mb-0.5 uppercase tracking-tight">Bolu Adeoye</h4><p className="text-[7px] text-green-700 font-bold truncate uppercase tracking-tighter">Dept. of English & Literary Studies</p></div>
+            <div className="w-8 h-8 bg-[#004d00] rounded-lg flex items-center justify-center text-white shrink-0"><Award size={16} /></div>
+            <div className="min-w-0"><h4 className="font-black text-[11px] text-gray-900 leading-none mb-1 uppercase tracking-tight">Bolu Adeoye</h4><p className="text-[8px] text-green-700 font-bold truncate uppercase tracking-tighter">Dept. of English & Literary Studies</p></div>
           </div>
-          <div className="h-5 w-[1px] bg-gray-200 mx-4"></div>
-          <div className="text-right shrink-0"><p className="text-[6px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Partner</p><p className="text-[8px] font-black text-gray-900 leading-none uppercase">Abel Kings</p><p className="text-[6px] font-bold text-green-600 uppercase tracking-tighter">Tutorial Center</p></div>
+          <div className="h-6 w-[1px] bg-gray-200 mx-4"></div>
+          <div className="text-right shrink-0"><p className="text-[7px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Partner</p><p className="text-[9px] font-black text-gray-900 leading-none uppercase">Abel Kings</p><p className="text-[7px] font-bold text-green-600 uppercase tracking-tighter">Tutorial Center</p></div>
         </div>
       </div>
     </main>
