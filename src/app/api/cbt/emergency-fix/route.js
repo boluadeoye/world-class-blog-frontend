@@ -20,7 +20,7 @@ export async function GET(req) {
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 30);
     
-    // REMOVED updated_at to prevent schema error
+    // NO updated_at column to avoid errors
     await sql`
       UPDATE cbt_students 
       SET subscription_status = 'premium', 
