@@ -10,17 +10,27 @@ export async function GET(req) {
     
     if (!email) return NextResponse.json({ error: "Email required" }, { status: 400 });
     
-    // 1. Find the student
-    const users = await sql`SELECT * FROM cbt_students WHERE email = ${email}`;
-    if (users.length === 0) return NextResponse.json({ error: "User not found" }, { status: 404 });
+    // SMART LOOKUP: Trim whitespace and use ILIKE for case-insensitivity
+    const cleanEmail = email.trim();
+    
+    const users = await sql`
+      SELECT * FROM cbt_students 
+      WHERE email ILIKE ${cleanEmail}
+    `;
+    
+    if (users.length === 0) {
+      return NextResponse.json({ 
+        error: "User not found", 
+        suggestion: "Check the Export List. The student might have made a typo during registration." 
+      }, { status: 404 });
+    }
     
     const user = users[0];
     
-    // 2. Force Upgrade (30 Days)
+    // Force Upgrade
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 30);
     
-    // NO updated_at column to avoid errors
     await sql`
       UPDATE cbt_students 
       SET subscription_status = 'premium', 
@@ -30,7 +40,7 @@ export async function GET(req) {
     
     return NextResponse.json({ 
       success: true, 
-      message: `UPGRADED ${user.name} to PREMIUM`, 
+      message: `UPGRADED ${user.name} (${user.email}) to PREMIUM`, 
       expires_at: expiresAt 
     }, { status: 200 });
 
