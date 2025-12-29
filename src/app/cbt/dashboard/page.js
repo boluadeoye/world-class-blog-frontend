@@ -6,7 +6,6 @@ import {
   ChevronDown, Info, Crown, Clock, ChevronRight, 
   AlertTriangle, Layers, Headset, History, CheckCircle, Building2, Settings, Lock, Sparkles
 } from "lucide-react";
-import Link from "next/link";
 import dynamic from "next/dynamic";
 import StatusModal from "../../../components/cbt/StatusModal";
 
@@ -66,40 +65,32 @@ function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
   );
 }
 
-/* === 2. TACTICAL DISCLAIMER CARD (REBUILT) === */
+/* === 2. DISCLAIMER ACCORDION (RESTORED EXACTLY) === */
 function DisclaimerCard() {
   const [isOpen, setIsOpen] = useState(true);
   return (
-    <div className="bg-white border-l-4 border-orange-500 rounded-r-2xl shadow-lg shadow-orange-500/5 mb-8 overflow-hidden">
-      <button onClick={() => setIsOpen(!isOpen)} className="w-full flex items-center justify-between p-5 text-left bg-orange-50/30 hover:bg-orange-50 transition-colors">
+    <div className="bg-[#FFF8F0] border border-orange-100 rounded-3xl overflow-hidden mb-6 shadow-sm">
+      <button onClick={() => setIsOpen(!isOpen)} className="w-full flex items-center justify-between p-6 text-left">
         <div className="flex items-center gap-4">
-          <div className="bg-orange-100 p-2.5 rounded-lg text-orange-600 animate-pulse">
-            <AlertTriangle size={20} strokeWidth={2.5} />
+          <div className="bg-orange-100 w-12 h-12 flex items-center justify-center rounded-full text-orange-600 shrink-0">
+            <Info size={24} />
           </div>
           <div>
-            <h3 className="font-black text-xs text-orange-900 uppercase tracking-[0.2em]">Critical Advisory</h3>
-            <p className="text-[9px] text-orange-600 font-bold uppercase tracking-wide">Mandatory Protocol</p>
+            <h3 className="font-black text-sm text-[#5A3A29] uppercase tracking-wide">IMPORTANT DISCLAIMER</h3>
+            <p className="text-[11px] text-orange-400 font-bold mt-0.5">Read before starting</p>
           </div>
         </div>
-        <ChevronDown size={18} className={`text-orange-400 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown size={20} className={`text-orange-300 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
       
       {isOpen && (
-        <div className="px-6 pb-6 pt-2">
-          <div className="h-px w-full bg-orange-100 mb-4"></div>
-          <ul className="space-y-3">
-            <li className="flex gap-3 text-[11px] text-gray-700 font-medium leading-relaxed">
-              <span className="text-orange-500 font-black">01.</span>
-              <span>This simulation is designed for <strong className="text-gray-900">psychological conditioning</strong>, not question prediction.</span>
-            </li>
-            <li className="flex gap-3 text-[11px] text-gray-700 font-medium leading-relaxed">
-              <span className="text-orange-500 font-black">02.</span>
-              <span>This is <strong className="text-red-600 uppercase font-black">NOT</strong> an "expo." It is a high-fidelity training environment.</span>
-            </li>
-            <li className="flex gap-3 text-[11px] text-gray-700 font-medium leading-relaxed">
-              <span className="text-orange-500 font-black">03.</span>
-              <span>Success here builds the <strong className="text-gray-900">resilience</strong> required for the main event.</span>
-            </li>
+        <div className="px-6 pb-8 text-xs text-[#8B5E3C] leading-relaxed">
+          <p className="mb-3 font-bold text-[#5A3A29] text-sm">Strict Warning:</p>
+          <ul className="list-disc pl-4 space-y-2 font-medium">
+            <li>The purpose of this mock examination is <strong className="text-[#5A3A29]">NOT</strong> to expose likely questions.</li>
+            <li>The aim is to <strong className="text-[#5A3A29]">simulate the environment</strong> and prepare you psychologically for the real exam.</li>
+            <li>Use this tool to practice <strong className="text-[#5A3A29]">time management</strong> and pressure handling.</li>
+            <li>Success here does not guarantee success in the main exam, but it builds the necessary resilience.</li>
           </ul>
         </div>
       )}
@@ -107,7 +98,7 @@ function DisclaimerCard() {
   );
 }
 
-/* === 3. COURSE CARD === */
+/* === 3. COMPACT COURSE CARD === */
 function CourseCard({ course, onLaunch, variant = "green", isPremium }) {
   const isGst = variant === "green";
   const isBlocked = !isPremium && course.user_attempts >= 2;
@@ -280,7 +271,7 @@ export default function StudentDashboard() {
       </div>
 
       <div className="fixed bottom-4 left-4 right-4 z-40 max-w-2xl mx-auto">
-        <div className="bg-white/90 backdrop-blur-md border border-green-100 shadow-lg rounded-2xl py-2.5 px-5 flex items-center justify-between">
+        <div className="bg-white/90 backdrop-blur-md border border-green-100 shadow-lg rounded-2xl py-2 px-5 flex items-center justify-between">
           <div className="flex items-center gap-3 flex-1 min-w-0">
             <div className="w-7 h-7 bg-[#004d00] rounded-lg flex items-center justify-center text-white shrink-0"><Award size={14} /></div>
             <div className="min-w-0"><h4 className="font-black text-[10px] text-gray-900 leading-none mb-0.5 uppercase tracking-tight">Bolu Adeoye</h4><p className="text-[7px] text-green-700 font-bold truncate uppercase tracking-tighter">Dept. of English & Literary Studies</p></div>
