@@ -5,35 +5,49 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    // THE ELITE FILTER: Only fetch scores where percentage >= 60%
-    // We use a float cast to ensure precision during division
-    const leaders = await sql`
+    // 1. Try to fetch from Leaderboard Table (Permissive: Score > 0)
+    let leaders = await sql`
       SELECT 
+        l.student_id, 
+        l.score, 
+        l.course_id,
         s.name, 
-        s.department, 
-        r.score, 
-        r.total,
+        s.department,
         c.code as course_code
-      FROM cbt_results r
-      JOIN cbt_students s ON r.student_id = s.id::text
-      JOIN cbt_courses c ON r.course_id = c.id::text
-      WHERE r.total > 0 AND ((r.score::float / r.total::float) * 100) >= 60
-      ORDER BY r.score DESC
-      LIMIT 10
+      FROM cbt_leaderboard l
+      JOIN cbt_students s ON l.student_id = s.id
+      LEFT JOIN cbt_courses c ON l.course_id = c.id
+      WHERE l.score > 0
+      ORDER BY l.score DESC
+      LIMIT 20
     `;
 
+    // 2. SELF-HEALING: If Leaderboard is empty, fallback to History
+    // This fixes the "Dead" state for users who took exams before the fix.
+    if (leaders.length === 0) {
+      leaders = await sql`
+        SELECT DISTINCT ON (h.student_id)
+          h.student_id,
+          h.score,
+          h.course_id,
+          s.name,
+          s.department,
+          c.code as course_code
+        FROM cbt_exam_history h
+        JOIN cbt_students s ON h.student_id = s.id
+        LEFT JOIN cbt_courses c ON h.course_id = c.id
+        WHERE h.score > 0
+        ORDER BY h.student_id, h.score DESC
+        LIMIT 20
+      `;
+      
+      // Sort the fallback results by score descending
+      leaders.sort((a, b) => b.score - a.score);
+    }
+    
     return NextResponse.json(leaders);
   } catch (error) {
-    console.error("Leaderboard API Error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-}
-
-export async function DELETE() {
-  try {
-    await sql`DELETE FROM cbt_results`;
-    return NextResponse.json({ success: true, message: "Leaderboard purged." });
-  } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("Leaderboard Error:", error);
+    return NextResponse.json([], { status: 200 });
   }
 }
