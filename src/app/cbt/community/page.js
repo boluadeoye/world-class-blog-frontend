@@ -54,16 +54,31 @@ export default function CommunityPage() {
     setPosting(false);
   };
 
-  const handleDelete = async (e, postId) => {
+  // DELETE POST (MAIN FEED)
+  const handleDeletePost = async (e, postId) => {
     e.stopPropagation();
-    if (!confirm("COMMANDER: Delete this message?")) return;
+    if (!confirm("COMMANDER: Delete this thread?")) return;
     try {
       await fetch("/api/cbt/community/delete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ postId, adminEmail: student.email })
+        body: JSON.stringify({ id: postId, type: 'post', adminEmail: student.email })
       });
       fetchFeed(student.department);
+    } catch (e) { alert("Delete Failed"); }
+  };
+
+  // DELETE COMMENT (INSIDE THREAD)
+  const handleDeleteComment = async (commentId) => {
+    if (!confirm("COMMANDER: Delete this reply?")) return;
+    // Optimistic update
+    setComments(prev => prev.filter(c => c.id !== commentId));
+    try {
+      await fetch("/api/cbt/community/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: commentId, type: 'comment', adminEmail: student.email })
+      });
     } catch (e) { alert("Delete Failed"); }
   };
 
@@ -116,7 +131,6 @@ export default function CommunityPage() {
 
   return (
     <main className="min-h-screen bg-[#f4f6f8] pb-32 font-sans">
-      {/* HEADER */}
       <header className="fixed top-0 left-0 right-0 bg-[#004d00]/95 backdrop-blur-xl text-white pt-12 pb-6 px-6 rounded-b-[2.5rem] shadow-2xl z-40 border-b border-white/10">
         <div className="flex justify-between items-center max-w-2xl mx-auto">
           <div>
@@ -128,7 +142,6 @@ export default function CommunityPage() {
       </header>
 
       <div className="pt-36 px-4 max-w-2xl mx-auto">
-        {/* INPUT */}
         <div className={`bg-white p-1.5 rounded-[2rem] shadow-xl border mb-8 transition-all ${isAdmin ? 'border-red-200 shadow-red-900/10' : 'border-green-100 shadow-green-900/5'}`}>
           <div className="bg-gray-50 rounded-[1.8rem] p-4 relative">
             <textarea value={content} onChange={(e) => setContent(e.target.value)} placeholder={isAdmin ? "Type a Global Broadcast..." : "Share intel, ask questions..."} className="w-full bg-transparent text-sm font-medium focus:outline-none resize-none h-24 placeholder:text-gray-400 text-gray-800" />
@@ -140,12 +153,11 @@ export default function CommunityPage() {
           </div>
         </div>
 
-        {/* FEED */}
         <div className="space-y-5 pb-10">
           {loading && <div className="text-center text-gray-400 text-[10px] font-black uppercase animate-pulse mt-10 tracking-widest">Loading Forum...</div>}
           {posts.map((post) => (
             <div key={post.id} onClick={() => openThread(post)} className={`p-6 rounded-[2rem] shadow-sm border relative group transition-all duration-300 active:scale-[0.98] cursor-pointer ${post.is_announcement ? 'bg-gradient-to-br from-[#2b0a0a] to-[#4a0f0f] border-red-900 text-white shadow-red-900/20' : 'bg-white border-gray-100 text-gray-800'}`}>
-              {isAdmin && <button onClick={(e) => handleDelete(e, post.id)} className="absolute top-4 right-4 p-2 bg-white/10 backdrop-blur-md rounded-full text-white/50 hover:bg-red-600 hover:text-white transition-colors z-20"><Trash2 size={14} /></button>}
+              {isAdmin && <button onClick={(e) => handleDeletePost(e, post.id)} className="absolute top-4 right-4 p-2 bg-white/10 backdrop-blur-md rounded-full text-white/50 hover:bg-red-600 hover:text-white transition-colors z-20"><Trash2 size={14} /></button>}
               <div className="flex justify-between items-start mb-4">
                 <div className="flex items-center gap-3">
                   <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-sm shadow-md overflow-hidden border-2 ${post.is_admin ? 'bg-red-600 border-red-400 text-white' : 'bg-gray-50 border-gray-100 text-gray-900'}`}>{post.is_admin ? <Megaphone size={20} /> : <img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${post.author_name.replace(/\s/g, '')}`} alt="Avatar" className="w-full h-full object-cover" />}</div>
@@ -174,7 +186,8 @@ export default function CommunityPage() {
           <div className="bg-[#f4f6f8] w-full max-w-lg h-[85vh] sm:h-[80vh] sm:rounded-[2.5rem] rounded-t-[2.5rem] flex flex-col overflow-hidden shadow-2xl animate-in slide-in-from-bottom duration-300">
             <div className="bg-white p-5 border-b border-gray-100 flex justify-between items-center shrink-0">
               <h3 className="font-black text-sm uppercase tracking-widest text-gray-800">Thread</h3>
-              <button onClick={() => setActivePost(null)} className="p-2 bg-gray-100 rounded-full hover:bg-gray-200"><X size={18} /></button>
+              {/* FIX: VISIBLE CLOSE BUTTON */}
+              <button onClick={() => setActivePost(null)} className="p-2 bg-gray-200 text-gray-700 rounded-full hover:bg-red-50 hover:text-red-600 transition-colors"><X size={20} /></button>
             </div>
             <div className="flex-1 overflow-y-auto p-5 custom-scrollbar">
               <div className="bg-white p-5 rounded-[2rem] shadow-sm border border-gray-100 mb-6">
@@ -183,12 +196,18 @@ export default function CommunityPage() {
               </div>
               <div className="space-y-3">
                 {loadingComments ? <div className="text-center text-[10px] font-black text-gray-400 animate-pulse">Loading Replies...</div> : comments.map(c => (
-                  <div key={c.id} className="bg-white p-4 rounded-2xl border border-gray-50 shadow-sm">
-                    <div className="flex justify-between items-center mb-1"><span className="text-[10px] font-black text-gray-900 uppercase">{c.author_name}</span><span className="text-[8px] text-gray-400">{formatTime(c.created_at)}</span></div>
+                  <div key={c.id} className="bg-white p-4 rounded-2xl border border-gray-50 shadow-sm relative group">
+                    {/* FIX: ADMIN DELETE FOR COMMENTS */}
+                    {isAdmin && (
+                      <button onClick={() => handleDeleteComment(c.id)} className="absolute top-3 right-3 text-gray-300 hover:text-red-500 transition-colors">
+                        <Trash2 size={14} />
+                      </button>
+                    )}
+                    <div className="flex justify-between items-center mb-1"><span className="text-[10px] font-black text-gray-900 uppercase">{c.author_name}</span><span className="text-[8px] text-gray-400 mr-6">{formatTime(c.created_at)}</span></div>
                     <p className="text-xs text-gray-600 leading-relaxed whitespace-pre-wrap">{c.content}</p>
                   </div>
                 ))}
-                {comments.length === 0 && !loadingComments && <p className="text-center text-[10px] text-gray-400 italic">No replies yet. Start the conversation.</p>}
+                {comments.length === 0 && !loadingComments && <p className="text-center text-[10px] text-gray-400 italic">No replies yet.</p>}
               </div>
             </div>
             <div className="p-4 bg-white border-t border-gray-100 shrink-0">
