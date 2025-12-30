@@ -5,7 +5,7 @@ import {
   LogOut, Trophy, BookOpen, Play, Award, 
   ChevronDown, Info, Crown, Clock, ChevronRight, 
   AlertTriangle, Layers, Headset, History, CheckCircle, Building2, Settings, Lock, Sparkles,
-  ChevronUp
+  ChevronUp, MessageCircle, Megaphone
 } from "lucide-react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -14,6 +14,7 @@ import LiveTracker from "../../../components/cbt/LiveTracker";
 
 const UpgradeModal = dynamic(() => import("../../../components/cbt/UpgradeModal"), { ssr: false });
 
+/* === 1. EXAM SETUP MODAL === */
 function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
   const [duration, setDuration] = useState(course.duration || 15);
   const isBlocked = !isPremium && course.user_attempts >= 2;
@@ -68,6 +69,7 @@ function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
   );
 }
 
+/* === 2. DISCLAIMER ACCORDION === */
 function DisclaimerCard() {
   const [isOpen, setIsOpen] = useState(true);
   return (
@@ -94,6 +96,7 @@ function DisclaimerCard() {
   );
 }
 
+/* === 3. COURSE CARD === */
 function CourseCard({ course, onLaunch, variant = "green", isPremium }) {
   const isGst = variant === "green";
   const isBlocked = !isPremium && course.user_attempts >= 2;
@@ -196,6 +199,7 @@ export default function StudentDashboard() {
       {showUpgrade && <UpgradeModal student={student} onClose={() => setShowUpgrade(false)} onSuccess={() => window.location.reload()} />}
       {setupCourse && <ExamSetupModal course={setupCourse} isPremium={isPremium} onClose={() => setSetupCourse(null)} onStart={(dur) => router.push(`/cbt/exam/${setupCourse.id}?duration=${dur}`)} onUpgrade={() => { setSetupCourse(null); setShowUpgrade(true); }} />}
       
+      {/* === HEADER === */}
       <header className="bg-[#004d00] text-white pt-8 pb-20 px-6 rounded-b-[2.5rem] shadow-2xl relative z-10">
         <div className="flex justify-between items-center mb-8">
           <div className="flex items-center gap-4">
@@ -221,6 +225,29 @@ export default function StudentDashboard() {
 
       <div className="px-5 -mt-8 relative z-20 space-y-6">
         <DisclaimerCard />
+
+        {/* === COMMUNITY FORUM CARD (REBRANDED) === */}
+        <Link href="/cbt/community" className="block">
+          <div className="bg-gradient-to-r from-blue-900 to-blue-800 rounded-[2rem] p-6 shadow-xl shadow-blue-900/20 border border-blue-700 relative overflow-hidden group active:scale-[0.98] transition-transform">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
+            <div className="relative z-10 flex justify-between items-center">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-md border border-white/10">
+                  <MessageCircle size={24} className="text-white" />
+                </div>
+                <div>
+                  <h2 className="text-white font-black text-sm uppercase tracking-widest mb-1">Community Forum</h2>
+                  <p className="text-blue-200 text-[10px] font-bold">Connect, Discuss & Get Updates</p>
+                </div>
+              </div>
+              <div className="bg-white text-blue-900 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-wide shadow-lg flex items-center gap-2">
+                Enter <ChevronRight size={12} />
+              </div>
+            </div>
+          </div>
+        </Link>
+
+        {/* === EXAM HISTORY === */}
         <section>
           <div className="flex items-center justify-between mb-3 px-1">
             <div className="flex items-center gap-2"><History size={14} className="text-gray-400" /><h2 className="font-black text-[10px] text-gray-400 uppercase tracking-widest">Exam History</h2></div>
@@ -256,6 +283,7 @@ export default function StudentDashboard() {
           )}
         </section>
 
+        {/* === GST COURSES === */}
         <section>
            <div className="flex items-center justify-between mb-3 px-1">
              <div className="flex items-center gap-2"><BookOpen size={14} className="text-[#004d00]" /><h2 className="font-black text-[10px] text-gray-500 uppercase tracking-widest">General Studies</h2></div>
@@ -264,6 +292,7 @@ export default function StudentDashboard() {
           {gstExpanded && <div className="animate-in fade-in slide-in-from-top-2">{gstCourses.map(c => <CourseCard key={c.id} course={c} onLaunch={setSetupCourse} variant="green" isPremium={isPremium} />)}</div>}
         </section>
 
+        {/* === OTHER COURSES === */}
         <section className="bg-[#f0f4ff] rounded-[2rem] shadow-sm border border-blue-50 p-5">
           <div className="flex items-center justify-between mb-4"><div className="flex items-center gap-2"><div className="bg-blue-600 p-1.5 rounded-lg text-white shadow-md"><Layers size={12} /></div><h2 className="font-black text-[10px] text-blue-900 uppercase tracking-widest">Other Courses</h2></div><Sparkles size={12} className="text-blue-400 animate-pulse" /></div>
           <div className="space-y-1">{otherCourses.slice(0, 2).map(c => <CourseCard key={c.id} course={c} onLaunch={setSetupCourse} variant="blue" isPremium={isPremium} />)}</div>
@@ -275,6 +304,7 @@ export default function StudentDashboard() {
           )}
         </section>
 
+        {/* === LEADERBOARD === */}
         <section>
           <div className="flex items-center justify-between mb-4 px-2">
             <div className="flex items-center gap-2">
