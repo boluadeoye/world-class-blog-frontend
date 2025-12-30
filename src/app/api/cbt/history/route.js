@@ -10,8 +10,7 @@ export async function GET(req) {
   if (!studentId) return NextResponse.json({ error: "Missing Student ID" }, { status: 400 });
 
   try {
-    // FIX: Query 'cbt_exam_history' instead of 'cbt_results'
-    // Also ensure course_id casting matches your schema (INT vs TEXT)
+    // FIX: Pointing to the correct 'cbt_exam_history' table
     const history = await sql`
       SELECT 
         h.id, 
