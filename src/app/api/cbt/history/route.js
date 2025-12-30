@@ -10,19 +10,20 @@ export async function GET(req) {
   if (!studentId) return NextResponse.json({ error: "Missing Student ID" }, { status: 400 });
 
   try {
-    // Fetch results joined with course details
+    // FIX: Query 'cbt_exam_history' instead of 'cbt_results'
+    // Also ensure course_id casting matches your schema (INT vs TEXT)
     const history = await sql`
       SELECT 
-        r.id,
-        r.score,
-        r.total,
-        r.created_at,
-        c.code as course_code,
-        c.title as course_title
-      FROM cbt_results r
-      JOIN cbt_courses c ON r.course_id = c.id::text
-      WHERE r.student_id = ${studentId}
-      ORDER BY r.created_at DESC
+        h.id, 
+        h.score, 
+        h.total, 
+        h.created_at, 
+        c.code as course_code, 
+        c.title as course_title 
+      FROM cbt_exam_history h
+      JOIN cbt_courses c ON h.course_id::text = c.id::text
+      WHERE h.student_id = ${studentId}
+      ORDER BY h.created_at DESC
     `;
 
     return NextResponse.json(history);
