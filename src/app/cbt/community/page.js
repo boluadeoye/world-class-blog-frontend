@@ -1,7 +1,7 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Send, Users, ShieldAlert, Trash2, Building2, Sparkles, Megaphone, MessageCircle, Heart, MessageSquare, X } from "lucide-react";
+import { Send, Users, ShieldAlert, Trash2, Building2, Megaphone, MessageCircle, Heart, MessageSquare, X, CheckCircle } from "lucide-react";
 
 export default function CommunityPage() {
   const router = useRouter();
@@ -11,7 +11,7 @@ export default function CommunityPage() {
   const [loading, setLoading] = useState(true);
   const [posting, setPosting] = useState(false);
   
-  // REPLY MODAL STATE
+  // THREAD STATE
   const [activePost, setActivePost] = useState(null);
   const [comments, setComments] = useState([]);
   const [commentText, setCommentText] = useState("");
@@ -26,7 +26,7 @@ export default function CommunityPage() {
     const parsed = JSON.parse(stored);
     setStudent(parsed);
     fetchFeed(parsed.department);
-    const interval = setInterval(() => fetchFeed(parsed.department), 5000); // 5s Polling
+    const interval = setInterval(() => fetchFeed(parsed.department), 5000);
     return () => clearInterval(interval);
   }, []);
 
@@ -36,7 +36,7 @@ export default function CommunityPage() {
       const data = await res.json();
       if (data.posts) setPosts(data.posts);
       setLoading(false);
-    } catch (e) { console.error(e); }
+    } catch (e) {}
   };
 
   const handlePost = async () => {
@@ -46,14 +46,7 @@ export default function CommunityPage() {
       await fetch("/api/cbt/community/post", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          studentId: student.id,
-          name: student.name,
-          email: student.email,
-          department: student.department,
-          content: content,
-          isAdmin: isAdmin
-        })
+        body: JSON.stringify({ studentId: student.id, name: student.name, email: student.email, department: student.department, content, isAdmin })
       });
       setContent("");
       fetchFeed(student.department);
@@ -62,7 +55,7 @@ export default function CommunityPage() {
   };
 
   const handleDelete = async (e, postId) => {
-    e.stopPropagation(); // Prevent opening the reply modal
+    e.stopPropagation();
     if (!confirm("COMMANDER: Delete this message?")) return;
     try {
       await fetch("/api/cbt/community/delete", {
@@ -76,15 +69,13 @@ export default function CommunityPage() {
 
   const handleLike = async (e, postId) => {
     e.stopPropagation();
-    // Optimistic UI Update
-    setPosts(prev => prev.map(p => p.id === postId ? { ...p, likes_count: p.likes_count + 1 } : p));
+    setPosts(prev => prev.map(p => p.id === postId ? { ...p, likes_count: (p.likes_count || 0) + 1 } : p));
     try {
       await fetch("/api/cbt/community/like", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ postId, studentId: student.id })
       });
-      fetchFeed(student.department); // Sync real count
     } catch (e) {}
   };
 
@@ -102,7 +93,7 @@ export default function CommunityPage() {
   const sendComment = async () => {
     if (!commentText.trim()) return;
     const newComment = { id: Date.now(), author_name: student.name, content: commentText, created_at: new Date() };
-    setComments([...comments, newComment]); // Optimistic
+    setComments([...comments, newComment]);
     setCommentText("");
     try {
       await fetch("/api/cbt/community/comment", {
@@ -113,14 +104,12 @@ export default function CommunityPage() {
     } catch (e) {}
   };
 
-  const formatTime = (dateString) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diff = (now - date) / 1000;
+  const formatTime = (d) => {
+    const diff = (new Date() - new Date(d)) / 1000;
     if (diff < 60) return "Just now";
-    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-    return date.toLocaleDateString();
+    if (diff < 3600) return `${Math.floor(diff/60)}m ago`;
+    if (diff < 86400) return `${Math.floor(diff/3600)}h ago`;
+    return new Date(d).toLocaleDateString();
   };
 
   if (!student) return null;
@@ -128,7 +117,7 @@ export default function CommunityPage() {
   return (
     <main className="min-h-screen bg-[#f4f6f8] pb-32 font-sans">
       {/* HEADER */}
-      <header className="fixed top-0 left-0 right-0 bg-[#004d00]/90 backdrop-blur-xl text-white pt-12 pb-6 px-6 rounded-b-[2.5rem] shadow-2xl z-40 border-b border-white/10">
+      <header className="fixed top-0 left-0 right-0 bg-[#004d00]/95 backdrop-blur-xl text-white pt-12 pb-6 px-6 rounded-b-[2.5rem] shadow-2xl z-40 border-b border-white/10">
         <div className="flex justify-between items-center max-w-2xl mx-auto">
           <div>
             <h1 className="text-lg font-black uppercase tracking-widest flex items-center gap-2"><MessageCircle size={20} className="text-green-300" /> COMMUNITY FORUM</h1>
@@ -162,7 +151,10 @@ export default function CommunityPage() {
                   <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-sm shadow-md overflow-hidden border-2 ${post.is_admin ? 'bg-red-600 border-red-400 text-white' : 'bg-gray-50 border-gray-100 text-gray-900'}`}>{post.is_admin ? <Megaphone size={20} /> : <img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${post.author_name.replace(/\s/g, '')}`} alt="Avatar" className="w-full h-full object-cover" />}</div>
                   <div>
                     <h3 className={`font-black text-xs uppercase flex items-center gap-1.5 ${post.is_announcement ? 'text-red-100' : 'text-gray-900'}`}>{post.author_name} {post.is_admin && <span className="bg-red-500/20 border border-red-500/30 text-red-200 px-1.5 py-0.5 rounded text-[8px] tracking-wider">ADMIN</span>}</h3>
-                    <div className="flex items-center gap-2 mt-0.5"><span className={`text-[9px] font-mono ${post.is_announcement ? 'text-red-300' : 'text-gray-400'}`}>{formatTime(post.created_at)}</span></div>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      {post.is_admin ? <span className="bg-red-500/20 border border-red-500/30 text-red-200 px-2 py-0.5 rounded-md text-[8px] font-black tracking-widest uppercase">OFFICIAL</span> : <span className="bg-gray-100 text-gray-500 px-2 py-0.5 rounded-md text-[8px] font-bold uppercase tracking-wide flex items-center gap-1"><Building2 size={8} /> {post.department || "General"}</span>}
+                      <span className={`text-[9px] font-mono ${post.is_announcement ? 'text-red-300' : 'text-gray-400'}`}>{formatTime(post.created_at)}</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -193,7 +185,7 @@ export default function CommunityPage() {
                 {loadingComments ? <div className="text-center text-[10px] font-black text-gray-400 animate-pulse">Loading Replies...</div> : comments.map(c => (
                   <div key={c.id} className="bg-white p-4 rounded-2xl border border-gray-50 shadow-sm">
                     <div className="flex justify-between items-center mb-1"><span className="text-[10px] font-black text-gray-900 uppercase">{c.author_name}</span><span className="text-[8px] text-gray-400">{formatTime(c.created_at)}</span></div>
-                    <p className="text-xs text-gray-600 leading-relaxed">{c.content}</p>
+                    <p className="text-xs text-gray-600 leading-relaxed whitespace-pre-wrap">{c.content}</p>
                   </div>
                 ))}
                 {comments.length === 0 && !loadingComments && <p className="text-center text-[10px] text-gray-400 italic">No replies yet. Start the conversation.</p>}
