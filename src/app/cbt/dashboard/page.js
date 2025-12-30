@@ -5,7 +5,7 @@ import {
   LogOut, Trophy, BookOpen, Play, Award, 
   ChevronDown, Info, Crown, Clock, ChevronRight, 
   AlertTriangle, Layers, Headset, History, CheckCircle, Building2, Settings, Lock, Sparkles,
-  ChevronUp, MessageCircle, Megaphone
+  ChevronUp, MessageCircle, Megaphone, Bell
 } from "lucide-react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -130,6 +130,10 @@ export default function StudentDashboard() {
   const [gstExpanded, setGstExpanded] = useState(true);
   const [othersExpanded, setOthersExpanded] = useState(false);
   const [historyExpanded, setHistoryExpanded] = useState(false);
+  
+  // INTELLIGENT NOTIFICATION STATE
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [totalForumPosts, setTotalForumPosts] = useState(0);
 
   useEffect(() => {
     setMounted(true);
@@ -148,28 +152,49 @@ export default function StudentDashboard() {
 
     async function fetchData() {
       try {
-        const [syncRes, courseRes, lbRes, histRes] = await Promise.all([
+        const [syncRes, courseRes, lbRes, histRes, forumRes] = await Promise.all([
           fetch(`/api/cbt/auth/student-status?id=${parsed.id}`),
           fetch(`/api/cbt/courses?studentId=${parsed.id}`),
           fetch('/api/cbt/leaderboard'),
-          fetch(`/api/cbt/history?studentId=${parsed.id}`)
+          fetch(`/api/cbt/history?studentId=${parsed.id}`),
+          fetch(`/api/cbt/community/status?dept=${encodeURIComponent(parsed.department || 'General')}`)
         ]);
+        
         const syncData = await syncRes.json();
         if (syncRes.ok) {
           const updated = { ...parsed, subscription_status: syncData.status };
           setStudent(updated);
           sessionStorage.setItem("cbt_student", JSON.stringify(updated));
         }
+        
         const courseData = await courseRes.json();
         setCourses(Array.isArray(courseData.courses) ? courseData.courses : []);
+        
         const lbData = await lbRes.json();
         setLeaders(Array.isArray(lbData) ? lbData : []); 
+        
         const histData = await histRes.json();
         setExamHistory(Array.isArray(histData) ? histData : []);
+
+        // FORUM INTELLIGENCE LOGIC
+        const forumData = await forumRes.json();
+        const serverCount = forumData.count || 0;
+        setTotalForumPosts(serverCount);
+        
+        const lastRead = parseInt(localStorage.getItem('cbt_forum_read_count') || '0');
+        const diff = serverCount - lastRead;
+        if (diff > 0) setUnreadCount(diff);
+
       } catch (e) { console.error(e); } finally { setLoading(false); }
     }
     fetchData();
   }, [router]);
+
+  const handleForumEnter = () => {
+    // Clear notifications when entering
+    localStorage.setItem('cbt_forum_read_count', totalForumPosts.toString());
+    setUnreadCount(0);
+  };
 
   const triggerLogout = () => {
     setStatusModal({
@@ -226,18 +251,28 @@ export default function StudentDashboard() {
       <div className="px-5 -mt-8 relative z-20 space-y-6">
         <DisclaimerCard />
 
-        {/* === COMMUNITY FORUM CARD (REBRANDED) === */}
-        <Link href="/cbt/community" className="block">
+        {/* === COMMUNITY FORUM CARD (INTELLIGENT) === */}
+        <Link href="/cbt/community" onClick={handleForumEnter} className="block">
           <div className="bg-gradient-to-r from-blue-900 to-blue-800 rounded-[2rem] p-6 shadow-xl shadow-blue-900/20 border border-blue-700 relative overflow-hidden group active:scale-[0.98] transition-transform">
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
             <div className="relative z-10 flex justify-between items-center">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-md border border-white/10">
+                <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-md border border-white/10 relative">
                   <MessageCircle size={24} className="text-white" />
+                  {unreadCount > 0 && (
+                    <div className="absolute -top-2 -right-2 bg-red-500 text-white text-[9px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-blue-900 animate-bounce shadow-lg">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </div>
+                  )}
                 </div>
                 <div>
-                  <h2 className="text-white font-black text-sm uppercase tracking-widest mb-1">Community Forum</h2>
-                  <p className="text-blue-200 text-[10px] font-bold">Connect, Discuss & Get Updates</p>
+                  <h2 className="text-white font-black text-sm uppercase tracking-widest mb-1 flex items-center gap-2">
+                    Community Forum
+                    {unreadCount > 0 && <span className="bg-red-500 text-white text-[8px] px-1.5 py-0.5 rounded animate-pulse">NEW</span>}
+                  </h2>
+                  <p className="text-blue-200 text-[10px] font-bold">
+                    {unreadCount > 0 ? `${unreadCount} New Messages Waiting...` : "Connect, Discuss & Get Updates"}
+                  </p>
                 </div>
               </div>
               <div className="bg-white text-blue-900 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-wide shadow-lg flex items-center gap-2">
