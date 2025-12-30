@@ -4,24 +4,64 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import {
   Grid, CheckCircle, AlertOctagon, X, Crown, Sparkles,
   BrainCircuit, Clock, ChevronRight, ChevronLeft, ShieldAlert,
-  Loader2, BookOpen, Target, Zap, FileText, Lock, ShieldCheck, Fingerprint
+  Loader2, BookOpen, Target, Zap, FileText, Lock, ShieldCheck, Fingerprint, EyeOff
 } from "lucide-react";
 import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";
 
 const UpgradeModal = dynamic(() => import("../../../../components/cbt/UpgradeModal"), { ssr: false });
 
-/* === SECURITY WATERMARK COMPONENT === */
+/* === SECURITY: WATERMARK === */
 function SecurityWatermark({ text }) {
   return (
-    <div className="fixed inset-0 z-[50] pointer-events-none overflow-hidden flex items-center justify-center opacity-[0.03]">
+    <div className="fixed inset-0 z-[50] pointer-events-none overflow-hidden flex items-center justify-center opacity-[0.04]">
       <div className="absolute inset-0 flex flex-wrap content-center justify-center gap-20 transform -rotate-12 scale-150">
         {Array.from({ length: 20 }).map((_, i) => (
           <div key={i} className="text-4xl font-black uppercase tracking-widest text-gray-900 whitespace-nowrap select-none">
-            {text} • OFFICIAL USE ONLY • {text}
+            {text} • DO NOT COPY • {text}
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+/* === SECURITY: BLACKOUT CURTAIN === */
+function SecurityCurtain() {
+  const [isBreach, setIsBreach] = useState(false);
+
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === 'hidden') {
+        setIsBreach(true);
+      } else {
+        // Optional: Keep it black for 2 seconds to punish them
+        setTimeout(() => setIsBreach(false), 2000);
+      }
+    };
+
+    const handleBlur = () => setIsBreach(true);
+    const handleFocus = () => setIsBreach(false);
+
+    document.addEventListener("visibilitychange", handleVisibility);
+    window.addEventListener("blur", handleBlur);
+    window.addEventListener("focus", handleFocus);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibility);
+      window.removeEventListener("blur", handleBlur);
+      window.removeEventListener("focus", handleFocus);
+    };
+  }, []);
+
+  if (!isBreach) return null;
+
+  return (
+    <div className="fixed inset-0 z-[9999] bg-black flex flex-col items-center justify-center text-white">
+      <EyeOff size={64} className="text-red-600 mb-6 animate-pulse" />
+      <h2 className="text-2xl font-black uppercase tracking-[0.3em] text-red-600">Security Protocol</h2>
+      <p className="text-xs font-mono text-gray-500 mt-2">SCREEN CAPTURE ATTEMPT DETECTED</p>
+      <p className="text-[10px] font-mono text-gray-700 mt-8">Resume focus to continue...</p>
     </div>
   );
 }
@@ -209,7 +249,6 @@ function ExamContent() {
   if (!mounted) return null;
   if (showUpgrade) return <div className="min-h-screen flex items-center justify-center bg-white"><UpgradeModal student={student} onClose={() => router.push('/cbt/dashboard')} onSuccess={() => window.location.reload()} /></div>;
   
-  // === BIOMETRIC LOADER ===
   if (loading) return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#002b00] text-white relative overflow-hidden">
       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20"></div>
@@ -232,7 +271,15 @@ function ExamContent() {
     const percentage = Math.round((score / questions.length) * 100);
     const answeredCount = Object.keys(answers).length;
     return (
-      <main className="min-h-screen bg-[#f0f2f5] font-sans pb-20 overflow-y-auto">
+      <main className="min-h-screen bg-[#f0f2f5] font-sans pb-20 overflow-y-auto select-none" onContextMenu={(e) => e.preventDefault()}>
+        <style jsx global>{`
+          @media print {
+            body { display: none !important; }
+          }
+        `}</style>
+        <SecurityWatermark text={`${student?.name || 'CBT'} - ${student?.id}`} />
+        <SecurityCurtain />
+        
         <header className="bg-[#002b00] text-white pt-10 pb-20 px-6 rounded-b-[3rem] shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
           <div className="relative z-10 flex justify-between items-start mb-8">
@@ -382,9 +429,14 @@ function ExamContent() {
   if (!currentQ) return <div className="h-screen flex items-center justify-center bg-white font-black text-xs tracking-[0.3em] uppercase text-green-900">Synchronizing...</div>;
 
   return (
-    <main className="h-screen flex flex-col bg-[#f0f2f5] font-sans overflow-hidden select-none relative">
-      {/* === SECURITY WATERMARK === */}
-      <SecurityWatermark text={`${student?.name || 'CBT'} - ${safeId}`} />
+    <main className="h-screen flex flex-col bg-[#f0f2f5] font-sans overflow-hidden select-none relative" onContextMenu={(e) => e.preventDefault()}>
+      <style jsx global>{`
+        @media print {
+          body { display: none !important; }
+        }
+      `}</style>
+      <SecurityWatermark text={`${student?.name || 'CBT'} - ${student?.id}`} />
+      <SecurityCurtain />
       
       {isTimeUp && <TimeUpOverlay />}
       <SubmitModal isOpen={showSubmitModal} onConfirm={submitExam} onCancel={() => setShowSubmitModal(false)} answeredCount={answeredCount} totalCount={questions.length} />
