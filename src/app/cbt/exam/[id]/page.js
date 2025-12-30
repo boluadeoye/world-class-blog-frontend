@@ -1,13 +1,46 @@
 "use client";
 import { useState, useEffect, useCallback, Suspense } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { Grid, CheckCircle, X, Crown, Sparkles, BrainCircuit, Clock, Fingerprint } from "lucide-react";
+import { Grid, CheckCircle, X, Crown, Sparkles, BrainCircuit, Clock, Fingerprint, EyeOff } from "lucide-react";
 import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";
 import LiveTracker from "../../../../components/cbt/LiveTracker";
-import { SecurityWatermark, SecurityCurtain, SubmitModal } from "./components";
 
 const UpgradeModal = dynamic(() => import("../../../../components/cbt/UpgradeModal"), { ssr: false });
+
+const SecurityWatermark = ({ text }) => (
+  <div className="fixed inset-0 z-[10] pointer-events-none overflow-hidden flex items-center justify-center opacity-[0.04]">
+    <div className="absolute inset-0 flex flex-wrap content-center justify-center gap-20 transform -rotate-12 scale-150">
+      {Array.from({ length: 20 }).map((_, i) => (
+        <div key={i} className="text-4xl font-black uppercase tracking-widest text-gray-900 whitespace-nowrap">{text} • DO NOT COPY</div>
+      ))}
+    </div>
+  </div>
+);
+
+const SecurityCurtain = ({ isBreach }) => isBreach && (
+  <div className="fixed inset-0 z-[9999] bg-black flex flex-col items-center justify-center text-white p-6 text-center">
+    <EyeOff size={64} className="text-red-600 mb-6 animate-pulse" />
+    <h2 className="text-2xl font-black uppercase tracking-[0.3em] text-red-600">Security Protocol</h2>
+    <p className="text-xs font-mono text-gray-500 mt-2">SCREEN CAPTURE ATTEMPT DETECTED</p>
+  </div>
+);
+
+const SubmitModal = ({ isOpen, onConfirm, onCancel, answeredCount, totalCount }) => isOpen && (
+  <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/90 backdrop-blur-md p-6">
+    <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-sm w-full overflow-hidden border border-green-100 animate-in zoom-in duration-200">
+      <div className="bg-green-50 p-8 flex flex-col items-center text-center border-b border-green-100">
+        <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mb-4 shadow-sm border border-green-100"><CheckCircle size={32} className="text-green-600" /></div>
+        <h3 className="font-black text-2xl text-green-900 uppercase tracking-tighter">Final Audit</h3>
+        <p className="text-[10px] font-black text-gray-400 uppercase mt-2 tracking-widest">{answeredCount} of {totalCount} Answered</p>
+      </div>
+      <div className="p-6 bg-white flex gap-4">
+        <button onClick={onCancel} className="flex-1 py-4 border-2 border-gray-100 rounded-2xl text-[10px] font-black text-gray-400 uppercase tracking-widest">Review</button>
+        <button onClick={onConfirm} className="flex-[1.5] py-4 bg-[#004d00] text-white rounded-2xl text-[10px] font-black shadow-xl uppercase tracking-widest">Submit Now</button>
+      </div>
+    </div>
+  </div>
+);
 
 function ExamContent() {
   const params = useParams();
@@ -35,7 +68,6 @@ function ExamContent() {
     if (!studentData) { router.push("/cbt"); return; }
     const parsed = JSON.parse(studentData);
     setStudent(parsed);
-
     async function loadExam() {
       try {
         const res = await fetch(`/api/cbt/exam?courseId=${params.id}&studentId=${parsed.id}&token=${parsed.session_token}`);
@@ -57,7 +89,6 @@ function ExamContent() {
       } catch (e) { console.error(e); } finally { setLoading(false); }
     }
     loadExam();
-
     const handleBreach = () => setIsBreach(document.visibilityState === 'hidden');
     document.addEventListener("visibilitychange", handleBreach);
     return () => document.removeEventListener("visibilitychange", handleBreach);
@@ -145,7 +176,6 @@ function ExamContent() {
       <SecurityCurtain isBreach={isBreach} />
       <SubmitModal isOpen={showSubmitModal} onConfirm={submitExam} onCancel={() => setShowSubmitModal(false)} answeredCount={Object.keys(answers).length} totalCount={questions.length} />
       <LiveTracker />
-      
       <header className="h-16 bg-[#004d00] text-white flex justify-between items-center px-6 shrink-0 z-[100]">
         <div className="flex flex-col">
           <h1 className="font-black text-[10px] uppercase tracking-widest">{student?.name}</h1>
@@ -158,7 +188,6 @@ function ExamContent() {
           <button onClick={() => setShowSubmitModal(true)} className="bg-red-600 px-5 py-2 rounded-xl text-[10px] font-black uppercase shadow-lg active:scale-90 transition-all">Submit</button>
         </div>
       </header>
-
       <div className="flex-1 p-4 overflow-hidden flex flex-col">
         <div className="flex-1 bg-white rounded-[2.5rem] shadow-xl p-6 flex flex-col justify-between overflow-hidden border border-gray-100">
           <div className="flex justify-between text-[9px] font-black text-gray-300 uppercase tracking-widest">
@@ -175,13 +204,11 @@ function ExamContent() {
           </div>
         </div>
       </div>
-
       <footer className="h-20 bg-white border-t flex justify-between items-center px-8 shrink-0">
         <button onClick={() => setCurrentQIndex(Math.max(0, currentQIndex - 1))} className="text-[10px] font-black text-gray-400 uppercase">Prev</button>
         <button onClick={() => setShowMap(true)} className="bg-gray-100 p-3 rounded-xl"><Grid size={20} /></button>
         <button onClick={() => setCurrentQIndex(Math.min(questions.length - 1, currentQIndex + 1))} className="bg-[#004d00] text-white px-10 py-3 rounded-xl text-[10px] font-black uppercase">Next</button>
       </footer>
-
       {showMap && (
         <div className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm flex items-end">
           <div className="bg-white w-full rounded-t-[3rem] p-8 animate-in slide-in-from-bottom duration-300">
