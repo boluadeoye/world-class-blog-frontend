@@ -5,15 +5,15 @@ import {
   LogOut, Trophy, BookOpen, Play, Award, 
   ChevronDown, Info, Crown, Clock, ChevronRight, 
   AlertTriangle, Layers, Headset, History, CheckCircle, Building2, Settings, Lock, Sparkles,
-  ChevronUp, GraduationCap, FileText
+  ChevronUp
 } from "lucide-react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import StatusModal from "../../../components/cbt/StatusModal";
+import LiveTracker from "../../../components/cbt/LiveTracker";
 
 const UpgradeModal = dynamic(() => import("../../../components/cbt/UpgradeModal"), { ssr: false });
 
-/* === 1. EXAM SETUP MODAL (LOGIC PRESERVED) === */
 function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
   const [duration, setDuration] = useState(course.duration || 15);
   const isBlocked = !isPremium && course.user_attempts >= 2;
@@ -68,7 +68,6 @@ function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
   );
 }
 
-/* === 2. DISCLAIMER ACCORDION (UPDATED WARNINGS) === */
 function DisclaimerCard() {
   const [isOpen, setIsOpen] = useState(true);
   return (
@@ -95,7 +94,6 @@ function DisclaimerCard() {
   );
 }
 
-/* === 3. COURSE CARD (SLEEK) === */
 function CourseCard({ course, onLaunch, variant = "green", isPremium }) {
   const isGst = variant === "green";
   const isBlocked = !isPremium && course.user_attempts >= 2;
@@ -182,12 +180,7 @@ export default function StudentDashboard() {
   const isPremium = student.subscription_status === 'premium';
   const gstCourses = courses.filter(c => c.code.toUpperCase().startsWith("GST"));
   const otherCourses = courses.filter(c => !c.code.toUpperCase().startsWith("GST"));
-
-  // History Logic
   const visibleHistory = historyExpanded ? examHistory : examHistory.slice(0, 2);
-
-  // Leaderboard Logic (Strict Filter: >= 60%)
-  const qualifiedLeaders = leaders.filter(user => user.score >= 60);
 
   if (loading) return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#004d00] gap-4">
@@ -198,11 +191,11 @@ export default function StudentDashboard() {
 
   return (
     <main className="min-h-screen bg-[#fcfdfc] font-sans text-gray-900 pb-48 relative">
+      <LiveTracker />
       {statusModal && <StatusModal {...statusModal} />}
       {showUpgrade && <UpgradeModal student={student} onClose={() => setShowUpgrade(false)} onSuccess={() => window.location.reload()} />}
       {setupCourse && <ExamSetupModal course={setupCourse} isPremium={isPremium} onClose={() => setSetupCourse(null)} onStart={(dur) => router.push(`/cbt/exam/${setupCourse.id}?duration=${dur}`)} onUpgrade={() => { setSetupCourse(null); setShowUpgrade(true); }} />}
       
-      {/* === HEADER === */}
       <header className="bg-[#004d00] text-white pt-8 pb-20 px-6 rounded-b-[2.5rem] shadow-2xl relative z-10">
         <div className="flex justify-between items-center mb-8">
           <div className="flex items-center gap-4">
@@ -216,26 +209,18 @@ export default function StudentDashboard() {
             </div>
           </div>
           <div className="flex gap-2">
-            {/* PULSING SUPPORT BEACON */}
             <a href="https://wa.me/2348106293674" target="_blank" rel="noopener noreferrer" className="bg-green-500 p-3 rounded-xl border border-green-400 text-white shadow-[0_0_15px_rgba(34,197,94,0.6)] animate-pulse hover:scale-105 transition-all"><Headset size={18} /></a>
             <button onClick={triggerLogout} className="bg-green-500/20 p-3 rounded-xl border border-white/10 hover:bg-red-600 transition-colors backdrop-blur-sm"><LogOut size={18} /></button>
           </div>
         </div>
-        
-        {/* === SESSION CARD (UPDATED TITLE) === */}
         <div className="bg-[#003300] border border-white/5 rounded-2xl p-5 flex items-center justify-between shadow-inner">
-          <div>
-            <p className="text-[9px] font-bold text-green-400 uppercase tracking-wider mb-1">Current Session</p>
-            <p className="font-black text-xs text-white tracking-wide">EXAMFORGE SESSION 2026</p>
-          </div>
+          <div><p className="text-[9px] font-bold text-green-400 uppercase tracking-wider mb-1">Current Session</p><p className="font-black text-xs text-white tracking-wide">EXAMFORGE SESSION 2026</p></div>
           <div className="bg-white text-[#004d00] px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wide shadow-sm">Active</div>
         </div>
       </header>
 
       <div className="px-5 -mt-8 relative z-20 space-y-6">
         <DisclaimerCard />
-
-        {/* === EXAM HISTORY (COLLAPSIBLE) === */}
         <section>
           <div className="flex items-center justify-between mb-3 px-1">
             <div className="flex items-center gap-2"><History size={14} className="text-gray-400" /><h2 className="font-black text-[10px] text-gray-400 uppercase tracking-widest">Exam History</h2></div>
@@ -271,7 +256,6 @@ export default function StudentDashboard() {
           )}
         </section>
 
-        {/* === GST COURSES === */}
         <section>
            <div className="flex items-center justify-between mb-3 px-1">
              <div className="flex items-center gap-2"><BookOpen size={14} className="text-[#004d00]" /><h2 className="font-black text-[10px] text-gray-500 uppercase tracking-widest">General Studies</h2></div>
@@ -280,7 +264,6 @@ export default function StudentDashboard() {
           {gstExpanded && <div className="animate-in fade-in slide-in-from-top-2">{gstCourses.map(c => <CourseCard key={c.id} course={c} onLaunch={setSetupCourse} variant="green" isPremium={isPremium} />)}</div>}
         </section>
 
-        {/* === OTHER COURSES === */}
         <section className="bg-[#f0f4ff] rounded-[2rem] shadow-sm border border-blue-50 p-5">
           <div className="flex items-center justify-between mb-4"><div className="flex items-center gap-2"><div className="bg-blue-600 p-1.5 rounded-lg text-white shadow-md"><Layers size={12} /></div><h2 className="font-black text-[10px] text-blue-900 uppercase tracking-widest">Other Courses</h2></div><Sparkles size={12} className="text-blue-400 animate-pulse" /></div>
           <div className="space-y-1">{otherCourses.slice(0, 2).map(c => <CourseCard key={c.id} course={c} onLaunch={setSetupCourse} variant="blue" isPremium={isPremium} />)}</div>
@@ -292,99 +275,48 @@ export default function StudentDashboard() {
           )}
         </section>
 
-        {/* === LEADERBOARD (PREMIUM REDESIGN + FILTER) === */}
         <section>
           <div className="flex items-center justify-between mb-4 px-2">
             <div className="flex items-center gap-2">
-              <div className="relative">
-                <Trophy size={16} className="text-yellow-600" />
-                <span className="absolute -top-1 -right-1 flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-yellow-500"></span>
-                </span>
-              </div>
+              <div className="relative"><Trophy size={16} className="text-yellow-600" /><span className="absolute -top-1 -right-1 flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span><span className="relative inline-flex rounded-full h-2 w-2 bg-yellow-500"></span></span></div>
               <h2 className="font-black text-[10px] text-gray-500 uppercase tracking-widest">Top Performers</h2>
             </div>
-            <div className="flex items-center gap-1.5 bg-green-50 px-2 py-1 rounded-full border border-green-100">
-              <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
-              <span className="text-[8px] font-black text-green-700 uppercase tracking-tight">Live Ranking</span>
-            </div>
+            <div className="flex items-center gap-1.5 bg-green-50 px-2 py-1 rounded-full border border-green-100"><div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div><span className="text-[8px] font-black text-green-700 uppercase tracking-tight">Live Ranking</span></div>
           </div>
-
-          {qualifiedLeaders.length > 0 ? (
+          {leaders.length > 0 ? (
             <div className="flex gap-4 overflow-x-auto pb-4 px-2 -mx-2 custom-scrollbar snap-x">
-              {qualifiedLeaders.map((user, i) => {
+              {leaders.map((user, i) => {
                 const isFirst = i === 0;
                 const isSecond = i === 1;
                 const isThird = i === 2;
-                
                 let borderColor = "border-gray-100";
                 let shadowClass = "shadow-sm";
                 let rankBadge = null;
-
-                if (isFirst) {
-                  borderColor = "border-yellow-200";
-                  shadowClass = "shadow-lg shadow-yellow-100/50";
-                  rankBadge = <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-yellow-400 to-yellow-600 text-white px-3 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest shadow-sm flex items-center gap-1"><Crown size={8} fill="currentColor" /> 1st Place</div>;
-                } else if (isSecond) {
-                  borderColor = "border-gray-200";
-                  rankBadge = <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest shadow-sm">2nd</div>;
-                } else if (isThird) {
-                  borderColor = "border-orange-100";
-                  rankBadge = <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest shadow-sm">3rd</div>;
-                }
-
+                if (isFirst) { borderColor = "border-yellow-200"; shadowClass = "shadow-lg shadow-yellow-100/50"; rankBadge = <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-yellow-400 to-yellow-600 text-white px-3 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest shadow-sm flex items-center gap-1"><Crown size={8} fill="currentColor" /> 1st Place</div>; }
+                else if (isSecond) { borderColor = "border-gray-200"; rankBadge = <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest shadow-sm">2nd</div>; }
+                else if (isThird) { borderColor = "border-orange-100"; rankBadge = <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest shadow-sm">3rd</div>; }
                 return (
                   <div key={i} className={`min-w-[160px] bg-white rounded-[1.5rem] p-5 border ${borderColor} ${shadowClass} flex flex-col items-center text-center relative mt-3 snap-center group`}>
                     {rankBadge}
-                    
                     <div className={`relative mb-3 transition-transform duration-300 group-hover:scale-105`}>
-                      <div className={`w-16 h-16 rounded-2xl flex items-center justify-center overflow-hidden border-2 ${isFirst ? 'border-yellow-400 p-0.5' : 'border-gray-50'}`}>
-                        <img 
-                          src={`https://api.dicebear.com/7.x/notionists/svg?seed=${user.name.replace(/\s/g, '')}&backgroundColor=transparent`} 
-                          alt={user.name} 
-                          className="w-full h-full object-cover rounded-xl bg-gray-50" 
-                        />
-                      </div>
+                      <div className={`w-16 h-16 rounded-2xl flex items-center justify-center overflow-hidden border-2 ${isFirst ? 'border-yellow-400 p-0.5' : 'border-gray-50'}`}><img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${user.name.replace(/\s/g, '')}&backgroundColor=transparent`} alt={user.name} className="w-full h-full object-cover rounded-xl bg-gray-50" /></div>
                       {isFirst && <div className="absolute -bottom-1 -right-1 bg-yellow-400 text-white p-1 rounded-full border-2 border-white"><Sparkles size={8} fill="currentColor" /></div>}
                     </div>
-
                     <h3 className="font-black text-[11px] text-gray-900 truncate w-full mb-1 uppercase tracking-tight leading-tight">{user.name}</h3>
-                    
-                    {/* DEPARTMENT & COURSE BADGE */}
-                    <div className="flex flex-col items-center gap-1 w-full mb-3">
-                      <div className="flex items-center gap-1 text-[8px] text-gray-400 font-bold uppercase tracking-wide truncate max-w-full">
-                        <GraduationCap size={10} />
-                        <span className="truncate">{user.department || "Student"}</span>
-                      </div>
-                      <div className="bg-blue-50 text-blue-700 px-2 py-0.5 rounded-md text-[7px] font-black uppercase tracking-wider border border-blue-100 flex items-center gap-1">
-                        <FileText size={8} /> {user.course_code || "GEN"}
-                      </div>
-                    </div>
-                    
-                    <div className={`w-full py-1.5 rounded-xl text-[10px] font-black flex items-center justify-center gap-1 ${isFirst ? 'bg-[#004d00] text-white shadow-md shadow-green-900/20' : 'bg-gray-50 text-gray-600'}`}>
-                      <span>{user.score}%</span>
-                    </div>
+                    <p className="text-[8px] text-gray-400 font-bold uppercase tracking-wide mb-3 truncate w-full">{user.department || "Student"}</p>
+                    <div className={`w-full py-1.5 rounded-xl text-[10px] font-black flex items-center justify-center gap-1 ${isFirst ? 'bg-[#004d00] text-white shadow-md shadow-green-900/20' : 'bg-gray-50 text-gray-600'}`}><span>{user.score}%</span></div>
                   </div>
                 );
               })}
             </div>
           ) : (
-            <div className="text-center py-10 bg-white rounded-[2rem] border border-dashed border-gray-200">
-              <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3 animate-pulse"><Trophy size={20} className="text-gray-300" /></div>
-              <p className="text-gray-400 text-[9px] font-black uppercase tracking-widest">No High Flyers Yet (60%+)</p>
-            </div>
+            <div className="text-center py-10 bg-white rounded-[2rem] border border-dashed border-gray-200"><div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3 animate-pulse"><Trophy size={20} className="text-gray-300" /></div><p className="text-gray-400 text-[9px] font-black uppercase tracking-widest">NO HIGH FLYERS YET (60%+)</p></div>
           )}
         </section>
       </div>
-
-      {/* === FOOTER (PRESERVED & FLOATING) === */}
       <div className="fixed bottom-4 left-4 right-4 z-40 max-w-2xl mx-auto">
         <div className="bg-white/90 backdrop-blur-md border border-green-100 shadow-xl rounded-2xl py-3 px-5 flex items-center justify-between">
-          <div className="flex items-center gap-3 flex-1 min-w-0">
-            <div className="w-8 h-8 bg-[#004d00] rounded-lg flex items-center justify-center text-white shrink-0"><Award size={16} /></div>
-            <div className="min-w-0"><h4 className="font-black text-[10px] text-gray-900 leading-none mb-0.5 uppercase tracking-tight">Bolu Adeoye</h4><p className="text-[7px] text-green-700 font-bold truncate uppercase tracking-tighter">Dept. of English & Literary Studies</p></div>
-          </div>
+          <div className="flex items-center gap-3 flex-1 min-w-0"><div className="w-8 h-8 bg-[#004d00] rounded-lg flex items-center justify-center text-white shrink-0"><Award size={16} /></div><div className="min-w-0"><h4 className="font-black text-[10px] text-gray-900 leading-none mb-0.5 uppercase tracking-tight">Bolu Adeoye</h4><p className="text-[7px] text-green-700 font-bold truncate uppercase tracking-tighter">Dept. of English & Literary Studies</p></div></div>
           <div className="h-6 w-[1px] bg-gray-200 mx-4"></div>
           <div className="text-right shrink-0"><p className="text-[7px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Partner</p><p className="text-[9px] font-black text-gray-900 leading-none uppercase">Abel Kings</p><p className="text-[6px] font-bold text-green-600 uppercase tracking-tighter">Tutorial Center</p></div>
         </div>

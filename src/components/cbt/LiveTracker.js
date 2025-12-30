@@ -28,11 +28,10 @@ export default function LiveTracker() {
       }
     };
 
-    // Pulse immediately, then every 15 seconds
     sendPulse();
     const interval = setInterval(sendPulse, 15000);
     return () => clearInterval(interval);
   }, [pathname]);
 
-  return null; // Invisible
+  return null;
 }
