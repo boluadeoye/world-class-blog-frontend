@@ -133,7 +133,6 @@ export default function CommunityPage() {
         {/* === FEED STREAM === */}
         <div className="space-y-5 pb-10">
           {loading && (
-            // SKELETON LOADER (Premium Feel)
             <div className="space-y-4 animate-pulse">
               {[1,2,3].map(i => (
                 <div key={i} className="bg-white p-5 rounded-[2rem] shadow-sm border border-gray-100 h-32">
@@ -154,7 +153,6 @@ export default function CommunityPage() {
           {posts.map((post) => (
             <div key={post.id} className={`p-6 rounded-[2rem] shadow-sm border relative group transition-all duration-500 animate-in slide-in-from-bottom-2 ${post.is_announcement ? 'bg-gradient-to-br from-[#2b0a0a] to-[#4a0f0f] border-red-900 text-white shadow-red-900/20' : 'bg-white border-gray-100 text-gray-800'}`}>
               
-              {/* ADMIN DELETE BUTTON */}
               {isAdmin && (
                 <button 
                   onClick={() => handleDelete(post.id)}
@@ -188,7 +186,8 @@ export default function CommunityPage() {
                 </div>
               </div>
               
-              <div className={`text-sm font-medium leading-relaxed pl-1 ${post.is_announcement ? 'text-red-50' : 'text-gray-600'}`}>
+              {/* === THE FIX: WHITESPACE-PRE-WRAP === */}
+              <div className={`text-sm font-medium leading-relaxed pl-1 whitespace-pre-wrap break-words ${post.is_announcement ? 'text-red-50' : 'text-gray-600'}`}>
                 {post.content}
               </div>
 
