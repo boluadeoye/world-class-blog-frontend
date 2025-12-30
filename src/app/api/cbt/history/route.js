@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 
 export async function GET(req) {
+  // SYSTEM UPDATE: Force History Sync
   const { searchParams } = new URL(req.url);
   const studentId = searchParams.get('studentId');
 
