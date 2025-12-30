@@ -54,7 +54,6 @@ export default function CommunityPage() {
     setPosting(false);
   };
 
-  // DELETE POST (MAIN FEED)
   const handleDeletePost = async (e, postId) => {
     e.stopPropagation();
     if (!confirm("COMMANDER: Delete this thread?")) return;
@@ -68,10 +67,8 @@ export default function CommunityPage() {
     } catch (e) { alert("Delete Failed"); }
   };
 
-  // DELETE COMMENT (INSIDE THREAD)
   const handleDeleteComment = async (commentId) => {
     if (!confirm("COMMANDER: Delete this reply?")) return;
-    // Optimistic update
     setComments(prev => prev.filter(c => c.id !== commentId));
     try {
       await fetch("/api/cbt/community/delete", {
@@ -144,7 +141,8 @@ export default function CommunityPage() {
       <div className="pt-36 px-4 max-w-2xl mx-auto">
         <div className={`bg-white p-1.5 rounded-[2rem] shadow-xl border mb-8 transition-all ${isAdmin ? 'border-red-200 shadow-red-900/10' : 'border-green-100 shadow-green-900/5'}`}>
           <div className="bg-gray-50 rounded-[1.8rem] p-4 relative">
-            <textarea value={content} onChange={(e) => setContent(e.target.value)} placeholder={isAdmin ? "Type a Global Broadcast..." : "Share intel, ask questions..."} className="w-full bg-transparent text-sm font-medium focus:outline-none resize-none h-24 placeholder:text-gray-400 text-gray-800" />
+            {/* FIX: Added text-gray-900 to force dark text */}
+            <textarea value={content} onChange={(e) => setContent(e.target.value)} placeholder={isAdmin ? "Type a Global Broadcast..." : "Share intel, ask questions..."} className="w-full bg-transparent text-sm font-medium focus:outline-none resize-none h-24 placeholder:text-gray-400 text-gray-900" />
             {isAdmin && <div className="absolute top-4 right-4"><ShieldAlert className="text-red-200" size={24} /></div>}
           </div>
           <div className="flex justify-between items-center px-4 py-3">
@@ -186,7 +184,7 @@ export default function CommunityPage() {
           <div className="bg-[#f4f6f8] w-full max-w-lg h-[85vh] sm:h-[80vh] sm:rounded-[2.5rem] rounded-t-[2.5rem] flex flex-col overflow-hidden shadow-2xl animate-in slide-in-from-bottom duration-300">
             <div className="bg-white p-5 border-b border-gray-100 flex justify-between items-center shrink-0">
               <h3 className="font-black text-sm uppercase tracking-widest text-gray-800">Thread</h3>
-              {/* FIX: VISIBLE CLOSE BUTTON */}
+              {/* FIX: Darker Close Button */}
               <button onClick={() => setActivePost(null)} className="p-2 bg-gray-200 text-gray-700 rounded-full hover:bg-red-50 hover:text-red-600 transition-colors"><X size={20} /></button>
             </div>
             <div className="flex-1 overflow-y-auto p-5 custom-scrollbar">
@@ -197,7 +195,6 @@ export default function CommunityPage() {
               <div className="space-y-3">
                 {loadingComments ? <div className="text-center text-[10px] font-black text-gray-400 animate-pulse">Loading Replies...</div> : comments.map(c => (
                   <div key={c.id} className="bg-white p-4 rounded-2xl border border-gray-50 shadow-sm relative group">
-                    {/* FIX: ADMIN DELETE FOR COMMENTS */}
                     {isAdmin && (
                       <button onClick={() => handleDeleteComment(c.id)} className="absolute top-3 right-3 text-gray-300 hover:text-red-500 transition-colors">
                         <Trash2 size={14} />
@@ -212,7 +209,8 @@ export default function CommunityPage() {
             </div>
             <div className="p-4 bg-white border-t border-gray-100 shrink-0">
               <div className="flex gap-2">
-                <input type="text" value={commentText} onChange={(e) => setCommentText(e.target.value)} placeholder="Write a reply..." className="flex-1 bg-gray-50 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
+                {/* FIX: Added text-gray-900 to force dark text */}
+                <input type="text" value={commentText} onChange={(e) => setCommentText(e.target.value)} placeholder="Write a reply..." className="flex-1 bg-gray-50 rounded-xl px-4 py-3 text-sm text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500" />
                 <button onClick={sendComment} disabled={!commentText.trim()} className="bg-[#004d00] text-white p-3 rounded-xl shadow-lg disabled:opacity-50"><Send size={18} /></button>
               </div>
             </div>
