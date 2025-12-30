@@ -8,7 +8,7 @@ export async function GET(req) {
     const { searchParams } = req.nextUrl;
     const dept = searchParams.get('dept');
 
-    // Count posts relevant to this student (Same Dept OR General OR Admin)
+    // Count posts relevant to this student
     const result = await sql`
       SELECT COUNT(*) as count 
       FROM cbt_posts 
@@ -21,6 +21,6 @@ export async function GET(req) {
 
     return NextResponse.json({ count }, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ count: 0 }, { status: 200 }); // Fail safe
+    return NextResponse.json({ count: 0 }, { status: 200 });
   }
 }
