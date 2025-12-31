@@ -1,31 +1,24 @@
 "use client";
 import { useState, useEffect, useCallback, Suspense } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import {
-  Grid, CheckCircle, AlertOctagon, X, Crown, Sparkles,
-  BrainCircuit, Clock, ChevronRight, ChevronLeft, ShieldAlert,
-  Loader2, BookOpen, Target, Zap, FileText, Lock, ShieldCheck, Fingerprint
-} from "lucide-react";
+import { Grid, CheckCircle, X, Crown, Sparkles, BrainCircuit, Clock, Fingerprint } from "lucide-react";
 import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";
 import LiveTracker from "../../../../components/cbt/LiveTracker";
 
 const UpgradeModal = dynamic(() => import("../../../../components/cbt/UpgradeModal"), { ssr: false });
 
-/* === SECURITY WATERMARK COMPONENT === */
-function SecurityWatermark({ text }) {
-  return (
-    <div className="fixed inset-0 z-[50] pointer-events-none overflow-hidden flex items-center justify-center opacity-[0.03]">
-      <div className="absolute inset-0 flex flex-wrap content-center justify-center gap-20 transform -rotate-12 scale-150">
-        {Array.from({ length: 20 }).map((_, i) => (
-          <div key={i} className="text-4xl font-black uppercase tracking-widest text-gray-900 whitespace-nowrap select-none">
-            {text} • OFFICIAL USE ONLY • {text}
-          </div>
-        ))}
-      </div>
+const SecurityWatermark = ({ text }) => (
+  <div className="fixed inset-0 z-[50] pointer-events-none overflow-hidden flex items-center justify-center opacity-[0.03]">
+    <div className="absolute inset-0 flex flex-wrap content-center justify-center gap-20 transform -rotate-12 scale-150">
+      {Array.from({ length: 20 }).map((_, i) => (
+        <div key={i} className="text-4xl font-black uppercase tracking-widest text-gray-900 whitespace-nowrap select-none">
+          {text} • OFFICIAL USE ONLY
+        </div>
+      ))}
     </div>
-  );
-}
+  </div>
+);
 
 function TimeUpOverlay() {
   return (
@@ -41,7 +34,6 @@ function TimeUpOverlay() {
 
 function SubmitModal({ isOpen, onConfirm, onCancel, answeredCount, totalCount }) {
   if (!isOpen) return null;
-  const pendingCount = totalCount - answeredCount;
   return (
     <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/90 backdrop-blur-md p-6 animate-in fade-in duration-200">
       <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-sm w-full overflow-hidden border border-green-100">
@@ -55,12 +47,6 @@ function SubmitModal({ isOpen, onConfirm, onCancel, answeredCount, totalCount })
               <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Answered</span>
               <span className="text-sm font-black text-green-700">{answeredCount} / {totalCount}</span>
             </div>
-            {pendingCount > 0 && (
-              <div className="flex justify-between items-center bg-red-50 p-3 rounded-xl border border-red-100">
-                <span className="text-[10px] font-black text-red-400 uppercase tracking-widest">Pending</span>
-                <span className="text-sm font-black text-red-600">{pendingCount} Left</span>
-              </div>
-            )}
           </div>
         </div>
         <div className="p-6 bg-white flex gap-4">
@@ -81,9 +67,6 @@ function ExamContent() {
   const [course, setCourse] = useState(null);
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [mounted, setMounted] = useState(false);
-  const [showUpgrade, setShowUpgrade] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
   const [currentQIndex, setCurrentQIndex] = useState(0);
   const [answers, setAnswers] = useState({});
@@ -98,43 +81,56 @@ function ExamContent() {
   const [analyzing, setAnalyzing] = useState(false);
 
   const getStorageKey = useCallback((email) => `cbt_session_${params.id}_${email}`, [params.id]);
+  const getConfigKey = useCallback((email) => `cbt_config_${params.id}_${email}`, [params.id]);
 
   useEffect(() => {
-    setMounted(true);
     const studentData = sessionStorage.getItem("cbt_student");
     if (!studentData) { router.push("/cbt"); return; }
     const parsedStudent = JSON.parse(studentData);
     setStudent(parsedStudent);
 
     async function loadExam() {
+      const hwId = localStorage.getItem("cbt_hw_id") || "unknown";
+      const reqLimit = searchParams.get('limit') || '30';
+      const reqDur = searchParams.get('duration') || '15';
+      
+      // === THE CONFIG HASH CHECK ===
+      // We create a unique signature for this specific setup (Time + Questions)
+      const currentConfigSignature = `${reqDur}_${reqLimit}`;
+      const savedConfigSignature = localStorage.getItem(getConfigKey(parsedStudent.email));
+      const sessionKey = getStorageKey(parsedStudent.email);
+
+      // If the user changed settings, WIPE the old session immediately
+      if (savedConfigSignature !== currentConfigSignature) {
+        localStorage.removeItem(sessionKey);
+        localStorage.setItem(getConfigKey(parsedStudent.email), currentConfigSignature);
+      }
+
       try {
-        const query = new URLSearchParams({ courseId: params.id, studentId: parsedStudent.id, token: parsedStudent.session_token || "" });
-        const res = await fetch(`/api/cbt/exam?${query.toString()}`);
-        if (!res.ok) {
-            if (res.status === 401) { router.push("/cbt"); return; }
-            if (res.status === 403) { setShowUpgrade(true); setLoading(false); return; }
-            throw new Error("Data retrieval failed.");
-        }
+        const res = await fetch(`/api/cbt/exam?courseId=${params.id}&studentId=${parsedStudent.id}&token=${parsedStudent.session_token}&deviceId=${hwId}&limit=${reqLimit}`);
+        if (res.status === 403) { setLoading(false); return; }
+        
         const data = await res.json();
         setCourse(data.course);
         setQuestions(data.questions || []);
         setIsPremium(data.isPremium);
 
-        const savedSession = localStorage.getItem(getStorageKey(parsedStudent.email));
+        const finalDur = (data.isPremium && reqDur) ? parseInt(reqDur) : (data.course?.duration || 15);
+        
+        // Now check for saved session (it will only exist if config matched)
+        const savedSession = localStorage.getItem(sessionKey);
         if (savedSession) {
-          const session = JSON.parse(savedSession);
-          setAnswers(session.answers || {});
-          setTimeLeft(session.timeLeft);
-          setCurrentQIndex(session.currentIndex || 0);
+          const s = JSON.parse(savedSession);
+          setAnswers(s.answers || {});
+          setTimeLeft(s.timeLeft);
+          setCurrentQIndex(s.currentIndex || 0);
         } else {
-          const requestedDuration = searchParams.get('duration');
-          const finalDuration = (data.isPremium && requestedDuration) ? parseInt(requestedDuration) : (data.course?.duration || 15);
-          setTimeLeft(finalDuration * 60);
+          setTimeLeft(finalDur * 60);
         }
-      } catch (e) { setError(String(e.message)); } finally { setLoading(false); }
+      } catch (e) { console.error(e); } finally { setLoading(false); }
     }
     loadExam();
-  }, [params.id, router, getStorageKey, searchParams]);
+  }, [params.id, router, searchParams, getStorageKey, getConfigKey]);
 
   const submitExam = useCallback(async () => {
     let correctCount = 0;
@@ -163,7 +159,7 @@ function ExamContent() {
   }, [submitExam]);
 
   useEffect(() => {
-    if (!mounted || loading || isSubmitted || error || timeLeft === null || showUpgrade || isTimeUp) return;
+    if (!student || loading || isSubmitted || error || timeLeft === null || showUpgrade || isTimeUp) return;
     const interval = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 0) {
@@ -172,14 +168,14 @@ function ExamContent() {
           return 0;
         }
         const newTime = prev - 1;
-        if (student && newTime % 5 === 0) {
+        if (newTime % 5 === 0) {
           localStorage.setItem(getStorageKey(student.email), JSON.stringify({ answers, timeLeft: newTime, currentIndex: currentQIndex }));
         }
         return newTime;
       });
     }, 1000);
     return () => clearInterval(interval);
-  }, [loading, isSubmitted, error, timeLeft, showUpgrade, mounted, answers, currentQIndex, student, getStorageKey, handleAutoSubmit, isTimeUp]);
+  }, [loading, isSubmitted, error, timeLeft, showUpgrade, answers, currentQIndex, student, getStorageKey, handleAutoSubmit, isTimeUp]);
 
   const handleSelect = (option) => { if (!isSubmitted && !isTimeUp) setAnswers(prev => ({ ...prev, [questions[currentQIndex].id]: option })); };
   const formatTime = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
@@ -207,10 +203,6 @@ function ExamContent() {
     return "bg-red-50 text-red-400 border-red-100 font-medium";
   };
 
-  if (!mounted) return null;
-  if (showUpgrade) return <div className="min-h-screen flex items-center justify-center bg-white"><UpgradeModal student={student} onClose={() => router.push('/cbt/dashboard')} onSuccess={() => window.location.reload()} /></div>;
-  
-  // === BIOMETRIC LOADER ===
   if (loading) return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#002b00] text-white relative overflow-hidden">
       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20"></div>
@@ -225,9 +217,7 @@ function ExamContent() {
     </div>
   );
 
-  if (error) return <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6 text-center text-red-600 font-bold gap-4"><p>{error}</p><button onClick={() => window.location.reload()} className="bg-black text-white px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest">Retry Connection</button></div>;
-
-  const marksPerQuestion = questions.length > 0 ? (100 / questions.length).toFixed(1) : 0;
+  if (!course) return <div className="h-screen flex items-center justify-center bg-white"><UpgradeModal student={student} onClose={() => router.push('/cbt/dashboard')} onSuccess={() => window.location.reload()} /></div>;
 
   if (isSubmitted) {
     const percentage = Math.round((score / questions.length) * 100);
