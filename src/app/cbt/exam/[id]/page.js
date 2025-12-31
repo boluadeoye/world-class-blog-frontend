@@ -8,9 +8,10 @@ import {
 } from "lucide-react";
 import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";
-import LiveTracker from "../../../../components/cbt/LiveTracker";
+// FIX: Use Absolute Imports to prevent path errors
+import LiveTracker from "@/components/cbt/LiveTracker";
 
-const UpgradeModal = dynamic(() => import("../../../../components/cbt/UpgradeModal"), { ssr: false });
+const UpgradeModal = dynamic(() => import("@/components/cbt/UpgradeModal"), { ssr: false });
 
 /* === SECURITY WATERMARK === */
 const SecurityWatermark = ({ text }) => (
@@ -86,7 +87,6 @@ function ExamContent() {
   const [analysis, setAnalysis] = useState(null);
   const [analyzing, setAnalyzing] = useState(false);
   
-  // NEW STATE FOR THE IRON WALL
   const [limitReached, setLimitReached] = useState(false);
   const [showUpgrade, setShowUpgrade] = useState(false);
 
@@ -105,7 +105,6 @@ function ExamContent() {
         const reqLimit = searchParams.get('limit') || '30';
         const reqDur = searchParams.get('duration') || '15';
 
-        // CONFIG HANDSHAKE
         const currentConfig = `${reqLimit}_${reqDur}`;
         const savedConfig = localStorage.getItem(getConfigKey(parsedStudent.email));
         const sessionKey = getStorageKey(parsedStudent.email);
@@ -117,7 +116,6 @@ function ExamContent() {
 
         const res = await fetch(`/api/cbt/exam?courseId=${params.id}&studentId=${parsedStudent.id}&token=${parsedStudent.session_token}&deviceId=${hwId}&limit=${reqLimit}`);
         
-        // === THE IRON WALL TRIGGER ===
         if (res.status === 403) { 
           setLimitReached(true); 
           setLoading(false); 
@@ -225,12 +223,10 @@ function ExamContent() {
     return "bg-red-50 text-red-400 border-red-100 font-medium";
   };
 
-  // === THE IRON WALL (SOVEREIGN GREEN EDITION) ===
   if (limitReached) return (
     <div className="min-h-screen bg-[#002b00] flex flex-col items-center justify-center p-6 relative overflow-hidden">
       {showUpgrade && <UpgradeModal student={student} onClose={() => router.push('/cbt/dashboard')} onSuccess={() => window.location.reload()} />}
       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20"></div>
-      
       <div className="relative z-10 bg-white rounded-[2.5rem] max-w-sm w-full text-center shadow-2xl overflow-hidden">
          <div className="bg-[#004d00] p-8 relative">
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-400 to-green-400"></div>
@@ -240,21 +236,15 @@ function ExamContent() {
             <h2 className="text-2xl font-black text-white uppercase tracking-widest">Access Denied</h2>
             <p className="text-green-200 text-[10px] font-mono mt-2 uppercase tracking-[0.2em]">Hardware Limit Reached (2/2)</p>
          </div>
-         
          <div className="p-8">
-            <p className="text-gray-600 text-xs font-medium leading-relaxed mb-8">
-               Your device has exhausted the free attempt allocation for this sector. Security protocols are active.
-            </p>
-            <button onClick={() => setShowUpgrade(true)} className="w-full py-4 bg-[#004d00] text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl hover:bg-green-900 transition-all active:scale-95 flex items-center justify-center gap-2">
-               <Crown size={14} /> Upgrade Clearance
-            </button>
+            <p className="text-gray-600 text-xs font-medium leading-relaxed mb-8">Your device has exhausted the free attempt allocation for this sector. Security protocols are active.</p>
+            <button onClick={() => setShowUpgrade(true)} className="w-full py-4 bg-[#004d00] text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl hover:bg-green-900 transition-all active:scale-95 flex items-center justify-center gap-2"><Crown size={14} /> Upgrade Clearance</button>
             <button onClick={() => router.push('/cbt/dashboard')} className="mt-6 text-gray-400 text-[10px] font-black uppercase tracking-widest hover:text-gray-600">Return to Base</button>
          </div>
       </div>
     </div>
   );
 
-  // === THE BIOMETRIC LOADER (SOVEREIGN GREEN) ===
   if (loading) return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#002b00] text-white relative overflow-hidden">
       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20"></div>
@@ -264,10 +254,7 @@ function ExamContent() {
           <Scan size={40} className="text-white animate-pulse" />
         </div>
         <h2 className="font-black text-xl uppercase tracking-[0.4em] text-white mb-2">System Check</h2>
-        <div className="flex flex-col items-center gap-1">
-          <p className="text-[9px] font-mono text-green-200 uppercase tracking-widest">Verifying Biometrics...</p>
-          <p className="text-[9px] font-mono text-green-200 uppercase tracking-widest">Syncing Hardware ID...</p>
-        </div>
+        <div className="flex flex-col items-center gap-1"><p className="text-[9px] font-mono text-green-200 uppercase tracking-widest">Verifying Biometrics...</p><p className="text-[9px] font-mono text-green-200 uppercase tracking-widest">Syncing Hardware ID...</p></div>
       </div>
     </div>
   );
@@ -287,27 +274,18 @@ function ExamContent() {
           </div>
           <div className="relative z-10 flex flex-col items-center">
             <div className="w-32 h-32 flex items-center justify-center relative">
-                <svg className="absolute w-full h-full" viewBox="0 0 36 36">
-                  <path className="text-white/10" strokeDasharray="100, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" strokeWidth="2.5" />
-                  <path className={percentage >= 50 ? "text-emerald-500" : "text-red-500"} strokeDasharray={`${percentage}, 100`} d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" strokeWidth="2.5" />
-                </svg>
+                <svg className="absolute w-full h-full" viewBox="0 0 36 36"><path className="text-white/10" strokeDasharray="100, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" strokeWidth="2.5" /><path className={percentage >= 50 ? "text-emerald-500" : "text-red-500"} strokeDasharray={`${percentage}, 100`} d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" strokeWidth="2.5" /></svg>
                 <div className="text-4xl font-black">{percentage}%</div>
             </div>
-            <div className="mt-6 flex gap-4 text-[10px] font-black uppercase tracking-widest text-gray-400">
-               <span>Score: {score}/{questions.length}</span>
-               <span className="w-1 h-1 bg-gray-600 rounded-full mt-1.5"></span>
-               <span>Answered: {answeredCount}</span>
-             </div>
+            <div className="mt-6 flex gap-4 text-[10px] font-black uppercase tracking-widest text-gray-400"><span>Score: {score}/{questions.length}</span><span className="w-1 h-1 bg-gray-600 rounded-full mt-1.5"></span><span>Answered: {answeredCount}</span></div>
           </div>
         </header>
-        
         <div className="max-w-3xl mx-auto px-4 -mt-10 relative z-20">
           <div className="bg-white rounded-2xl shadow-lg p-1.5 mb-6 flex gap-2 border border-gray-100">
             <button onClick={() => setActiveTab("corrections")} className={`flex-1 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'corrections' ? 'bg-[#004d00] text-white shadow-md' : 'text-gray-400'}`}>Corrections</button>
             <button onClick={() => setActiveTab("ai")} className={`flex-1 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${activeTab === 'ai' ? 'bg-purple-900 text-white shadow-md' : 'text-gray-400'}`}><Sparkles size={14} /> Intelligence</button>
           </div>
-
-          {activeTab === "corrections" ? (
+          {activeTab === "corrections" && (
             <div className="space-y-4">
               {questions.map((q, i) => {
                 const correctKey = `option_${q.correct_option.toLowerCase()}`;
@@ -317,26 +295,8 @@ function ExamContent() {
                     <div className="flex justify-between items-start mb-4"><span className="bg-gray-100 text-gray-500 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest">Question {i+1}</span>{answers[q.id] === q.correct_option ? <CheckCircle size={20} className="text-green-600" /> : <X size={20} className="text-red-500" />}</div>
                     <p className="font-bold text-gray-900 text-sm leading-relaxed mb-6">{q.question_text}</p>
                     <div className="grid grid-cols-1 gap-3 mb-4">
-                      <div className="bg-green-50 border border-green-100 p-4 rounded-xl">
-                        <p className="text-[9px] font-black text-green-800 uppercase mb-1 flex items-center gap-2"><CheckCircle size={12}/> Correct Answer</p>
-                        <p className="text-sm font-bold text-green-900 leading-snug">
-                          <span className="font-black mr-2">{q.correct_option}.</span>
-                          {correctText}
-                        </p>
-                      </div>
-                      {answers[q.id] !== q.correct_option && (
-                        <div className="bg-red-50 border border-red-100 p-4 rounded-xl">
-                          <p className="text-[9px] font-black text-red-800 uppercase mb-1 flex items-center gap-2"><X size={12}/> Your Selection</p>
-                          <p className="text-sm font-bold text-red-900">
-                            {answers[q.id] ? (
-                              <>
-                                <span className="font-black mr-2">{answers[q.id]}.</span>
-                                {q[`option_${answers[q.id].toLowerCase()}`] || "Option text unavailable"}
-                              </>
-                            ) : "Skipped"}
-                          </p>
-                        </div>
-                      )}
+                      <div className="bg-green-50 border border-green-100 p-4 rounded-xl"><p className="text-[9px] font-black text-green-800 uppercase mb-1 flex items-center gap-2"><CheckCircle size={12}/> Correct Answer</p><p className="text-sm font-bold text-green-900 leading-snug"><span className="font-black mr-2">{q.correct_option}.</span>{correctText}</p></div>
+                      {answers[q.id] !== q.correct_option && (<div className="bg-red-50 border border-red-100 p-4 rounded-xl"><p className="text-[9px] font-black text-red-800 uppercase mb-1 flex items-center gap-2"><X size={12}/> Your Selection</p><p className="text-sm font-bold text-red-900">{answers[q.id] ? (<><span className="font-black mr-2">{answers[q.id]}.</span>{q[`option_${answers[q.id].toLowerCase()}`] || "Option text unavailable"}</>) : "Skipped"}</p></div>)}
                     </div>
                     {isPremium && q.explanation && <div className="mt-4 pt-4 border-t border-gray-100"><p className="text-[9px] font-black text-blue-600 uppercase tracking-widest mb-1">Concept Brief</p><p className="text-xs text-gray-600 leading-relaxed bg-blue-50/30 p-3 rounded-xl border border-blue-100 italic">{q.explanation}</p></div>}
                   </div>
@@ -347,68 +307,18 @@ function ExamContent() {
             <div className="bg-[#0a0a0a] rounded-[2.5rem] shadow-2xl border border-yellow-900/30 overflow-hidden min-h-[500px] relative group">
               {!isPremium ? (
                 <div className="absolute inset-0 z-10 bg-gradient-to-b from-black via-[#0a0a0a] to-[#1a1a1a] flex flex-col items-center justify-center text-center p-10">
-                  <div className="relative mb-10">
-                    <div className="absolute inset-0 bg-yellow-500 blur-[80px] opacity-20 group-hover:opacity-40 transition-opacity animate-pulse"></div>
-                    <div className="w-28 h-28 bg-gradient-to-br from-yellow-400 via-orange-600 to-yellow-700 rounded-[2.5rem] flex items-center justify-center relative z-10 shadow-[0_0_50px_rgba(234,179,8,0.3)] transform group-hover:scale-110 transition-transform duration-700">
-                      <Lock size={48} className="text-white drop-shadow-2xl" strokeWidth={2.5} />
-                    </div>
-                  </div>
-                  <div className="relative z-10">
-                    <h3 className="text-3xl font-black text-white mb-4 tracking-tighter uppercase italic">Confidential Briefing</h3>
-                    <p className="text-gray-400 text-sm mb-12 max-w-xs font-medium leading-relaxed">
-                      Your cognitive performance data is locked. Access the <span className="text-yellow-500 font-bold">AI Tactical Roadmap</span> to secure your success.
-                    </p>
-                    <button onClick={() => setShowUpgrade(true)} className="bg-yellow-500 text-black px-12 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.3em] shadow-[0_10px_40px_rgba(234,179,8,0.4)] hover:bg-white hover:scale-105 transition-all active:scale-95">
-                      Unlock The Vault
-                    </button>
-                  </div>
-                  <div className="absolute bottom-6 left-0 w-full text-center opacity-5 pointer-events-none">
-                    <p className="text-[40px] font-black uppercase tracking-[0.5em] whitespace-nowrap">CLASSIFIED • CLASSIFIED • CLASSIFIED</p>
-                  </div>
+                  <div className="relative mb-10"><div className="absolute inset-0 bg-yellow-500 blur-[80px] opacity-20 group-hover:opacity-40 transition-opacity animate-pulse"></div><div className="w-28 h-28 bg-gradient-to-br from-yellow-400 via-orange-600 to-yellow-700 rounded-[2.5rem] flex items-center justify-center relative z-10 shadow-[0_0_50px_rgba(234,179,8,0.3)] transform group-hover:scale-110 transition-transform duration-700"><Lock size={48} className="text-white drop-shadow-2xl" strokeWidth={2.5} /></div></div>
+                  <div className="relative z-10"><h3 className="text-3xl font-black text-white mb-4 tracking-tighter uppercase italic">Confidential Briefing</h3><p className="text-gray-400 text-sm mb-12 max-w-xs font-medium leading-relaxed">Your cognitive performance data is locked. Access the <span className="text-yellow-500 font-bold">AI Tactical Roadmap</span> to secure your success.</p><button onClick={() => setShowUpgrade(true)} className="bg-yellow-500 text-black px-12 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.3em] shadow-[0_10px_40px_rgba(234,179,8,0.4)] hover:bg-white hover:scale-105 transition-all active:scale-95">Unlock The Vault</button></div>
+                  <div className="absolute bottom-6 left-0 w-full text-center opacity-5 pointer-events-none"><p className="text-[40px] font-black uppercase tracking-[0.5em] whitespace-nowrap">CLASSIFIED • CLASSIFIED • CLASSIFIED</p></div>
                 </div>
               ) : (
                 <div className="p-0">
                   {!analysis ? (
-                    <div className="text-center py-32 px-8 bg-white">
-                      <div className="w-16 h-16 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse"><BrainCircuit size={40} className="text-purple-600" /></div>
-                      <h3 className="font-black text-gray-900 text-xs uppercase tracking-widest mb-2">Analyzing Performance</h3>
-                      <p className="text-gray-400 text-[10px] mb-8 uppercase tracking-widest">Crafting personalized recovery roadmap...</p>
-                      <button onClick={generateAnalysis} disabled={analyzing} className="bg-purple-900 text-white px-10 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl active:scale-95 transition-all">{analyzing ? "PROCESSING..." : "GENERATE REPORT"}</button>
-                    </div>
+                    <div className="text-center py-32 px-8 bg-white"><div className="w-16 h-16 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse"><BrainCircuit size={40} className="text-purple-600" /></div><h3 className="font-black text-gray-900 text-xs uppercase tracking-widest mb-2">Analyzing Performance</h3><p className="text-gray-400 text-[10px] mb-8 uppercase tracking-widest">Crafting personalized recovery roadmap...</p><button onClick={generateAnalysis} disabled={analyzing} className="bg-purple-900 text-white px-10 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl active:scale-95 transition-all">{analyzing ? "PROCESSING..." : "GENERATE REPORT"}</button></div>
                   ) : (
                     <div className="bg-[#fcfcfc] min-h-[600px] animate-in fade-in duration-700">
-                      <div className="bg-purple-900 text-white p-10 pb-12 rounded-t-[2.5rem] shadow-lg relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-20 -mt-20 blur-3xl"></div>
-                        <div className="relative z-10 text-left">
-                          <div className="flex items-center gap-3 mb-4">
-                            <div className="bg-white/20 p-2 rounded-lg backdrop-blur-md"><Sparkles size={20} /></div>
-                            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-purple-200">Intelligence Briefing</span>
-                          </div>
-                          <h3 className="text-3xl font-black uppercase tracking-tighter leading-none">Tactical Brief</h3>
-                          <p className="text-purple-300 text-xs font-bold uppercase tracking-widest mt-3 opacity-80">Personalized Recovery Plan for {student?.name}</p>
-                        </div>
-                      </div>
-
-                      <div className="p-8 md:p-12 text-left border-l-[8px] border-l-purple-600 bg-white">
-                        <div className="text-gray-800 leading-relaxed font-medium space-y-6">
-                           <ReactMarkdown
-                             components={{
-                               h1: ({children}) => <h1 className="text-xl font-black text-gray-900 uppercase tracking-widest border-b border-purple-100 pb-2 mt-8 first:mt-0">{children}</h1>,
-                               h2: ({children}) => <h2 className="text-lg font-bold text-purple-900 mt-6 mb-3">{children}</h2>,
-                               p: ({children}) => <p className="text-sm text-gray-600 mb-4 leading-7">{children}</p>,
-                               ul: ({children}) => <ul className="list-disc pl-5 space-y-2 text-sm text-gray-700">{children}</ul>,
-                               li: ({children}) => <li className="pl-1">{children}</li>,
-                               strong: ({children}) => <strong className="font-black text-purple-800">{children}</strong>
-                             }}
-                           >
-                             {analysis}
-                           </ReactMarkdown>
-                        </div>
-                        <div className="mt-16 pt-8 border-t border-gray-50 flex items-center justify-between opacity-40">
-                          <div className="flex items-center gap-2"><BrainCircuit size={14} /><span className="text-[8px] font-black uppercase tracking-widest">ExamForge AI Engine</span></div>
-                          <span className="text-[8px] font-black uppercase tracking-widest">Classified Document</span>
-                        </div>
-                      </div>
+                      <div className="bg-purple-900 text-white p-10 pb-12 rounded-t-[2.5rem] shadow-lg relative overflow-hidden"><div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-20 -mt-20 blur-3xl"></div><div className="relative z-10 text-left"><div className="flex items-center gap-3 mb-4"><div className="bg-white/20 p-2 rounded-lg backdrop-blur-md"><Sparkles size={20} /></div><span className="text-[10px] font-black uppercase tracking-[0.3em] text-purple-200">Intelligence Briefing</span></div><h3 className="text-3xl font-black uppercase tracking-tighter leading-none">Tactical Brief</h3><p className="text-purple-300 text-xs font-bold uppercase tracking-widest mt-3 opacity-80">Personalized Recovery Plan for {student?.name}</p></div></div>
+                      <div className="p-8 md:p-12 text-left border-l-[8px] border-l-purple-600 bg-white"><div className="text-gray-800 leading-relaxed font-medium space-y-6"><ReactMarkdown components={{ h1: ({children}) => <h1 className="text-xl font-black text-gray-900 uppercase tracking-widest border-b border-purple-100 pb-2 mt-8 first:mt-0">{children}</h1>, h2: ({children}) => <h2 className="text-lg font-bold text-purple-900 mt-6 mb-3">{children}</h2>, p: ({children}) => <p className="text-sm text-gray-600 mb-4 leading-7">{children}</p>, ul: ({children}) => <ul className="list-disc pl-5 space-y-2 text-sm text-gray-700">{children}</ul>, li: ({children}) => <li className="pl-1">{children}</li>, strong: ({children}) => <strong className="font-black text-purple-800">{children}</strong> }}>{analysis}</ReactMarkdown></div><div className="mt-16 pt-8 border-t border-gray-50 flex items-center justify-between opacity-40"><div className="flex items-center gap-2"><BrainCircuit size={14} /><span className="text-[8px] font-black uppercase tracking-widest">ExamForge AI Engine</span></div><span className="text-[8px] font-black uppercase tracking-widest">Classified Document</span></div></div>
                     </div>
                   )}
                 </div>
@@ -429,9 +339,8 @@ function ExamContent() {
 
   return (
     <main className="h-screen flex flex-col bg-[#f0f2f5] font-sans overflow-hidden select-none relative">
-      {/* === SECURITY WATERMARK === */}
       <SecurityWatermark text={`${student?.name || 'CBT'} - ${safeId}`} />
-      
+      <LiveTracker />
       {isTimeUp && <TimeUpOverlay />}
       <SubmitModal isOpen={showSubmitModal} onConfirm={submitExam} onCancel={() => setShowSubmitModal(false)} answeredCount={answeredCount} totalCount={questions.length} />
       
