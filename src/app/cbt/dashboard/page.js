@@ -5,7 +5,7 @@ import {
   LogOut, Trophy, BookOpen, Play, Award, 
   ChevronDown, Info, Crown, Clock, ChevronRight, 
   AlertTriangle, Layers, Headset, History, CheckCircle, Building2, Settings, Lock, Sparkles,
-  ChevronUp, MessageCircle, Megaphone, Bell
+  ChevronUp, MessageCircle, Megaphone, Bell, GraduationCap, FileText
 } from "lucide-react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -14,7 +14,6 @@ import LiveTracker from "../../../components/cbt/LiveTracker";
 
 const UpgradeModal = dynamic(() => import("../../../components/cbt/UpgradeModal"), { ssr: false });
 
-/* === 1. EXAM SETUP MODAL === */
 function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
   const [duration, setDuration] = useState(course.duration || 15);
   const isBlocked = !isPremium && course.user_attempts >= 2;
@@ -69,7 +68,6 @@ function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
   );
 }
 
-/* === 2. DISCLAIMER ACCORDION === */
 function DisclaimerCard() {
   const [isOpen, setIsOpen] = useState(true);
   return (
@@ -96,7 +94,6 @@ function DisclaimerCard() {
   );
 }
 
-/* === 3. COURSE CARD === */
 function CourseCard({ course, onLaunch, variant = "green", isPremium }) {
   const isGst = variant === "green";
   const isBlocked = !isPremium && course.user_attempts >= 2;
@@ -130,8 +127,6 @@ export default function StudentDashboard() {
   const [gstExpanded, setGstExpanded] = useState(true);
   const [othersExpanded, setOthersExpanded] = useState(false);
   const [historyExpanded, setHistoryExpanded] = useState(false);
-  
-  // INTELLIGENT NOTIFICATION STATE
   const [unreadCount, setUnreadCount] = useState(0);
   const [totalForumPosts, setTotalForumPosts] = useState(0);
 
@@ -169,21 +164,17 @@ export default function StudentDashboard() {
         
         const courseData = await courseRes.json();
         setCourses(Array.isArray(courseData.courses) ? courseData.courses : []);
-        
         const lbData = await lbRes.json();
         setLeaders(Array.isArray(lbData) ? lbData : []); 
-        
         const histData = await histRes.json();
         setExamHistory(Array.isArray(histData) ? histData : []);
 
-        // FORUM INTELLIGENCE LOGIC
+        // FORUM NOTIFICATION LOGIC
         const forumData = await forumRes.json();
         const serverCount = forumData.count || 0;
         setTotalForumPosts(serverCount);
-        
         const lastRead = parseInt(localStorage.getItem('cbt_forum_read_count') || '0');
-        const diff = serverCount - lastRead;
-        if (diff > 0) setUnreadCount(diff);
+        if (serverCount > lastRead) setUnreadCount(serverCount - lastRead);
 
       } catch (e) { console.error(e); } finally { setLoading(false); }
     }
@@ -191,7 +182,6 @@ export default function StudentDashboard() {
   }, [router]);
 
   const handleForumEnter = () => {
-    // Clear notifications when entering
     localStorage.setItem('cbt_forum_read_count', totalForumPosts.toString());
     setUnreadCount(0);
   };
@@ -209,6 +199,7 @@ export default function StudentDashboard() {
   const gstCourses = courses.filter(c => c.code.toUpperCase().startsWith("GST"));
   const otherCourses = courses.filter(c => !c.code.toUpperCase().startsWith("GST"));
   const visibleHistory = historyExpanded ? examHistory : examHistory.slice(0, 2);
+  const qualifiedLeaders = leaders.filter(user => user.score >= 60);
 
   if (loading) return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#004d00] gap-4">
@@ -224,7 +215,6 @@ export default function StudentDashboard() {
       {showUpgrade && <UpgradeModal student={student} onClose={() => setShowUpgrade(false)} onSuccess={() => window.location.reload()} />}
       {setupCourse && <ExamSetupModal course={setupCourse} isPremium={isPremium} onClose={() => setSetupCourse(null)} onStart={(dur) => router.push(`/cbt/exam/${setupCourse.id}?duration=${dur}`)} onUpgrade={() => { setSetupCourse(null); setShowUpgrade(true); }} />}
       
-      {/* === HEADER === */}
       <header className="bg-[#004d00] text-white pt-8 pb-20 px-6 rounded-b-[2.5rem] shadow-2xl relative z-10">
         <div className="flex justify-between items-center mb-8">
           <div className="flex items-center gap-4">
@@ -282,7 +272,6 @@ export default function StudentDashboard() {
           </div>
         </Link>
 
-        {/* === EXAM HISTORY === */}
         <section>
           <div className="flex items-center justify-between mb-3 px-1">
             <div className="flex items-center gap-2"><History size={14} className="text-gray-400" /><h2 className="font-black text-[10px] text-gray-400 uppercase tracking-widest">Exam History</h2></div>
@@ -318,7 +307,6 @@ export default function StudentDashboard() {
           )}
         </section>
 
-        {/* === GST COURSES === */}
         <section>
            <div className="flex items-center justify-between mb-3 px-1">
              <div className="flex items-center gap-2"><BookOpen size={14} className="text-[#004d00]" /><h2 className="font-black text-[10px] text-gray-500 uppercase tracking-widest">General Studies</h2></div>
@@ -327,7 +315,6 @@ export default function StudentDashboard() {
           {gstExpanded && <div className="animate-in fade-in slide-in-from-top-2">{gstCourses.map(c => <CourseCard key={c.id} course={c} onLaunch={setSetupCourse} variant="green" isPremium={isPremium} />)}</div>}
         </section>
 
-        {/* === OTHER COURSES === */}
         <section className="bg-[#f0f4ff] rounded-[2rem] shadow-sm border border-blue-50 p-5">
           <div className="flex items-center justify-between mb-4"><div className="flex items-center gap-2"><div className="bg-blue-600 p-1.5 rounded-lg text-white shadow-md"><Layers size={12} /></div><h2 className="font-black text-[10px] text-blue-900 uppercase tracking-widest">Other Courses</h2></div><Sparkles size={12} className="text-blue-400 animate-pulse" /></div>
           <div className="space-y-1">{otherCourses.slice(0, 2).map(c => <CourseCard key={c.id} course={c} onLaunch={setSetupCourse} variant="blue" isPremium={isPremium} />)}</div>
@@ -339,7 +326,6 @@ export default function StudentDashboard() {
           )}
         </section>
 
-        {/* === LEADERBOARD === */}
         <section>
           <div className="flex items-center justify-between mb-4 px-2">
             <div className="flex items-center gap-2">
@@ -348,9 +334,9 @@ export default function StudentDashboard() {
             </div>
             <div className="flex items-center gap-1.5 bg-green-50 px-2 py-1 rounded-full border border-green-100"><div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div><span className="text-[8px] font-black text-green-700 uppercase tracking-tight">Live Ranking</span></div>
           </div>
-          {leaders.length > 0 ? (
+          {qualifiedLeaders.length > 0 ? (
             <div className="flex gap-4 overflow-x-auto pb-4 px-2 -mx-2 custom-scrollbar snap-x">
-              {leaders.map((user, i) => {
+              {qualifiedLeaders.map((user, i) => {
                 const isFirst = i === 0;
                 const isSecond = i === 1;
                 const isThird = i === 2;
@@ -368,14 +354,17 @@ export default function StudentDashboard() {
                       {isFirst && <div className="absolute -bottom-1 -right-1 bg-yellow-400 text-white p-1 rounded-full border-2 border-white"><Sparkles size={8} fill="currentColor" /></div>}
                     </div>
                     <h3 className="font-black text-[11px] text-gray-900 truncate w-full mb-1 uppercase tracking-tight leading-tight">{user.name}</h3>
-                    <p className="text-[8px] text-gray-400 font-bold uppercase tracking-wide mb-3 truncate w-full">{user.department || "Student"}</p>
+                    <div className="flex flex-col items-center gap-1 w-full mb-3">
+                      <div className="flex items-center gap-1 text-[8px] text-gray-400 font-bold uppercase tracking-wide truncate max-w-full"><GraduationCap size={10} /><span className="truncate">{user.department || "Student"}</span></div>
+                      <div className="bg-blue-50 text-blue-700 px-2 py-0.5 rounded-md text-[7px] font-black uppercase tracking-wider border border-blue-100 flex items-center gap-1"><FileText size={8} /> {user.course_code || "GEN"}</div>
+                    </div>
                     <div className={`w-full py-1.5 rounded-xl text-[10px] font-black flex items-center justify-center gap-1 ${isFirst ? 'bg-[#004d00] text-white shadow-md shadow-green-900/20' : 'bg-gray-50 text-gray-600'}`}><span>{user.score}%</span></div>
                   </div>
                 );
               })}
             </div>
           ) : (
-            <div className="text-center py-10 bg-white rounded-[2rem] border border-dashed border-gray-200"><div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3 animate-pulse"><Trophy size={20} className="text-gray-300" /></div><p className="text-gray-400 text-[9px] font-black uppercase tracking-widest">NO HIGH FLYERS YET (60%+)</p></div>
+            <div className="text-center py-10 bg-white rounded-[2rem] border border-dashed border-gray-200"><div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3 animate-pulse"><Trophy size={20} className="text-gray-300" /></div><p className="text-gray-400 text-[9px] font-black uppercase tracking-widest">No High Flyers Yet (60%+)</p></div>
           )}
         </section>
       </div>
