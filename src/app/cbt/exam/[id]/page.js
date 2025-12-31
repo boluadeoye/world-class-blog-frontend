@@ -2,7 +2,9 @@
 import { useState, useEffect, useCallback, Suspense } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import {
-  Grid, CheckCircle, X, Crown, Sparkles, BrainCircuit, Clock, Fingerprint, Scan, Lock
+  Grid, CheckCircle, X, Crown, Sparkles,
+  BrainCircuit, Clock, ShieldAlert,
+  Loader2, Lock, Fingerprint, Scan
 } from "lucide-react";
 import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";
@@ -11,17 +13,24 @@ import LiveTracker from "@/components/cbt/LiveTracker";
 const UpgradeModal = dynamic(() => import("@/components/cbt/UpgradeModal"), { ssr: false });
 
 /* === SECURITY WATERMARK === */
-const SecurityWatermark = ({ text }) => (
-  <div className="fixed inset-0 z-[50] pointer-events-none overflow-hidden flex items-center justify-center opacity-[0.03]">
-    <div className="absolute inset-0 flex flex-wrap content-center justify-center gap-20 transform -rotate-12 scale-150">
-      {Array.from({ length: 20 }).map((_, i) => (
-        <div key={i} className="text-4xl font-black uppercase tracking-widest text-gray-900 whitespace-nowrap select-none">
-          {text} • OFFICIAL USE ONLY
-        </div>
-      ))}
+const SecurityWatermark = ({ text }) => {
+  // Hydration safe: only render on client
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  if (!mounted) return null;
+
+  return (
+    <div className="fixed inset-0 z-[50] pointer-events-none overflow-hidden flex items-center justify-center opacity-[0.03]">
+      <div className="absolute inset-0 flex flex-wrap content-center justify-center gap-20 transform -rotate-12 scale-150">
+        {Array.from({ length: 20 }).map((_, i) => (
+          <div key={i} className="text-4xl font-black uppercase tracking-widest text-gray-900 whitespace-nowrap select-none">
+            {text} • OFFICIAL USE ONLY
+          </div>
+        ))}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 function TimeUpOverlay() {
   return (
@@ -71,8 +80,6 @@ function ExamContent() {
   const [course, setCourse] = useState(null);
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [mounted, setMounted] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
   const [currentQIndex, setCurrentQIndex] = useState(0);
   const [answers, setAnswers] = useState({});
@@ -87,6 +94,7 @@ function ExamContent() {
   const [analyzing, setAnalyzing] = useState(false);
   const [limitReached, setLimitReached] = useState(false);
   const [showUpgrade, setShowUpgrade] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   const getStorageKey = useCallback((email) => `cbt_session_${params.id}_${email}`, [params.id]);
   const getConfigKey = useCallback((email) => `cbt_config_${params.id}_${email}`, [params.id]);
@@ -104,7 +112,8 @@ function ExamContent() {
         const reqLimit = searchParams.get('limit') || '30';
         const reqDur = searchParams.get('duration') || '15';
 
-        // CONFIG HANDSHAKE
+        // === CONFIG HANDSHAKE ===
+        // If the user changed settings (e.g. 30mins -> 60mins), we MUST wipe the old save.
         const currentConfig = `${reqLimit}_${reqDur}`;
         const savedConfig = localStorage.getItem(getConfigKey(parsedStudent.email));
         const sessionKey = getStorageKey(parsedStudent.email);
@@ -114,10 +123,13 @@ function ExamContent() {
           localStorage.setItem(getConfigKey(parsedStudent.email), currentConfig);
         }
 
-        const query = new URLSearchParams({ courseId: params.id, studentId: parsedStudent.id, token: parsedStudent.session_token || "", deviceId: hwId, limit: reqLimit });
-        const res = await fetch(`/api/cbt/exam?${query.toString()}`);
+        const res = await fetch(`/api/cbt/exam?courseId=${params.id}&studentId=${parsedStudent.id}&token=${parsedStudent.session_token}&deviceId=${hwId}&limit=${reqLimit}`);
         
-        if (res.status === 403) { setLimitReached(true); setLoading(false); return; }
+        if (res.status === 403) { 
+          setLimitReached(true); 
+          setLoading(false); 
+          return; 
+        }
 
         const data = await res.json();
         setCourse(data.course);
@@ -135,7 +147,7 @@ function ExamContent() {
         } else {
           setTimeLeft(finalDuration * 60);
         }
-      } catch (e) { setError(String(e.message)); } finally { setLoading(false); }
+      } catch (e) { console.error(e); } finally { setLoading(false); }
     }
     loadExam();
   }, [params.id, router, getStorageKey, getConfigKey, searchParams]);
@@ -155,7 +167,14 @@ function ExamContent() {
             await fetch('/api/cbt/result', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ studentId: student.id, courseId: course.id, score: correctCount, total: questions.length, answers: answers, deviceId: hwId })
+                body: JSON.stringify({ 
+                  studentId: student.id, 
+                  courseId: course.id, 
+                  score: correctCount, 
+                  total: questions.length, 
+                  answers: answers,
+                  deviceId: hwId 
+                })
             });
         } catch(e) { console.error("Save error", e); }
         localStorage.removeItem(getStorageKey(student.email));
@@ -248,6 +267,8 @@ function ExamContent() {
     </div>
   );
 
+  if (!course) return <div className="h-screen flex items-center justify-center bg-white"><UpgradeModal student={student} onClose={() => router.push('/cbt/dashboard')} onSuccess={() => window.location.reload()} /></div>;
+
   if (isSubmitted) {
     const percentage = Math.round((score / questions.length) * 100);
     const answeredCount = Object.keys(answers).length;
@@ -275,14 +296,15 @@ function ExamContent() {
           {activeTab === "corrections" ? (
             <div className="space-y-4">
               {questions.map((q, i) => {
-                const correctText = q[`option_${q.correct_option.toLowerCase()}`];
+                const correctKey = `option_${q.correct_option.toLowerCase()}`;
+                const correctText = q[correctKey] || "Option text unavailable";
                 return (
                   <div key={q.id} className={`bg-white p-6 rounded-3xl shadow-sm border-l-[6px] ${answers[q.id] === q.correct_option ? 'border-green-500' : 'border-red-500'}`}>
                     <div className="flex justify-between items-start mb-4"><span className="bg-gray-100 text-gray-500 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest">Question {i+1}</span>{answers[q.id] === q.correct_option ? <CheckCircle size={20} className="text-green-600" /> : <X size={20} className="text-red-500" />}</div>
                     <p className="font-bold text-gray-900 text-sm leading-relaxed mb-6">{q.question_text}</p>
                     <div className="grid grid-cols-1 gap-3 mb-4">
                       <div className="bg-green-50 border border-green-100 p-4 rounded-xl"><p className="text-[9px] font-black text-green-800 uppercase mb-1 flex items-center gap-2"><CheckCircle size={12}/> Correct Answer</p><p className="text-sm font-bold text-green-900 leading-snug"><span className="font-black mr-2">{q.correct_option}.</span>{correctText}</p></div>
-                      {answers[q.id] !== q.correct_option && (<div className="bg-red-50 border border-red-100 p-4 rounded-xl"><p className="text-[9px] font-black text-red-800 uppercase mb-1 flex items-center gap-2"><X size={12}/> Your Selection</p><p className="text-sm font-bold text-red-900">{answers[q.id] ? (<><span className="font-black mr-2">{answers[q.id]}.</span>{q[`option_${answers[q.id].toLowerCase()}`]}</>) : "Skipped"}</p></div>)}
+                      {answers[q.id] !== q.correct_option && (<div className="bg-red-50 border border-red-100 p-4 rounded-xl"><p className="text-[9px] font-black text-red-800 uppercase mb-1 flex items-center gap-2"><X size={12}/> Your Selection</p><p className="text-sm font-bold text-red-900">{answers[q.id] ? (<><span className="font-black mr-2">{answers[q.id]}.</span>{q[`option_${answers[q.id].toLowerCase()}`] || "Option text unavailable"}</>) : "Skipped"}</p></div>)}
                     </div>
                     {isPremium && q.explanation && <div className="mt-4 pt-4 border-t border-gray-100"><p className="text-[9px] font-black text-blue-600 uppercase tracking-widest mb-1">Concept Brief</p><p className="text-xs text-gray-600 leading-relaxed bg-blue-50/30 p-3 rounded-xl border border-blue-100 italic">{q.explanation}</p></div>}
                   </div>
@@ -317,13 +339,14 @@ function ExamContent() {
   }
 
   const currentQ = questions[currentQIndex];
+  const safeId = student?.id ? String(student.id) : "0000";
   const answeredCount = Object.keys(answers).length;
 
   if (!currentQ) return <div className="h-screen flex items-center justify-center bg-white font-black text-xs tracking-[0.3em] uppercase text-green-900">Synchronizing...</div>;
 
   return (
     <main className="h-screen flex flex-col bg-[#f0f2f5] font-sans overflow-hidden select-none relative">
-      <SecurityWatermark text={`${student?.name || 'CBT'} - ${student?.id}`} />
+      <SecurityWatermark text={`${student?.name || 'CBT'} - ${safeId}`} />
       <LiveTracker />
       {isTimeUp && <TimeUpOverlay />}
       <SubmitModal isOpen={showSubmitModal} onConfirm={submitExam} onCancel={() => setShowSubmitModal(false)} answeredCount={answeredCount} totalCount={questions.length} />
@@ -337,7 +360,7 @@ function ExamContent() {
 
 export default function ExamPageWrapper() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-[#002b00] text-white font-black text-xs uppercase tracking-widest animate-pulse">BOOTING TERMINAL...</div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-white text-green-900 font-black text-sm tracking-widest animate-pulse">BOOTING TERMINAL...</div>}>
       <ExamContent />
     </Suspense>
   );
