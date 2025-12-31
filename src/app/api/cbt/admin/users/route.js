@@ -8,8 +8,7 @@ export async function GET(req) {
     const { searchParams } = req.nextUrl;
     const search = searchParams.get('search') || '';
 
-    // Search Logic: Find by Name, Email, or Department
-    // We limit to 100 to keep the phone fast.
+    // Fetch students with search logic (Name, Email, or Dept)
     const users = await sql`
       SELECT 
         id, 
@@ -23,17 +22,20 @@ export async function GET(req) {
          OR email ILIKE ${'%' + search + '%'}
          OR department ILIKE ${'%' + search + '%'}
       ORDER BY created_at DESC
-      LIMIT 100
+      LIMIT 200
     `;
 
-    const total = await sql`SELECT COUNT(*) FROM cbt_students`;
-    const premium = await sql`SELECT COUNT(*) FROM cbt_students WHERE subscription_status = 'premium'`;
+    const stats = await sql`
+      SELECT 
+        (SELECT COUNT(*) FROM cbt_students) as total,
+        (SELECT COUNT(*) FROM cbt_students WHERE subscription_status = 'premium') as premium
+    `;
 
     return NextResponse.json({ 
       users, 
       stats: {
-        total: total[0].count,
-        premium: premium[0].count
+        total: stats[0].total,
+        premium: stats[0].premium
       }
     }, { status: 200 });
 
