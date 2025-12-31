@@ -14,10 +14,10 @@ import LiveTracker from "../../../components/cbt/LiveTracker";
 
 const UpgradeModal = dynamic(() => import("../../../components/cbt/UpgradeModal"), { ssr: false });
 
-/* === 1. EXAM SETUP MODAL (FIXED) === */
+/* === 1. EXAM SETUP MODAL (ROBUST) === */
 function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
   const [duration, setDuration] = useState(course.duration || 15);
-  const [qCount, setQCount] = useState(30); // Default loadout
+  const [qCount, setQCount] = useState(30); // Default to 30
   const isBlocked = !isPremium && course.user_attempts >= 2;
 
   return (
@@ -78,7 +78,7 @@ function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
 
               <div className="flex gap-2">
                 <button onClick={onClose} className="flex-1 py-3 border border-gray-100 rounded-xl text-[9px] font-black text-gray-400 uppercase tracking-widest transition-all">Cancel</button>
-                {/* FIX: Added qCount to the onStart call */}
+                {/* PASS BOTH DURATION AND COUNT */}
                 <button onClick={() => onStart(duration, qCount)} className="flex-[1.5] py-3 bg-[#004d00] text-white rounded-xl text-[10px] font-black shadow-xl hover:bg-green-900 uppercase tracking-widest flex items-center justify-center gap-2">Start Mission <Play size={12} fill="currentColor" /></button>
               </div>
             </>
@@ -150,7 +150,6 @@ export default function StudentDashboard() {
   const [gstExpanded, setGstExpanded] = useState(true);
   const [othersExpanded, setOthersExpanded] = useState(false);
   const [historyExpanded, setHistoryExpanded] = useState(false);
-  
   const [unreadCount, setUnreadCount] = useState(0);
   const [totalForumPosts, setTotalForumPosts] = useState(0);
 
