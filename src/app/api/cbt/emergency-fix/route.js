@@ -10,7 +10,7 @@ export async function GET(req) {
     
     if (!email) return NextResponse.json({ error: "Email required" }, { status: 400 });
     
-    // SMART LOOKUP: Trim whitespace and use ILIKE for case-insensitivity
+    // SMART LOOKUP: Case-insensitive & Trimmed
     const cleanEmail = email.trim();
     
     const users = await sql`
@@ -19,15 +19,12 @@ export async function GET(req) {
     `;
     
     if (users.length === 0) {
-      return NextResponse.json({ 
-        error: "User not found", 
-        suggestion: "Check the Export List. The student might have made a typo during registration." 
-      }, { status: 404 });
+      return NextResponse.json({ error: "User not found. Check spelling." }, { status: 404 });
     }
     
     const user = users[0];
     
-    // Force Upgrade
+    // Force Upgrade (30 Days)
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 30);
     
