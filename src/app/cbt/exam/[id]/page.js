@@ -4,7 +4,7 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import {
   Grid, CheckCircle, AlertOctagon, X, Crown, Sparkles,
   BrainCircuit, Clock, ChevronRight, ChevronLeft, ShieldAlert,
-  Loader2, BookOpen, Target, Zap, FileText, Lock, ShieldCheck, Fingerprint
+  Loader2, BookOpen, Target, Zap, FileText, Lock, ShieldCheck, Fingerprint, Scan
 } from "lucide-react";
 import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";
@@ -12,55 +12,47 @@ import LiveTracker from "../../../../components/cbt/LiveTracker";
 
 const UpgradeModal = dynamic(() => import("../../../../components/cbt/UpgradeModal"), { ssr: false });
 
-/* === SECURITY WATERMARK COMPONENT === */
-function SecurityWatermark({ text }) {
-  return (
-    <div className="fixed inset-0 z-[50] pointer-events-none overflow-hidden flex items-center justify-center opacity-[0.03]">
-      <div className="absolute inset-0 flex flex-wrap content-center justify-center gap-20 transform -rotate-12 scale-150">
-        {Array.from({ length: 20 }).map((_, i) => (
-          <div key={i} className="text-4xl font-black uppercase tracking-widest text-gray-900 whitespace-nowrap select-none">
-            {text} • OFFICIAL USE ONLY • {text}
-          </div>
-        ))}
-      </div>
+/* === SECURITY WATERMARK === */
+const SecurityWatermark = ({ text }) => (
+  <div className="fixed inset-0 z-[50] pointer-events-none overflow-hidden flex items-center justify-center opacity-[0.03]">
+    <div className="absolute inset-0 flex flex-wrap content-center justify-center gap-20 transform -rotate-12 scale-150">
+      {Array.from({ length: 20 }).map((_, i) => (
+        <div key={i} className="text-4xl font-black uppercase tracking-widest text-gray-900 whitespace-nowrap select-none">
+          {text} • OFFICIAL USE ONLY
+        </div>
+      ))}
     </div>
-  );
-}
+  </div>
+);
 
 function TimeUpOverlay() {
   return (
-    <div className="fixed inset-0 z-[600] bg-[#050505] flex flex-col items-center justify-center text-white p-6 animate-in fade-in duration-500">
-      <div className="w-24 h-24 bg-red-600/10 border-2 border-red-600 rounded-full flex items-center justify-center mb-6">
-        <Clock size={48} className="text-red-500 animate-spin-slow" />
+    <div className="fixed inset-0 z-[600] bg-[#002b00] flex flex-col items-center justify-center text-white p-6 animate-in fade-in duration-500">
+      <div className="w-24 h-24 bg-white/10 border-2 border-white/20 rounded-full flex items-center justify-center mb-6">
+        <Clock size={48} className="text-white animate-spin-slow" />
       </div>
       <h2 className="text-3xl font-black uppercase tracking-[0.2em] mb-2 text-center">Time Expired</h2>
-      <p className="text-emerald-500 font-bold text-xs uppercase tracking-widest animate-pulse">Securing Responses...</p>
+      <p className="text-green-200 font-bold text-xs uppercase tracking-widest animate-pulse">Securing Responses...</p>
     </div>
   );
 }
 
 function SubmitModal({ isOpen, onConfirm, onCancel, answeredCount, totalCount }) {
   if (!isOpen) return null;
-  const pendingCount = totalCount - answeredCount;
   return (
-    <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/90 backdrop-blur-md p-6 animate-in fade-in duration-200">
-      <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-sm w-full overflow-hidden border border-green-100">
-        <div className="bg-green-50 p-8 flex flex-col items-center text-center border-b border-green-100">
-          <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mb-4 shadow-sm border border-green-100">
-            <CheckCircle size={32} className="text-green-600" />
+    <div className="fixed inset-0 z-[500] flex items-center justify-center bg-[#002b00]/90 backdrop-blur-md p-6 animate-in fade-in duration-200">
+      <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-sm w-full overflow-hidden border border-white">
+        <div className="bg-[#004d00] p-8 flex flex-col items-center text-center border-b border-green-800 relative overflow-hidden">
+          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
+          <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mb-4 shadow-lg relative z-10">
+            <CheckCircle size={32} className="text-[#004d00]" />
           </div>
-          <h3 className="font-black text-2xl text-green-900 uppercase tracking-tighter">Final Audit</h3>
-          <div className="mt-4 w-full space-y-2">
-            <div className="flex justify-between items-center bg-white/60 p-3 rounded-xl border border-green-100">
-              <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Answered</span>
-              <span className="text-sm font-black text-green-700">{answeredCount} / {totalCount}</span>
+          <h3 className="font-black text-2xl text-white uppercase tracking-tighter relative z-10">Final Audit</h3>
+          <div className="mt-4 w-full space-y-2 relative z-10">
+            <div className="flex justify-between items-center bg-white/10 p-3 rounded-xl border border-white/10">
+              <span className="text-[10px] font-black text-green-200 uppercase tracking-widest">Answered</span>
+              <span className="text-sm font-black text-white">{answeredCount} / {totalCount}</span>
             </div>
-            {pendingCount > 0 && (
-              <div className="flex justify-between items-center bg-red-50 p-3 rounded-xl border border-red-100">
-                <span className="text-[10px] font-black text-red-400 uppercase tracking-widest">Pending</span>
-                <span className="text-sm font-black text-red-600">{pendingCount} Left</span>
-              </div>
-            )}
           </div>
         </div>
         <div className="p-6 bg-white flex gap-4">
@@ -81,9 +73,6 @@ function ExamContent() {
   const [course, setCourse] = useState(null);
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [mounted, setMounted] = useState(false);
-  const [showUpgrade, setShowUpgrade] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
   const [currentQIndex, setCurrentQIndex] = useState(0);
   const [answers, setAnswers] = useState({});
@@ -96,12 +85,15 @@ function ExamContent() {
   const [activeTab, setActiveTab] = useState("corrections");
   const [analysis, setAnalysis] = useState(null);
   const [analyzing, setAnalyzing] = useState(false);
+  
+  // NEW STATE FOR THE IRON WALL
+  const [limitReached, setLimitReached] = useState(false);
+  const [showUpgrade, setShowUpgrade] = useState(false);
 
   const getStorageKey = useCallback((email) => `cbt_session_${params.id}_${email}`, [params.id]);
   const getConfigKey = useCallback((email) => `cbt_config_${params.id}_${email}`, [params.id]);
 
   useEffect(() => {
-    setMounted(true);
     const studentData = sessionStorage.getItem("cbt_student");
     if (!studentData) { router.push("/cbt"); return; }
     const parsedStudent = JSON.parse(studentData);
@@ -113,7 +105,7 @@ function ExamContent() {
         const reqLimit = searchParams.get('limit') || '30';
         const reqDur = searchParams.get('duration') || '15';
 
-        // CONFIG HANDSHAKE: Wipe session if settings changed
+        // CONFIG HANDSHAKE
         const currentConfig = `${reqLimit}_${reqDur}`;
         const savedConfig = localStorage.getItem(getConfigKey(parsedStudent.email));
         const sessionKey = getStorageKey(parsedStudent.email);
@@ -123,20 +115,15 @@ function ExamContent() {
           localStorage.setItem(getConfigKey(parsedStudent.email), currentConfig);
         }
 
-        const query = new URLSearchParams({ 
-          courseId: params.id, 
-          studentId: parsedStudent.id, 
-          token: parsedStudent.session_token || "",
-          deviceId: hwId,
-          limit: reqLimit
-        });
-
-        const res = await fetch(`/api/cbt/exam?${query.toString()}`);
-        if (!res.ok) {
-            if (res.status === 401) { router.push("/cbt"); return; }
-            if (res.status === 403) { setShowUpgrade(true); setLoading(false); return; }
-            throw new Error("Data retrieval failed.");
+        const res = await fetch(`/api/cbt/exam?courseId=${params.id}&studentId=${parsedStudent.id}&token=${parsedStudent.session_token}&deviceId=${hwId}&limit=${reqLimit}`);
+        
+        // === THE IRON WALL TRIGGER ===
+        if (res.status === 403) { 
+          setLimitReached(true); 
+          setLoading(false); 
+          return; 
         }
+
         const data = await res.json();
         setCourse(data.course);
         setQuestions(data.questions || []);
@@ -153,7 +140,7 @@ function ExamContent() {
         } else {
           setTimeLeft(finalDuration * 60);
         }
-      } catch (e) { setError(String(e.message)); } finally { setLoading(false); }
+      } catch (e) { console.error(e); } finally { setLoading(false); }
     }
     loadExam();
   }, [params.id, router, getStorageKey, getConfigKey, searchParams]);
@@ -193,7 +180,8 @@ function ExamContent() {
   }, [submitExam]);
 
   useEffect(() => {
-    if (!mounted || loading || isSubmitted || error || timeLeft === null || showUpgrade || isTimeUp) return;
+    if (!mounted && typeof window !== 'undefined') setMounted(true);
+    if (!mounted || loading || isSubmitted || limitReached || timeLeft === null || showUpgrade || isTimeUp) return;
     const interval = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 0) {
@@ -209,7 +197,7 @@ function ExamContent() {
       });
     }, 1000);
     return () => clearInterval(interval);
-  }, [loading, isSubmitted, error, timeLeft, showUpgrade, mounted, answers, currentQIndex, student, getStorageKey, handleAutoSubmit, isTimeUp]);
+  }, [loading, isSubmitted, limitReached, showUpgrade, mounted, answers, currentQIndex, student, getStorageKey, handleAutoSubmit, isTimeUp]);
 
   const handleSelect = (option) => { if (!isSubmitted && !isTimeUp) setAnswers(prev => ({ ...prev, [questions[currentQIndex].id]: option })); };
   const formatTime = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
@@ -237,26 +225,54 @@ function ExamContent() {
     return "bg-red-50 text-red-400 border-red-100 font-medium";
   };
 
-  if (!mounted) return null;
-  if (showUpgrade) return <div className="min-h-screen flex items-center justify-center bg-white"><UpgradeModal student={student} onClose={() => router.push('/cbt/dashboard')} onSuccess={() => window.location.reload()} /></div>;
-  
-  if (loading) return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#002b00] text-white relative overflow-hidden">
+  // === THE IRON WALL (SOVEREIGN GREEN EDITION) ===
+  if (limitReached) return (
+    <div className="min-h-screen bg-[#002b00] flex flex-col items-center justify-center p-6 relative overflow-hidden">
+      {showUpgrade && <UpgradeModal student={student} onClose={() => router.push('/cbt/dashboard')} onSuccess={() => window.location.reload()} />}
       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20"></div>
-      <div className="relative z-10 flex flex-col items-center">
-        <div className="w-20 h-20 border-4 border-green-500/30 rounded-full flex items-center justify-center mb-6 relative">
-          <div className="absolute inset-0 border-4 border-t-green-400 rounded-full animate-spin"></div>
-          <Fingerprint size={40} className="text-green-400 animate-pulse" />
-        </div>
-        <h2 className="font-black text-xl uppercase tracking-[0.3em] mb-2">Authenticating</h2>
-        <p className="text-[10px] font-mono text-green-400/70">ESTABLISHING SECURE UPLINK...</p>
+      
+      <div className="relative z-10 bg-white rounded-[2.5rem] max-w-sm w-full text-center shadow-2xl overflow-hidden">
+         <div className="bg-[#004d00] p-8 relative">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-400 to-green-400"></div>
+            <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+               <Lock size={40} className="text-[#004d00]" />
+            </div>
+            <h2 className="text-2xl font-black text-white uppercase tracking-widest">Access Denied</h2>
+            <p className="text-green-200 text-[10px] font-mono mt-2 uppercase tracking-[0.2em]">Hardware Limit Reached (2/2)</p>
+         </div>
+         
+         <div className="p-8">
+            <p className="text-gray-600 text-xs font-medium leading-relaxed mb-8">
+               Your device has exhausted the free attempt allocation for this sector. Security protocols are active.
+            </p>
+            <button onClick={() => setShowUpgrade(true)} className="w-full py-4 bg-[#004d00] text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl hover:bg-green-900 transition-all active:scale-95 flex items-center justify-center gap-2">
+               <Crown size={14} /> Upgrade Clearance
+            </button>
+            <button onClick={() => router.push('/cbt/dashboard')} className="mt-6 text-gray-400 text-[10px] font-black uppercase tracking-widest hover:text-gray-600">Return to Base</button>
+         </div>
       </div>
     </div>
   );
 
-  if (error) return <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6 text-center text-red-600 font-bold gap-4"><p>{error}</p><button onClick={() => window.location.reload()} className="bg-black text-white px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest">Retry Connection</button></div>;
+  // === THE BIOMETRIC LOADER (SOVEREIGN GREEN) ===
+  if (loading) return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#002b00] text-white relative overflow-hidden">
+      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20"></div>
+      <div className="relative z-10 flex flex-col items-center">
+        <div className="w-24 h-24 border-4 border-white/10 rounded-full flex items-center justify-center mb-8 relative">
+          <div className="absolute inset-0 border-4 border-t-white rounded-full animate-spin"></div>
+          <Scan size={40} className="text-white animate-pulse" />
+        </div>
+        <h2 className="font-black text-xl uppercase tracking-[0.4em] text-white mb-2">System Check</h2>
+        <div className="flex flex-col items-center gap-1">
+          <p className="text-[9px] font-mono text-green-200 uppercase tracking-widest">Verifying Biometrics...</p>
+          <p className="text-[9px] font-mono text-green-200 uppercase tracking-widest">Syncing Hardware ID...</p>
+        </div>
+      </div>
+    </div>
+  );
 
-  const marksPerQuestion = questions.length > 0 ? (100 / questions.length).toFixed(1) : 0;
+  if (!course) return <div className="h-screen flex items-center justify-center bg-white"><UpgradeModal student={student} onClose={() => router.push('/cbt/dashboard')} onSuccess={() => window.location.reload()} /></div>;
 
   if (isSubmitted) {
     const percentage = Math.round((score / questions.length) * 100);
@@ -407,13 +423,15 @@ function ExamContent() {
   const currentQ = questions[currentQIndex];
   const safeId = student?.id ? String(student.id) : "0000";
   const answeredCount = Object.keys(answers).length;
+  const isLastQ = currentQIndex === questions.length - 1;
 
   if (!currentQ) return <div className="h-screen flex items-center justify-center bg-white font-black text-xs tracking-[0.3em] uppercase text-green-900">Synchronizing...</div>;
 
   return (
     <main className="h-screen flex flex-col bg-[#f0f2f5] font-sans overflow-hidden select-none relative">
+      {/* === SECURITY WATERMARK === */}
       <SecurityWatermark text={`${student?.name || 'CBT'} - ${safeId}`} />
-      <LiveTracker />
+      
       {isTimeUp && <TimeUpOverlay />}
       <SubmitModal isOpen={showSubmitModal} onConfirm={submitExam} onCancel={() => setShowSubmitModal(false)} answeredCount={answeredCount} totalCount={questions.length} />
       
@@ -440,12 +458,12 @@ function ExamContent() {
             <span className="font-black text-green-900 text-[9px] tracking-[0.2em] uppercase bg-green-50 px-2 py-1 rounded-lg border border-green-100">Q {String(currentQIndex + 1).padStart(2, '0')} / {questions.length}</span>
             <span className="text-[9px] font-black text-gray-300 uppercase tracking-widest">{marksPerQuestion} Marks</span>
           </div>
-          <div className="flex-1 flex items-center py-4 overflow-y-auto custom-scrollbar pr-2">
+          <div className="flex-1 flex flex-col justify-center py-4 overflow-y-auto custom-scrollbar pr-2">
             <h2 className="text-base md:text-xl font-bold text-gray-900 leading-relaxed text-left">{currentQ.question_text}</h2>
           </div>
           <div className="grid grid-cols-1 gap-2.5 mt-4 shrink-0">
             {['A','B','C','D'].map((opt) => (
-              <button key={opt} onClick={() => handleSelect(opt)} className={`group p-4 rounded-2xl border-2 text-left transition-all duration-200 flex items-center gap-4 active:scale-[0.98] ${answers[currentQ.id] === opt ? 'border-green-600 bg-green-50 ring-2 ring-green-100' : 'border-gray-100 bg-white'}`}>
+              <button key={opt} onClick={() => handleSelect(opt)} className={`group p-4 rounded-3xl border-2 text-left transition-all duration-200 flex items-center gap-4 active:scale-[0.98] ${answers[currentQ.id] === opt ? 'border-green-600 bg-green-50 ring-2 ring-green-100' : 'border-gray-100 bg-white'}`}>
                 <span className={`shrink-0 w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs border transition-colors ${answers[currentQ.id] === opt ? 'bg-green-600 text-white border-green-600' : 'bg-gray-50 text-gray-400 border-gray-200 group-hover:bg-white'}`}>{opt}</span>
                 <span className={`font-bold text-xs leading-tight ${answers[currentQ.id] === opt ? 'text-green-900 font-black' : 'text-gray-600'}`}>{currentQ[`option_${opt.toLowerCase()}`]}</span>
               </button>
@@ -455,9 +473,9 @@ function ExamContent() {
       </div>
       
       <footer className="h-16 bg-white border-t border-gray-100 flex justify-between items-center px-8 shrink-0 z-20">
-        <button onClick={() => setCurrentQIndex(Math.max(0, currentQIndex - 1))} disabled={currentQIndex === 0} className="text-[10px] font-black text-gray-400 uppercase tracking-widest disabled:opacity-10 transition-colors hover:text-green-900">[ PREV ]</button>
+        <button onClick={() => navigateTo(Math.max(0, currentQIndex - 1))} disabled={currentQIndex === 0} className="text-[10px] font-black text-gray-400 uppercase tracking-widest disabled:opacity-10 transition-colors hover:text-green-900">[ PREV ]</button>
         <button onClick={() => setShowMap(true)} className="bg-gray-100 text-gray-700 p-3.5 rounded-[1.2rem] hover:bg-green-50 hover:text-green-900 transition-all active:scale-95"><Grid size={22} /></button>
-        <button onClick={() => setCurrentQIndex(Math.min(questions.length - 1, currentQIndex + 1))} disabled={currentQIndex === questions.length - 1} className={`px-10 py-3.5 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all shadow-lg ${currentQIndex === questions.length - 1 ? 'bg-gray-100 text-gray-400 border border-gray-200' : 'bg-[#004d00] text-white hover:bg-green-900 active:scale-95'}`}>Next</button>
+        <button onClick={() => navigateTo(Math.min(questions.length - 1, currentQIndex + 1))} disabled={currentQIndex === questions.length - 1} className={`px-10 py-3.5 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all shadow-lg ${currentQIndex === questions.length - 1 ? 'bg-gray-100 text-gray-400 border border-gray-200' : 'bg-[#004d00] text-white hover:bg-green-900 active:scale-95'}`}>Next</button>
       </footer>
       
       <aside className={`fixed inset-x-0 bottom-0 z-[250] bg-white rounded-t-[3rem] shadow-[0_-20px_50px_rgba(0,0,0,0.15)] transition-transform duration-500 border-t border-gray-100 ${showMap ? 'translate-y-0' : 'translate-y-full'} h-[60vh] flex flex-col`}>
