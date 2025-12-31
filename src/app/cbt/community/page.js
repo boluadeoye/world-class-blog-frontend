@@ -15,6 +15,7 @@ export default function CommunityPage() {
   const [commentText, setCommentText] = useState("");
   const [loadingComments, setLoadingComments] = useState(false);
 
+  // === THE NUCLEAR CODE (STRICT CHECK) ===
   const ADMIN_EMAIL = "verygreenwealth@gmail.com";
   const isAdmin = student?.email?.toLowerCase().trim() === ADMIN_EMAIL.toLowerCase();
 
@@ -44,7 +45,14 @@ export default function CommunityPage() {
       await fetch("/api/cbt/community/post", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ studentId: student.id, name: student.name, email: student.email, department: student.department, content, isAdmin })
+        body: JSON.stringify({
+          studentId: student.id,
+          name: student.name,
+          email: student.email,
+          department: student.department,
+          content: content,
+          isAdmin: isAdmin
+        })
       });
       setContent("");
       fetchFeed(student.department, student.email);
@@ -53,21 +61,23 @@ export default function CommunityPage() {
   };
 
   const handleHide = async (e, id, type) => {
-    e.stopPropagation();
+    if (e) e.stopPropagation();
     try {
-      await fetch("/api/cbt/community/hide", {
+      const res = await fetch("/api/cbt/community/hide", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id, type, adminEmail: student.email })
       });
-      if (type === 'post') fetchFeed(student.department, student.email);
-      else openThread(activePost);
-    } catch (e) {}
+      if (res.ok) {
+        if (type === 'post') fetchFeed(student.department, student.email);
+        else openThread(activePost);
+      }
+    } catch (e) { alert("Hide Failed"); }
   };
 
   const handleDelete = async (e, id, type) => {
-    e.stopPropagation();
-    if (!confirm("Delete permanently?")) return;
+    if (e) e.stopPropagation();
+    if (!confirm("COMMANDER: Delete permanently?")) return;
     try {
       await fetch("/api/cbt/community/delete", {
         method: "POST",
@@ -75,8 +85,8 @@ export default function CommunityPage() {
         body: JSON.stringify({ id, type, adminEmail: student.email })
       });
       if (type === 'post') fetchFeed(student.department, student.email);
-      else setComments(prev => prev.filter(c => c.id !== id));
-    } catch (e) {}
+      else openThread(activePost);
+    } catch (e) { alert("Delete Failed"); }
   };
 
   const openThread = async (post) => {
@@ -92,12 +102,13 @@ export default function CommunityPage() {
 
   const sendComment = async () => {
     if (!commentText.trim()) return;
+    const text = commentText;
     setCommentText("");
     try {
       await fetch("/api/cbt/community/comment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ postId: activePost.id, studentId: student.id, name: student.name, content: commentText })
+        body: JSON.stringify({ postId: activePost.id, studentId: student.id, name: student.name, content: text })
       });
       openThread(activePost);
     } catch (e) {}
@@ -125,6 +136,7 @@ export default function CommunityPage() {
       </header>
 
       <div className="pt-36 px-4 max-w-2xl mx-auto">
+        {/* INPUT BOX */}
         <div className={`bg-white p-1.5 rounded-[2rem] shadow-xl border mb-8 ${isAdmin ? 'border-red-200' : 'border-green-100'}`}>
           <div className="bg-gray-50 rounded-[1.8rem] p-4">
             <textarea value={content} onChange={(e) => setContent(e.target.value)} placeholder={isAdmin ? "Broadcast an official announcement..." : "Ask a question or share an update..."} className="w-full bg-transparent text-sm font-medium focus:outline-none resize-none h-24 text-gray-900 placeholder:text-gray-400" />
@@ -135,16 +147,21 @@ export default function CommunityPage() {
           </div>
         </div>
 
+        {/* FEED */}
         <div className="space-y-5">
+          {loading && <div className="text-center text-gray-400 text-[10px] font-black uppercase animate-pulse mt-10 tracking-widest">Loading Forum...</div>}
           {posts.map((post) => (
-            <div key={post.id} onClick={() => openThread(post)} className={`p-6 rounded-[2rem] shadow-sm border relative transition-all active:scale-[0.98] cursor-pointer ${post.is_announcement ? 'bg-gradient-to-br from-[#2b0a0a] to-[#4a0f0f] border-red-900 text-white shadow-red-900/20' : 'bg-white border-gray-100 text-gray-800'} ${post.is_hidden ? 'opacity-50 grayscale-[0.5]' : ''}`}>
+            <div key={post.id} onClick={() => openThread(post)} className={`p-6 rounded-[2rem] shadow-sm border relative transition-all active:scale-[0.98] cursor-pointer ${post.is_announcement ? 'bg-gradient-to-br from-[#2b0a0a] to-[#4a0f0f] border-red-900 text-white shadow-red-900/20' : 'bg-white border-gray-100 text-gray-800'} ${post.is_hidden ? 'opacity-40 grayscale-[0.5]' : ''}`}>
               
+              {/* ADMIN CONTROLS (FORCED VISIBILITY) */}
               {isAdmin && (
-                <div className="absolute top-4 right-4 flex gap-2 z-20">
-                  <button onClick={(e) => handleHide(e, post.id, 'post')} className="p-2 bg-white/10 backdrop-blur-md rounded-full text-white/70 hover:bg-white hover:text-black transition-all">
-                    {post.is_hidden ? <Eye size={14} /> : <EyeOff size={14} />}
+                <div className="absolute top-4 right-4 flex gap-2 z-30">
+                  <button onClick={(e) => handleHide(e, post.id, 'post')} className="p-2 bg-white shadow-md rounded-full text-gray-600 hover:bg-black hover:text-white transition-all border border-gray-100">
+                    {post.is_hidden ? <Eye size={16} /> : <EyeOff size={16} />}
                   </button>
-                  <button onClick={(e) => handleDelete(e, post.id, 'post')} className="p-2 bg-white/10 backdrop-blur-md rounded-full text-white/50 hover:bg-red-600 hover:text-white transition-colors"><Trash2 size={14} /></button>
+                  <button onClick={(e) => handleDelete(e, post.id, 'post')} className="p-2 bg-white shadow-md rounded-full text-red-500 hover:bg-red-600 hover:text-white transition-all border border-red-50">
+                    <Trash2 size={16} />
+                  </button>
                 </div>
               )}
 
@@ -165,6 +182,7 @@ export default function CommunityPage() {
         </div>
       </div>
 
+      {/* THREAD MODAL */}
       {activePost && (
         <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-end justify-center">
           <div className="bg-[#f4f6f8] w-full max-w-lg h-[85vh] rounded-t-[2.5rem] flex flex-col overflow-hidden shadow-2xl animate-in slide-in-from-bottom duration-300">
@@ -173,20 +191,26 @@ export default function CommunityPage() {
               <button onClick={() => setActivePost(null)} className="p-2 bg-gray-200 text-gray-700 rounded-full hover:bg-red-50 hover:text-red-600 transition-colors"><X size={20} /></button>
             </div>
             <div className="flex-1 overflow-y-auto p-5 custom-scrollbar">
+              <div className="bg-white p-5 rounded-[2rem] border border-gray-100 mb-6">
+                <h4 className="font-black text-xs uppercase mb-2 flex items-center gap-2 text-gray-900">{activePost.author_name} {activePost.is_premium && <BadgeCheck size={12} className="text-blue-400" />}</h4>
+                <p className="text-sm text-gray-700 whitespace-pre-wrap">{activePost.content}</p>
+              </div>
               <div className="space-y-3">
                 {comments.map(c => (
                   <div key={c.id} className={`bg-white p-4 rounded-2xl border border-gray-50 relative ${c.is_hidden ? 'opacity-50 bg-gray-50' : ''}`}>
                     {isAdmin && (
                       <div className="absolute top-3 right-3 flex gap-2">
-                        <button onClick={() => handleHide(null, c.id, 'comment')} className="text-gray-400 hover:text-black transition-colors">
+                        <button onClick={() => handleHide(null, c.id, 'comment')} className="p-1.5 bg-gray-100 rounded-full text-gray-500 hover:bg-black hover:text-white transition-all">
                           {c.is_hidden ? <Eye size={14} /> : <EyeOff size={14} />}
                         </button>
-                        <button onClick={() => handleDelete(c.id, 'comment')} className="text-gray-300 hover:text-red-500"><Trash2 size={14} /></button>
+                        <button onClick={() => handleDelete(null, c.id, 'comment')} className="p-1.5 bg-gray-100 rounded-full text-red-400 hover:bg-red-600 hover:text-white transition-all">
+                          <Trash2 size={14} />
+                        </button>
                       </div>
                     )}
                     <div className="flex justify-between items-center mb-1">
                       <span className="text-[10px] font-black uppercase flex items-center gap-1 text-gray-900">{c.author_name} {c.is_premium && <BadgeCheck size={10} className="text-blue-400" />} {c.is_hidden && <span className="text-[7px] text-yellow-600 font-black ml-1">[HIDDEN]</span>}</span>
-                      <span className="text-[8px] opacity-50">{formatTime(c.created_at)}</span>
+                      <span className="text-[8px] opacity-50 mr-12">{formatTime(c.created_at)}</span>
                     </div>
                     <p className="text-xs text-gray-600 whitespace-pre-wrap">{c.content}</p>
                   </div>
