@@ -8,10 +8,10 @@ export async function GET(req) {
     const studentId = searchParams.get('studentId');
     const token = searchParams.get('token');
     const deviceId = searchParams.get('deviceId') || 'unknown_device';
+    const requestedLimit = parseInt(searchParams.get('limit') || '30');
 
     if (!courseId || !studentId || !token) return NextResponse.json({ error: "Violation" }, { status: 400 });
 
-    // Use explicit casting for ID to prevent Postgres type errors
     const students = await sql`SELECT * FROM cbt_students WHERE id::text = ${String(studentId)}`;
     if (students.length === 0) return NextResponse.json({ error: "User not found" }, { status: 404 });
     
@@ -20,8 +20,6 @@ export async function GET(req) {
 
     const isPremium = student.subscription_status === 'premium';
 
-    // Check attempts: If they are premium, they have UNLIMITED access.
-    // We only check the Iron Gate for FREE users.
     if (!isPremium) {
       const history = await sql`
         SELECT COUNT(*) as count FROM cbt_permanent_logs 
@@ -34,7 +32,9 @@ export async function GET(req) {
       }
     }
 
-    const limit = isPremium ? 100 : 30;
+    // LOGIC: If Premium, use requested limit (max 100). If Free, force 30.
+    const limit = isPremium ? Math.min(requestedLimit, 100) : 30;
+    
     const courses = await sql`SELECT * FROM cbt_courses WHERE id::text = ${String(courseId)}`;
     const questions = await sql`SELECT * FROM cbt_questions WHERE course_id::text = ${String(courseId)} ORDER BY RANDOM() LIMIT ${limit}`;
 

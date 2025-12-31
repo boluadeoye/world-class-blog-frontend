@@ -5,7 +5,7 @@ import {
   LogOut, Trophy, BookOpen, Play, Award, 
   ChevronDown, Info, Crown, Clock, ChevronRight, 
   AlertTriangle, Layers, Headset, History, CheckCircle, Building2, Settings, Lock, Sparkles,
-  ChevronUp, MessageCircle, Megaphone, Bell, GraduationCap, FileText
+  ChevronUp, MessageCircle, Megaphone, Bell, GraduationCap, FileText, Target
 } from "lucide-react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -14,16 +14,19 @@ import LiveTracker from "../../../components/cbt/LiveTracker";
 
 const UpgradeModal = dynamic(() => import("../../../components/cbt/UpgradeModal"), { ssr: false });
 
+/* === 1. EXAM SETUP MODAL (UPGRADED) === */
 function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
   const [duration, setDuration] = useState(course.duration || 15);
+  const [qCount, setQCount] = useState(30); // Default loadout
   const isBlocked = !isPremium && course.user_attempts >= 2;
+
   return (
     <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in zoom-in duration-200">
       <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden border border-white">
         <div className={`${isBlocked ? 'bg-red-900' : 'bg-[#004d00]'} p-6 text-white relative`}>
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-400 to-green-400"></div>
           <h3 className="font-black text-xs uppercase tracking-[0.2em] flex items-center gap-2">
-            {isBlocked ? <Lock size={14} /> : <Settings size={14} />} {isBlocked ? "Access Denied" : "Session Config"}
+            {isBlocked ? <Lock size={14} /> : <Settings size={14} />} {isBlocked ? "Access Denied" : "Mission Config"}
           </h3>
           <p className="text-green-200 text-[10px] font-bold uppercase mt-1 tracking-widest">{course.code} • {course.title}</p>
         </div>
@@ -33,12 +36,13 @@ function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
               <div className="w-12 h-12 bg-red-50 text-red-600 rounded-xl flex items-center justify-center mx-auto mb-3 border border-red-100"><Lock size={24} /></div>
               <p className="text-gray-600 text-xs font-medium mb-6">You have exhausted your 2 free attempts.</p>
               <button onClick={onUpgrade} className="w-full py-3 bg-yellow-500 text-black rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg mb-2">Upgrade to Premium</button>
-              <button onClick={onClose} className="w-full py-3 text-gray-400 font-bold text-[9px] uppercase">Close</button>
+              <button onClick={onClose} className="w-full py-2 text-gray-400 font-bold text-[9px] uppercase">Close</button>
             </div>
           ) : (
             <>
+              {/* DURATION SELECTOR */}
               <div className="mb-6">
-                <label className="block text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3">Select Duration</label>
+                <label className="block text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3 flex items-center gap-2"><Clock size={10} /> Time Limit</label>
                 <div className="grid grid-cols-4 gap-2">
                   {[15, 30, 45, 60].map((time) => {
                     const isRestricted = !isPremium && time !== 15;
@@ -49,16 +53,34 @@ function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
                     );
                   })}
                 </div>
+              </div>
+
+              {/* QUESTION COUNT SELECTOR (NEW) */}
+              <div className="mb-6">
+                <label className="block text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3 flex items-center gap-2"><Target size={10} /> Question Load</label>
+                <div className="grid grid-cols-4 gap-2">
+                  {[20, 40, 60, 100].map((count) => {
+                    const isRestricted = !isPremium && count !== 30; // Free users stuck at 30 (default)
+                    // We display 30 for free users in the grid instead of 20/40 to avoid confusion? 
+                    // Actually, let's show the Premium options and lock them.
+                    return (
+                      <button key={count} disabled={isRestricted} onClick={() => setQCount(count)} className={`py-3 rounded-xl text-[10px] font-black transition-all relative overflow-hidden border ${qCount === count ? 'border-blue-600 bg-blue-50 text-blue-900 shadow-inner' : 'border-gray-100 text-gray-400 bg-gray-50'} ${isRestricted ? 'opacity-40' : ''}`}>
+                        {count} {isRestricted && <Lock size={8} className="absolute top-1 right-1" />}
+                      </button>
+                    );
+                  })}
+                </div>
                 {!isPremium && (
                   <button onClick={onUpgrade} className="mt-3 w-full flex items-center justify-center gap-2 text-[8px] text-yellow-700 bg-yellow-50 p-2.5 rounded-lg border border-yellow-100 hover:bg-yellow-100 transition-colors">
                     <Crown size={10} fill="currentColor" />
-                    <span className="font-black uppercase tracking-widest">Upgrade to unlock time control</span>
+                    <span className="font-black uppercase tracking-widest">Upgrade to unlock full control</span>
                   </button>
                 )}
               </div>
+
               <div className="flex gap-2">
                 <button onClick={onClose} className="flex-1 py-3 border border-gray-100 rounded-xl text-[9px] font-black text-gray-400 uppercase tracking-widest transition-all">Cancel</button>
-                <button onClick={() => onStart(duration)} className="flex-[2] py-3 bg-gray-900 text-white rounded-xl text-[9px] font-black shadow-xl hover:bg-black active:scale-95 uppercase tracking-widest flex items-center justify-center gap-2">Start <Play size={12} fill="currentColor" /></button>
+                <button onClick={() => onStart(duration, qCount)} className="flex-[1.5] py-3 bg-[#004d00] text-white rounded-xl text-[10px] font-black shadow-xl hover:bg-green-900 uppercase tracking-widest flex items-center justify-center gap-2">Start Mission <Play size={12} fill="currentColor" /></button>
               </div>
             </>
           )}
@@ -68,6 +90,7 @@ function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
   );
 }
 
+/* === 2. DISCLAIMER ACCORDION === */
 function DisclaimerCard() {
   const [isOpen, setIsOpen] = useState(true);
   return (
@@ -94,6 +117,7 @@ function DisclaimerCard() {
   );
 }
 
+/* === 3. COURSE CARD === */
 function CourseCard({ course, onLaunch, variant = "green", isPremium }) {
   const isGst = variant === "green";
   const isBlocked = !isPremium && course.user_attempts >= 2;
@@ -127,7 +151,6 @@ export default function StudentDashboard() {
   const [gstExpanded, setGstExpanded] = useState(true);
   const [othersExpanded, setOthersExpanded] = useState(false);
   const [historyExpanded, setHistoryExpanded] = useState(false);
-  
   const [unreadCount, setUnreadCount] = useState(0);
   const [totalForumPosts, setTotalForumPosts] = useState(0);
 
@@ -148,11 +171,12 @@ export default function StudentDashboard() {
 
     async function fetchData() {
       try {
-        const [syncRes, courseRes, lbRes, histRes] = await Promise.all([
+        const [syncRes, courseRes, lbRes, histRes, forumRes] = await Promise.all([
           fetch(`/api/cbt/auth/student-status?id=${parsed.id}`),
           fetch(`/api/cbt/courses?studentId=${parsed.id}`),
           fetch('/api/cbt/leaderboard'),
-          fetch(`/api/cbt/history?studentId=${parsed.id}`)
+          fetch(`/api/cbt/history?studentId=${parsed.id}`),
+          fetch(`/api/cbt/community/status?dept=${encodeURIComponent(parsed.department || 'General')}`)
         ]);
         
         const syncData = await syncRes.json();
@@ -167,29 +191,17 @@ export default function StudentDashboard() {
         setLeaders(Array.isArray(lbData) ? lbData : []); 
         const histData = await histRes.json();
         setExamHistory(Array.isArray(histData) ? histData : []);
+
+        const forumData = await forumRes.json();
+        const serverCount = forumData.count || 0;
+        setTotalForumPosts(serverCount);
+        const lastRead = parseInt(localStorage.getItem('cbt_forum_read_count') || '0');
+        if (serverCount > lastRead) setUnreadCount(serverCount - lastRead);
+
       } catch (e) { console.error(e); } finally { setLoading(false); }
     }
     fetchData();
   }, [router]);
-
-  // INDEPENDENT FORUM RADAR (Heartbeat every 10s)
-  useEffect(() => {
-    if (!student) return;
-    const checkForum = async () => {
-      try {
-        const res = await fetch(`/api/cbt/community/status?dept=${encodeURIComponent(student.department || 'General')}`);
-        const data = await res.json();
-        const serverCount = data.count || 0;
-        setTotalForumPosts(serverCount);
-        const lastRead = parseInt(localStorage.getItem('cbt_forum_read_count') || '0');
-        if (serverCount > lastRead) setUnreadCount(serverCount - lastRead);
-        else setUnreadCount(0);
-      } catch (e) {}
-    };
-    checkForum();
-    const interval = setInterval(checkForum, 10000);
-    return () => clearInterval(interval);
-  }, [student]);
 
   const handleForumEnter = () => {
     localStorage.setItem('cbt_forum_read_count', totalForumPosts.toString());
@@ -223,7 +235,7 @@ export default function StudentDashboard() {
       <LiveTracker />
       {statusModal && <StatusModal {...statusModal} />}
       {showUpgrade && <UpgradeModal student={student} onClose={() => setShowUpgrade(false)} onSuccess={() => window.location.reload()} />}
-      {setupCourse && <ExamSetupModal course={setupCourse} isPremium={isPremium} onClose={() => setSetupCourse(null)} onStart={(dur) => router.push(`/cbt/exam/${setupCourse.id}?duration=${dur}`)} onUpgrade={() => { setSetupCourse(null); setShowUpgrade(true); }} />}
+      {setupCourse && <ExamSetupModal course={setupCourse} isPremium={isPremium} onClose={() => setSetupCourse(null)} onStart={(dur, limit) => router.push(`/cbt/exam/${setupCourse.id}?duration=${dur}&limit=${limit || 30}`)} onUpgrade={() => { setSetupCourse(null); setShowUpgrade(true); }} />}
       
       <header className="bg-[#004d00] text-white pt-8 pb-20 px-6 rounded-b-[2.5rem] shadow-2xl relative z-10">
         <div className="flex justify-between items-center mb-8">
@@ -251,7 +263,6 @@ export default function StudentDashboard() {
       <div className="px-5 -mt-8 relative z-20 space-y-6">
         <DisclaimerCard />
 
-        {/* === COMMUNITY FORUM CARD (INTELLIGENT) === */}
         <Link href="/cbt/community" onClick={handleForumEnter} className="block">
           <div className="bg-gradient-to-r from-blue-900 to-blue-800 rounded-[2rem] p-6 shadow-xl shadow-blue-900/20 border border-blue-700 relative overflow-hidden group active:scale-[0.98] transition-transform">
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
