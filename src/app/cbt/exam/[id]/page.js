@@ -2,9 +2,9 @@
 import { useState, useEffect, useCallback, Suspense } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import {
-  Grid, CheckCircle, X, Crown, Sparkles,
-  BrainCircuit, Clock, ShieldAlert,
-  Loader2, Lock, Fingerprint, Scan
+  Grid, CheckCircle, AlertOctagon, X, Crown, Sparkles,
+  BrainCircuit, Clock, ChevronRight, ChevronLeft, ShieldAlert,
+  Loader2, BookOpen, Target, Zap, FileText, Lock, ShieldCheck, Fingerprint, Scan
 } from "lucide-react";
 import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";
@@ -13,24 +13,17 @@ import LiveTracker from "@/components/cbt/LiveTracker";
 const UpgradeModal = dynamic(() => import("@/components/cbt/UpgradeModal"), { ssr: false });
 
 /* === SECURITY WATERMARK === */
-const SecurityWatermark = ({ text }) => {
-  // Hydration safe: only render on client
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  if (!mounted) return null;
-
-  return (
-    <div className="fixed inset-0 z-[50] pointer-events-none overflow-hidden flex items-center justify-center opacity-[0.03]">
-      <div className="absolute inset-0 flex flex-wrap content-center justify-center gap-20 transform -rotate-12 scale-150">
-        {Array.from({ length: 20 }).map((_, i) => (
-          <div key={i} className="text-4xl font-black uppercase tracking-widest text-gray-900 whitespace-nowrap select-none">
-            {text} • OFFICIAL USE ONLY
-          </div>
-        ))}
-      </div>
+const SecurityWatermark = ({ text }) => (
+  <div className="fixed inset-0 z-[50] pointer-events-none overflow-hidden flex items-center justify-center opacity-[0.03]">
+    <div className="absolute inset-0 flex flex-wrap content-center justify-center gap-20 transform -rotate-12 scale-150">
+      {Array.from({ length: 20 }).map((_, i) => (
+        <div key={i} className="text-4xl font-black uppercase tracking-widest text-gray-900 whitespace-nowrap select-none">
+          {text} • OFFICIAL USE ONLY
+        </div>
+      ))}
     </div>
-  );
-};
+  </div>
+);
 
 function TimeUpOverlay() {
   return (
@@ -92,15 +85,14 @@ function ExamContent() {
   const [activeTab, setActiveTab] = useState("corrections");
   const [analysis, setAnalysis] = useState(null);
   const [analyzing, setAnalyzing] = useState(false);
+  
   const [limitReached, setLimitReached] = useState(false);
   const [showUpgrade, setShowUpgrade] = useState(false);
-  const [mounted, setMounted] = useState(false);
 
   const getStorageKey = useCallback((email) => `cbt_session_${params.id}_${email}`, [params.id]);
   const getConfigKey = useCallback((email) => `cbt_config_${params.id}_${email}`, [params.id]);
 
   useEffect(() => {
-    setMounted(true);
     const studentData = sessionStorage.getItem("cbt_student");
     if (!studentData) { router.push("/cbt"); return; }
     const parsedStudent = JSON.parse(studentData);
@@ -112,8 +104,6 @@ function ExamContent() {
         const reqLimit = searchParams.get('limit') || '30';
         const reqDur = searchParams.get('duration') || '15';
 
-        // === CONFIG HANDSHAKE ===
-        // If the user changed settings (e.g. 30mins -> 60mins), we MUST wipe the old save.
         const currentConfig = `${reqLimit}_${reqDur}`;
         const savedConfig = localStorage.getItem(getConfigKey(parsedStudent.email));
         const sessionKey = getStorageKey(parsedStudent.email);
@@ -187,6 +177,7 @@ function ExamContent() {
   }, [submitExam]);
 
   useEffect(() => {
+    if (!mounted && typeof window !== 'undefined') setMounted(true);
     if (!mounted || loading || isSubmitted || limitReached || timeLeft === null || showUpgrade || isTimeUp) return;
     const interval = setInterval(() => {
       setTimeLeft((prev) => {
@@ -274,6 +265,9 @@ function ExamContent() {
     const answeredCount = Object.keys(answers).length;
     return (
       <main className="min-h-screen bg-[#f0f2f5] font-sans pb-20 overflow-y-auto">
+        {/* FIX: INJECTED MODAL HERE */}
+        {showUpgrade && <UpgradeModal student={student} onClose={() => setShowUpgrade(false)} onSuccess={() => window.location.reload()} />}
+        
         <header className="bg-[#002b00] text-white pt-10 pb-20 px-6 rounded-b-[3rem] shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
           <div className="relative z-10 flex justify-between items-start mb-8">
@@ -346,6 +340,7 @@ function ExamContent() {
 
   return (
     <main className="h-screen flex flex-col bg-[#f0f2f5] font-sans overflow-hidden select-none relative">
+      {/* === SECURITY WATERMARK === */}
       <SecurityWatermark text={`${student?.name || 'CBT'} - ${safeId}`} />
       <LiveTracker />
       {isTimeUp && <TimeUpOverlay />}
