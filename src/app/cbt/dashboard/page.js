@@ -33,7 +33,7 @@ function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
               <div className="w-12 h-12 bg-red-50 text-red-600 rounded-xl flex items-center justify-center mx-auto mb-3 border border-red-100"><Lock size={24} /></div>
               <p className="text-gray-600 text-xs font-medium mb-6">You have exhausted your 2 free attempts.</p>
               <button onClick={onUpgrade} className="w-full py-3 bg-yellow-500 text-black rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg mb-2">Upgrade to Premium</button>
-              <button onClick={onClose} className="w-full py-2 text-gray-400 font-bold text-[9px] uppercase">Close</button>
+              <button onClick={onClose} className="w-full py-3 text-gray-400 font-bold text-[9px] uppercase">Close</button>
             </div>
           ) : (
             <>
@@ -127,6 +127,7 @@ export default function StudentDashboard() {
   const [gstExpanded, setGstExpanded] = useState(true);
   const [othersExpanded, setOthersExpanded] = useState(false);
   const [historyExpanded, setHistoryExpanded] = useState(false);
+  
   const [unreadCount, setUnreadCount] = useState(0);
   const [totalForumPosts, setTotalForumPosts] = useState(0);
 
@@ -147,12 +148,11 @@ export default function StudentDashboard() {
 
     async function fetchData() {
       try {
-        const [syncRes, courseRes, lbRes, histRes, forumRes] = await Promise.all([
+        const [syncRes, courseRes, lbRes, histRes] = await Promise.all([
           fetch(`/api/cbt/auth/student-status?id=${parsed.id}`),
           fetch(`/api/cbt/courses?studentId=${parsed.id}`),
           fetch('/api/cbt/leaderboard'),
-          fetch(`/api/cbt/history?studentId=${parsed.id}`),
-          fetch(`/api/cbt/community/status?dept=${encodeURIComponent(parsed.department || 'General')}`)
+          fetch(`/api/cbt/history?studentId=${parsed.id}`)
         ]);
         
         const syncData = await syncRes.json();
@@ -161,25 +161,35 @@ export default function StudentDashboard() {
           setStudent(updated);
           sessionStorage.setItem("cbt_student", JSON.stringify(updated));
         }
-        
         const courseData = await courseRes.json();
         setCourses(Array.isArray(courseData.courses) ? courseData.courses : []);
         const lbData = await lbRes.json();
         setLeaders(Array.isArray(lbData) ? lbData : []); 
         const histData = await histRes.json();
         setExamHistory(Array.isArray(histData) ? histData : []);
-
-        // FORUM NOTIFICATION LOGIC
-        const forumData = await forumRes.json();
-        const serverCount = forumData.count || 0;
-        setTotalForumPosts(serverCount);
-        const lastRead = parseInt(localStorage.getItem('cbt_forum_read_count') || '0');
-        if (serverCount > lastRead) setUnreadCount(serverCount - lastRead);
-
       } catch (e) { console.error(e); } finally { setLoading(false); }
     }
     fetchData();
   }, [router]);
+
+  // INDEPENDENT FORUM RADAR (Heartbeat every 10s)
+  useEffect(() => {
+    if (!student) return;
+    const checkForum = async () => {
+      try {
+        const res = await fetch(`/api/cbt/community/status?dept=${encodeURIComponent(student.department || 'General')}`);
+        const data = await res.json();
+        const serverCount = data.count || 0;
+        setTotalForumPosts(serverCount);
+        const lastRead = parseInt(localStorage.getItem('cbt_forum_read_count') || '0');
+        if (serverCount > lastRead) setUnreadCount(serverCount - lastRead);
+        else setUnreadCount(0);
+      } catch (e) {}
+    };
+    checkForum();
+    const interval = setInterval(checkForum, 10000);
+    return () => clearInterval(interval);
+  }, [student]);
 
   const handleForumEnter = () => {
     localStorage.setItem('cbt_forum_read_count', totalForumPosts.toString());

@@ -9,20 +9,19 @@ export async function GET(req) {
     const dept = searchParams.get('dept') || 'General';
 
     // THE UNIVERSAL COUNT:
-    // 1. Posts matching student's dept (Case Insensitive)
-    // 2. Posts with NULL or Empty department (Global)
-    // 3. Posts marked as Admin/Announcement
+    // Counts everything the student is allowed to see.
     const result = await sql`
       SELECT COUNT(*) as count 
       FROM cbt_posts 
-      WHERE (TRIM(LOWER(department)) = TRIM(LOWER(${dept})))
-         OR (department IS NULL OR department = '' OR department = 'General')
+      WHERE (LOWER(TRIM(department)) = LOWER(TRIM(${dept})))
+         OR (department IS NULL OR department = '' OR LOWER(department) = 'general')
          OR (is_admin = TRUE OR is_announcement = TRUE)
     `;
 
     const count = parseInt(result[0].count || 0);
     return NextResponse.json({ count }, { status: 200 });
   } catch (error) {
+    console.error("Status API Error:", error.message);
     return NextResponse.json({ count: 0 }, { status: 200 });
   }
 }
