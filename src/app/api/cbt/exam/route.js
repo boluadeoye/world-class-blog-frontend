@@ -1,8 +1,6 @@
 import sql from '@/lib/db';
 import { NextResponse } from 'next/server';
-
 export const dynamic = 'force-dynamic';
-
 export async function GET(req) {
   try {
     const { searchParams } = req.nextUrl;
@@ -10,7 +8,6 @@ export async function GET(req) {
     const studentId = searchParams.get('studentId');
     const token = searchParams.get('token');
     const deviceId = searchParams.get('deviceId');
-    // READ THE LIMIT (Default to 30 if missing)
     const requestedLimit = parseInt(searchParams.get('limit') || '30');
 
     if (!courseId || !studentId || !token) return NextResponse.json({ error: "Violation" }, { status: 400 });
@@ -23,7 +20,6 @@ export async function GET(req) {
 
     const isPremium = student.subscription_status === 'premium';
 
-    // IRON GATE: Check attempts for Free Users
     if (!isPremium) {
       const history = await sql`
         SELECT COUNT(*) as count FROM cbt_permanent_logs 
@@ -36,16 +32,10 @@ export async function GET(req) {
       }
     }
 
-    // LOGIC: If Premium, use requested limit (max 100). If Free, force 30.
     const limit = isPremium ? Math.min(requestedLimit, 100) : 30;
-    
     const courses = await sql`SELECT * FROM cbt_courses WHERE id::text = ${String(courseId)}`;
-    // FETCH QUESTIONS WITH LIMIT
     const questions = await sql`SELECT * FROM cbt_questions WHERE course_id::text = ${String(courseId)} ORDER BY RANDOM() LIMIT ${limit}`;
 
     return NextResponse.json({ course: courses[0], questions, isPremium, attempts: 0 }, { status: 200 });
-  } catch (error) { 
-    console.error("EXAM_API_ERROR:", error.message);
-    return NextResponse.json({ error: "System Error" }, { status: 500 }); 
-  }
+  } catch (error) { return NextResponse.json({ error: "System Error" }, { status: 500 }); }
 }
