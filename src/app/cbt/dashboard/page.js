@@ -14,7 +14,7 @@ import LiveTracker from "../../../components/cbt/LiveTracker";
 
 const UpgradeModal = dynamic(() => import("../../../components/cbt/UpgradeModal"), { ssr: false });
 
-/* === 1. EXAM SETUP MODAL (UPGRADED) === */
+/* === 1. EXAM SETUP MODAL (FIXED) === */
 function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
   const [duration, setDuration] = useState(course.duration || 15);
   const [qCount, setQCount] = useState(30); // Default loadout
@@ -55,14 +55,12 @@ function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
                 </div>
               </div>
 
-              {/* QUESTION COUNT SELECTOR (NEW) */}
+              {/* QUESTION COUNT SELECTOR */}
               <div className="mb-6">
                 <label className="block text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3 flex items-center gap-2"><Target size={10} /> Question Load</label>
                 <div className="grid grid-cols-4 gap-2">
                   {[20, 40, 60, 100].map((count) => {
-                    const isRestricted = !isPremium && count !== 30; // Free users stuck at 30 (default)
-                    // We display 30 for free users in the grid instead of 20/40 to avoid confusion? 
-                    // Actually, let's show the Premium options and lock them.
+                    const isRestricted = !isPremium && count !== 30; 
                     return (
                       <button key={count} disabled={isRestricted} onClick={() => setQCount(count)} className={`py-3 rounded-xl text-[10px] font-black transition-all relative overflow-hidden border ${qCount === count ? 'border-blue-600 bg-blue-50 text-blue-900 shadow-inner' : 'border-gray-100 text-gray-400 bg-gray-50'} ${isRestricted ? 'opacity-40' : ''}`}>
                         {count} {isRestricted && <Lock size={8} className="absolute top-1 right-1" />}
@@ -80,6 +78,7 @@ function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
 
               <div className="flex gap-2">
                 <button onClick={onClose} className="flex-1 py-3 border border-gray-100 rounded-xl text-[9px] font-black text-gray-400 uppercase tracking-widest transition-all">Cancel</button>
+                {/* FIX: Added qCount to the onStart call */}
                 <button onClick={() => onStart(duration, qCount)} className="flex-[1.5] py-3 bg-[#004d00] text-white rounded-xl text-[10px] font-black shadow-xl hover:bg-green-900 uppercase tracking-widest flex items-center justify-center gap-2">Start Mission <Play size={12} fill="currentColor" /></button>
               </div>
             </>
@@ -151,6 +150,7 @@ export default function StudentDashboard() {
   const [gstExpanded, setGstExpanded] = useState(true);
   const [othersExpanded, setOthersExpanded] = useState(false);
   const [historyExpanded, setHistoryExpanded] = useState(false);
+  
   const [unreadCount, setUnreadCount] = useState(0);
   const [totalForumPosts, setTotalForumPosts] = useState(0);
 
