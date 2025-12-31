@@ -108,7 +108,18 @@ function ExamContent() {
 
     async function loadExam() {
       try {
-        const query = new URLSearchParams({ courseId: params.id, studentId: parsedStudent.id, token: parsedStudent.session_token || "" });
+        // FIX: Retrieve Hardware ID and Limit
+        const hwId = localStorage.getItem("cbt_hw_id") || "unknown";
+        const limit = searchParams.get('limit') || '30';
+
+        const query = new URLSearchParams({ 
+          courseId: params.id, 
+          studentId: parsedStudent.id, 
+          token: parsedStudent.session_token || "",
+          deviceId: hwId, // Send Device ID
+          limit: limit    // Send Question Limit
+        });
+
         const res = await fetch(`/api/cbt/exam?${query.toString()}`);
         if (!res.ok) {
             if (res.status === 401) { router.push("/cbt"); return; }
