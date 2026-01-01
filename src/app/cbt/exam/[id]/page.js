@@ -4,56 +4,14 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Grid, CheckCircle, X, Crown, Sparkles, BrainCircuit, Clock, Fingerprint, Scan, Lock, Zap, BookOpen } from "lucide-react";
 import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";
+import LiveTracker from "@/components/cbt/LiveTracker";
 
-/* === 1. INTERNAL LIVE TRACKER (The Spy) === */
-function LiveTracker() {
-  const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
-  useEffect(() => {
-    const generateFingerprint = () => {
-      try {
-        const signals = [navigator.userAgent, navigator.language, screen.width + 'x' + screen.height].join('||');
-        let hash = 0;
-        for (let i = 0; i < signals.length; i++) {
-          const char = signals.charCodeAt(i);
-          hash = ((hash << 5) - hash) + char;
-          hash = hash & hash;
-        }
-        return 'fp_' + Math.abs(hash).toString(36);
-      } catch (e) { return 'fp_fallback_' + Math.random().toString(36).substring(7); }
-    };
+// !!! COMMANDER: REPLACE THIS LINK WITH YOUR REAL PAYSTACK PAGE !!!
+const PAYSTACK_URL = "https://paystack.com/pay/examforge-premium"; 
 
-    const initTracker = async () => {
-      const stickyId = generateFingerprint();
-      localStorage.setItem("cbt_hw_id", stickyId);
-      const stored = sessionStorage.getItem("cbt_student");
-      if (!stored) return;
-      const student = JSON.parse(stored);
-      try {
-        await fetch("/api/cbt/heartbeat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            studentId: student.id,
-            name: student.name,
-            page: pathname,
-            action: pathname.includes("exam") ? "Taking Exam" : "Browsing Dashboard",
-            deviceId: stickyId
-          })
-        });
-      } catch (e) {}
-    };
-    initTracker();
-    const interval = setInterval(initTracker, 15000);
-    return () => clearInterval(interval);
-  }, [pathname]);
-  return null;
-}
-
-/* === 2. INTERNAL UPGRADE MODAL (Classic Orange) === */
+/* === INTERNAL UPGRADE MODAL === */
 function InternalUpgradeModal({ student, onClose, onSuccess }) {
-  const PAYSTACK_LINK = "https://paystack.com/pay/examforge-premium"; 
   const [loading, setLoading] = useState(false);
-  
   const handleVerify = async () => {
     const ref = prompt("Enter Paystack Reference:");
     if (!ref) return;
@@ -65,7 +23,7 @@ function InternalUpgradeModal({ student, onClose, onSuccess }) {
         body: JSON.stringify({ reference: ref, studentId: student.id })
       });
       const data = await res.json();
-      if (data.success) { alert("Upgrade Successful! Welcome to the Elite."); onSuccess(); } 
+      if (data.success) { alert("Upgrade Successful!"); onSuccess(); } 
       else { alert("Verification Failed: " + data.error); }
     } catch (e) { alert("System Error"); }
     setLoading(false);
@@ -83,22 +41,15 @@ function InternalUpgradeModal({ student, onClose, onSuccess }) {
           <p className="text-white/90 text-[10px] font-bold mt-1 uppercase tracking-widest">Unlock the Full Arsenal</p>
         </div>
         <div className="p-6">
-          <div className="space-y-4 mb-6">
-            <div className="flex items-center gap-3"><div className="w-8 h-8 rounded-lg bg-green-50 text-green-600 flex items-center justify-center shrink-0"><Sparkles size={16} /></div><p className="text-[10px] font-bold text-gray-700 uppercase tracking-wide">Personalized AI Analysis</p></div>
-            <div className="flex items-center gap-3"><div className="w-8 h-8 rounded-lg bg-green-50 text-green-600 flex items-center justify-center shrink-0"><BookOpen size={16} /></div><p className="text-[10px] font-bold text-gray-700 uppercase tracking-wide">Full 100+ Question Bank</p></div>
-            <div className="flex items-center gap-3"><div className="w-8 h-8 rounded-lg bg-green-50 text-green-600 flex items-center justify-center shrink-0"><Zap size={16} /></div><p className="text-[10px] font-bold text-gray-700 uppercase tracking-wide">Unlimited Exam Retakes</p></div>
-            <div className="flex items-center gap-3"><div className="w-8 h-8 rounded-lg bg-green-50 text-green-600 flex items-center justify-center shrink-0"><Clock size={16} /></div><p className="text-[10px] font-bold text-gray-700 uppercase tracking-wide">Customize Exam Duration</p></div>
-          </div>
-          <a href={PAYSTACK_LINK} target="_blank" className="block w-full py-3.5 bg-[#0a0a0a] text-white text-center rounded-xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl hover:scale-[1.02] transition-transform mb-2">Pay ₦500 Now</a>
+          <a href={PAYSTACK_URL} target="_blank" className="block w-full py-3.5 bg-[#0a0a0a] text-white text-center rounded-xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl hover:scale-[1.02] transition-transform mb-2">Pay ₦500 Now</a>
           <button onClick={handleVerify} disabled={loading} className="w-full py-3 text-gray-400 font-bold text-[9px] uppercase tracking-widest hover:text-gray-600">{loading ? "Verifying..." : "I Have Already Paid"}</button>
-          <p className="text-[7px] text-center text-gray-300 font-black uppercase tracking-widest mt-4">Secure 7-Day Access • Paystack Secured</p>
         </div>
       </div>
     </div>
   );
 }
 
-/* === 3. SECURITY WATERMARK === */
+/* === SECURITY WATERMARK === */
 const SecurityWatermark = ({ text }) => (
   <div className="fixed inset-0 z-[50] pointer-events-none overflow-hidden flex items-center justify-center opacity-[0.03]">
     <div className="absolute inset-0 flex flex-wrap content-center justify-center gap-20 transform -rotate-12 scale-150">
@@ -267,7 +218,14 @@ function ExamContent() {
     return () => clearInterval(interval);
   }, [loading, isSubmitted, limitReached, showUpgrade, mounted, answers, currentQIndex, student, getStorageKey, handleAutoSubmit, isTimeUp]);
 
-  const handleSelect = (option) => { if (!isSubmitted && !isTimeUp) setAnswers(prev => ({ ...prev, [questions[currentQIndex].id]: option })); };
+  // FIX: Robust Selection Handler
+  const handleSelect = (option) => { 
+    if (!isSubmitted && !isTimeUp && questions[currentQIndex]) {
+      const qId = questions[currentQIndex].id;
+      setAnswers(prev => ({ ...prev, [qId]: option })); 
+    }
+  };
+
   const formatTime = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
   const navigateTo = (index) => { setCurrentQIndex(index); setShowMap(false); };
 
@@ -296,7 +254,6 @@ function ExamContent() {
   if (limitReached) return (
     <div className="min-h-screen bg-[#002b00] flex flex-col items-center justify-center p-6 relative overflow-hidden">
       {showUpgrade && <InternalUpgradeModal student={student} onClose={() => setShowUpgrade(false)} onSuccess={() => window.location.reload()} />}
-      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20"></div>
       <div className="relative z-10 bg-white rounded-[2.5rem] max-w-sm w-full text-center shadow-2xl overflow-hidden">
          <div className="bg-[#004d00] p-8 relative">
             <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg"><Lock size={40} className="text-[#004d00]" /></div>
@@ -314,7 +271,6 @@ function ExamContent() {
 
   if (loading) return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#002b00] text-white relative overflow-hidden">
-      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20"></div>
       <div className="relative z-10 flex flex-col items-center">
         <div className="w-24 h-24 border-4 border-white/10 rounded-full flex items-center justify-center mb-8 relative">
           <div className="absolute inset-0 border-4 border-t-white rounded-full animate-spin"></div>
