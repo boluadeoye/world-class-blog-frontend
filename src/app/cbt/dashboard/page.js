@@ -14,7 +14,7 @@ import LiveTracker from "@/components/cbt/LiveTracker";
 
 const UpgradeModal = dynamic(() => import("@/components/cbt/UpgradeModal"), { ssr: false });
 
-/* === 1. LOGOUT CONFIRMATION MODAL (STABLE) === */
+/* === 1. LOGOUT CONFIRMATION MODAL === */
 function LogoutModal({ onConfirm, onCancel }) {
   return (
     <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/90 backdrop-blur-sm p-6 animate-in fade-in">
@@ -265,7 +265,7 @@ export default function StudentDashboard() {
       {showUpgrade && <UpgradeModal student={student} onClose={() => setShowUpgrade(false)} onSuccess={() => window.location.reload()} />}
       {setupCourse && <ExamSetupModal course={setupCourse} isPremium={isPremium} onClose={() => setSetupCourse(null)} onStart={(dur, limit) => router.push(`/cbt/exam/${setupCourse.id}?duration=${dur}&limit=${limit || 30}`)} onUpgrade={() => { setSetupCourse(null); setShowUpgrade(true); }} />}
 
-      <header className="bg-[#004d00] text-white pt-10 pb-24 px-8 rounded-b-[3rem] shadow-2xl relative z-10 overflow-hidden">
+      <header className="bg-[#004d00] text-white pt-10 pb-24 px-5 pr-9 rounded-b-[3rem] shadow-2xl relative z-10 overflow-hidden">
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#003300]/20 to-[#002200]/40"></div>
         
@@ -286,8 +286,8 @@ export default function StudentDashboard() {
             </div>
           </div>
 
-          {/* === OFFICIAL SESSION CARD (ROUNDED & DARK GREEN) === */}
-          <div className="bg-[#002200] border border-green-900/30 p-5 flex items-center justify-between shadow-lg relative overflow-hidden rounded-3xl">
+          {/* === OFFICIAL SESSION CARD (EXPANDED & ROUNDED) === */}
+          <div className="bg-[#002200] border border-green-900/30 py-8 px-6 flex items-center justify-between shadow-lg relative overflow-hidden rounded-3xl">
             <div className="relative z-10">
               <p className="text-[9px] font-bold text-green-400 uppercase tracking-widest mb-0.5">Current Session</p>
               <p className="font-black text-sm text-white tracking-widest uppercase whitespace-nowrap">EXAMFORGE SESSION 2026</p>
