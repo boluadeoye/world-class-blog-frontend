@@ -14,7 +14,7 @@ import LiveTracker from "@/components/cbt/LiveTracker";
 
 const UpgradeModal = dynamic(() => import("@/components/cbt/UpgradeModal"), { ssr: false });
 
-/* === 1. LOGOUT CONFIRMATION MODAL === */
+/* === 1. LOGOUT CONFIRMATION MODAL (STABLE) === */
 function LogoutModal({ onConfirm, onCancel }) {
   return (
     <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/90 backdrop-blur-sm p-6 animate-in fade-in">
@@ -95,8 +95,7 @@ function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
     </div>
   );
 }
-
-/* === 3. IMPORTANT DISCLAIMER === */
+/* === 3. IMPORTANT DISCLAIMER (BEIGE/ORANGE - TARGET) === */
 function DisclaimerCard() {
   const [isOpen, setIsOpen] = useState(true);
   return (
@@ -159,7 +158,6 @@ function CourseCard({ course, onLaunch, isPremium }) {
     </div>
   );
 }
-
 export default function StudentDashboard() {
   const router = useRouter();
   const [student, setStudent] = useState(null);
@@ -225,21 +223,6 @@ export default function StudentDashboard() {
     fetchData();
   }, [router]);
 
-  // === REAL-TIME LEADERBOARD POLLING ===
-  useEffect(() => {
-    const pollLeaderboard = async () => {
-      try {
-        const res = await fetch('/api/cbt/leaderboard');
-        if (res.ok) {
-          const data = await res.json();
-          setLeaders(Array.isArray(data) ? data : []);
-        }
-      } catch (e) { /* Silent fail */ }
-    };
-    const interval = setInterval(pollLeaderboard, 10000); // Poll every 10s
-    return () => clearInterval(interval);
-  }, []);
-
   const handleForumEnter = () => {
     localStorage.setItem('cbt_forum_read_count', totalForumPosts.toString());
     setUnreadCount(0);
@@ -287,7 +270,7 @@ export default function StudentDashboard() {
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#003300]/20 to-[#002200]/40"></div>
         
         <div className="relative z-10">
-          <div className="flex justify-between items-center mb-8 pl-5 pr-9">
+          <div className="flex justify-between items-center mb-8">
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center border-2 border-white/20 shadow-lg overflow-visible relative group">
                 <div className="w-full h-full rounded-2xl overflow-hidden">
@@ -297,26 +280,22 @@ export default function StudentDashboard() {
               </div>
               <div><p className="text-green-200 text-[9px] font-black uppercase tracking-[0.2em] mb-1">{greeting}</p><h1 className="text-2xl font-black leading-none truncate w-48 tracking-tight">{student.name.split(" ")[0]}</h1></div>
             </div>
-            <div className="flex gap-2">
-              <a href="https://wa.me/2348106293674" target="_blank" className="bg-green-500 p-3 rounded-2xl border border-green-400 text-white shadow-[0_0_20px_rgba(34,197,94,0.6)] animate-pulse hover:scale-105 transition-all"><Headset size={20} /></a>
+            <div className="flex gap-3">
+              <a href="https://wa.me/2348106293674" target="_blank" className="bg-green-600 p-3 rounded-2xl border border-green-500 text-white shadow-[0_0_20px_rgba(34,197,94,0.6)] animate-pulse hover:scale-105 transition-all"><Headset size={20} /></a>
               <button onClick={() => setShowLogoutConfirm(true)} className="bg-white/10 p-3 rounded-2xl border border-white/10 text-red-200 hover:bg-red-600 hover:text-white transition-all active:scale-95"><LogOut size={20} /></button>
             </div>
           </div>
 
-          {/* === EXPANDED SESSION CARD (STEALTH MODE) === */}
-          <div className="bg-[#002200] border border-green-900/30 py-10 px-8 flex items-center justify-between shadow-lg relative overflow-hidden rounded-[3rem]">
+          {/* === ADEOLU STYLE SESSION CARD (DARK GREEN + WHITE BADGE) === */}
+          <div className="bg-[#003300] border border-white/10 rounded-3xl p-6 flex items-center justify-between shadow-inner relative overflow-hidden">
             <div className="relative z-10">
-              <p className="text-[10px] font-bold text-green-500/80 uppercase tracking-widest mb-1">Current Session</p>
-              <p className="font-black text-base text-white tracking-widest uppercase whitespace-nowrap">EXAMFORGE SESSION 2026</p>
+              <p className="text-[9px] font-bold text-green-400 uppercase tracking-widest mb-1">Current Session</p>
+              <p className="font-black text-sm text-white tracking-widest uppercase whitespace-nowrap">EXAMFORGE SESSION 2026</p>
             </div>
-            <div className="flex items-center gap-2 bg-[#001a00] border border-green-900/30 px-3 py-1.5 rounded-sm shadow-sm">
-              <div className="w-1.5 h-1.5 rounded-full bg-green-700 animate-pulse"></div>
-              <span className="text-[9px] font-bold text-green-700 uppercase tracking-widest">Active</span>
-            </div>
+            <div className="bg-white text-[#004d00] px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg">Active</div>
           </div>
         </div>
       </header>
-
       <div className="px-5 -mt-12 relative z-20 space-y-8">
         <DisclaimerCard />
         <Link href="/cbt/community" onClick={handleForumEnter} className="block group">
