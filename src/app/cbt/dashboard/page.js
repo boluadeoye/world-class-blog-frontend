@@ -96,24 +96,26 @@ function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
   );
 }
 
-/* === 3. ACADEMIC PROTOCOL (RED ALERT) === */
+/* === 3. IMPORTANT DISCLAIMER (BEIGE/ORANGE - RESTORED) === */
 function DisclaimerCard() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
   return (
-    <div className="bg-red-50 rounded-xl overflow-hidden mb-6 shadow-sm border border-red-100">
-      <button onClick={() => setIsOpen(!isOpen)} className="w-full flex items-center justify-between p-4 text-left group hover:bg-red-100 transition-colors">
-        <div className="flex items-center gap-3">
-          <div className="text-red-600 bg-white p-1.5 rounded-lg shadow-sm"><AlertTriangle size={18} /></div>
-          <div><h3 className="font-black text-xs text-red-800 uppercase tracking-widest">Examination Protocol</h3></div>
+    <div className="bg-[#FFF8F0] rounded-[2rem] overflow-hidden mb-6 shadow-sm border border-orange-50/50">
+      <button onClick={() => setIsOpen(!isOpen)} className="w-full flex items-center justify-between p-6 text-left">
+        <div className="flex items-center gap-4">
+          <div className="bg-orange-100 w-10 h-10 flex items-center justify-center rounded-full text-orange-600 shadow-inner"><Info size={18} /></div>
+          <div><h3 className="font-black text-xs text-[#5A3A29] uppercase tracking-wide">Important Disclaimer</h3><p className="text-[9px] text-orange-400 font-bold mt-0.5">Read before starting</p></div>
         </div>
-        <div className={`transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}><ChevronDown size={14} className="text-red-400" /></div>
+        <ChevronDown size={16} className={`text-orange-300 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
       {isOpen && (
-        <div className="px-5 pb-6 text-[10px] text-red-900 leading-relaxed border-t border-red-200 pt-4 bg-red-50/50">
+        <div className="px-6 pb-8 text-[10px] text-[#8B5E3C] leading-relaxed border-t border-orange-100/50 pt-4">
+          <p className="mb-3 font-black text-[#5A3A29] uppercase tracking-widest text-[9px]">Strict Warning:</p>
           <ul className="space-y-2 font-medium">
-            <li className="flex gap-2"><span className="text-red-600 font-bold">•</span> <span>This module is for <strong>academic conditioning</strong>.</span></li>
-            <li className="flex gap-2"><span className="text-red-600 font-bold">•</span> <span>Adhere strictly to the <strong>time constraints</strong>.</span></li>
-            <li className="flex gap-2"><span className="text-red-600 font-bold">•</span> <span>Performance here is indicative, not absolute.</span></li>
+            <li className="flex gap-2"><span className="text-orange-400 font-black">•</span> <span>The purpose of this mock is <strong>NOT</strong> to expose likely questions.</span></li>
+            <li className="flex gap-2"><span className="text-orange-400 font-black">•</span> <span>The aim is to <strong>simulate the environment</strong> psychologically.</span></li>
+            <li className="flex gap-2"><span className="text-orange-400 font-black">•</span> <span>Use this to practice <strong>time management</strong>.</span></li>
+            <li className="flex gap-2"><span className="text-orange-400 font-black">•</span> <span>Success here <strong>does not guarantee success</strong> in the main exam; this is purely for preparation.</span></li>
           </ul>
         </div>
       )}
@@ -168,7 +170,7 @@ export default function StudentDashboard() {
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  const [greeting, setGreeting] = useState("WELCOME SCHOLAR");
+  const [greeting, setGreeting] = useState("GOOD DAY");
   const [avatarUrl, setAvatarUrl] = useState("");
   const [setupCourse, setSetupCourse] = useState(null);
   const [historyExpanded, setHistoryExpanded] = useState(false);
@@ -270,7 +272,7 @@ export default function StudentDashboard() {
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#003300]/20 to-[#002200]/40"></div>
         
         <div className="relative z-10">
-          <div className="flex justify-between items-center mb-8 pl-5 pr-9">
+          <div className="flex justify-between items-center mb-8">
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center border-2 border-white/20 shadow-lg overflow-visible relative group">
                 <div className="w-full h-full rounded-2xl overflow-hidden">
@@ -280,21 +282,21 @@ export default function StudentDashboard() {
               </div>
               <div><p className="text-green-200 text-[9px] font-black uppercase tracking-[0.2em] mb-1">{greeting}</p><h1 className="text-2xl font-black leading-none truncate w-48 tracking-tight">{student.name.split(" ")[0]}</h1></div>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-3">
               <a href="https://wa.me/2348106293674" target="_blank" className="bg-green-500 p-3 rounded-2xl border border-green-400 text-white shadow-[0_0_20px_rgba(34,197,94,0.6)] animate-pulse hover:scale-105 transition-all"><Headset size={20} /></a>
               <button onClick={() => setShowLogoutConfirm(true)} className="bg-white/10 p-3 rounded-2xl border border-white/10 text-red-200 hover:bg-red-600 hover:text-white transition-all active:scale-95"><LogOut size={20} /></button>
             </div>
           </div>
 
-          {/* === EXPANDED SESSION CARD (STEALTH MODE) === */}
-          <div className="bg-[#002200] border border-green-900/30 py-10 px-8 flex items-center justify-between shadow-lg relative overflow-hidden rounded-3xl">
+          {/* === RESTORED SESSION CARD (ROUNDED & DARK GREEN) === */}
+          <div className="bg-[#003300] border border-white/10 rounded-3xl p-6 flex items-center justify-between shadow-inner relative overflow-hidden">
             <div className="relative z-10">
-              <p className="text-[10px] font-bold text-green-500/80 uppercase tracking-widest mb-1">Current Session</p>
-              <p className="font-black text-base text-white tracking-widest uppercase whitespace-nowrap">EXAMFORGE SESSION 2026</p>
+              <p className="text-[9px] font-bold text-green-400 uppercase tracking-widest mb-1">Current Session</p>
+              <p className="font-black text-sm text-white tracking-widest uppercase whitespace-nowrap">EXAMFORGE SESSION 2026</p>
             </div>
-            <div className="flex items-center gap-2 bg-[#001a00] border border-green-900/30 px-3 py-1.5 rounded-sm shadow-sm">
-              <div className="w-1.5 h-1.5 rounded-full bg-green-700 animate-pulse"></div>
-              <span className="text-[9px] font-bold text-green-700 uppercase tracking-widest">Active</span>
+            <div className="bg-white text-[#004d00] px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-green-600 animate-pulse"></div>
+              ACTIVE
             </div>
           </div>
         </div>
