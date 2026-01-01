@@ -6,7 +6,7 @@ import {
   ChevronDown, Info, Crown, Clock, ChevronRight,
   AlertTriangle, Layers, Headset, History, CheckCircle, Settings, Lock, Sparkles,
   ChevronUp, MessageCircle, GraduationCap, FileText, Target, Zap, ShieldCheck, Search,
-  Library, Landmark, Microscope, PenTool, Database
+  Library, Landmark, Microscope, PenTool, Database, X
 } from "lucide-react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -14,26 +14,19 @@ import LiveTracker from "@/components/cbt/LiveTracker";
 
 const UpgradeModal = dynamic(() => import("@/components/cbt/UpgradeModal"), { ssr: false });
 
-/* === 1. INTERNAL COMPONENT: STATUS MODAL (CRASH FIX) === */
-function InternalStatusModal({ type, title, message, actionLabel, onAction, onCancel }) {
-  const configs = {
-    success: { icon: <CheckCircle className="text-green-600" size={40} />, bg: "bg-green-50", btn: "bg-green-700 hover:bg-green-800" },
-    error: { icon: <XCircle className="text-red-600" size={40} />, bg: "bg-red-50", btn: "bg-red-600 hover:bg-red-700" },
-    warning: { icon: <AlertTriangle className="text-orange-600" size={40} />, bg: "bg-orange-50", btn: "bg-orange-600 hover:bg-orange-700" },
-    logout: { icon: <LogOut className="text-red-600" size={40} />, bg: "bg-red-50", btn: "bg-red-600 hover:bg-red-700" }
-  };
-  const config = configs[type] || configs.error;
+/* === 1. LOGOUT CONFIRMATION MODAL (STABLE) === */
+function LogoutModal({ onConfirm, onCancel }) {
   return (
-    <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/80 backdrop-blur-sm p-6 animate-in fade-in">
+    <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/90 backdrop-blur-sm p-6 animate-in fade-in">
       <div className="bg-white rounded-[2rem] shadow-2xl max-w-sm w-full overflow-hidden border border-gray-100">
-        <div className={`${config.bg} p-10 flex flex-col items-center text-center`}>
-          <div className="mb-4 drop-shadow-sm">{config.icon}</div>
-          <h3 className="font-black text-xl text-gray-900 uppercase tracking-tight mb-2">{title}</h3>
-          <p className="text-gray-600 text-sm font-medium leading-relaxed">{message}</p>
+        <div className="bg-red-50 p-8 flex flex-col items-center text-center">
+          <div className="mb-4 bg-red-100 p-3 rounded-full text-red-600"><LogOut size={32} /></div>
+          <h3 className="font-black text-xl text-red-900 uppercase tracking-tight mb-2">End Session?</h3>
+          <p className="text-gray-600 text-sm font-medium leading-relaxed">Confirm disconnection from the secure academic portal.</p>
         </div>
         <div className="p-6 bg-white flex gap-3">
-          {onCancel && <button onClick={onCancel} className="flex-1 py-4 border-2 border-gray-100 rounded-2xl text-xs font-black text-gray-400 uppercase tracking-widest">Cancel</button>}
-          <button onClick={onAction} className={`flex-[1.5] py-4 ${config.btn} text-white rounded-2xl text-xs font-black shadow-lg uppercase tracking-widest`}>{actionLabel || "Acknowledge"}</button>
+          <button onClick={onCancel} className="flex-1 py-4 border-2 border-gray-100 rounded-2xl text-xs font-black text-gray-400 uppercase tracking-widest hover:bg-gray-50">Cancel</button>
+          <button onClick={onConfirm} className="flex-[1.5] py-4 bg-red-600 text-white rounded-2xl text-xs font-black shadow-lg uppercase tracking-widest hover:bg-red-700">Logout</button>
         </div>
       </div>
     </div>
@@ -102,6 +95,7 @@ function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
     </div>
   );
 }
+
 /* === 3. ACADEMIC PROTOCOL (RED ALERT) === */
 function DisclaimerCard() {
   const [isOpen, setIsOpen] = useState(false);
@@ -163,6 +157,7 @@ function CourseCard({ course, onLaunch, isPremium }) {
     </div>
   );
 }
+
 export default function StudentDashboard() {
   const router = useRouter();
   const [student, setStudent] = useState(null);
@@ -172,7 +167,7 @@ export default function StudentDashboard() {
   const [loading, setLoading] = useState(true);
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [statusModal, setStatusModal] = useState(null);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [greeting, setGreeting] = useState("WELCOME SCHOLAR");
   const [avatarUrl, setAvatarUrl] = useState("");
   const [setupCourse, setSetupCourse] = useState(null);
@@ -233,12 +228,9 @@ export default function StudentDashboard() {
     setUnreadCount(0);
   };
 
-  const triggerLogout = () => {
-    setStatusModal({
-      type: 'logout', title: 'End Session?', message: 'Confirm disconnection from the academic portal.', actionLabel: 'Logout',
-      onAction: () => { sessionStorage.removeItem("cbt_student"); router.push("/cbt"); },
-      onCancel: () => setStatusModal(null)
-    });
+  const handleLogout = () => {
+    sessionStorage.removeItem("cbt_student");
+    router.push("/cbt");
   };
 
   if (!mounted || !student) return null;
@@ -265,14 +257,15 @@ export default function StudentDashboard() {
       <p className="text-green-200 font-black text-[10px] uppercase tracking-[0.4em] animate-pulse">Loading Modules...</p>
     </div>
   );
+
   return (
     <main className="min-h-screen bg-[#f8f9fa] font-sans text-gray-900 pb-48 relative selection:bg-green-200">
       <LiveTracker />
-      {statusModal && <InternalStatusModal {...statusModal} />}
+      {showLogoutConfirm && <LogoutModal onConfirm={handleLogout} onCancel={() => setShowLogoutConfirm(false)} />}
       {showUpgrade && <UpgradeModal student={student} onClose={() => setShowUpgrade(false)} onSuccess={() => window.location.reload()} />}
       {setupCourse && <ExamSetupModal course={setupCourse} isPremium={isPremium} onClose={() => setSetupCourse(null)} onStart={(dur, limit) => router.push(`/cbt/exam/${setupCourse.id}?duration=${dur}&limit=${limit || 30}`)} onUpgrade={() => { setSetupCourse(null); setShowUpgrade(true); }} />}
 
-      <header className="bg-[#004d00] text-white pt-10 pb-24 px-6 rounded-b-[3rem] shadow-2xl relative z-10 overflow-hidden">
+      <header className="bg-[#004d00] text-white pt-10 pb-24 px-8 rounded-b-[3rem] shadow-2xl relative z-10 overflow-hidden">
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#003300]/20 to-[#002200]/40"></div>
         
@@ -289,17 +282,17 @@ export default function StudentDashboard() {
             </div>
             <div className="flex gap-2">
               <a href="https://wa.me/2348106293674" target="_blank" className="bg-green-500 p-3 rounded-2xl border border-green-400 text-white shadow-[0_0_20px_rgba(34,197,94,0.6)] animate-pulse hover:scale-105 transition-all"><Headset size={20} /></a>
-              <button onClick={triggerLogout} className="bg-white/10 p-3 rounded-2xl border border-white/10 text-red-200 hover:bg-red-600 hover:text-white transition-all active:scale-95"><LogOut size={20} /></button>
+              <button onClick={() => setShowLogoutConfirm(true)} className="bg-white/10 p-3 rounded-2xl border border-white/10 text-red-200 hover:bg-red-600 hover:text-white transition-all active:scale-95"><LogOut size={20} /></button>
             </div>
           </div>
 
-          {/* === OFFICIAL SESSION CARD (RECTANGULAR & DARK GREEN) === */}
-          <div className="bg-[#002200] border border-green-900/30 p-5 flex items-center justify-between shadow-lg relative overflow-hidden">
+          {/* === OFFICIAL SESSION CARD (ROUNDED & DARK GREEN) === */}
+          <div className="bg-[#002200] border border-green-900/30 p-5 flex items-center justify-between shadow-lg relative overflow-hidden rounded-3xl">
             <div className="relative z-10">
               <p className="text-[9px] font-bold text-green-400 uppercase tracking-widest mb-0.5">Current Session</p>
               <p className="font-black text-sm text-white tracking-widest uppercase whitespace-nowrap">EXAMFORGE SESSION 2026</p>
             </div>
-            <div className="flex items-center gap-1.5 bg-green-900/50 border border-green-500/30 px-3 py-1 shadow-sm">
+            <div className="flex items-center gap-1.5 bg-green-900/50 border border-green-500/30 px-3 py-1 rounded-full shadow-sm">
               <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
               <span className="text-[9px] font-black text-green-400 uppercase tracking-widest">Active</span>
             </div>
