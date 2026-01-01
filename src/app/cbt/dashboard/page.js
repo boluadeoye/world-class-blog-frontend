@@ -5,7 +5,7 @@ import {
   LogOut, Trophy, BookOpen, Play, Award,
   ChevronDown, Info, Crown, Clock, ChevronRight,
   AlertTriangle, Layers, Headset, History, CheckCircle, Settings, Lock, Sparkles,
-  ChevronUp, MessageCircle, GraduationCap, FileText, Target, Zap, ShieldCheck, Search,
+  ChevronUp, MessageCircle, GraduationCap, FileText, Target, Zap, ShieldCheck,
   Library, Landmark, Microscope, PenTool
 } from "lucide-react";
 import Link from "next/link";
@@ -15,6 +15,7 @@ import LiveTracker from "@/components/cbt/LiveTracker";
 
 const UpgradeModal = dynamic(() => import("@/components/cbt/UpgradeModal"), { ssr: false });
 
+/* === 1. EXAMINATION SETUP MODAL === */
 function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
   const [duration, setDuration] = useState(course.duration || 15);
   const [qCount, setQCount] = useState(30);
@@ -77,7 +78,7 @@ function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
   );
 }
 
-/* === 2. ACADEMIC PROTOCOL (VIBRANT RED) === */
+/* === 2. ACADEMIC PROTOCOL (RED ALERT) === */
 function DisclaimerCard() {
   const [isOpen, setIsOpen] = useState(false);
   return (
@@ -102,6 +103,7 @@ function DisclaimerCard() {
   );
 }
 
+/* === 3. THE REGISTRAR CARD (Course) === */
 function CourseCard({ course, onLaunch, isPremium }) {
   const isGst = course.code.toUpperCase().startsWith("GST");
   const isBlocked = !isPremium && course.user_attempts >= 2;
@@ -133,7 +135,6 @@ function CourseCard({ course, onLaunch, isPremium }) {
     </div>
   );
 }
-
 export default function StudentDashboard() {
   const router = useRouter();
   const [student, setStudent] = useState(null);
@@ -150,7 +151,6 @@ export default function StudentDashboard() {
   const [historyExpanded, setHistoryExpanded] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [totalForumPosts, setTotalForumPosts] = useState(0);
-  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     setMounted(true);
@@ -216,15 +216,14 @@ export default function StudentDashboard() {
   if (!mounted || !student) return null;
   const isPremium = student.subscription_status === 'premium';
   
-  const sortedCourses = courses
-    .filter(c => c.code.toLowerCase().includes(searchQuery.toLowerCase()) || c.title.toLowerCase().includes(searchQuery.toLowerCase()))
-    .sort((a, b) => {
-      const aIsGst = a.code.toUpperCase().startsWith("GST");
-      const bIsGst = b.code.toUpperCase().startsWith("GST");
-      if (aIsGst && !bIsGst) return -1;
-      if (!aIsGst && bIsGst) return 1;
-      return a.code.localeCompare(b.code);
-    });
+  // SORTING LOGIC: GST First, then Alphabetical (NO SEARCH FILTER)
+  const sortedCourses = [...courses].sort((a, b) => {
+    const aIsGst = a.code.toUpperCase().startsWith("GST");
+    const bIsGst = b.code.toUpperCase().startsWith("GST");
+    if (aIsGst && !bIsGst) return -1;
+    if (!aIsGst && bIsGst) return 1;
+    return a.code.localeCompare(b.code);
+  });
 
   const visibleHistory = historyExpanded ? examHistory : examHistory.slice(0, 2);
   const qualifiedLeaders = leaders.filter(user => user.score >= 60);
@@ -302,10 +301,6 @@ export default function StudentDashboard() {
         <section>
            <div className="flex items-center justify-between mb-4 px-2">
              <div className="flex items-center gap-3"><div className="bg-green-100 p-1.5 rounded-lg text-[#004d00]"><BookOpen size={14} /></div><h2 className="font-black text-xs text-gray-500 uppercase tracking-[0.2em]">Course Directory</h2></div>
-           </div>
-           <div className="relative shadow-sm rounded-xl mb-6">
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"><Search size={16} /></div>
-            <input type="text" placeholder="Search by Code (e.g. GST 101)..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-white py-3.5 pl-10 pr-5 rounded-xl border border-gray-200 text-xs font-bold text-gray-800 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-green-800/20 transition-all" />
            </div>
            <div className="grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
               {sortedCourses.length > 0 ? sortedCourses.map(c => (<CourseCard key={c.id} course={c} onLaunch={setSetupCourse} isPremium={isPremium} />)) : (<div className="col-span-2 text-center py-12 bg-white rounded-2xl border border-dashed border-gray-200"><p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">No modules found.</p></div>)}
