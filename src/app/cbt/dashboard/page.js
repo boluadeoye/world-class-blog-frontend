@@ -276,7 +276,7 @@ export default function StudentDashboard() {
       {showUpgrade && <UpgradeModal student={student} onClose={() => setShowUpgrade(false)} onSuccess={() => window.location.reload()} />}
       {setupCourse && <ExamSetupModal course={setupCourse} isPremium={isPremium} onClose={() => setSetupCourse(null)} onStart={(dur, limit) => router.push(`/cbt/exam/${setupCourse.id}?duration=${dur}&limit=${limit || 30}`)} onUpgrade={() => { setSetupCourse(null); setShowUpgrade(true); }} />}
 
-      <header className="bg-[#004d00] text-white pt-12 pb-24 px-8 rounded-b-[3rem] shadow-2xl relative z-10 overflow-hidden">
+      <header className="bg-[#004d00] text-white pt-10 pb-24 px-6 rounded-b-[3rem] shadow-2xl relative z-10 overflow-hidden">
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#003300]/20 to-[#002200]/40"></div>
         
@@ -291,19 +291,21 @@ export default function StudentDashboard() {
               </div>
               <div><p className="text-green-200 text-[9px] font-black uppercase tracking-[0.2em] mb-1">{greeting}</p><h1 className="text-2xl font-black leading-none truncate w-48 tracking-tight">{student.name.split(" ")[0]}</h1></div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex gap-2">
               <a href="https://wa.me/2348106293674" target="_blank" className="bg-green-500 p-3 rounded-2xl border border-green-400 text-white shadow-[0_0_20px_rgba(34,197,94,0.6)] animate-pulse hover:scale-105 transition-all"><Headset size={20} /></a>
               <button onClick={triggerLogout} className="bg-white/10 p-3 rounded-2xl border border-white/10 text-red-200 hover:bg-red-600 hover:text-white transition-all active:scale-95"><LogOut size={20} /></button>
             </div>
           </div>
-          <div className="bg-[#003300]/50 border border-white/10 rounded-3xl p-5 flex items-center justify-between shadow-lg relative overflow-hidden">
+
+          {/* === EXECUTIVE WHITE SESSION CARD === */}
+          <div className="bg-white rounded-[2rem] p-5 flex items-center justify-between shadow-xl shadow-green-900/20 relative overflow-hidden">
             <div className="relative z-10">
-              <p className="text-[10px] font-bold text-green-400 uppercase tracking-widest mb-0.5">Current Session</p>
-              <p className="font-black text-sm text-white tracking-widest whitespace-nowrap">ExamForge Session 2026</p>
+              <p className="text-[9px] font-bold text-green-600/80 uppercase tracking-widest mb-0.5">Current Session</p>
+              <p className="font-black text-sm text-green-900 tracking-wide whitespace-nowrap">ExamForge Session 2026</p>
             </div>
-            <div className="bg-white text-[#004d00] px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-green-600 animate-pulse"></div>
-              Active
+            <div className="flex items-center gap-1.5 bg-green-50 border border-green-100 px-3 py-1 rounded-full shadow-sm">
+              <div className="w-1.5 h-1.5 rounded-full bg-green-600 animate-pulse"></div>
+              <span className="text-[9px] font-black text-green-700 uppercase tracking-widest">Active</span>
             </div>
           </div>
         </div>
