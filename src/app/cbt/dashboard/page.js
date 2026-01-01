@@ -5,7 +5,8 @@ import {
   LogOut, Trophy, BookOpen, Play, Award,
   ChevronDown, Info, Crown, Clock, ChevronRight,
   AlertTriangle, Layers, Headset, History, CheckCircle, Settings, Lock, Sparkles,
-  ChevronUp, MessageCircle, GraduationCap, FileText, Target, Zap, ShieldCheck, Search, BarChart3
+  ChevronUp, MessageCircle, GraduationCap, FileText, Target, Zap, ShieldCheck, Search,
+  Library, Landmark, Microscope, PenTool
 } from "lucide-react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -14,46 +15,39 @@ import LiveTracker from "@/components/cbt/LiveTracker";
 
 const UpgradeModal = dynamic(() => import("@/components/cbt/UpgradeModal"), { ssr: false });
 
-/* === 1. MISSION SETUP MODAL === */
+/* === 1. EXAMINATION SETUP MODAL (ACADEMIC THEME) === */
 function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
   const [duration, setDuration] = useState(course.duration || 15);
   const [qCount, setQCount] = useState(30);
   const isBlocked = !isPremium && course.user_attempts >= 2;
 
   return (
-    <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in zoom-in duration-300">
-      <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-sm overflow-hidden border border-white relative">
-        <div className={`p-8 relative z-10 ${isBlocked ? 'bg-red-50' : 'bg-green-50'}`}>
-          <div className="flex justify-between items-start mb-2">
-            <div>
-              <h3 className={`font-black text-xl uppercase tracking-tighter ${isBlocked ? 'text-red-900' : 'text-green-900'}`}>Mission Config</h3>
-              <p className={`text-[10px] font-bold uppercase tracking-widest ${isBlocked ? 'text-red-400' : 'text-green-600'}`}>{course.code}</p>
-            </div>
-            <div className={`px-3 py-1 rounded-full border ${isBlocked ? 'bg-white border-red-200 text-red-500' : 'bg-white border-green-200 text-green-600'} text-[9px] font-black uppercase tracking-widest shadow-sm`}>
-              {isBlocked ? "LOCKED" : "READY"}
-            </div>
-          </div>
+    <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in zoom-in duration-300">
+      <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden border border-gray-200 relative">
+        <div className={`p-8 relative z-10 ${isBlocked ? 'bg-red-50' : 'bg-green-50'} border-b border-gray-100`}>
+          <h3 className={`font-black text-xl uppercase tracking-tighter ${isBlocked ? 'text-red-900' : 'text-[#004d00]'}`}>Examination Setup</h3>
+          <p className={`text-[10px] font-mono font-bold uppercase tracking-widest mt-1 ${isBlocked ? 'text-red-400' : 'text-green-600'}`}>{course.code} • {course.title}</p>
         </div>
 
-        <div className="p-8 pt-4">
+        <div className="p-8 pt-6">
           {isBlocked ? (
             <div className="text-center py-4">
-              <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-100 animate-pulse"><Lock size={32} className="text-red-500" /></div>
-              <p className="text-gray-500 text-xs font-medium mb-8 leading-relaxed">Tactical limit reached. Upgrade clearance level to proceed.</p>
-              <button onClick={onUpgrade} className="w-full py-4 bg-yellow-400 text-black rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl hover:scale-105 transition-transform">Upgrade Clearance</button>
-              <button onClick={onClose} className="mt-4 text-gray-400 text-[10px] font-bold uppercase tracking-widest hover:text-gray-600">Abort Mission</button>
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-200"><Lock size={32} className="text-red-600" /></div>
+              <p className="text-gray-600 text-xs font-medium mb-8 leading-relaxed">Maximum free attempts recorded for this module. Upgrade required for further access.</p>
+              <button onClick={onUpgrade} className="w-full py-4 bg-yellow-500 text-black rounded-xl font-black text-xs uppercase tracking-[0.2em] shadow-lg hover:scale-105 transition-transform">Upgrade Clearance</button>
+              <button onClick={onClose} className="mt-4 text-gray-400 text-[10px] font-bold uppercase tracking-widest hover:text-gray-600">Return to Catalog</button>
             </div>
           ) : (
             <>
               <div className="space-y-6 mb-8">
                 <div>
-                  <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3 flex items-center gap-2"><Clock size={10} /> Time Allocation</label>
+                  <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3 flex items-center gap-2">Time Allocation</label>
                   <div className="grid grid-cols-4 gap-2">
                     {[15, 30, 45, 60].map((time) => {
                       const isRestricted = !isPremium && time !== 15;
                       return (
-                        <button key={time} disabled={isRestricted} onClick={() => setDuration(time)} className={`py-3 rounded-xl text-[10px] font-black transition-all relative border ${duration === time ? 'border-green-600 bg-green-600 text-white shadow-lg shadow-green-200' : 'border-gray-100 text-gray-400 bg-gray-50 hover:bg-white'} ${isRestricted ? 'opacity-40' : ''}`}>
-                          {time}m {isRestricted && <Lock size={8} className="absolute top-1 right-1 text-gray-400" />}
+                        <button key={time} disabled={isRestricted} onClick={() => setDuration(time)} className={`py-3 rounded-xl text-[10px] font-black transition-all relative border ${duration === time ? 'border-[#004d00] bg-[#004d00] text-white shadow-lg' : 'border-gray-100 text-gray-400 bg-gray-50'} ${isRestricted ? 'opacity-40' : ''}`}>
+                          {time}m {isRestricted && <Lock size={8} className="absolute top-1 right-1" />}
                         </button>
                       );
                     })}
@@ -61,13 +55,13 @@ function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
                 </div>
 
                 <div>
-                  <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3 flex items-center gap-2"><Target size={10} /> Intel Volume</label>
+                  <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3 flex items-center gap-2">Question Volume</label>
                   <div className="grid grid-cols-4 gap-2">
                     {[20, 40, 60, 100].map((count) => {
                       const isRestricted = !isPremium && count !== 30;
                       return (
-                        <button key={count} disabled={isRestricted} onClick={() => setQCount(count)} className={`py-3 rounded-xl text-[10px] font-black transition-all relative border ${qCount === count ? 'border-blue-600 bg-blue-600 text-white shadow-lg shadow-blue-200' : 'border-gray-100 text-gray-400 bg-gray-50 hover:bg-white'} ${isRestricted ? 'opacity-40' : ''}`}>
-                          {count} {isRestricted && <Lock size={8} className="absolute top-1 right-1 text-gray-400" />}
+                        <button key={count} disabled={isRestricted} onClick={() => setQCount(count)} className={`py-3 rounded-xl text-[10px] font-black transition-all relative border ${qCount === count ? 'border-blue-700 bg-blue-700 text-white shadow-lg' : 'border-gray-100 text-gray-400 bg-gray-50'} ${isRestricted ? 'opacity-40' : ''}`}>
+                          {count} {isRestricted && <Lock size={8} className="absolute top-1 right-1" />}
                         </button>
                       );
                     })}
@@ -76,9 +70,9 @@ function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
               </div>
 
               <div className="flex gap-3">
-                <button onClick={onClose} className="flex-1 py-4 border border-gray-100 rounded-2xl text-[10px] font-black text-gray-400 uppercase tracking-widest hover:bg-gray-50 transition-all">Cancel</button>
+                <button onClick={onClose} className="flex-1 py-4 border border-gray-100 rounded-2xl text-[10px] font-black text-gray-400 uppercase tracking-widest">Cancel</button>
                 <button onClick={() => onStart(duration, qCount)} className="flex-[2] py-4 bg-[#004d00] text-white rounded-2xl text-[10px] font-black shadow-xl hover:bg-green-900 uppercase tracking-widest flex items-center justify-center gap-2">
-                  Start Mission <Play size={12} fill="currentColor" />
+                  Begin Examination <ChevronRight size={14} />
                 </button>
               </div>
             </>
@@ -88,24 +82,24 @@ function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
     </div>
   );
 }
-/* === 2. INTELLIGENCE BRIEFING === */
+/* === 2. ACADEMIC PROTOCOL (Disclaimer) === */
 function DisclaimerCard() {
   const [isOpen, setIsOpen] = useState(false);
   return (
-    <div className="bg-white rounded-[2rem] overflow-hidden mb-6 shadow-sm border border-orange-100">
-      <button onClick={() => setIsOpen(!isOpen)} className="w-full flex items-center justify-between p-5 text-left group bg-orange-50/30">
-        <div className="flex items-center gap-4">
-          <div className="bg-orange-100 w-12 h-12 flex items-center justify-center rounded-2xl text-orange-600 border border-orange-200 group-hover:scale-110 transition-transform"><AlertTriangle size={20} /></div>
-          <div><h3 className="font-black text-xs text-orange-900 uppercase tracking-widest">Intelligence Brief</h3><p className="text-[9px] text-orange-400 font-bold mt-0.5 uppercase tracking-tight">Read Protocol Before Engagement</p></div>
+    <div className="bg-white rounded-xl overflow-hidden mb-6 shadow-sm border border-gray-200">
+      <button onClick={() => setIsOpen(!isOpen)} className="w-full flex items-center justify-between p-4 text-left group bg-gray-50 hover:bg-gray-100 transition-colors">
+        <div className="flex items-center gap-3">
+          <div className="text-gray-500"><Info size={18} /></div>
+          <div><h3 className="font-bold text-xs text-gray-800 uppercase tracking-widest">Examination Protocol</h3></div>
         </div>
-        <div className={`w-8 h-8 rounded-full bg-white flex items-center justify-center transition-transform duration-300 shadow-sm ${isOpen ? 'rotate-180 text-orange-600' : 'text-gray-300'}`}><ChevronDown size={14} /></div>
+        <div className={`transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}><ChevronDown size={14} className="text-gray-400" /></div>
       </button>
       {isOpen && (
-        <div className="px-6 pb-8 text-[10px] text-gray-600 leading-relaxed border-t border-orange-100 pt-4 bg-white">
-          <ul className="space-y-3 font-medium">
-            <li className="flex gap-3"><div className="w-1.5 h-1.5 rounded-full bg-orange-400 mt-1.5 shrink-0"></div> <span>This simulation is for <strong>tactical conditioning</strong> only.</span></li>
-            <li className="flex gap-3"><div className="w-1.5 h-1.5 rounded-full bg-orange-400 mt-1.5 shrink-0"></div> <span>Focus on <strong>speed and precision</strong>.</span></li>
-            <li className="flex gap-3"><div className="w-1.5 h-1.5 rounded-full bg-orange-400 mt-1.5 shrink-0"></div> <span>Performance here does not guarantee field results.</span></li>
+        <div className="px-5 pb-6 text-[10px] text-gray-600 leading-relaxed border-t border-gray-200 pt-4 bg-white">
+          <ul className="space-y-2 font-medium">
+            <li className="flex gap-2"><span className="text-[#004d00] font-bold">•</span> <span>This module is for <strong>academic conditioning</strong>.</span></li>
+            <li className="flex gap-2"><span className="text-[#004d00] font-bold">•</span> <span>Adhere strictly to the <strong>time constraints</strong>.</span></li>
+            <li className="flex gap-2"><span className="text-[#004d00] font-bold">•</span> <span>Performance here is indicative, not absolute.</span></li>
           </ul>
         </div>
       )}
@@ -113,50 +107,42 @@ function DisclaimerCard() {
   );
 }
 
-/* === 3. GRID SECTOR CARD (NEW DESIGN) === */
-function CourseCard({ course, onLaunch, variant = "green", isPremium }) {
-  const isGst = variant === "green";
+/* === 3. THE REGISTRAR CARD (Course) === */
+function CourseCard({ course, onLaunch, isPremium }) {
+  const isGst = course.code.toUpperCase().startsWith("GST");
   const isBlocked = !isPremium && course.user_attempts >= 2;
   
-  // Generate a deterministic gradient based on course code
-  const gradients = [
-    "from-green-400 to-emerald-600",
-    "from-blue-400 to-indigo-600",
-    "from-purple-400 to-violet-600",
-    "from-orange-400 to-red-500",
-    "from-pink-400 to-rose-600"
-  ];
-  const gradientIndex = course.code.charCodeAt(course.code.length - 1) % gradients.length;
-  const bgGradient = gradients[gradientIndex];
+  // Academic Icon Selection
+  let SealIcon = Library; // Default for GST
+  if (!isGst) {
+    if (course.code.startsWith("BIO") || course.code.startsWith("CHM")) SealIcon = Microscope;
+    else if (course.code.startsWith("LAW") || course.code.startsWith("BUS")) SealIcon = Landmark;
+    else SealIcon = PenTool;
+  }
 
   return (
-    <div onClick={() => onLaunch(course)} className="bg-white rounded-[1.8rem] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-gray-100 overflow-hidden group active:scale-[0.98] transition-all duration-300 hover:shadow-xl cursor-pointer flex flex-col h-full">
-      {/* Thumbnail Area */}
-      <div className={`h-20 bg-gradient-to-br ${bgGradient} relative p-4 flex items-start justify-between`}>
-        <div className="bg-white/20 backdrop-blur-md p-1.5 rounded-lg text-white border border-white/20">
-          {isGst ? <BookOpen size={14} /> : <Layers size={14} />}
-        </div>
-        {isBlocked && <div className="bg-red-500 text-white p-1.5 rounded-full shadow-sm"><Lock size={12} /></div>}
-      </div>
-      
-      {/* Content Area */}
-      <div className="p-4 flex-1 flex flex-col justify-between">
+    <div onClick={() => onLaunch(course)} className={`bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden group active:scale-[0.99] transition-all duration-200 hover:shadow-md cursor-pointer flex flex-col h-full border-l-4 ${isGst ? 'border-l-[#004d00]' : 'border-l-blue-800'}`}>
+      <div className="p-5 flex-1 flex flex-col justify-between">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className={`text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider ${isGst ? 'bg-green-50 text-green-700' : 'bg-blue-50 text-blue-700'}`}>
-              {course.code.slice(0,3)}
-            </span>
-            <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">{course.code.slice(3)}</span>
+          <div className="flex justify-between items-start mb-3">
+            <div className={`p-2 rounded-lg ${isGst ? 'bg-green-50 text-[#004d00]' : 'bg-blue-50 text-blue-800'}`}>
+              <SealIcon size={18} />
+            </div>
+            {isBlocked && <div className="bg-red-50 text-red-600 px-2 py-1 rounded text-[8px] font-black uppercase tracking-widest border border-red-100">Locked</div>}
           </div>
-          <h3 className="font-black text-gray-900 text-xs uppercase tracking-tight leading-snug line-clamp-2 mb-3">{course.title}</h3>
+          
+          <h3 className="font-mono font-bold text-gray-500 text-xs tracking-wider mb-1">{course.code}</h3>
+          <h2 className="font-bold text-gray-900 text-sm leading-snug line-clamp-2 mb-4">{course.title}</h2>
         </div>
         
-        <div className="flex items-center justify-between pt-3 border-t border-gray-50">
-          <div className="flex items-center gap-1 text-[8px] font-bold text-gray-400 uppercase tracking-wide">
-            <History size={10} /> {course.user_attempts || 0} Attempts
-          </div>
-          <div className={`w-8 h-8 rounded-full flex items-center justify-center shadow-sm transition-colors ${isBlocked ? 'bg-gray-100 text-gray-400' : 'bg-black text-white group-hover:bg-[#004d00]'}`}>
-            <Play size={10} fill="currentColor" />
+        <div className="pt-4 border-t border-gray-50">
+          <div className="flex items-center justify-between">
+            <span className="text-[9px] font-medium text-gray-400 uppercase tracking-wide">
+              {course.user_attempts || 0} Official Submissions
+            </span>
+            <span className={`text-[9px] font-black uppercase tracking-widest flex items-center gap-1 ${isBlocked ? 'text-gray-300' : 'text-[#004d00] group-hover:underline'}`}>
+              Start <ChevronRight size={10} />
+            </span>
           </div>
         </div>
       </div>
@@ -173,7 +159,7 @@ export default function StudentDashboard() {
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [statusModal, setStatusModal] = useState(null);
-  const [greeting, setGreeting] = useState("WELCOME BACK");
+  const [greeting, setGreeting] = useState("WELCOME SCHOLAR");
   const [avatarUrl, setAvatarUrl] = useState("");
   const [setupCourse, setSetupCourse] = useState(null);
   const [historyExpanded, setHistoryExpanded] = useState(false);
@@ -194,7 +180,7 @@ export default function StudentDashboard() {
     setStudent(parsed);
 
     const seed = parsed.name.replace(/\s/g, '');
-    setAvatarUrl(`https://api.dicebear.com/7.x/notionists/svg?seed=${seed}&backgroundColor=b6e3f4,c0aede,d1d4f9`);
+    setAvatarUrl(`https://api.dicebear.com/7.x/notionists/svg?seed=${seed}&backgroundColor=e6f4ea,ccebd6,a3d9b5`);
 
     async function fetchData() {
       try {
@@ -236,7 +222,7 @@ export default function StudentDashboard() {
 
   const triggerLogout = () => {
     setStatusModal({
-      type: 'logout', title: 'Terminate Session?', message: 'Confirm disconnection from the secure portal.', actionLabel: 'Logout',
+      type: 'logout', title: 'End Session?', message: 'Confirm disconnection from the academic portal.', actionLabel: 'Logout',
       onAction: () => { sessionStorage.removeItem("cbt_student"); router.push("/cbt"); },
       onCancel: () => setStatusModal(null)
     });
@@ -245,14 +231,17 @@ export default function StudentDashboard() {
   if (!mounted || !student) return null;
   const isPremium = student.subscription_status === 'premium';
   
-  // FILTER LOGIC
-  const filteredCourses = courses.filter(c => 
-    c.code.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    c.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-  
-  const gstCourses = filteredCourses.filter(c => c.code.toUpperCase().startsWith("GST"));
-  const otherCourses = filteredCourses.filter(c => !c.code.toUpperCase().startsWith("GST"));
+  // SORTING LOGIC: GST First, then Alphabetical
+  const sortedCourses = courses
+    .filter(c => c.code.toLowerCase().includes(searchQuery.toLowerCase()) || c.title.toLowerCase().includes(searchQuery.toLowerCase()))
+    .sort((a, b) => {
+      const aIsGst = a.code.toUpperCase().startsWith("GST");
+      const bIsGst = b.code.toUpperCase().startsWith("GST");
+      if (aIsGst && !bIsGst) return -1;
+      if (!aIsGst && bIsGst) return 1;
+      return a.code.localeCompare(b.code);
+    });
+
   const visibleHistory = historyExpanded ? examHistory : examHistory.slice(0, 2);
   const qualifiedLeaders = leaders.filter(user => user.score >= 60);
 
@@ -261,19 +250,19 @@ export default function StudentDashboard() {
       <div className="relative">
         <div className="w-16 h-16 border-4 border-green-800 rounded-full"></div>
         <div className="w-16 h-16 border-4 border-white border-t-transparent rounded-full animate-spin absolute top-0 left-0"></div>
-        <div className="absolute inset-0 flex items-center justify-center"><Zap size={20} className="text-white animate-pulse" fill="currentColor" /></div>
+        <div className="absolute inset-0 flex items-center justify-center"><Library size={20} className="text-white animate-pulse" /></div>
       </div>
-      <p className="text-green-200 font-black text-[10px] uppercase tracking-[0.4em] animate-pulse">Initializing Command...</p>
+      <p className="text-green-200 font-black text-[10px] uppercase tracking-[0.4em] animate-pulse">Loading Modules...</p>
     </div>
   );
   return (
-    <main className="min-h-screen bg-[#fcfdfc] font-sans text-gray-900 pb-48 relative selection:bg-green-200">
+    <main className="min-h-screen bg-[#f8f9fa] font-sans text-gray-900 pb-48 relative selection:bg-green-200">
       <LiveTracker />
       {statusModal && <StatusModal {...statusModal} />}
       {showUpgrade && <UpgradeModal student={student} onClose={() => setShowUpgrade(false)} onSuccess={() => window.location.reload()} />}
       {setupCourse && <ExamSetupModal course={setupCourse} isPremium={isPremium} onClose={() => setSetupCourse(null)} onStart={(dur, limit) => router.push(`/cbt/exam/${setupCourse.id}?duration=${dur}&limit=${limit || 30}`)} onUpgrade={() => { setSetupCourse(null); setShowUpgrade(true); }} />}
 
-      {/* === HERO HUD === */}
+      {/* === HERO HUD (ACADEMIC GREEN) === */}
       <header className="bg-[#004d00] text-white pt-10 pb-24 px-6 rounded-b-[3rem] shadow-2xl relative z-10 overflow-hidden">
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#003300]/20 to-[#002200]/40"></div>
@@ -285,10 +274,10 @@ export default function StudentDashboard() {
                 <div className="w-full h-full rounded-2xl overflow-hidden">
                    {avatarUrl && <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover group-hover:scale-110 transition-transform" />}
                 </div>
-                {/* CROWN RESTORED & ENHANCED */}
+                {/* PREMIUM CROWN */}
                 {isPremium && (
                   <div className="absolute -top-2 -right-2 bg-yellow-400 text-black p-1.5 rounded-full border-2 border-[#004d00] shadow-md z-20 animate-bounce">
-                    <Crown size={10} fill="currentColor" />
+                    <Crown size={12} fill="currentColor" />
                   </div>
                 )}
               </div>
@@ -305,20 +294,21 @@ export default function StudentDashboard() {
 
           <div className="bg-[#003300] border border-white/10 rounded-3xl p-6 flex items-center justify-between shadow-inner relative overflow-hidden">
             <div className="relative z-10">
-              <p className="text-[9px] font-bold text-green-400 uppercase tracking-widest mb-1">Operational Status</p>
+              <p className="text-[9px] font-bold text-green-400 uppercase tracking-widest mb-1">Academic Status</p>
               <p className="font-black text-sm text-white tracking-widest flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span> SESSION 2026 ACTIVE</p>
             </div>
-            <div className="bg-white text-[#004d00] px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg">Online</div>
+            <div className="bg-white text-[#004d00] px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg">Enrolled</div>
           </div>
         </div>
       </header>
 
       <div className="px-5 -mt-12 relative z-20 space-y-8">
+        
         <DisclaimerCard />
 
-        {/* === COMMUNITY FORUM (RENAMED & BLUE) === */}
+        {/* === COMMUNITY FORUM (BLUE) === */}
         <Link href="/cbt/community" onClick={handleForumEnter} className="block group">
-          <div className="bg-gradient-to-r from-blue-600 to-blue-900 rounded-[2.5rem] p-6 shadow-xl shadow-blue-900/20 relative overflow-hidden active:scale-[0.98] transition-transform">
+          <div className="bg-gradient-to-r from-blue-700 to-blue-900 rounded-[2rem] p-6 shadow-xl shadow-blue-900/20 relative overflow-hidden active:scale-[0.98] transition-transform">
             <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-[40px] -mr-10 -mt-10"></div>
             <div className="relative z-10 flex justify-between items-center">
               <div className="flex items-center gap-5">
@@ -328,13 +318,48 @@ export default function StudentDashboard() {
                 </div>
                 <div>
                   <h2 className="text-white font-black text-sm uppercase tracking-widest mb-1">Community Forum</h2>
-                  <p className="text-blue-100 text-[10px] font-bold">{unreadCount > 0 ? `${unreadCount} New Intel Reports` : "Secure Channel Active"}</p>
+                  <p className="text-blue-100 text-[10px] font-bold">{unreadCount > 0 ? `${unreadCount} New Intel Reports` : "Academic Discussions"}</p>
                 </div>
               </div>
               <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-white group-hover:bg-white group-hover:text-blue-900 transition-all"><ChevronRight size={16} /></div>
             </div>
           </div>
         </Link>
+
+        {/* === COURSE DIRECTORY (GRID + SEARCH) === */}
+        <section>
+           <div className="flex items-center justify-between mb-4 px-2">
+             <div className="flex items-center gap-3"><div className="bg-green-100 p-1.5 rounded-lg text-[#004d00]"><BookOpen size={14} /></div><h2 className="font-black text-xs text-gray-500 uppercase tracking-[0.2em]">Course Directory</h2></div>
+           </div>
+           
+           {/* SEARCH BAR */}
+           <div className="relative shadow-sm rounded-xl mb-6">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"><Search size={16} /></div>
+            <input 
+              type="text" 
+              placeholder="Search by Code (e.g. GST 101)..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-white py-3.5 pl-10 pr-5 rounded-xl border border-gray-200 text-xs font-bold text-gray-800 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-green-800/20 transition-all"
+            />
+           </div>
+
+           {/* GRID LAYOUT */}
+           <div className="grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              {sortedCourses.length > 0 ? sortedCourses.map(c => (
+                <CourseCard 
+                  key={c.id} 
+                  course={c} 
+                  onLaunch={setSetupCourse} 
+                  isPremium={isPremium} 
+                />
+              )) : (
+                <div className="col-span-2 text-center py-12 bg-white rounded-2xl border border-dashed border-gray-200">
+                  <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">No modules found.</p>
+                </div>
+              )}
+           </div>
+        </section>
 
         {/* === RECENT OPERATIONS === */}
         <section>
@@ -354,12 +379,12 @@ export default function StudentDashboard() {
                 if (pct < 40) colorClass = "text-red-700 bg-red-50 border-red-100";
                 else if (pct < 60) colorClass = "text-amber-700 bg-amber-50 border-amber-100";
                 return (
-                  <div key={item.id} className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between animate-in fade-in slide-in-from-top-1">
+                  <div key={item.id} className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex items-center justify-between animate-in fade-in slide-in-from-top-1">
                     <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400 font-black text-[10px] border border-gray-100">{item.course_code.slice(0,3)}</div>
+                      <div className="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center text-gray-400 font-black text-[10px] border border-gray-100">{item.course_code.slice(0,3)}</div>
                       <div><p className="font-black text-xs text-gray-900 uppercase tracking-tight">{item.course_code}</p><p className="text-[8px] text-gray-400 font-bold uppercase tracking-wide">{new Date(item.created_at).toLocaleDateString()}</p></div>
                     </div>
-                    <div className={`text-right px-3 py-1.5 rounded-xl border ${colorClass}`}>
+                    <div className={`text-right px-3 py-1.5 rounded-lg border ${colorClass}`}>
                       <p className="font-black text-xs">{pct}%</p>
                       <p className="text-[7px] font-black uppercase opacity-70">{item.score}/{item.total}</p>
                     </div>
@@ -370,42 +395,6 @@ export default function StudentDashboard() {
           ) : (
             <div className="bg-white rounded-2xl p-6 border border-dashed border-gray-200 text-center"><p className="text-[9px] font-black text-gray-300 uppercase tracking-widest">No Mission History</p></div>
           )}
-        </section>
-
-        {/* === SECTORS (GRID LAYOUT + SEARCH) === */}
-        <section>
-           <div className="flex items-center justify-between mb-4 px-2">
-             <div className="flex items-center gap-3"><div className="bg-green-100 p-1.5 rounded-lg text-green-800"><BookOpen size={14} /></div><h2 className="font-black text-xs text-gray-400 uppercase tracking-[0.2em]">Available Sectors</h2></div>
-           </div>
-           
-           {/* SMART SEARCH BAR */}
-           <div className="relative shadow-sm rounded-2xl mb-6">
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"><Search size={16} /></div>
-            <input 
-              type="text" 
-              placeholder="Search by Code or Title..." 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white py-3.5 pl-10 pr-5 rounded-2xl border border-gray-100 text-xs font-bold text-gray-800 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500/20 transition-all"
-            />
-           </div>
-
-           {/* GRID LAYOUT */}
-           <div className="grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-              {filteredCourses.length > 0 ? filteredCourses.map(c => (
-                <CourseCard 
-                  key={c.id} 
-                  course={c} 
-                  onLaunch={setSetupCourse} 
-                  variant={c.code.toUpperCase().startsWith("GST") ? "green" : "blue"} 
-                  isPremium={isPremium} 
-                />
-              )) : (
-                <div className="col-span-2 text-center py-8 bg-white rounded-2xl border border-dashed border-gray-200">
-                  <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">No matching sectors found.</p>
-                </div>
-              )}
-           </div>
         </section>
 
         {/* === HALL OF LEGENDS === */}

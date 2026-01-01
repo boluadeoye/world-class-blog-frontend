@@ -11,17 +11,16 @@ export async function GET(req) {
     let courses;
 
     if (studentId) {
-      // STUDENT MODE: Fetch with attempt counts
+      // STUDENT MODE: Fixed to query cbt_exam_history
       courses = await sql`
-        SELECT 
-          c.*, 
-          (SELECT COUNT(*) FROM cbt_results r WHERE r.course_id = c.id::text AND r.student_id = ${String(studentId)}) as user_attempts
-        FROM cbt_courses c 
-        ORDER BY c.created_at DESC
+        SELECT
+          c.*,
+          (SELECT COUNT(*) FROM cbt_exam_history r WHERE r.course_id = c.id::text AND r.student_id = ${String(studentId)}) as user_attempts
+        FROM cbt_courses c
+        ORDER BY c.code ASC
       `;
     } else {
-      // ADMIN MODE: Fetch all courses normally
-      courses = await sql`SELECT * FROM cbt_courses ORDER BY created_at DESC`;
+      courses = await sql`SELECT * FROM cbt_courses ORDER BY code ASC`;
     }
 
     return NextResponse.json({ courses }, { status: 200 });
@@ -35,7 +34,7 @@ export async function POST(req) {
   try {
     const { code, title, level, duration } = await req.json();
     await sql`
-      INSERT INTO cbt_courses (code, title, level, duration) 
+      INSERT INTO cbt_courses (code, title, level, duration)
       VALUES (${code.toUpperCase()}, ${title}, ${String(level)}, ${parseInt(duration || 15)})
     `;
     return NextResponse.json({ success: true }, { status: 200 });
@@ -50,7 +49,7 @@ export async function DELETE(req) {
     const id = searchParams.get('id');
     if (!id) return NextResponse.json({ error: "Missing ID" }, { status: 400 });
     await sql`DELETE FROM cbt_questions WHERE course_id = ${id}`;
-    await sql`DELETE FROM cbt_results WHERE course_id = ${id}`;
+    await sql`DELETE FROM cbt_exam_history WHERE course_id = ${id}`;
     await sql`DELETE FROM cbt_courses WHERE id = ${id}`;
     return NextResponse.json({ success: true });
   } catch (error) {
