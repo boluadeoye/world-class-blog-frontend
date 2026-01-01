@@ -77,7 +77,6 @@ function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
     </div>
   );
 }
-
 /* === 2. ACADEMIC PROTOCOL (RED ALERT) === */
 function DisclaimerCard() {
   const [isOpen, setIsOpen] = useState(false);
@@ -238,7 +237,6 @@ export default function StudentDashboard() {
       <p className="text-green-200 font-black text-[10px] uppercase tracking-[0.4em] animate-pulse">Loading Modules...</p>
     </div>
   );
-
   return (
     <main className="min-h-screen bg-[#f8f9fa] font-sans text-gray-900 pb-48 relative selection:bg-green-200">
       <LiveTracker />
