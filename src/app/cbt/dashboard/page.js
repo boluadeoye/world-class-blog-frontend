@@ -5,7 +5,7 @@ import {
   LogOut, Trophy, BookOpen, Play, Award,
   ChevronDown, Info, Crown, Clock, ChevronRight,
   AlertTriangle, Layers, Headset, History, CheckCircle, Settings, Lock, Sparkles,
-  ChevronUp, MessageCircle, GraduationCap, FileText, Target, Zap, ShieldCheck, Search
+  ChevronUp, MessageCircle, GraduationCap, FileText, Target, Zap, ShieldCheck, Search, BarChart3
 } from "lucide-react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -88,7 +88,6 @@ function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
     </div>
   );
 }
-
 /* === 2. INTELLIGENCE BRIEFING === */
 function DisclaimerCard() {
   const [isOpen, setIsOpen] = useState(false);
@@ -114,24 +113,52 @@ function DisclaimerCard() {
   );
 }
 
-/* === 3. SECTOR CARD === */
+/* === 3. GRID SECTOR CARD (NEW DESIGN) === */
 function CourseCard({ course, onLaunch, variant = "green", isPremium }) {
   const isGst = variant === "green";
   const isBlocked = !isPremium && course.user_attempts >= 2;
+  
+  // Generate a deterministic gradient based on course code
+  const gradients = [
+    "from-green-400 to-emerald-600",
+    "from-blue-400 to-indigo-600",
+    "from-purple-400 to-violet-600",
+    "from-orange-400 to-red-500",
+    "from-pink-400 to-rose-600"
+  ];
+  const gradientIndex = course.code.charCodeAt(course.code.length - 1) % gradients.length;
+  const bgGradient = gradients[gradientIndex];
+
   return (
-    <div onClick={() => onLaunch(course)} className="relative bg-white p-4 rounded-[1.5rem] shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-gray-50 flex justify-between items-center group active:scale-[0.98] transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 cursor-pointer overflow-hidden mb-3">
-      <div className={`absolute left-0 top-0 bottom-0 w-1 ${isGst ? 'bg-green-500' : 'bg-blue-500'} opacity-0 group-hover:opacity-100 transition-opacity`}></div>
-      <div className="flex items-center gap-4 flex-1 min-w-0 pl-2">
-        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-[10px] border shrink-0 shadow-sm ${isGst ? 'bg-green-50 text-[#004d00] border-green-100' : 'bg-blue-50 text-blue-700 border-blue-100'}`}>
-          {course.code.slice(0,3)}
+    <div onClick={() => onLaunch(course)} className="bg-white rounded-[1.8rem] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-gray-100 overflow-hidden group active:scale-[0.98] transition-all duration-300 hover:shadow-xl cursor-pointer flex flex-col h-full">
+      {/* Thumbnail Area */}
+      <div className={`h-20 bg-gradient-to-br ${bgGradient} relative p-4 flex items-start justify-between`}>
+        <div className="bg-white/20 backdrop-blur-md p-1.5 rounded-lg text-white border border-white/20">
+          {isGst ? <BookOpen size={14} /> : <Layers size={14} />}
         </div>
-        <div className="min-w-0 flex-1">
-          <h3 className="font-black text-gray-900 text-sm uppercase tracking-tight truncate group-hover:text-green-800 transition-colors">{course.code}</h3>
-          <p className="text-[9px] text-gray-400 font-bold truncate uppercase tracking-wide">{course.title}</p>
-        </div>
+        {isBlocked && <div className="bg-red-500 text-white p-1.5 rounded-full shadow-sm"><Lock size={12} /></div>}
       </div>
-      <div className={`w-10 h-10 rounded-full flex items-center justify-center shadow-md transition-all shrink-0 ml-3 ${isBlocked ? 'bg-red-50 text-red-500 border border-red-100' : 'bg-gray-900 text-white group-hover:bg-[#004d00] group-hover:scale-110'}`}>
-        {isBlocked ? <Lock size={14} /> : <Play size={14} fill="currentColor" className="ml-0.5" />}
+      
+      {/* Content Area */}
+      <div className="p-4 flex-1 flex flex-col justify-between">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <span className={`text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider ${isGst ? 'bg-green-50 text-green-700' : 'bg-blue-50 text-blue-700'}`}>
+              {course.code.slice(0,3)}
+            </span>
+            <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">{course.code.slice(3)}</span>
+          </div>
+          <h3 className="font-black text-gray-900 text-xs uppercase tracking-tight leading-snug line-clamp-2 mb-3">{course.title}</h3>
+        </div>
+        
+        <div className="flex items-center justify-between pt-3 border-t border-gray-50">
+          <div className="flex items-center gap-1 text-[8px] font-bold text-gray-400 uppercase tracking-wide">
+            <History size={10} /> {course.user_attempts || 0} Attempts
+          </div>
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center shadow-sm transition-colors ${isBlocked ? 'bg-gray-100 text-gray-400' : 'bg-black text-white group-hover:bg-[#004d00]'}`}>
+            <Play size={10} fill="currentColor" />
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -149,8 +176,6 @@ export default function StudentDashboard() {
   const [greeting, setGreeting] = useState("WELCOME BACK");
   const [avatarUrl, setAvatarUrl] = useState("");
   const [setupCourse, setSetupCourse] = useState(null);
-  const [gstExpanded, setGstExpanded] = useState(true);
-  const [othersExpanded, setOthersExpanded] = useState(false);
   const [historyExpanded, setHistoryExpanded] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [totalForumPosts, setTotalForumPosts] = useState(0);
@@ -256,9 +281,16 @@ export default function StudentDashboard() {
         <div className="relative z-10">
           <div className="flex justify-between items-center mb-8">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center border-2 border-white/20 shadow-lg overflow-hidden relative group">
-                {avatarUrl && <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover group-hover:scale-110 transition-transform" />}
-                {isPremium && <div className="absolute bottom-0 inset-x-0 bg-yellow-400 h-1.5"></div>}
+              <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center border-2 border-white/20 shadow-lg overflow-visible relative group">
+                <div className="w-full h-full rounded-2xl overflow-hidden">
+                   {avatarUrl && <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover group-hover:scale-110 transition-transform" />}
+                </div>
+                {/* CROWN RESTORED & ENHANCED */}
+                {isPremium && (
+                  <div className="absolute -top-2 -right-2 bg-yellow-400 text-black p-1.5 rounded-full border-2 border-[#004d00] shadow-md z-20 animate-bounce">
+                    <Crown size={10} fill="currentColor" />
+                  </div>
+                )}
               </div>
               <div>
                 <p className="text-green-200 text-[9px] font-black uppercase tracking-[0.2em] mb-1">{greeting}</p>
@@ -281,23 +313,10 @@ export default function StudentDashboard() {
         </div>
       </header>
 
-      <div className="px-5 -mt-12 relative z-20 space-y-6">
-        
-        {/* === SMART SEARCH BAR === */}
-        <div className="relative shadow-xl shadow-gray-200/50 rounded-2xl">
-          <div className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400"><Search size={18} /></div>
-          <input 
-            type="text" 
-            placeholder="Search Operations..." 
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-white py-4 pl-12 pr-5 rounded-2xl border border-gray-100 text-sm font-bold text-gray-800 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500/20 transition-all"
-          />
-        </div>
-
+      <div className="px-5 -mt-12 relative z-20 space-y-8">
         <DisclaimerCard />
 
-        {/* === COMMUNITY FEED (SOLID BLUE RESTORED) === */}
+        {/* === COMMUNITY FORUM (RENAMED & BLUE) === */}
         <Link href="/cbt/community" onClick={handleForumEnter} className="block group">
           <div className="bg-gradient-to-r from-blue-600 to-blue-900 rounded-[2.5rem] p-6 shadow-xl shadow-blue-900/20 relative overflow-hidden active:scale-[0.98] transition-transform">
             <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-[40px] -mr-10 -mt-10"></div>
@@ -308,7 +327,7 @@ export default function StudentDashboard() {
                   {unreadCount > 0 && <div className="absolute -top-2 -right-2 bg-red-500 text-white text-[9px] font-black w-6 h-6 flex items-center justify-center rounded-full border-4 border-blue-800 animate-bounce">{unreadCount}</div>}
                 </div>
                 <div>
-                  <h2 className="text-white font-black text-sm uppercase tracking-widest mb-1">Tactical Comms</h2>
+                  <h2 className="text-white font-black text-sm uppercase tracking-widest mb-1">Community Forum</h2>
                   <p className="text-blue-100 text-[10px] font-bold">{unreadCount > 0 ? `${unreadCount} New Intel Reports` : "Secure Channel Active"}</p>
                 </div>
               </div>
@@ -353,33 +372,40 @@ export default function StudentDashboard() {
           )}
         </section>
 
-        {/* === SECTORS (Courses) === */}
+        {/* === SECTORS (GRID LAYOUT + SEARCH) === */}
         <section>
-           <div className="flex items-center justify-between mb-5 px-2">
-             <div className="flex items-center gap-3"><div className="bg-green-100 p-1.5 rounded-lg text-green-800"><BookOpen size={14} /></div><h2 className="font-black text-xs text-gray-400 uppercase tracking-[0.2em]">General Sectors</h2></div>
-             <button onClick={() => setGstExpanded(!gstExpanded)} className="w-8 h-8 flex items-center justify-center bg-white rounded-full shadow-sm text-gray-400 hover:text-black transition-colors"><ChevronDown size={14} className={`transition-transform ${gstExpanded ? 'rotate-180' : ''}`} /></button>
+           <div className="flex items-center justify-between mb-4 px-2">
+             <div className="flex items-center gap-3"><div className="bg-green-100 p-1.5 rounded-lg text-green-800"><BookOpen size={14} /></div><h2 className="font-black text-xs text-gray-400 uppercase tracking-[0.2em]">Available Sectors</h2></div>
            </div>
-          {gstExpanded && (
-            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-              {gstCourses.length > 0 ? gstCourses.map(c => <CourseCard key={c.id} course={c} onLaunch={setSetupCourse} variant="green" isPremium={isPremium} />) : <p className="text-center text-[10px] text-gray-400 font-bold py-4">No matching sectors found.</p>}
-            </div>
-          )}
-        </section>
+           
+           {/* SMART SEARCH BAR */}
+           <div className="relative shadow-sm rounded-2xl mb-6">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"><Search size={16} /></div>
+            <input 
+              type="text" 
+              placeholder="Search by Code or Title..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-white py-3.5 pl-10 pr-5 rounded-2xl border border-gray-100 text-xs font-bold text-gray-800 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500/20 transition-all"
+            />
+           </div>
 
-        <section className="bg-white rounded-[2.5rem] shadow-xl shadow-gray-200/50 border border-gray-100 p-6 relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 to-purple-400"></div>
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3"><div className="bg-blue-100 p-1.5 rounded-lg text-blue-800"><Layers size={14} /></div><h2 className="font-black text-xs text-gray-400 uppercase tracking-[0.2em]">Specialized Units</h2></div>
-            <Sparkles size={14} className="text-blue-400 animate-pulse" />
-          </div>
-          <div className="space-y-2">{otherCourses.slice(0, 2).map(c => <CourseCard key={c.id} course={c} onLaunch={setSetupCourse} variant="blue" isPremium={isPremium} />)}</div>
-          {otherCourses.length > 2 && (
-            <div className="mt-4">
-              <button onClick={() => setOthersExpanded(!othersExpanded)} className="w-full py-4 bg-gray-50 border border-gray-100 rounded-2xl text-[9px] font-black text-gray-500 uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-gray-100 transition-all">{othersExpanded ? "Collapse Units" : `Expand ${otherCourses.length - 2} More Units`}<ChevronDown size={12} className={`transition-transform ${othersExpanded ? 'rotate-180' : ''}`} /></button>
-              {othersExpanded && <div className="mt-4 space-y-2 animate-in fade-in slide-in-from-top-2">{otherCourses.slice(2).map(c => <CourseCard key={c.id} course={c} onLaunch={setSetupCourse} variant="blue" isPremium={isPremium} />)}</div>}
-            </div>
-          )}
-          {otherCourses.length === 0 && <p className="text-center text-[10px] text-gray-400 font-bold py-4">No specialized units found.</p>}
+           {/* GRID LAYOUT */}
+           <div className="grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              {filteredCourses.length > 0 ? filteredCourses.map(c => (
+                <CourseCard 
+                  key={c.id} 
+                  course={c} 
+                  onLaunch={setSetupCourse} 
+                  variant={c.code.toUpperCase().startsWith("GST") ? "green" : "blue"} 
+                  isPremium={isPremium} 
+                />
+              )) : (
+                <div className="col-span-2 text-center py-8 bg-white rounded-2xl border border-dashed border-gray-200">
+                  <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">No matching sectors found.</p>
+                </div>
+              )}
+           </div>
         </section>
 
         {/* === HALL OF LEGENDS === */}
