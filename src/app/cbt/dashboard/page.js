@@ -265,12 +265,12 @@ export default function StudentDashboard() {
       {showUpgrade && <UpgradeModal student={student} onClose={() => setShowUpgrade(false)} onSuccess={() => window.location.reload()} />}
       {setupCourse && <ExamSetupModal course={setupCourse} isPremium={isPremium} onClose={() => setSetupCourse(null)} onStart={(dur, limit) => router.push(`/cbt/exam/${setupCourse.id}?duration=${dur}&limit=${limit || 30}`)} onUpgrade={() => { setSetupCourse(null); setShowUpgrade(true); }} />}
 
-      <header className="bg-[#004d00] text-white pt-10 pb-24 px-5 pr-9 rounded-b-[3rem] shadow-2xl relative z-10 overflow-hidden">
+      <header className="bg-[#004d00] text-white pt-10 pb-24 px-6 rounded-b-[3rem] shadow-2xl relative z-10 overflow-hidden">
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#003300]/20 to-[#002200]/40"></div>
         
         <div className="relative z-10">
-          <div className="flex justify-between items-center mb-8">
+          <div className="flex justify-between items-center mb-8 pl-5 pr-9">
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center border-2 border-white/20 shadow-lg overflow-visible relative group">
                 <div className="w-full h-full rounded-2xl overflow-hidden">
@@ -286,15 +286,15 @@ export default function StudentDashboard() {
             </div>
           </div>
 
-          {/* === OFFICIAL SESSION CARD (EXPANDED & ROUNDED) === */}
-          <div className="bg-[#002200] border border-green-900/30 py-8 px-6 flex items-center justify-between shadow-lg relative overflow-hidden rounded-3xl">
+          {/* === EXPANDED SESSION CARD (STEALTH MODE) === */}
+          <div className="bg-[#002200] border border-green-900/30 py-10 px-8 flex items-center justify-between shadow-lg relative overflow-hidden rounded-3xl">
             <div className="relative z-10">
-              <p className="text-[9px] font-bold text-green-400 uppercase tracking-widest mb-0.5">Current Session</p>
-              <p className="font-black text-sm text-white tracking-widest uppercase whitespace-nowrap">EXAMFORGE SESSION 2026</p>
+              <p className="text-[10px] font-bold text-green-500/80 uppercase tracking-widest mb-1">Current Session</p>
+              <p className="font-black text-base text-white tracking-widest uppercase whitespace-nowrap">EXAMFORGE SESSION 2026</p>
             </div>
-            <div className="flex items-center gap-1.5 bg-green-900/50 border border-green-500/30 px-3 py-1 rounded-full shadow-sm">
-              <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
-              <span className="text-[9px] font-black text-green-400 uppercase tracking-widest">Active</span>
+            <div className="flex items-center gap-2 bg-[#001a00] border border-green-900/30 px-3 py-1.5 rounded-sm shadow-sm">
+              <div className="w-1.5 h-1.5 rounded-full bg-green-700 animate-pulse"></div>
+              <span className="text-[9px] font-bold text-green-700 uppercase tracking-widest">Active</span>
             </div>
           </div>
         </div>
