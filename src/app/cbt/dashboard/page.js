@@ -14,7 +14,7 @@ import LiveTracker from "@/components/cbt/LiveTracker";
 
 const UpgradeModal = dynamic(() => import("@/components/cbt/UpgradeModal"), { ssr: false });
 
-/* === 1. LOGOUT CONFIRMATION MODAL === */
+/* === 1. LOGOUT CONFIRMATION MODAL (STABLE) === */
 function LogoutModal({ onConfirm, onCancel }) {
   return (
     <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/90 backdrop-blur-sm p-6 animate-in fade-in">
@@ -95,7 +95,6 @@ function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
     </div>
   );
 }
-
 /* === 3. IMPORTANT DISCLAIMER (BEIGE/ORANGE - RESTORED) === */
 function DisclaimerCard() {
   const [isOpen, setIsOpen] = useState(true);
@@ -159,7 +158,6 @@ function CourseCard({ course, onLaunch, isPremium }) {
     </div>
   );
 }
-
 export default function StudentDashboard() {
   const router = useRouter();
   const [student, setStudent] = useState(null);
@@ -259,7 +257,6 @@ export default function StudentDashboard() {
       <p className="text-green-200 font-black text-[10px] uppercase tracking-[0.4em] animate-pulse">Loading Modules...</p>
     </div>
   );
-
   return (
     <main className="min-h-screen bg-[#f8f9fa] font-sans text-gray-900 pb-48 relative selection:bg-green-200">
       <LiveTracker />
@@ -282,21 +279,21 @@ export default function StudentDashboard() {
               </div>
               <div><p className="text-green-200 text-[9px] font-black uppercase tracking-[0.2em] mb-1">{greeting}</p><h1 className="text-2xl font-black leading-none truncate w-48 tracking-tight">{student.name.split(" ")[0]}</h1></div>
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-2">
               <a href="https://wa.me/2348106293674" target="_blank" className="bg-green-500 p-3 rounded-2xl border border-green-400 text-white shadow-[0_0_20px_rgba(34,197,94,0.6)] animate-pulse hover:scale-105 transition-all"><Headset size={20} /></a>
               <button onClick={() => setShowLogoutConfirm(true)} className="bg-white/10 p-3 rounded-2xl border border-white/10 text-red-200 hover:bg-red-600 hover:text-white transition-all active:scale-95"><LogOut size={20} /></button>
             </div>
           </div>
 
-          {/* === RESTORED SESSION CARD (ROUNDED & DARK GREEN) === */}
-          <div className="bg-[#003300] border border-white/10 rounded-3xl p-6 flex items-center justify-between shadow-inner relative overflow-hidden">
+          {/* === BOLU STYLE SESSION CARD (PILL SHAPE & WHITE ACTIVE BADGE) === */}
+          <div className="bg-[#002200] border border-green-900/30 p-6 flex items-center justify-between shadow-lg relative overflow-hidden rounded-[3rem]">
             <div className="relative z-10">
-              <p className="text-[9px] font-bold text-green-400 uppercase tracking-widest mb-1">Current Session</p>
+              <p className="text-[9px] font-bold text-green-400 uppercase tracking-widest mb-0.5">Current Session</p>
               <p className="font-black text-sm text-white tracking-widest uppercase whitespace-nowrap">EXAMFORGE SESSION 2026</p>
             </div>
-            <div className="bg-white text-[#004d00] px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-green-600 animate-pulse"></div>
-              ACTIVE
+            <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-xl">
+              <div className="w-2 h-2 rounded-full bg-[#004d00] animate-pulse"></div>
+              <span className="text-[10px] font-black text-[#004d00] uppercase tracking-widest">Active</span>
             </div>
           </div>
         </div>
