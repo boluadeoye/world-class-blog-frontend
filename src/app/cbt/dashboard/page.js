@@ -14,7 +14,7 @@ import LiveTracker from "@/components/cbt/LiveTracker";
 
 const UpgradeModal = dynamic(() => import("@/components/cbt/UpgradeModal"), { ssr: false });
 
-/* === 1. LOGOUT CONFIRMATION MODAL (STABLE) === */
+/* === 1. LOGOUT CONFIRMATION MODAL === */
 function LogoutModal({ onConfirm, onCancel }) {
   return (
     <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/90 backdrop-blur-sm p-6 animate-in fade-in">
@@ -95,7 +95,8 @@ function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
     </div>
   );
 }
-/* === 3. IMPORTANT DISCLAIMER (BEIGE/ORANGE - RESTORED) === */
+
+/* === 3. IMPORTANT DISCLAIMER === */
 function DisclaimerCard() {
   const [isOpen, setIsOpen] = useState(true);
   return (
@@ -158,6 +159,7 @@ function CourseCard({ course, onLaunch, isPremium }) {
     </div>
   );
 }
+
 export default function StudentDashboard() {
   const router = useRouter();
   const [student, setStudent] = useState(null);
@@ -223,6 +225,21 @@ export default function StudentDashboard() {
     fetchData();
   }, [router]);
 
+  // === REAL-TIME LEADERBOARD POLLING ===
+  useEffect(() => {
+    const pollLeaderboard = async () => {
+      try {
+        const res = await fetch('/api/cbt/leaderboard');
+        if (res.ok) {
+          const data = await res.json();
+          setLeaders(Array.isArray(data) ? data : []);
+        }
+      } catch (e) { /* Silent fail */ }
+    };
+    const interval = setInterval(pollLeaderboard, 10000); // Poll every 10s
+    return () => clearInterval(interval);
+  }, []);
+
   const handleForumEnter = () => {
     localStorage.setItem('cbt_forum_read_count', totalForumPosts.toString());
     setUnreadCount(0);
@@ -257,6 +274,7 @@ export default function StudentDashboard() {
       <p className="text-green-200 font-black text-[10px] uppercase tracking-[0.4em] animate-pulse">Loading Modules...</p>
     </div>
   );
+
   return (
     <main className="min-h-screen bg-[#f8f9fa] font-sans text-gray-900 pb-48 relative selection:bg-green-200">
       <LiveTracker />
@@ -269,7 +287,7 @@ export default function StudentDashboard() {
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#003300]/20 to-[#002200]/40"></div>
         
         <div className="relative z-10">
-          <div className="flex justify-between items-center mb-8">
+          <div className="flex justify-between items-center mb-8 pl-5 pr-9">
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center border-2 border-white/20 shadow-lg overflow-visible relative group">
                 <div className="w-full h-full rounded-2xl overflow-hidden">
@@ -285,15 +303,15 @@ export default function StudentDashboard() {
             </div>
           </div>
 
-          {/* === BOLU STYLE SESSION CARD (PILL SHAPE & WHITE ACTIVE BADGE) === */}
-          <div className="bg-[#002200] border border-green-900/30 p-6 flex items-center justify-between shadow-lg relative overflow-hidden rounded-[3rem]">
+          {/* === EXPANDED SESSION CARD (STEALTH MODE) === */}
+          <div className="bg-[#002200] border border-green-900/30 py-10 px-8 flex items-center justify-between shadow-lg relative overflow-hidden rounded-[3rem]">
             <div className="relative z-10">
-              <p className="text-[9px] font-bold text-green-400 uppercase tracking-widest mb-0.5">Current Session</p>
-              <p className="font-black text-sm text-white tracking-widest uppercase whitespace-nowrap">EXAMFORGE SESSION 2026</p>
+              <p className="text-[10px] font-bold text-green-500/80 uppercase tracking-widest mb-1">Current Session</p>
+              <p className="font-black text-base text-white tracking-widest uppercase whitespace-nowrap">EXAMFORGE SESSION 2026</p>
             </div>
-            <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-xl">
-              <div className="w-2 h-2 rounded-full bg-[#004d00] animate-pulse"></div>
-              <span className="text-[10px] font-black text-[#004d00] uppercase tracking-widest">Active</span>
+            <div className="flex items-center gap-2 bg-[#001a00] border border-green-900/30 px-3 py-1.5 rounded-sm shadow-sm">
+              <div className="w-1.5 h-1.5 rounded-full bg-green-700 animate-pulse"></div>
+              <span className="text-[9px] font-bold text-green-700 uppercase tracking-widest">Active</span>
             </div>
           </div>
         </div>
@@ -336,7 +354,7 @@ export default function StudentDashboard() {
 
         <section>
           <div className="flex items-center justify-between mb-5 px-2">
-            <div className="flex items-center gap-3"><div className="bg-yellow-100 p-1.5 rounded-lg text-yellow-700"><Trophy size={14} /></div><h2 className="font-black text-xs text-gray-400 uppercase tracking-[0.2em]">Hall of Legends</h2></div>
+            <div className="flex items-center gap-3"><div className="bg-yellow-100 p-1.5 rounded-lg text-yellow-700"><Trophy size={14} /></div><h2 className="font-black text-xs text-gray-400 uppercase tracking-[0.2em]">Daily Leaderboard</h2></div>
             <div className="flex items-center gap-1.5 bg-green-50 text-green-700 px-3 py-1 rounded-full border border-green-100"><div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div><span className="text-[8px] font-black uppercase tracking-widest">Live</span></div>
           </div>
           {qualifiedLeaders.length > 0 ? (<div className="flex gap-4 overflow-x-auto pb-8 px-2 -mx-2 custom-scrollbar snap-x">{qualifiedLeaders.map((user, i) => { const isFirst = i === 0; const isSecond = i === 1; const isThird = i === 2; let cardStyle = "bg-white border-gray-100"; let rankBadge = null; if (isFirst) { cardStyle = "bg-gradient-to-b from-yellow-50 to-white border-yellow-200 shadow-xl shadow-yellow-500/10"; rankBadge = <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-yellow-400 to-yellow-600 text-white px-4 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-lg flex items-center gap-1"><Crown size={10} fill="currentColor" /> Vanguard</div>; } else if (isSecond) { cardStyle = "bg-gradient-to-b from-gray-50 to-white border-gray-200"; rankBadge = <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gray-400 text-white px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-md">Elite</div>; } else if (isThird) { cardStyle = "bg-gradient-to-b from-orange-50 to-white border-orange-200"; rankBadge = <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-orange-400 text-white px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-md">Operative</div>; } return (<div key={i} className={`min-w-[180px] rounded-[2rem] p-6 border ${cardStyle} flex flex-col items-center text-center relative mt-4 snap-center group transition-transform hover:-translate-y-1`}>{rankBadge}<div className="relative mb-4"><div className={`w-20 h-20 rounded-3xl flex items-center justify-center overflow-hidden border-4 ${isFirst ? 'border-yellow-400' : 'border-white shadow-sm'}`}><img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${user.name.replace(/\s/g, '')}&backgroundColor=transparent`} alt={user.name} className="w-full h-full object-cover bg-gray-50" /></div>{isFirst && <div className="absolute -bottom-2 -right-2 bg-yellow-400 text-white p-1.5 rounded-full border-4 border-white shadow-sm"><Sparkles size={10} fill="currentColor" /></div>}</div><h3 className="font-black text-xs text-gray-900 truncate w-full mb-1 uppercase tracking-tight">{user.name}</h3><p className="text-[8px] text-gray-400 font-bold uppercase tracking-wide mb-4 truncate w-full">{user.department || "Unknown Unit"}</p><div className={`w-full py-2 rounded-xl text-[10px] font-black flex items-center justify-center gap-1 ${isFirst ? 'bg-[#004d00] text-white shadow-lg shadow-green-900/20' : 'bg-gray-100 text-gray-600'}`}><Target size={10} /> <span>{user.score}%</span></div></div>); })}</div>) : (<div className="text-center py-12 bg-white rounded-[2.5rem] border border-dashed border-gray-200"><div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse"><Trophy size={24} className="text-gray-300" /></div><p className="text-gray-400 text-[10px] font-black uppercase tracking-widest">Roster Empty. Be the First.</p></div>)}
