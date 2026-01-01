@@ -128,35 +128,40 @@ function DisclaimerCard() {
   );
 }
 
-/* === 4. THE REGISTRAR CARD (RESTORED DESIGN) === */
+/* === 4. THE "SCREENSHOT" COURSE CARD === */
 function CourseCard({ course, onLaunch, isPremium }) {
   const isGst = course.code.toUpperCase().startsWith("GST");
   const isBlocked = !isPremium && course.user_attempts >= 2;
-  let SealIcon = Library;
-  if (!isGst) {
-    if (course.code.startsWith("BIO") || course.code.startsWith("CHM")) SealIcon = Microscope;
-    else if (course.code.startsWith("LAW") || course.code.startsWith("BUS")) SealIcon = Landmark;
-    else SealIcon = PenTool;
-  }
+  
+  // Top Border Color Logic
+  const borderClass = isGst ? 'border-t-[#004d00]' : 'border-t-blue-900';
 
   return (
-    <div onClick={() => onLaunch(course)} className={`bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden group active:scale-[0.99] transition-all duration-200 hover:shadow-md cursor-pointer flex flex-col h-full border-l-4 ${isGst ? 'border-l-[#004d00]' : 'border-l-blue-800'}`}>
-      <div className="p-5 flex-1 flex flex-col justify-between">
-        <div>
-          <div className="flex justify-between items-start mb-3">
-            <div className={`p-2 rounded-lg ${isGst ? 'bg-green-50 text-[#004d00]' : 'bg-blue-50 text-blue-800'}`}><SealIcon size={18} /></div>
-            {isBlocked && <div className="bg-red-50 text-red-600 px-2 py-1 rounded text-[8px] font-black uppercase tracking-widest border border-red-100">Locked</div>}
+    <div onClick={() => onLaunch(course)} className={`bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex flex-col justify-between h-full relative group active:scale-[0.98] transition-all duration-200 hover:shadow-md cursor-pointer border-t-4 ${borderClass}`}>
+       <div>
+          {/* Badge for Code */}
+          <span className="inline-block bg-gray-100 text-gray-600 text-[10px] font-bold px-2.5 py-1 rounded-md mb-3">
+            {course.code}
+          </span>
+          {/* Title */}
+          <h3 className="font-bold text-gray-900 text-sm leading-snug line-clamp-3">
+            {course.title}
+          </h3>
+       </div>
+       
+       {/* Footer */}
+       <div className="flex justify-between items-end mt-6">
+          <div className="flex items-center gap-1.5 text-gray-400">
+             <Database size={12} />
+             <span className="text-[9px] font-bold uppercase tracking-wider">
+               {course.total_questions || 0} Questions
+             </span>
           </div>
-          <h3 className="font-mono font-bold text-gray-500 text-xs tracking-wider mb-1">{course.code}</h3>
-          <h2 className="font-bold text-gray-900 text-sm leading-snug line-clamp-2 mb-4">{course.title}</h2>
-        </div>
-        <div className="pt-4 border-t border-gray-50">
-          <div className="flex items-center justify-between">
-            <span className="text-[9px] font-medium text-gray-400 uppercase tracking-wide">{course.total_questions || 0} Questions</span>
-            <span className={`text-[9px] font-black uppercase tracking-widest flex items-center gap-1 ${isBlocked ? 'text-gray-300' : 'text-[#004d00] group-hover:underline'}`}>Start <ChevronRight size={10} /></span>
+          
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-transform group-hover:scale-110 ${isBlocked ? 'bg-gray-200 text-gray-400' : 'bg-[#0a0a0a] text-white'}`}>
+             {isBlocked ? <Lock size={12} /> : <Play size={12} fill="currentColor" className="ml-0.5" />}
           </div>
-        </div>
-      </div>
+       </div>
     </div>
   );
 }
@@ -272,7 +277,6 @@ export default function StudentDashboard() {
       <header className="bg-[#004d00] text-white pt-10 pb-24 px-6 rounded-b-[3rem] shadow-2xl relative z-10 overflow-hidden">
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#003300]/20 to-[#002200]/40"></div>
-        
         <div className="relative z-10">
           <div className="flex justify-between items-center mb-8">
             <div className="flex items-center gap-4">
@@ -284,7 +288,7 @@ export default function StudentDashboard() {
               </div>
               <div><p className="text-green-200 text-[9px] font-black uppercase tracking-[0.2em] mb-1">{greeting}</p><h1 className="text-2xl font-black leading-none truncate w-48 tracking-tight">{student.name.split(" ")[0]}</h1></div>
             </div>
-            <div className="flex gap-3 mr-2">
+            <div className="flex gap-3 mr-6">
               <a href="https://wa.me/2348106293674" target="_blank" className="bg-green-500 p-3 rounded-2xl border border-green-400 text-white shadow-[0_0_20px_rgba(34,197,94,0.6)] animate-pulse hover:scale-105 transition-all"><Headset size={20} /></a>
               <button onClick={triggerLogout} className="bg-white/10 p-3 rounded-2xl border border-white/10 text-red-200 hover:bg-red-600 hover:text-white transition-all active:scale-95"><LogOut size={20} /></button>
             </div>
@@ -346,7 +350,11 @@ export default function StudentDashboard() {
         <div className="bg-[#0a0a0a]/90 backdrop-blur-xl border border-white/10 shadow-2xl rounded-2xl py-4 px-6 flex items-center justify-between">
           <div className="flex items-center gap-4 flex-1 min-w-0"><div className="w-10 h-10 bg-green-600 rounded-xl flex items-center justify-center text-white shrink-0 shadow-[0_0_15px_rgba(22,163,74,0.5)]"><Award size={18} /></div><div className="min-w-0"><h4 className="font-black text-[10px] text-white leading-none mb-1 uppercase tracking-widest">Bolu Adeoye</h4><p className="text-[8px] text-gray-400 font-bold truncate uppercase tracking-tight">Dept. of English & Literary Studies</p></div></div>
           <div className="h-8 w-[1px] bg-white/10 mx-4"></div>
-          <div className="text-right shrink-0"><p className="text-[7px] font-black text-gray-500 uppercase tracking-[0.2em] mb-0.5">Partner</p><p className="text-[10px] font-black text-white leading-none uppercase tracking-wide">Abel Kings</p><p className="text-[7px] font-bold text-green-500 uppercase tracking-tighter mt-0.5">Tutorial Center</p></div>
+          <div className="text-right shrink-0">
+            <p className="text-[7px] font-black text-gray-500 uppercase tracking-[0.2em] mb-0.5">Partner</p>
+            <p className="text-[10px] font-black text-white leading-none uppercase tracking-wide">Abel Kings</p>
+            <p className="text-[7px] font-bold text-green-500 uppercase tracking-tighter mt-0.5">Tutorial Center</p>
+          </div>
         </div>
       </div>
     </main>
