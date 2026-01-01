@@ -56,12 +56,17 @@ function InternalUpgradeModal({ student, onClose, onSuccess }) {
 
   const handlePayment = () => {
     if (!scriptLoaded || !window.PaystackPop) { alert("Secure Channel Loading... Please wait."); return; }
+    
+    const publicKey = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY;
+    if (!publicKey) { alert("System Error: Payment Key Missing. Contact Support."); return; }
+    if (!student || !student.email) { alert("System Error: Student Profile Missing."); return; }
+
     const handler = window.PaystackPop.setup({
-      key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY,
+      key: publicKey,
       email: student.email,
       amount: 50000,
       currency: "NGN",
-      ref: `cbt_${student.id}_${Date.now()}`,
+      reference: `cbt_${student.id}_${Date.now()}`,
       metadata: { custom_fields: [{ display_name: "Student", variable_name: "student_name", value: student.name }] },
       callback: async function(response) {
         setVerifying(true);
@@ -75,9 +80,10 @@ function InternalUpgradeModal({ student, onClose, onSuccess }) {
           else { const data = await res.json(); setStatus({ type: 'error', title: 'Verification Failed', message: data.error || 'Payment could not be confirmed.' }); }
         } catch (e) { setStatus({ type: 'error', title: 'Network Error', message: 'Connection lost during verification.' }); }
         finally { setVerifying(false); }
-      }
+      },
+      onClose: function() { /* User closed */ }
     });
-    handler.openIframe();
+    handler.open(); // FIXED: Changed from openIframe() to open()
   };
 
   return (
