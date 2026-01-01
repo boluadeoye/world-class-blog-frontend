@@ -5,7 +5,7 @@ import {
   LogOut, Trophy, BookOpen, Play, Award,
   ChevronDown, Info, Crown, Clock, ChevronRight,
   AlertTriangle, Layers, Headset, History, CheckCircle, Settings, Lock, Sparkles,
-  ChevronUp, MessageCircle, GraduationCap, FileText, Target, Zap, ShieldCheck
+  ChevronUp, MessageCircle, GraduationCap, FileText, Target, Zap, ShieldCheck, Search
 } from "lucide-react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -14,7 +14,7 @@ import LiveTracker from "@/components/cbt/LiveTracker";
 
 const UpgradeModal = dynamic(() => import("@/components/cbt/UpgradeModal"), { ssr: false });
 
-/* === 1. MISSION SETUP MODAL (Clean Light Theme) === */
+/* === 1. MISSION SETUP MODAL === */
 function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
   const [duration, setDuration] = useState(course.duration || 15);
   const [qCount, setQCount] = useState(30);
@@ -89,7 +89,7 @@ function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
   );
 }
 
-/* === 2. INTELLIGENCE BRIEFING (Disclaimer) === */
+/* === 2. INTELLIGENCE BRIEFING === */
 function DisclaimerCard() {
   const [isOpen, setIsOpen] = useState(false);
   return (
@@ -114,7 +114,7 @@ function DisclaimerCard() {
   );
 }
 
-/* === 3. SECTOR CARD (Course) === */
+/* === 3. SECTOR CARD === */
 function CourseCard({ course, onLaunch, variant = "green", isPremium }) {
   const isGst = variant === "green";
   const isBlocked = !isPremium && course.user_attempts >= 2;
@@ -154,6 +154,7 @@ export default function StudentDashboard() {
   const [historyExpanded, setHistoryExpanded] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [totalForumPosts, setTotalForumPosts] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     setMounted(true);
@@ -218,8 +219,15 @@ export default function StudentDashboard() {
 
   if (!mounted || !student) return null;
   const isPremium = student.subscription_status === 'premium';
-  const gstCourses = courses.filter(c => c.code.toUpperCase().startsWith("GST"));
-  const otherCourses = courses.filter(c => !c.code.toUpperCase().startsWith("GST"));
+  
+  // FILTER LOGIC
+  const filteredCourses = courses.filter(c => 
+    c.code.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    c.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+  
+  const gstCourses = filteredCourses.filter(c => c.code.toUpperCase().startsWith("GST"));
+  const otherCourses = filteredCourses.filter(c => !c.code.toUpperCase().startsWith("GST"));
   const visibleHistory = historyExpanded ? examHistory : examHistory.slice(0, 2);
   const qualifiedLeaders = leaders.filter(user => user.score >= 60);
 
@@ -240,7 +248,7 @@ export default function StudentDashboard() {
       {showUpgrade && <UpgradeModal student={student} onClose={() => setShowUpgrade(false)} onSuccess={() => window.location.reload()} />}
       {setupCourse && <ExamSetupModal course={setupCourse} isPremium={isPremium} onClose={() => setSetupCourse(null)} onStart={(dur, limit) => router.push(`/cbt/exam/${setupCourse.id}?duration=${dur}&limit=${limit || 30}`)} onUpgrade={() => { setSetupCourse(null); setShowUpgrade(true); }} />}
 
-      {/* === HERO HUD (GREEN RESTORED) === */}
+      {/* === HERO HUD === */}
       <header className="bg-[#004d00] text-white pt-10 pb-24 px-6 rounded-b-[3rem] shadow-2xl relative z-10 overflow-hidden">
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#003300]/20 to-[#002200]/40"></div>
@@ -258,7 +266,7 @@ export default function StudentDashboard() {
               </div>
             </div>
             <div className="flex gap-3">
-              <a href="https://wa.me/2348106293674" target="_blank" className="bg-white/10 p-3 rounded-2xl border border-white/10 text-white hover:bg-white hover:text-[#004d00] transition-all active:scale-95"><Headset size={20} /></a>
+              <a href="https://wa.me/2348106293674" target="_blank" className="bg-green-500 p-3 rounded-2xl border border-green-400 text-white shadow-[0_0_20px_rgba(34,197,94,0.6)] animate-pulse hover:scale-105 transition-all"><Headset size={20} /></a>
               <button onClick={triggerLogout} className="bg-white/10 p-3 rounded-2xl border border-white/10 text-red-200 hover:bg-red-600 hover:text-white transition-all active:scale-95"><LogOut size={20} /></button>
             </div>
           </div>
@@ -273,32 +281,43 @@ export default function StudentDashboard() {
         </div>
       </header>
 
-      <div className="px-5 -mt-12 relative z-20 space-y-8">
+      <div className="px-5 -mt-12 relative z-20 space-y-6">
+        
+        {/* === SMART SEARCH BAR === */}
+        <div className="relative shadow-xl shadow-gray-200/50 rounded-2xl">
+          <div className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400"><Search size={18} /></div>
+          <input 
+            type="text" 
+            placeholder="Search Operations..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-white py-4 pl-12 pr-5 rounded-2xl border border-gray-100 text-sm font-bold text-gray-800 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500/20 transition-all"
+          />
+        </div>
+
         <DisclaimerCard />
 
-        {/* === COMMUNITY FEED (BLUE) === */}
+        {/* === COMMUNITY FEED (SOLID BLUE RESTORED) === */}
         <Link href="/cbt/community" onClick={handleForumEnter} className="block group">
-          <div className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-[2.5rem] p-1 shadow-xl shadow-blue-900/10 active:scale-[0.98] transition-transform">
-            <div className="bg-white rounded-[2.3rem] p-6 relative overflow-hidden border border-blue-100">
-              <div className="absolute top-0 right-0 w-40 h-40 bg-blue-50 rounded-full blur-[40px]"></div>
-              <div className="relative z-10 flex justify-between items-center">
-                <div className="flex items-center gap-5">
-                  <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center border border-blue-100 relative">
-                    <MessageCircle size={26} className="text-blue-600" />
-                    {unreadCount > 0 && <div className="absolute -top-2 -right-2 bg-red-500 text-white text-[9px] font-black w-6 h-6 flex items-center justify-center rounded-full border-4 border-white animate-bounce">{unreadCount}</div>}
-                  </div>
-                  <div>
-                    <h2 className="text-blue-900 font-black text-sm uppercase tracking-widest mb-1">Tactical Comms</h2>
-                    <p className="text-gray-400 text-[10px] font-bold">{unreadCount > 0 ? `${unreadCount} New Intel Reports` : "Secure Channel Active"}</p>
-                  </div>
+          <div className="bg-gradient-to-r from-blue-600 to-blue-900 rounded-[2.5rem] p-6 shadow-xl shadow-blue-900/20 relative overflow-hidden active:scale-[0.98] transition-transform">
+            <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-[40px] -mr-10 -mt-10"></div>
+            <div className="relative z-10 flex justify-between items-center">
+              <div className="flex items-center gap-5">
+                <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center border border-white/20 relative backdrop-blur-sm">
+                  <MessageCircle size={26} className="text-white" />
+                  {unreadCount > 0 && <div className="absolute -top-2 -right-2 bg-red-500 text-white text-[9px] font-black w-6 h-6 flex items-center justify-center rounded-full border-4 border-blue-800 animate-bounce">{unreadCount}</div>}
                 </div>
-                <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all"><ChevronRight size={16} /></div>
+                <div>
+                  <h2 className="text-white font-black text-sm uppercase tracking-widest mb-1">Tactical Comms</h2>
+                  <p className="text-blue-100 text-[10px] font-bold">{unreadCount > 0 ? `${unreadCount} New Intel Reports` : "Secure Channel Active"}</p>
+                </div>
               </div>
+              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-white group-hover:bg-white group-hover:text-blue-900 transition-all"><ChevronRight size={16} /></div>
             </div>
           </div>
         </Link>
 
-        {/* === RECENT OPERATIONS (HISTORY) - RESTORED === */}
+        {/* === RECENT OPERATIONS === */}
         <section>
           <div className="flex items-center justify-between mb-3 px-2">
             <div className="flex items-center gap-2"><History size={14} className="text-gray-400" /><h2 className="font-black text-[10px] text-gray-400 uppercase tracking-widest">Recent Operations</h2></div>
@@ -340,7 +359,11 @@ export default function StudentDashboard() {
              <div className="flex items-center gap-3"><div className="bg-green-100 p-1.5 rounded-lg text-green-800"><BookOpen size={14} /></div><h2 className="font-black text-xs text-gray-400 uppercase tracking-[0.2em]">General Sectors</h2></div>
              <button onClick={() => setGstExpanded(!gstExpanded)} className="w-8 h-8 flex items-center justify-center bg-white rounded-full shadow-sm text-gray-400 hover:text-black transition-colors"><ChevronDown size={14} className={`transition-transform ${gstExpanded ? 'rotate-180' : ''}`} /></button>
            </div>
-          {gstExpanded && <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">{gstCourses.map(c => <CourseCard key={c.id} course={c} onLaunch={setSetupCourse} variant="green" isPremium={isPremium} />)}</div>}
+          {gstExpanded && (
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+              {gstCourses.length > 0 ? gstCourses.map(c => <CourseCard key={c.id} course={c} onLaunch={setSetupCourse} variant="green" isPremium={isPremium} />) : <p className="text-center text-[10px] text-gray-400 font-bold py-4">No matching sectors found.</p>}
+            </div>
+          )}
         </section>
 
         <section className="bg-white rounded-[2.5rem] shadow-xl shadow-gray-200/50 border border-gray-100 p-6 relative overflow-hidden">
@@ -356,6 +379,7 @@ export default function StudentDashboard() {
               {othersExpanded && <div className="mt-4 space-y-2 animate-in fade-in slide-in-from-top-2">{otherCourses.slice(2).map(c => <CourseCard key={c.id} course={c} onLaunch={setSetupCourse} variant="blue" isPremium={isPremium} />)}</div>}
             </div>
           )}
+          {otherCourses.length === 0 && <p className="text-center text-[10px] text-gray-400 font-bold py-4">No specialized units found.</p>}
         </section>
 
         {/* === HALL OF LEGENDS === */}
@@ -411,7 +435,7 @@ export default function StudentDashboard() {
         </section>
       </div>
 
-      {/* === FLOATING PARTNER BAR (DARK) === */}
+      {/* === FLOATING PARTNER BAR (UPDATED) === */}
       <div className="fixed bottom-6 left-6 right-6 z-40 max-w-2xl mx-auto">
         <div className="bg-[#0a0a0a]/90 backdrop-blur-xl border border-white/10 shadow-2xl rounded-2xl py-4 px-6 flex items-center justify-between">
           <div className="flex items-center gap-4 flex-1 min-w-0">
@@ -423,8 +447,9 @@ export default function StudentDashboard() {
           </div>
           <div className="h-8 w-[1px] bg-white/10 mx-4"></div>
           <div className="text-right shrink-0">
-            <p className="text-[7px] font-black text-gray-500 uppercase tracking-[0.2em] mb-0.5">Powered By</p>
+            <p className="text-[7px] font-black text-gray-500 uppercase tracking-[0.2em] mb-0.5">Partner</p>
             <p className="text-[10px] font-black text-white leading-none uppercase tracking-wide">Abel Kings</p>
+            <p className="text-[7px] font-bold text-green-500 uppercase tracking-tighter mt-0.5">Tutorial Center</p>
           </div>
         </div>
       </div>
