@@ -11,11 +11,11 @@ export async function GET(req) {
     let courses;
 
     if (studentId) {
-      // STUDENT MODE: Fixed to query cbt_exam_history
+      // FIX: Cast COUNT(*) to ::int to prevent JSON serialization crash (BigInt error)
       courses = await sql`
         SELECT
           c.*,
-          (SELECT COUNT(*) FROM cbt_exam_history r WHERE r.course_id = c.id::text AND r.student_id = ${String(studentId)}) as user_attempts
+          (SELECT COUNT(*)::int FROM cbt_exam_history r WHERE r.course_id = c.id::text AND r.student_id = ${String(studentId)}) as user_attempts
         FROM cbt_courses c
         ORDER BY c.code ASC
       `;

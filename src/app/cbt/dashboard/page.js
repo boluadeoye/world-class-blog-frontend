@@ -15,7 +15,6 @@ import LiveTracker from "@/components/cbt/LiveTracker";
 
 const UpgradeModal = dynamic(() => import("@/components/cbt/UpgradeModal"), { ssr: false });
 
-/* === 1. EXAMINATION SETUP MODAL === */
 function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
   const [duration, setDuration] = useState(course.duration || 15);
   const [qCount, setQCount] = useState(30);
@@ -78,24 +77,24 @@ function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
   );
 }
 
-/* === 2. ACADEMIC PROTOCOL (RESTORED RED ALERT) === */
+/* === 2. ACADEMIC PROTOCOL (VIBRANT RED) === */
 function DisclaimerCard() {
   const [isOpen, setIsOpen] = useState(false);
   return (
-    <div className="bg-[#FFF5F5] rounded-xl overflow-hidden mb-6 shadow-sm border border-red-100">
-      <button onClick={() => setIsOpen(!isOpen)} className="w-full flex items-center justify-between p-4 text-left group hover:bg-red-50 transition-colors">
+    <div className="bg-red-50 rounded-xl overflow-hidden mb-6 shadow-sm border border-red-100">
+      <button onClick={() => setIsOpen(!isOpen)} className="w-full flex items-center justify-between p-4 text-left group hover:bg-red-100 transition-colors">
         <div className="flex items-center gap-3">
-          <div className="text-red-500 bg-red-100 p-1.5 rounded-lg"><AlertTriangle size={18} /></div>
-          <div><h3 className="font-black text-xs text-red-900 uppercase tracking-widest">Examination Protocol</h3></div>
+          <div className="text-red-600 bg-white p-1.5 rounded-lg shadow-sm"><AlertTriangle size={18} /></div>
+          <div><h3 className="font-black text-xs text-red-800 uppercase tracking-widest">Examination Protocol</h3></div>
         </div>
-        <div className={`transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}><ChevronDown size={14} className="text-red-300" /></div>
+        <div className={`transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}><ChevronDown size={14} className="text-red-400" /></div>
       </button>
       {isOpen && (
-        <div className="px-5 pb-6 text-[10px] text-red-800 leading-relaxed border-t border-red-100 pt-4 bg-[#FFF5F5]">
+        <div className="px-5 pb-6 text-[10px] text-red-900 leading-relaxed border-t border-red-200 pt-4 bg-red-50/50">
           <ul className="space-y-2 font-medium">
-            <li className="flex gap-2"><span className="text-red-500 font-bold">•</span> <span>This module is for <strong>academic conditioning</strong>.</span></li>
-            <li className="flex gap-2"><span className="text-red-500 font-bold">•</span> <span>Adhere strictly to the <strong>time constraints</strong>.</span></li>
-            <li className="flex gap-2"><span className="text-red-500 font-bold">•</span> <span>Performance here is indicative, not absolute.</span></li>
+            <li className="flex gap-2"><span className="text-red-600 font-bold">•</span> <span>This module is for <strong>academic conditioning</strong>.</span></li>
+            <li className="flex gap-2"><span className="text-red-600 font-bold">•</span> <span>Adhere strictly to the <strong>time constraints</strong>.</span></li>
+            <li className="flex gap-2"><span className="text-red-600 font-bold">•</span> <span>Performance here is indicative, not absolute.</span></li>
           </ul>
         </div>
       )}
@@ -103,7 +102,6 @@ function DisclaimerCard() {
   );
 }
 
-/* === 3. THE REGISTRAR CARD (Course) === */
 function CourseCard({ course, onLaunch, isPremium }) {
   const isGst = course.code.toUpperCase().startsWith("GST");
   const isBlocked = !isPremium && course.user_attempts >= 2;
@@ -135,6 +133,7 @@ function CourseCard({ course, onLaunch, isPremium }) {
     </div>
   );
 }
+
 export default function StudentDashboard() {
   const router = useRouter();
   const [student, setStudent] = useState(null);
@@ -217,7 +216,6 @@ export default function StudentDashboard() {
   if (!mounted || !student) return null;
   const isPremium = student.subscription_status === 'premium';
   
-  // SORTING LOGIC: GST First, then Alphabetical
   const sortedCourses = courses
     .filter(c => c.code.toLowerCase().includes(searchQuery.toLowerCase()) || c.title.toLowerCase().includes(searchQuery.toLowerCase()))
     .sort((a, b) => {
@@ -269,8 +267,8 @@ export default function StudentDashboard() {
             </div>
           </div>
           <div className="bg-[#003300] border border-white/10 rounded-3xl p-6 flex items-center justify-between shadow-inner relative overflow-hidden">
-            <div className="relative z-10"><p className="text-[9px] font-bold text-green-400 uppercase tracking-widest mb-1">Operational Status</p><p className="font-black text-sm text-white tracking-widest flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span> SESSION 2026 ACTIVE</p></div>
-            <div className="bg-white text-[#004d00] px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg">Online</div>
+            <div className="relative z-10"><p className="text-[9px] font-bold text-green-400 uppercase tracking-widest mb-1">Academic Status</p><p className="font-black text-sm text-white tracking-widest flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span> SESSION 2026 ACTIVE</p></div>
+            <div className="bg-white text-[#004d00] px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg">Enrolled</div>
           </div>
         </div>
       </header>
