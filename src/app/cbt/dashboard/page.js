@@ -10,12 +10,11 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import StatusModal from "@/components/cbt/StatusModal";
 import LiveTracker from "@/components/cbt/LiveTracker";
 
 const UpgradeModal = dynamic(() => import("@/components/cbt/UpgradeModal"), { ssr: false });
 
-/* === 1. INTERNAL COMPONENT: STATUS MODAL === */
+/* === 1. INTERNAL COMPONENT: STATUS MODAL (CRASH FIX) === */
 function InternalStatusModal({ type, title, message, actionLabel, onAction, onCancel }) {
   const configs = {
     success: { icon: <CheckCircle className="text-green-600" size={40} />, bg: "bg-green-50", btn: "bg-green-700 hover:bg-green-800" },
@@ -103,7 +102,6 @@ function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
     </div>
   );
 }
-
 /* === 3. ACADEMIC PROTOCOL (RED ALERT) === */
 function DisclaimerCard() {
   const [isOpen, setIsOpen] = useState(false);
@@ -129,7 +127,7 @@ function DisclaimerCard() {
   );
 }
 
-/* === 4. THE ACADEMIC PRO CARD (SINGLE DEFINITION) === */
+/* === 4. THE ACADEMIC PRO CARD === */
 function CourseCard({ course, onLaunch, isPremium }) {
   const isGst = course.code.toUpperCase().startsWith("GST");
   const isBlocked = !isPremium && course.user_attempts >= 2;
@@ -165,7 +163,6 @@ function CourseCard({ course, onLaunch, isPremium }) {
     </div>
   );
 }
-
 export default function StudentDashboard() {
   const router = useRouter();
   const [student, setStudent] = useState(null);
@@ -268,7 +265,6 @@ export default function StudentDashboard() {
       <p className="text-green-200 font-black text-[10px] uppercase tracking-[0.4em] animate-pulse">Loading Modules...</p>
     </div>
   );
-
   return (
     <main className="min-h-screen bg-[#f8f9fa] font-sans text-gray-900 pb-48 relative selection:bg-green-200">
       <LiveTracker />
@@ -297,15 +293,15 @@ export default function StudentDashboard() {
             </div>
           </div>
 
-          {/* === EXECUTIVE WHITE SESSION CARD === */}
-          <div className="bg-white rounded-[2rem] p-5 flex items-center justify-between shadow-xl shadow-green-900/20 relative overflow-hidden">
+          {/* === OFFICIAL SESSION CARD (RECTANGULAR & DARK GREEN) === */}
+          <div className="bg-[#002200] border border-green-900/30 p-5 flex items-center justify-between shadow-lg relative overflow-hidden">
             <div className="relative z-10">
-              <p className="text-[9px] font-bold text-green-600/80 uppercase tracking-widest mb-0.5">Current Session</p>
-              <p className="font-black text-sm text-green-900 tracking-wide whitespace-nowrap">ExamForge Session 2026</p>
+              <p className="text-[9px] font-bold text-green-400 uppercase tracking-widest mb-0.5">Current Session</p>
+              <p className="font-black text-sm text-white tracking-widest uppercase whitespace-nowrap">EXAMFORGE SESSION 2026</p>
             </div>
-            <div className="flex items-center gap-1.5 bg-green-50 border border-green-100 px-3 py-1 rounded-full shadow-sm">
-              <div className="w-1.5 h-1.5 rounded-full bg-green-600 animate-pulse"></div>
-              <span className="text-[9px] font-black text-green-700 uppercase tracking-widest">Active</span>
+            <div className="flex items-center gap-1.5 bg-green-900/50 border border-green-500/30 px-3 py-1 shadow-sm">
+              <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
+              <span className="text-[9px] font-black text-green-400 uppercase tracking-widest">Active</span>
             </div>
           </div>
         </div>
