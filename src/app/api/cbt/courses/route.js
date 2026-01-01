@@ -11,11 +11,10 @@ export async function GET(req) {
     let courses;
 
     if (studentId) {
-      // FIX: Cast columns to ::text to prevent "integer = text" mismatch
-      // FIX: Keep COUNT(*)::int to prevent BigInt serialization crash
       courses = await sql`
         SELECT
           c.*,
+          (SELECT COUNT(*)::int FROM cbt_questions q WHERE q.course_id::text = c.id::text) as total_questions,
           (
             SELECT COUNT(*)::int 
             FROM cbt_exam_history r 
@@ -26,7 +25,13 @@ export async function GET(req) {
         ORDER BY c.code ASC
       `;
     } else {
-      courses = await sql`SELECT * FROM cbt_courses ORDER BY code ASC`;
+      courses = await sql`
+        SELECT 
+          c.*,
+          (SELECT COUNT(*)::int FROM cbt_questions q WHERE q.course_id::text = c.id::text) as total_questions
+        FROM cbt_courses c 
+        ORDER BY c.code ASC
+      `;
     }
 
     return NextResponse.json({ courses }, { status: 200 });
