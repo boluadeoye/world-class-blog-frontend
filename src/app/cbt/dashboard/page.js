@@ -14,21 +14,19 @@ import LiveTracker from "@/components/cbt/LiveTracker";
 
 const UpgradeModal = dynamic(() => import("@/components/cbt/UpgradeModal"), { ssr: false });
 
-/* === 1. LOCAL COMPONENT: LOGOUT MODAL (CRASH-PROOF) === */
+/* === 1. LOGOUT CONFIRMATION MODAL === */
 function LogoutModal({ onConfirm, onCancel }) {
   return (
     <div className="fixed inset-0 z-[600] flex items-center justify-center bg-black/90 backdrop-blur-sm p-6 animate-in fade-in">
       <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-sm w-full overflow-hidden border border-gray-100">
         <div className="bg-red-50 p-8 flex flex-col items-center text-center">
-          <div className="mb-4 bg-red-100 p-4 rounded-full text-red-600 shadow-inner">
-            <LogOut size={32} />
-          </div>
+          <div className="mb-4 bg-red-100 p-3 rounded-full text-red-600"><LogOut size={32} /></div>
           <h3 className="font-black text-xl text-red-900 uppercase tracking-tight mb-2">End Session?</h3>
           <p className="text-gray-600 text-sm font-medium leading-relaxed">Confirm disconnection from the secure academic portal.</p>
         </div>
         <div className="p-6 bg-white flex gap-3">
-          <button onClick={onCancel} className="flex-1 py-4 border-2 border-gray-100 rounded-2xl text-xs font-black text-gray-400 uppercase tracking-widest hover:bg-gray-50 transition-all">Cancel</button>
-          <button onClick={onConfirm} className="flex-[1.5] py-4 bg-red-600 text-white rounded-2xl text-xs font-black shadow-lg uppercase tracking-widest hover:bg-red-700 transition-all active:scale-95">Logout</button>
+          <button onClick={onCancel} className="flex-1 py-4 border-2 border-gray-100 rounded-2xl text-xs font-black text-gray-400 uppercase tracking-widest hover:bg-gray-50">Cancel</button>
+          <button onClick={onConfirm} className="flex-[1.5] py-4 bg-red-600 text-white rounded-2xl text-xs font-black shadow-lg uppercase tracking-widest hover:bg-red-700">Logout</button>
         </div>
       </div>
     </div>
@@ -42,17 +40,17 @@ function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
   const isBlocked = !isPremium && course.user_attempts >= 2;
 
   return (
-    <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in zoom-in duration-300">
+    <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in zoom-in duration-300">
       <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-sm overflow-hidden border border-gray-200 relative">
         <div className={`p-8 relative z-10 ${isBlocked ? 'bg-red-50' : 'bg-green-50'} border-b border-gray-100`}>
           <h3 className={`font-black text-xl uppercase tracking-tighter ${isBlocked ? 'text-red-900' : 'text-[#004d00]'}`}>Examination Setup</h3>
-          <p className="text-[10px] font-mono font-bold uppercase tracking-widest mt-1 text-gray-500">{course.code} • {course.title}</p>
+          <p className={`text-[10px] font-mono font-bold uppercase tracking-widest mt-1 ${isBlocked ? 'text-red-400' : 'text-green-600'}`}>{course.code} • {course.title}</p>
         </div>
         <div className="p-8 pt-6">
           {isBlocked ? (
             <div className="text-center py-4">
               <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-200"><Lock size={32} className="text-red-600" /></div>
-              <p className="text-gray-600 text-xs font-medium mb-8 leading-relaxed">Maximum free attempts recorded. Upgrade required for further access.</p>
+              <p className="text-gray-600 text-xs font-medium mb-8 leading-relaxed">Maximum free attempts recorded. Upgrade required.</p>
               <button onClick={onUpgrade} className="w-full py-4 bg-yellow-500 text-black rounded-xl font-black text-xs uppercase tracking-[0.2em] shadow-lg hover:scale-105 transition-transform">Upgrade Clearance</button>
               <button onClick={onClose} className="mt-4 text-gray-400 text-[10px] font-bold uppercase tracking-widest hover:text-gray-600">Return to Catalog</button>
             </div>
@@ -97,27 +95,26 @@ function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
     </div>
   );
 }
-
-/* === 3. IMPORTANT DISCLAIMER (BEIGE/ORANGE - ADEOLU TARGET) === */
+/* === 3. IMPORTANT DISCLAIMER (BEIGE/ORANGE) === */
 function DisclaimerCard() {
   const [isOpen, setIsOpen] = useState(true);
   return (
-    <div className="bg-[#FFF8F0] rounded-[2.5rem] overflow-hidden mb-8 shadow-sm border border-orange-100/50">
-      <button onClick={() => setIsOpen(!isOpen)} className="w-full flex items-center justify-between p-6 text-left group">
+    <div className="bg-[#FFF8F0] rounded-[2.5rem] overflow-hidden mb-6 shadow-sm border border-orange-50/50">
+      <button onClick={() => setIsOpen(!isOpen)} className="w-full flex items-center justify-between p-6 text-left">
         <div className="flex items-center gap-4">
-          <div className="bg-orange-100 w-12 h-12 flex items-center justify-center rounded-2xl text-orange-600 border border-orange-200 shadow-inner"><Info size={20} /></div>
-          <div><h3 className="font-black text-xs text-[#5A3A29] uppercase tracking-widest">Important Disclaimer</h3><p className="text-[9px] text-orange-400 font-bold mt-0.5 uppercase tracking-tight">Read before starting</p></div>
+          <div className="bg-orange-100 w-10 h-10 flex items-center justify-center rounded-full text-orange-600 shadow-inner"><Info size={18} /></div>
+          <div><h3 className="font-black text-xs text-[#5A3A29] uppercase tracking-wide">Important Disclaimer</h3><p className="text-[9px] text-orange-400 font-bold mt-0.5">Read before starting</p></div>
         </div>
-        <div className={`w-8 h-8 rounded-full bg-white flex items-center justify-center transition-transform duration-300 shadow-sm ${isOpen ? 'rotate-180 text-orange-600' : 'text-gray-300'}`}><ChevronDown size={14} /></div>
+        <ChevronDown size={16} className={`text-orange-300 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
       {isOpen && (
-        <div className="px-8 pb-8 text-[11px] text-[#8B5E3C] leading-relaxed border-t border-orange-100/50 pt-5 bg-white/50">
+        <div className="px-6 pb-8 text-[10px] text-[#8B5E3C] leading-relaxed border-t border-orange-100/50 pt-4">
           <p className="mb-3 font-black text-[#5A3A29] uppercase tracking-widest text-[9px]">Strict Warning:</p>
-          <ul className="space-y-3 font-medium">
-            <li className="flex gap-3"><div className="w-1.5 h-1.5 rounded-full bg-orange-400 mt-1.5 shrink-0"></div> <span>The purpose of this mock is <strong>NOT</strong> to expose likely questions.</span></li>
-            <li className="flex gap-3"><div className="w-1.5 h-1.5 rounded-full bg-orange-400 mt-1.5 shrink-0"></div> <span>The aim is to <strong>simulate the environment</strong> psychologically.</span></li>
-            <li className="flex gap-3"><div className="w-1.5 h-1.5 rounded-full bg-orange-400 mt-1.5 shrink-0"></div> <span>Use this to practice <strong>time management</strong>.</span></li>
-            <li className="flex gap-3"><div className="w-1.5 h-1.5 rounded-full bg-orange-400 mt-1.5 shrink-0"></div> <span>Success here <strong>does not guarantee success</strong> in the main exam.</span></li>
+          <ul className="space-y-2 font-medium">
+            <li className="flex gap-2"><span className="text-orange-400 font-black">•</span> <span>The purpose of this mock is <strong>NOT</strong> to expose likely questions.</span></li>
+            <li className="flex gap-2"><span className="text-orange-400 font-black">•</span> <span>The aim is to <strong>simulate the environment</strong> psychologically.</span></li>
+            <li className="flex gap-2"><span className="text-orange-400 font-black">•</span> <span>Use this to practice <strong>time management</strong>.</span></li>
+            <li className="flex gap-2"><span className="text-orange-400 font-black">•</span> <span>Success here <strong>does not guarantee success</strong> in the main exam.</span></li>
           </ul>
         </div>
       )}
@@ -125,7 +122,7 @@ function DisclaimerCard() {
   );
 }
 
-/* === 4. THE ACADEMIC PRO CARD (GRID) === */
+/* === 4. THE ACADEMIC PRO CARD === */
 function CourseCard({ course, onLaunch, isPremium }) {
   const isGst = course.code.toUpperCase().startsWith("GST");
   const isBlocked = !isPremium && course.user_attempts >= 2;
@@ -142,9 +139,9 @@ function CourseCard({ course, onLaunch, isPremium }) {
     : { accent: "bg-slate-700", badge: "bg-slate-50 text-slate-700 border-slate-100", icon: "text-slate-800", btn: "bg-slate-800 hover:bg-slate-900" };
 
   return (
-    <div onClick={() => onLaunch(course)} className="group relative bg-white rounded-[2rem] border border-gray-200 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer overflow-hidden flex flex-col h-full">
+    <div onClick={() => onLaunch(course)} className="group relative bg-white rounded-2xl border border-gray-200 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer overflow-hidden flex flex-col h-full">
       <div className={`h-1.5 w-full ${theme.accent}`}></div>
-      <div className="p-5 flex flex-col h-full justify-between relative">
+      <div className="p-5 flex-1 flex flex-col h-full justify-between relative">
         <div className={`absolute -right-6 -top-6 opacity-[0.03] transform rotate-12 scale-[2.5] ${theme.icon}`}><SealIcon /></div>
         <div className="relative z-10">
           <div className="flex justify-between items-start mb-3">
@@ -161,7 +158,6 @@ function CourseCard({ course, onLaunch, isPremium }) {
     </div>
   );
 }
-
 export default function StudentDashboard() {
   const router = useRouter();
   const [student, setStudent] = useState(null);
@@ -276,7 +272,6 @@ export default function StudentDashboard() {
       <p className="text-green-200 font-black text-[10px] uppercase tracking-[0.4em] animate-pulse">Loading Modules...</p>
     </div>
   );
-
   return (
     <main className="min-h-screen bg-[#f8f9fa] font-sans text-gray-900 pb-48 relative selection:bg-green-200">
       <LiveTracker />
@@ -284,12 +279,12 @@ export default function StudentDashboard() {
       {showUpgrade && <UpgradeModal student={student} onClose={() => setShowUpgrade(false)} onSuccess={() => window.location.reload()} />}
       {setupCourse && <ExamSetupModal course={setupCourse} isPremium={isPremium} onClose={() => setSetupCourse(null)} onStart={(dur, limit) => router.push(`/cbt/exam/${setupCourse.id}?duration=${dur}&limit=${limit || 30}`)} onUpgrade={() => { setSetupCourse(null); setShowUpgrade(true); }} />}
 
-      <header className="bg-[#004d00] text-white pt-10 pb-24 px-8 rounded-b-[3rem] shadow-2xl relative z-10 overflow-hidden">
+      <header className="bg-[#004d00] text-white pt-10 pb-24 px-6 rounded-b-[3rem] shadow-2xl relative z-10 overflow-hidden">
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#003300]/20 to-[#002200]/40"></div>
         
         <div className="relative z-10">
-          <div className="flex justify-between items-center mb-8">
+          <div className="flex justify-between items-center mb-8 pl-2 pr-4">
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center border-2 border-white/20 shadow-lg overflow-visible relative group">
                 <div className="w-full h-full rounded-2xl overflow-hidden">
@@ -299,26 +294,27 @@ export default function StudentDashboard() {
               </div>
               <div><p className="text-green-200 text-[9px] font-black uppercase tracking-[0.2em] mb-1">{greeting}</p><h1 className="text-2xl font-black leading-none truncate w-48 tracking-tight">{student.name.split(" ")[0]}</h1></div>
             </div>
-            <div className="flex gap-3 mr-6">
+            <div className="flex items-center gap-3">
               <a href="https://wa.me/2348106293674" target="_blank" className="bg-green-500 p-3 rounded-2xl border border-green-400 text-white shadow-[0_0_20px_rgba(34,197,94,0.6)] animate-pulse hover:scale-105 transition-all"><Headset size={20} /></a>
               <button onClick={() => setShowLogoutConfirm(true)} className="bg-white/10 p-3 rounded-2xl border border-white/10 text-red-200 hover:bg-red-600 hover:text-white transition-all active:scale-95"><LogOut size={20} /></button>
             </div>
           </div>
 
-          {/* === ADEOLU TARGET SESSION CARD === */}
-          <div className="bg-[#003300] border border-white/10 rounded-3xl p-6 flex items-center justify-between shadow-inner relative overflow-hidden">
+          <div className="bg-[#003300] border border-white/10 rounded-[3rem] p-6 flex items-center justify-between shadow-inner relative overflow-hidden">
             <div className="relative z-10">
               <p className="text-[9px] font-bold text-green-400 uppercase tracking-widest mb-1">Current Session</p>
               <p className="font-black text-sm text-white tracking-widest uppercase whitespace-nowrap">EXAMFORGE SESSION 2026</p>
             </div>
-            <div className="bg-white text-[#004d00] px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg">Active</div>
+            <div className="bg-white text-[#004d00] px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg flex items-center gap-2 flex-shrink-0">
+              <div className="w-2 h-2 rounded-full bg-green-600 animate-pulse"></div>
+              ACTIVE
+            </div>
           </div>
         </div>
       </header>
 
-      <div className="px-5 -mt-12 relative z-20 space-y-8">
+      <div className="px-5 -mt-12 relative z-20 space-y-12">
         <DisclaimerCard />
-        
         <Link href="/cbt/community" onClick={handleForumEnter} className="block group">
           <div className="bg-gradient-to-r from-blue-700 to-blue-900 rounded-[2rem] p-6 shadow-xl shadow-blue-900/20 relative overflow-hidden active:scale-[0.98] transition-transform">
             <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-[40px] -mr-10 -mt-10"></div>
@@ -352,30 +348,48 @@ export default function StudentDashboard() {
            </div>
         </section>
 
-        <section>
-          <div className="flex items-center justify-between mb-5 px-2">
-            <div className="flex items-center gap-3"><div className="bg-yellow-100 p-1.5 rounded-lg text-yellow-700"><Trophy size={14} /></div><h2 className="font-black text-xs text-gray-400 uppercase tracking-[0.2em]">Daily Leaderboard</h2></div>
-            <div className="flex items-center gap-1.5 bg-green-50 text-green-700 px-3 py-1 rounded-full border border-green-100"><div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div><span className="text-[8px] font-black uppercase tracking-widest">Live</span></div>
+        {/* === LUXURY DAILY LEADERBOARD === */}
+        <section className="pt-12 pb-12">
+          <div className="flex items-center justify-between mb-6 px-2">
+            <div className="flex items-center gap-3"><div className="bg-yellow-100 p-2 rounded-xl text-yellow-700 shadow-sm"><Trophy size={16} /></div><h2 className="font-black text-xs text-slate-500 uppercase tracking-[0.25em]">Daily Leaderboard</h2></div>
+            <div className="flex items-center gap-2 bg-emerald-50 text-emerald-700 px-4 py-1.5 rounded-full border border-emerald-100 shadow-sm"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div><span className="text-[9px] font-black uppercase tracking-widest">Live</span></div>
           </div>
-          {qualifiedLeaders.length > 0 ? (<div className="flex gap-4 overflow-x-auto pb-8 px-2 -mx-2 custom-scrollbar snap-x">{qualifiedLeaders.map((user, i) => { const isFirst = i === 0; const isSecond = i === 1; const isThird = i === 2; let cardStyle = "bg-white border-gray-100"; let rankBadge = null; if (isFirst) { cardStyle = "bg-gradient-to-b from-yellow-50 to-white border-yellow-200 shadow-xl shadow-yellow-500/10"; rankBadge = <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-yellow-400 to-yellow-600 text-white px-4 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-lg flex items-center gap-1"><Crown size={10} fill="currentColor" /> Vanguard</div>; } else if (isSecond) { cardStyle = "bg-gradient-to-b from-gray-50 to-white border-gray-200"; rankBadge = <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gray-400 text-white px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-md">Elite</div>; } else if (isThird) { cardStyle = "bg-gradient-to-b from-orange-50 to-white border-orange-200"; rankBadge = <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-orange-400 text-white px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-md">Operative</div>; } return (<div key={i} className={`min-w-[180px] rounded-[2rem] p-6 border ${cardStyle} flex flex-col items-center text-center relative mt-4 snap-center group transition-transform hover:-translate-y-1`}>{rankBadge}<div className="relative mb-4"><div className={`w-20 h-20 rounded-3xl flex items-center justify-center overflow-hidden border-4 ${isFirst ? 'border-yellow-400' : 'border-white shadow-sm'}`}><img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${user.name.replace(/\s/g, '')}&backgroundColor=transparent`} alt={user.name} className="w-full h-full object-cover bg-gray-50" /></div>{isFirst && <div className="absolute -bottom-2 -right-2 bg-yellow-400 text-white p-1.5 rounded-full border-4 border-white shadow-sm"><Sparkles size={10} fill="currentColor" /></div>}</div><h3 className="font-black text-xs text-gray-900 truncate w-full mb-1 uppercase tracking-tight">{user.name}</h3><p className="text-[8px] text-gray-400 font-bold uppercase tracking-wide mb-4 truncate w-full">{user.department || "Unknown Unit"}</p><div className={`w-full py-2 rounded-xl text-[10px] font-black flex items-center justify-center gap-1 ${isFirst ? 'bg-[#004d00] text-white shadow-lg shadow-green-900/20' : 'bg-gray-100 text-gray-600'}`}><Target size={10} /> <span>{user.score}%</span></div></div>); })}</div>) : (<div className="text-center py-12 bg-white rounded-[2.5rem] border border-dashed border-gray-200"><div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse"><Trophy size={24} className="text-gray-300" /></div><p className="text-gray-400 text-[10px] font-black uppercase tracking-widest">Roster Empty. Be the First.</p></div>)}
+          {qualifiedLeaders.length > 0 ? (
+            <div className="flex gap-5 overflow-x-auto pb-10 px-2 -mx-2 custom-scrollbar snap-x">
+              {qualifiedLeaders.map((user, i) => {
+                const isFirst = i === 0;
+                const isSecond = i === 1;
+                const isThird = i === 2;
+                let cardStyle = "bg-white border-slate-100";
+                let rankBadge = null;
+                if (isFirst) { cardStyle = "bg-gradient-to-b from-yellow-50 to-white border-yellow-200 shadow-2xl shadow-yellow-500/10"; rankBadge = <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-yellow-400 to-yellow-600 text-white px-5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl flex items-center gap-1.5"><Crown size={12} fill="currentColor" /> Vanguard</div>; }
+                else if (isSecond) { cardStyle = "bg-gradient-to-b from-slate-50 to-white border-slate-200"; rankBadge = <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-slate-400 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg">Elite</div>; }
+                else if (isThird) { cardStyle = "bg-gradient-to-b from-orange-50 to-white border-orange-200"; rankBadge = <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-orange-400 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg">Operative</div>; }
+                return (
+                  <div key={i} className={`min-w-[200px] rounded-[3rem] p-8 border ${cardStyle} flex flex-col items-center text-center relative mt-6 snap-center group transition-all duration-500 hover:-translate-y-2`}>
+                    {rankBadge}
+                    <div className="relative mb-5">
+                      <div className={`w-24 h-24 rounded-[2rem] flex items-center justify-center overflow-hidden border-4 ${isFirst ? 'border-yellow-400 shadow-xl' : 'border-white shadow-md'}`}><img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${user.name.replace(/\s/g, '')}&backgroundColor=transparent`} alt={user.name} className="w-full h-full object-cover bg-slate-50" /></div>
+                      {isFirst && <div className="absolute -bottom-2 -right-2 bg-yellow-400 text-white p-2 rounded-full border-4 border-white shadow-lg"><Sparkles size={12} fill="currentColor" /></div>}
+                    </div>
+                    <h3 className="font-black text-sm text-slate-900 truncate w-full mb-1 uppercase tracking-tight">{user.name}</h3>
+                    <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mb-5 truncate w-full">{user.department || "Unknown Unit"}</p>
+                    <div className={`w-full py-3 rounded-2xl text-[11px] font-black flex items-center justify-center gap-2 ${isFirst ? 'bg-emerald-700 text-white shadow-xl shadow-emerald-900/20' : 'bg-slate-100 text-slate-600'}`}><Target size={12} /> <span>{user.score}%</span></div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="text-center py-16 bg-white rounded-[3rem] border border-dashed border-slate-200"><div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-5 animate-pulse"><Trophy size={32} className="text-slate-300" /></div><p className="text-slate-400 text-[11px] font-black uppercase tracking-widest">Roster Empty. Be the First.</p></div>
+          )}
         </section>
       </div>
 
       <div className="fixed bottom-6 left-6 right-6 z-40 max-w-2xl mx-auto">
         <div className="bg-[#0a0a0a]/90 backdrop-blur-xl border border-white/10 shadow-2xl rounded-2xl py-4 px-6 flex items-center justify-between">
-          <div className="flex items-center gap-4 flex-1 min-w-0">
-            <div className="w-10 h-10 bg-green-600 rounded-xl flex items-center justify-center text-white shrink-0 shadow-[0_0_15px_rgba(22,163,74,0.5)]"><Award size={18} /></div>
-            <div className="min-w-0">
-              <h4 className="font-black text-[10px] text-white leading-none mb-1 uppercase tracking-widest">Bolu Adeoye</h4>
-              <p className="text-[8px] text-gray-400 font-bold truncate uppercase tracking-tight">Dept. of English & Literary Studies</p>
-            </div>
-          </div>
+          <div className="flex items-center gap-4 flex-1 min-w-0"><div className="w-10 h-10 bg-green-600 rounded-xl flex items-center justify-center text-white shrink-0 shadow-[0_0_15px_rgba(22,163,74,0.5)]"><Award size={18} /></div><div className="min-w-0"><h4 className="font-black text-[10px] text-white leading-none mb-1 uppercase tracking-widest">Bolu Adeoye</h4><p className="text-[8px] text-gray-400 font-bold truncate uppercase tracking-tight">Dept. of English & Literary Studies</p></div></div>
           <div className="h-8 w-[1px] bg-white/10 mx-4"></div>
-          <div className="text-right shrink-0">
-            <p className="text-[7px] font-black text-gray-500 uppercase tracking-[0.2em] mb-0.5">Partner</p>
-            <p className="text-[10px] font-black text-white leading-none uppercase tracking-wide">Abel Kings</p>
-            <p className="text-[7px] font-bold text-green-500 uppercase tracking-tighter mt-0.5">Tutorial Center</p>
-          </div>
+          <div className="text-right shrink-0"><p className="text-[7px] font-black text-gray-500 uppercase tracking-[0.2em] mb-0.5">Partner</p><p className="text-[10px] font-black text-white leading-none uppercase tracking-wide">Abel Kings</p><p className="text-[7px] font-bold text-green-500 uppercase tracking-tighter mt-0.5">Tutorial Center</p></div>
         </div>
       </div>
     </main>
