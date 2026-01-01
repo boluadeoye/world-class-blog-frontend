@@ -5,7 +5,7 @@ import {
   LogOut, Trophy, BookOpen, Play, Award, 
   ChevronDown, Info, Crown, Clock, ChevronRight, 
   AlertTriangle, Layers, Headset, History, CheckCircle, Building2, Settings, Lock, Sparkles,
-  ChevronUp, MessageCircle, Megaphone, Bell, GraduationCap, FileText, Target
+  ChevronUp, MessageCircle, Megaphone, Bell, GraduationCap, FileText, Target, Database
 } from "lucide-react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -14,7 +14,7 @@ import LiveTracker from "../../../components/cbt/LiveTracker";
 
 const UpgradeModal = dynamic(() => import("../../../components/cbt/UpgradeModal"), { ssr: false });
 
-/* === 1. EXAM SETUP MODAL (ROBUST) === */
+/* === 1. EXAM SETUP MODAL === */
 function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
   const [duration, setDuration] = useState(course.duration || 15);
   const [qCount, setQCount] = useState(30);
@@ -84,7 +84,7 @@ function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
   );
 }
 
-/* === 2. DISCLAIMER ACCORDION === */
+/* === 2. DISCLAIMER CARD === */
 function DisclaimerCard() {
   const [isOpen, setIsOpen] = useState(true);
   return (
@@ -103,31 +103,64 @@ function DisclaimerCard() {
             <li className="flex gap-2"><span className="text-orange-400 font-black">•</span> <span>The purpose of this mock is <strong>NOT</strong> to expose likely questions.</span></li>
             <li className="flex gap-2"><span className="text-orange-400 font-black">•</span> <span>The aim is to <strong>simulate the environment</strong> psychologically.</span></li>
             <li className="flex gap-2"><span className="text-orange-400 font-black">•</span> <span>Use this to practice <strong>time management</strong>.</span></li>
-            <li className="flex gap-2"><span className="text-orange-400 font-black">•</span> <span>Success here <strong>does not guarantee success</strong> in the main exam; this is purely for preparation.</span></li>
+            <li className="flex gap-2"><span className="text-orange-400 font-black">•</span> <span>Success here <strong>does not guarantee success</strong> in the main exam.</span></li>
           </ul>
         </div>
       )}
     </div>
   );
 }
-
-/* === 3. COURSE CARD (GRID OPTIMIZED) === */
+/* === 3. COURSE CARD (SCREENSHOT MATCH) === */
 function CourseCard({ course, onLaunch, variant = "green", isPremium }) {
   const isGst = variant === "green";
   const isBlocked = !isPremium && course.user_attempts >= 2;
+  
+  // Visual Styles matching the screenshot
+  const accentColor = isGst ? "bg-[#004d00]" : "bg-[#1e293b]"; // Deep Green vs Dark Slate
+  const badgeStyle = "bg-gray-100 text-gray-700"; // Neutral badge like screenshot
+  const btnStyle = isBlocked 
+    ? "bg-gray-100 text-gray-300" 
+    : isGst ? "bg-[#004d00] text-white" : "bg-[#1e293b] text-white";
+
   return (
-    <div className="bg-white p-3 rounded-2xl shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05)] border border-gray-50 flex justify-between items-center group active:scale-[0.99] transition-transform h-full">
-      <div className="flex items-center gap-3 flex-1 min-w-0">
-        <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-black text-[9px] border shrink-0 ${isGst ? 'bg-green-50 text-[#004d00] border-green-100' : 'bg-blue-50 text-blue-700 border-blue-100'}`}>{course.code.slice(0,3)}</div>
-        <div className="min-w-0 flex-1">
-          <h3 className="font-black text-gray-900 text-[10px] uppercase tracking-tight truncate">{course.code}</h3>
-          <p className="text-[8px] text-gray-400 font-medium truncate">{course.title}</p>
+    <div 
+      onClick={(e) => { e.preventDefault(); onLaunch(course); }} 
+      className="group relative bg-white rounded-[1.5rem] shadow-sm border border-gray-100 overflow-hidden flex flex-col justify-between h-full min-h-[170px] cursor-pointer hover:shadow-md transition-all active:scale-[0.98]"
+    >
+      {/* Top Accent Bar */}
+      <div className={`h-1.5 w-full ${accentColor}`}></div>
+
+      <div className="p-5 flex flex-col h-full">
+        {/* Header: Badge */}
+        <div className="mb-3">
+          <span className={`inline-block px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest ${badgeStyle}`}>
+            {course.code}
+          </span>
+        </div>
+
+        {/* Title */}
+        <h3 className="font-black text-gray-900 text-sm leading-tight mb-6 line-clamp-3">
+          {course.title}
+        </h3>
+
+        {/* Footer: Stats & Action */}
+        <div className="mt-auto flex items-end justify-between">
+          <div className="flex items-center gap-1.5 text-gray-400">
+            <Database size={12} />
+            <span className="text-[9px] font-bold uppercase tracking-wider">
+              {course.total_questions || 0} Questions
+            </span>
+          </div>
+          
+          <div className={`w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-transform group-hover:scale-110 ${btnStyle}`}>
+            {isBlocked ? <Lock size={14} /> : <Play size={14} fill="currentColor" className="ml-0.5" />}
+          </div>
         </div>
       </div>
-      <button onClick={(e) => { e.preventDefault(); onLaunch(course); }} className={`w-7 h-7 rounded-full flex items-center justify-center shadow-md transition-all shrink-0 ml-2 ${isBlocked ? 'bg-red-50 text-red-400 border border-red-100' : isGst ? 'bg-gray-900 text-white hover:bg-[#004d00]' : 'bg-blue-900 text-white hover:bg-blue-950'}`}>{isBlocked ? <Lock size={10} /> : <Play size={10} fill="currentColor" />}</button>
     </div>
   );
 }
+
 export default function StudentDashboard() {
   const router = useRouter();
   const [student, setStudent] = useState(null);
@@ -325,16 +358,16 @@ export default function StudentDashboard() {
              <div className="flex items-center gap-2"><BookOpen size={14} className="text-[#004d00]" /><h2 className="font-black text-[10px] text-gray-500 uppercase tracking-widest">General Studies</h2></div>
              <button onClick={() => setGstExpanded(!gstExpanded)} className="text-gray-400"><ChevronDown size={14} className={`transition-transform ${gstExpanded ? 'rotate-180' : ''}`} /></button>
            </div>
-          {gstExpanded && <div className="grid grid-cols-2 gap-3 animate-in fade-in slide-in-from-top-2">{gstCourses.map(c => <CourseCard key={c.id} course={c} onLaunch={setSetupCourse} variant="green" isPremium={isPremium} />)}</div>}
+          {gstExpanded && <div className="grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2">{gstCourses.map(c => <CourseCard key={c.id} course={c} onLaunch={setSetupCourse} variant="green" isPremium={isPremium} />)}</div>}
         </section>
 
         <section className="bg-[#f0f4ff] rounded-[2rem] shadow-sm border border-blue-50 p-5">
           <div className="flex items-center justify-between mb-4"><div className="flex items-center gap-2"><div className="bg-blue-600 p-1.5 rounded-lg text-white shadow-md"><Layers size={12} /></div><h2 className="font-black text-[10px] text-blue-900 uppercase tracking-widest">Other Courses</h2></div><Sparkles size={12} className="text-blue-400 animate-pulse" /></div>
-          <div className="grid grid-cols-2 gap-3">{otherCourses.slice(0, 2).map(c => <CourseCard key={c.id} course={c} onLaunch={setSetupCourse} variant="blue" isPremium={isPremium} />)}</div>
+          <div className="grid grid-cols-2 gap-4">{otherCourses.slice(0, 2).map(c => <CourseCard key={c.id} course={c} onLaunch={setSetupCourse} variant="blue" isPremium={isPremium} />)}</div>
           {otherCourses.length > 2 && (
             <div className="mt-3">
               <button onClick={() => setOthersExpanded(!othersExpanded)} className="w-full py-3 bg-white/50 border border-blue-100 rounded-xl text-[9px] font-black text-blue-600 uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-white transition-all">{othersExpanded ? "Hide Extra Units" : `View ${otherCourses.length - 2} More Units`}<ChevronDown size={12} className={`transition-transform ${othersExpanded ? 'rotate-180' : ''}`} /></button>
-              {othersExpanded && <div className="mt-3 grid grid-cols-2 gap-3 animate-in fade-in slide-in-from-top-2">{otherCourses.slice(2).map(c => <CourseCard key={c.id} course={c} onLaunch={setSetupCourse} variant="blue" isPremium={isPremium} />)}</div>}
+              {othersExpanded && <div className="mt-3 grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2">{otherCourses.slice(2).map(c => <CourseCard key={c.id} course={c} onLaunch={setSetupCourse} variant="blue" isPremium={isPremium} />)}</div>}
             </div>
           )}
         </section>
