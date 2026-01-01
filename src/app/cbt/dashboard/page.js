@@ -103,6 +103,7 @@ function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
     </div>
   );
 }
+
 /* === 3. ACADEMIC PROTOCOL (RED ALERT) === */
 function DisclaimerCard() {
   const [isOpen, setIsOpen] = useState(false);
@@ -128,43 +129,43 @@ function DisclaimerCard() {
   );
 }
 
-/* === 4. THE "SCREENSHOT" COURSE CARD === */
+/* === 4. THE ACADEMIC PRO CARD (SINGLE DEFINITION) === */
 function CourseCard({ course, onLaunch, isPremium }) {
   const isGst = course.code.toUpperCase().startsWith("GST");
   const isBlocked = !isPremium && course.user_attempts >= 2;
   
-  // Top Border Color Logic
-  const borderClass = isGst ? 'border-t-[#004d00]' : 'border-t-blue-900';
+  let SealIcon = Library;
+  if (!isGst) {
+    if (course.code.startsWith("BIO") || course.code.startsWith("CHM")) SealIcon = Microscope;
+    else if (course.code.startsWith("LAW") || course.code.startsWith("BUS")) SealIcon = Landmark;
+    else SealIcon = PenTool;
+  }
+
+  const theme = isGst 
+    ? { accent: "bg-[#004d00]", badge: "bg-emerald-50 text-emerald-800 border-emerald-100", icon: "text-emerald-900", btn: "bg-[#004d00] hover:bg-emerald-900" }
+    : { accent: "bg-slate-700", badge: "bg-slate-50 text-slate-700 border-slate-100", icon: "text-slate-800", btn: "bg-slate-800 hover:bg-slate-900" };
 
   return (
-    <div onClick={() => onLaunch(course)} className={`bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex flex-col justify-between h-full relative group active:scale-[0.98] transition-all duration-200 hover:shadow-md cursor-pointer border-t-4 ${borderClass}`}>
-       <div>
-          {/* Badge for Code */}
-          <span className="inline-block bg-gray-100 text-gray-600 text-[10px] font-bold px-2.5 py-1 rounded-md mb-3">
-            {course.code}
-          </span>
-          {/* Title */}
-          <h3 className="font-bold text-gray-900 text-sm leading-snug line-clamp-3">
-            {course.title}
-          </h3>
-       </div>
-       
-       {/* Footer */}
-       <div className="flex justify-between items-end mt-6">
-          <div className="flex items-center gap-1.5 text-gray-400">
-             <Database size={12} />
-             <span className="text-[9px] font-bold uppercase tracking-wider">
-               {course.total_questions || 0} Questions
-             </span>
+    <div onClick={() => onLaunch(course)} className="group relative bg-white rounded-2xl border border-gray-200 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer overflow-hidden flex flex-col h-full">
+      <div className={`h-1.5 w-full ${theme.accent}`}></div>
+      <div className="p-5 flex-1 flex flex-col h-full justify-between relative">
+        <div className={`absolute -right-6 -top-6 opacity-[0.03] transform rotate-12 scale-[2.5] ${theme.icon}`}><SealIcon /></div>
+        <div className="relative z-10">
+          <div className="flex justify-between items-start mb-3">
+            <span className={`px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-widest border ${theme.badge}`}>{course.code}</span>
+            {isBlocked && <div className="bg-red-50 text-red-500 p-1 rounded-md"><Lock size={12} /></div>}
           </div>
-          
-          <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-transform group-hover:scale-110 ${isBlocked ? 'bg-gray-200 text-gray-400' : 'bg-[#0a0a0a] text-white'}`}>
-             {isBlocked ? <Lock size={12} /> : <Play size={12} fill="currentColor" className="ml-0.5" />}
-          </div>
-       </div>
+          <h3 className="font-bold text-gray-900 text-sm leading-snug mb-1 line-clamp-2 min-h-[2.5rem]">{course.title}</h3>
+        </div>
+        <div className="mt-4 pt-4 border-t border-gray-50 flex items-center justify-between relative z-10">
+          <div className="flex items-center gap-1.5"><Database size={12} className="text-gray-400" /><span className="text-[9px] font-bold text-gray-400 uppercase tracking-wide">{course.total_questions || 0} Questions</span></div>
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white shadow-md transition-transform group-hover:scale-110 ${isBlocked ? 'bg-gray-200 text-gray-400' : theme.btn}`}><Play size={12} fill="currentColor" className="ml-0.5" /></div>
+        </div>
+      </div>
     </div>
   );
 }
+
 export default function StudentDashboard() {
   const router = useRouter();
   const [student, setStudent] = useState(null);
@@ -267,6 +268,7 @@ export default function StudentDashboard() {
       <p className="text-green-200 font-black text-[10px] uppercase tracking-[0.4em] animate-pulse">Loading Modules...</p>
     </div>
   );
+
   return (
     <main className="min-h-screen bg-[#f8f9fa] font-sans text-gray-900 pb-48 relative selection:bg-green-200">
       <LiveTracker />
@@ -274,9 +276,10 @@ export default function StudentDashboard() {
       {showUpgrade && <UpgradeModal student={student} onClose={() => setShowUpgrade(false)} onSuccess={() => window.location.reload()} />}
       {setupCourse && <ExamSetupModal course={setupCourse} isPremium={isPremium} onClose={() => setSetupCourse(null)} onStart={(dur, limit) => router.push(`/cbt/exam/${setupCourse.id}?duration=${dur}&limit=${limit || 30}`)} onUpgrade={() => { setSetupCourse(null); setShowUpgrade(true); }} />}
 
-      <header className="bg-[#004d00] text-white pt-10 pb-24 px-6 rounded-b-[3rem] shadow-2xl relative z-10 overflow-hidden">
+      <header className="bg-[#004d00] text-white pt-12 pb-24 px-8 rounded-b-[3rem] shadow-2xl relative z-10 overflow-hidden">
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#003300]/20 to-[#002200]/40"></div>
+        
         <div className="relative z-10">
           <div className="flex justify-between items-center mb-8">
             <div className="flex items-center gap-4">
@@ -288,16 +291,20 @@ export default function StudentDashboard() {
               </div>
               <div><p className="text-green-200 text-[9px] font-black uppercase tracking-[0.2em] mb-1">{greeting}</p><h1 className="text-2xl font-black leading-none truncate w-48 tracking-tight">{student.name.split(" ")[0]}</h1></div>
             </div>
-            <div className="flex gap-3 mr-6">
+            <div className="flex items-center gap-3">
               <a href="https://wa.me/2348106293674" target="_blank" className="bg-green-500 p-3 rounded-2xl border border-green-400 text-white shadow-[0_0_20px_rgba(34,197,94,0.6)] animate-pulse hover:scale-105 transition-all"><Headset size={20} /></a>
               <button onClick={triggerLogout} className="bg-white/10 p-3 rounded-2xl border border-white/10 text-red-200 hover:bg-red-600 hover:text-white transition-all active:scale-95"><LogOut size={20} /></button>
             </div>
           </div>
-          <div className="bg-[#003300] border border-white/10 rounded-3xl p-6 flex items-center justify-between shadow-inner relative overflow-hidden">
+          <div className="bg-[#003300]/50 border border-white/10 rounded-3xl p-5 flex items-center justify-between shadow-lg relative overflow-hidden">
             <div className="relative z-10">
-              <p className="font-black text-[11px] text-white tracking-widest uppercase whitespace-nowrap">EXAMFORGE SESSION 2026 ACTIVE</p>
+              <p className="text-[10px] font-bold text-green-400 uppercase tracking-widest mb-0.5">Current Session</p>
+              <p className="font-black text-sm text-white tracking-widest whitespace-nowrap">ExamForge Session 2026</p>
             </div>
-            <div className="bg-white text-[#004d00] px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg">Online</div>
+            <div className="bg-white text-[#004d00] px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-green-600 animate-pulse"></div>
+              Active
+            </div>
           </div>
         </div>
       </header>
@@ -350,11 +357,7 @@ export default function StudentDashboard() {
         <div className="bg-[#0a0a0a]/90 backdrop-blur-xl border border-white/10 shadow-2xl rounded-2xl py-4 px-6 flex items-center justify-between">
           <div className="flex items-center gap-4 flex-1 min-w-0"><div className="w-10 h-10 bg-green-600 rounded-xl flex items-center justify-center text-white shrink-0 shadow-[0_0_15px_rgba(22,163,74,0.5)]"><Award size={18} /></div><div className="min-w-0"><h4 className="font-black text-[10px] text-white leading-none mb-1 uppercase tracking-widest">Bolu Adeoye</h4><p className="text-[8px] text-gray-400 font-bold truncate uppercase tracking-tight">Dept. of English & Literary Studies</p></div></div>
           <div className="h-8 w-[1px] bg-white/10 mx-4"></div>
-          <div className="text-right shrink-0">
-            <p className="text-[7px] font-black text-gray-500 uppercase tracking-[0.2em] mb-0.5">Partner</p>
-            <p className="text-[10px] font-black text-white leading-none uppercase tracking-wide">Abel Kings</p>
-            <p className="text-[7px] font-bold text-green-500 uppercase tracking-tighter mt-0.5">Tutorial Center</p>
-          </div>
+          <div className="text-right shrink-0"><p className="text-[7px] font-black text-gray-500 uppercase tracking-[0.2em] mb-0.5">Partner</p><p className="text-[10px] font-black text-white leading-none uppercase tracking-wide">Abel Kings</p><p className="text-[7px] font-bold text-green-500 uppercase tracking-tighter mt-0.5">Tutorial Center</p></div>
         </div>
       </div>
     </main>
