@@ -5,7 +5,7 @@ import {
   LogOut, Trophy, BookOpen, Play, Award,
   ChevronDown, Info, Crown, Clock, ChevronRight,
   AlertTriangle, Layers, Headset, History, CheckCircle, Settings, Lock, Sparkles,
-  ChevronUp, MessageCircle, GraduationCap, FileText, Target, Zap, ShieldCheck,
+  ChevronUp, MessageCircle, GraduationCap, FileText, Target, Zap, ShieldCheck, Search,
   Library, Landmark, Microscope, PenTool
 } from "lucide-react";
 import Link from "next/link";
@@ -15,7 +15,33 @@ import LiveTracker from "@/components/cbt/LiveTracker";
 
 const UpgradeModal = dynamic(() => import("@/components/cbt/UpgradeModal"), { ssr: false });
 
-/* === 1. EXAMINATION SETUP MODAL === */
+/* === 1. INTERNAL COMPONENT: STATUS MODAL === */
+function InternalStatusModal({ type, title, message, actionLabel, onAction, onCancel }) {
+  const configs = {
+    success: { icon: <CheckCircle className="text-green-600" size={40} />, bg: "bg-green-50", btn: "bg-green-700 hover:bg-green-800" },
+    error: { icon: <XCircle className="text-red-600" size={40} />, bg: "bg-red-50", btn: "bg-red-600 hover:bg-red-700" },
+    warning: { icon: <AlertTriangle className="text-orange-600" size={40} />, bg: "bg-orange-50", btn: "bg-orange-600 hover:bg-orange-700" },
+    logout: { icon: <LogOut className="text-red-600" size={40} />, bg: "bg-red-50", btn: "bg-red-600 hover:bg-red-700" }
+  };
+  const config = configs[type] || configs.error;
+  return (
+    <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/80 backdrop-blur-sm p-6 animate-in fade-in">
+      <div className="bg-white rounded-[2rem] shadow-2xl max-w-sm w-full overflow-hidden border border-gray-100">
+        <div className={`${config.bg} p-10 flex flex-col items-center text-center`}>
+          <div className="mb-4 drop-shadow-sm">{config.icon}</div>
+          <h3 className="font-black text-xl text-gray-900 uppercase tracking-tight mb-2">{title}</h3>
+          <p className="text-gray-600 text-sm font-medium leading-relaxed">{message}</p>
+        </div>
+        <div className="p-6 bg-white flex gap-3">
+          {onCancel && <button onClick={onCancel} className="flex-1 py-4 border-2 border-gray-100 rounded-2xl text-xs font-black text-gray-400 uppercase tracking-widest">Cancel</button>}
+          <button onClick={onAction} className={`flex-[1.5] py-4 ${config.btn} text-white rounded-2xl text-xs font-black shadow-lg uppercase tracking-widest`}>{actionLabel || "Acknowledge"}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* === 2. EXAMINATION SETUP MODAL === */
 function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
   const [duration, setDuration] = useState(course.duration || 15);
   const [qCount, setQCount] = useState(30);
@@ -32,8 +58,8 @@ function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
           {isBlocked ? (
             <div className="text-center py-4">
               <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-200"><Lock size={32} className="text-red-600" /></div>
-              <p className="text-gray-600 text-xs font-medium mb-8 leading-relaxed">Maximum free attempts recorded. Upgrade required.</p>
-              <button onClick={onUpgrade} className="w-full py-4 bg-yellow-500 text-black rounded-xl font-black text-xs uppercase tracking-[0.2em] shadow-lg hover:scale-105 transition-transform">Upgrade Clearance</button>
+              <p className="text-gray-500 text-xs font-medium mb-8 leading-relaxed">Maximum free attempts recorded. Upgrade required.</p>
+              <button onClick={onUpgrade} className="w-full py-4 bg-yellow-500 text-black rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-lg hover:scale-105 transition-transform">Upgrade Clearance</button>
               <button onClick={onClose} className="mt-4 text-gray-400 text-[10px] font-bold uppercase tracking-widest hover:text-gray-600">Return to Catalog</button>
             </div>
           ) : (
@@ -77,7 +103,7 @@ function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
     </div>
   );
 }
-/* === 2. ACADEMIC PROTOCOL (RED ALERT) === */
+/* === 3. ACADEMIC PROTOCOL (RED ALERT) === */
 function DisclaimerCard() {
   const [isOpen, setIsOpen] = useState(false);
   return (
@@ -102,10 +128,11 @@ function DisclaimerCard() {
   );
 }
 
-/* === 3. THE REGISTRAR CARD (Course) === */
+/* === 4. THE ACADEMIC PRO CARD (SINGLE DEFINITION) === */
 function CourseCard({ course, onLaunch, isPremium }) {
   const isGst = course.code.toUpperCase().startsWith("GST");
   const isBlocked = !isPremium && course.user_attempts >= 2;
+  
   let SealIcon = Library;
   if (!isGst) {
     if (course.code.startsWith("BIO") || course.code.startsWith("CHM")) SealIcon = Microscope;
@@ -113,22 +140,25 @@ function CourseCard({ course, onLaunch, isPremium }) {
     else SealIcon = PenTool;
   }
 
+  const theme = isGst 
+    ? { accent: "bg-[#004d00]", badge: "bg-emerald-50 text-emerald-800 border-emerald-100", icon: "text-emerald-900", btn: "bg-[#004d00] hover:bg-emerald-900" }
+    : { accent: "bg-slate-700", badge: "bg-slate-50 text-slate-700 border-slate-100", icon: "text-slate-800", btn: "bg-slate-800 hover:bg-slate-900" };
+
   return (
-    <div onClick={() => onLaunch(course)} className={`bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden group active:scale-[0.99] transition-all duration-200 hover:shadow-md cursor-pointer flex flex-col h-full border-l-4 ${isGst ? 'border-l-[#004d00]' : 'border-l-blue-800'}`}>
-      <div className="p-5 flex-1 flex flex-col justify-between">
-        <div>
+    <div onClick={() => onLaunch(course)} className="group relative bg-white rounded-2xl border border-gray-200 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer overflow-hidden flex flex-col h-full">
+      <div className={`h-1.5 w-full ${theme.accent}`}></div>
+      <div className="p-5 flex flex-col h-full justify-between relative">
+        <div className={`absolute -right-6 -top-6 opacity-[0.03] transform rotate-12 scale-[2.5] ${theme.icon}`}><SealIcon /></div>
+        <div className="relative z-10">
           <div className="flex justify-between items-start mb-3">
-            <div className={`p-2 rounded-lg ${isGst ? 'bg-green-50 text-[#004d00]' : 'bg-blue-50 text-blue-800'}`}><SealIcon size={18} /></div>
-            {isBlocked && <div className="bg-red-50 text-red-600 px-2 py-1 rounded text-[8px] font-black uppercase tracking-widest border border-red-100">Locked</div>}
+            <span className={`px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-widest border ${theme.badge}`}>{course.code}</span>
+            {isBlocked && <div className="bg-red-50 text-red-500 p-1 rounded-md"><Lock size={12} /></div>}
           </div>
-          <h3 className="font-mono font-bold text-gray-500 text-xs tracking-wider mb-1">{course.code}</h3>
-          <h2 className="font-bold text-gray-900 text-sm leading-snug line-clamp-2 mb-4">{course.title}</h2>
+          <h3 className="font-bold text-gray-900 text-sm leading-snug mb-1 line-clamp-2 min-h-[2.5rem]">{course.title}</h3>
         </div>
-        <div className="pt-4 border-t border-gray-50">
-          <div className="flex items-center justify-between">
-            <span className="text-[9px] font-medium text-gray-400 uppercase tracking-wide">{course.user_attempts || 0} Official Submissions</span>
-            <span className={`text-[9px] font-black uppercase tracking-widest flex items-center gap-1 ${isBlocked ? 'text-gray-300' : 'text-[#004d00] group-hover:underline'}`}>Start <ChevronRight size={10} /></span>
-          </div>
+        <div className="mt-4 pt-4 border-t border-gray-50 flex items-center justify-between relative z-10">
+          <div className="flex items-center gap-1.5"><History size={12} className="text-gray-400" /><span className="text-[9px] font-bold text-gray-400 uppercase tracking-wide">{course.user_attempts || 0} Submissions</span></div>
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white shadow-md transition-transform group-hover:scale-110 ${isBlocked ? 'bg-gray-200 text-gray-400' : theme.btn}`}><Play size={12} fill="currentColor" className="ml-0.5" /></div>
         </div>
       </div>
     </div>
@@ -215,7 +245,6 @@ export default function StudentDashboard() {
   if (!mounted || !student) return null;
   const isPremium = student.subscription_status === 'premium';
   
-  // SORTING LOGIC: GST First, then Alphabetical (NO SEARCH FILTER)
   const sortedCourses = [...courses].sort((a, b) => {
     const aIsGst = a.code.toUpperCase().startsWith("GST");
     const bIsGst = b.code.toUpperCase().startsWith("GST");
@@ -240,7 +269,7 @@ export default function StudentDashboard() {
   return (
     <main className="min-h-screen bg-[#f8f9fa] font-sans text-gray-900 pb-48 relative selection:bg-green-200">
       <LiveTracker />
-      {statusModal && <StatusModal {...statusModal} />}
+      {statusModal && <InternalStatusModal {...statusModal} />}
       {showUpgrade && <UpgradeModal student={student} onClose={() => setShowUpgrade(false)} onSuccess={() => window.location.reload()} />}
       {setupCourse && <ExamSetupModal course={setupCourse} isPremium={isPremium} onClose={() => setSetupCourse(null)} onStart={(dur, limit) => router.push(`/cbt/exam/${setupCourse.id}?duration=${dur}&limit=${limit || 30}`)} onUpgrade={() => { setSetupCourse(null); setShowUpgrade(true); }} />}
 
@@ -264,7 +293,7 @@ export default function StudentDashboard() {
             </div>
           </div>
           <div className="bg-[#003300] border border-white/10 rounded-3xl p-6 flex items-center justify-between shadow-inner relative overflow-hidden">
-            <div className="relative z-10"><p className="text-[9px] font-bold text-green-400 uppercase tracking-widest mb-1">Academic Status</p><p className="font-black text-sm text-white tracking-widest flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span> SESSION 2026 ACTIVE</p></div>
+            <div className="relative z-10"><p className="text-[9px] font-bold text-green-400 uppercase tracking-widest mb-1">Academic Status</p><p className="font-black text-sm text-white tracking-widest flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> SESSION 2026 ACTIVE</p></div>
             <div className="bg-white text-[#004d00] px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg">Enrolled</div>
           </div>
         </div>
@@ -293,7 +322,7 @@ export default function StudentDashboard() {
             <div className="flex items-center gap-2"><History size={14} className="text-gray-400" /><h2 className="font-black text-[10px] text-gray-400 uppercase tracking-widest">Recent Operations</h2></div>
             {examHistory.length > 2 && (<button onClick={() => setHistoryExpanded(!historyExpanded)} className="text-[9px] font-bold text-green-600 uppercase tracking-wider flex items-center gap-1">{historyExpanded ? "Show Less" : "View All"} {historyExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}</button>)}
           </div>
-          {examHistory.length > 0 ? (<div className="space-y-2">{visibleHistory.map((item) => { const pct = Math.round((item.score / item.total) * 100); let colorClass = "text-emerald-700 bg-emerald-50 border-emerald-100"; if (pct < 40) colorClass = "text-red-700 bg-red-50 border-red-100"; else if (pct < 60) colorClass = "text-amber-700 bg-amber-50 border-amber-100"; return (<div key={item.id} className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex items-center justify-between animate-in fade-in slide-in-from-top-1"><div className="flex items-center gap-4"><div className="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center text-gray-400 font-black text-[10px] border border-gray-100">{item.course_code.slice(0,3)}</div><div><p className="font-black text-xs text-gray-900 uppercase tracking-tight">{item.course_code}</p><p className="text-[8px] text-gray-400 font-bold uppercase tracking-wide">{new Date(item.created_at).toLocaleDateString()}</p></div></div><div className={`text-right px-3 py-1.5 rounded-lg border ${colorClass}`}><p className="font-black text-xs">{pct}%</p><p className="text-[7px] font-black uppercase opacity-70">{item.score}/{item.total}</p></div></div>); })}</div>) : (<div className="bg-white rounded-2xl p-6 border border-dashed border-gray-200 text-center"><p className="text-[9px] font-black text-gray-300 uppercase tracking-widest">No Mission History</p></div>)}
+          {examHistory.length > 0 ? (<div className="space-y-2">{visibleHistory.map((item) => { const pct = Math.round((item.score / item.total) * 100); let colorClass = "text-emerald-700 bg-emerald-50 border-emerald-100"; if (pct < 40) colorClass = "text-red-700 bg-red-50 border-red-100"; else if (pct < 60) colorClass = "text-amber-700 bg-amber-50 border-amber-100"; return (<div key={item.id} className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex items-center justify-between animate-in fade-in slide-in-from-top-1"><div className="flex items-center gap-4"><div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400 font-black text-[10px] border border-gray-100">{item.course_code.slice(0,3)}</div><div><p className="font-black text-xs text-gray-900 uppercase tracking-tight">{item.course_code}</p><p className="text-[8px] text-gray-400 font-bold uppercase tracking-wide">{new Date(item.created_at).toLocaleDateString()}</p></div></div><div className={`text-right px-3 py-1.5 rounded-lg border ${colorClass}`}><p className="font-black text-xs">{pct}%</p><p className="text-[7px] font-black uppercase opacity-70">{item.score}/{item.total}</p></div></div>); })}</div>) : (<div className="bg-white rounded-2xl p-6 border border-dashed border-gray-200 text-center"><p className="text-[9px] font-black text-gray-300 uppercase tracking-widest">No Mission History</p></div>)}
         </section>
 
         <section>
@@ -318,70 +347,13 @@ export default function StudentDashboard() {
         <div className="bg-[#0a0a0a]/90 backdrop-blur-xl border border-white/10 shadow-2xl rounded-2xl py-4 px-6 flex items-center justify-between">
           <div className="flex items-center gap-4 flex-1 min-w-0"><div className="w-10 h-10 bg-green-600 rounded-xl flex items-center justify-center text-white shrink-0 shadow-[0_0_15px_rgba(22,163,74,0.5)]"><Award size={18} /></div><div className="min-w-0"><h4 className="font-black text-[10px] text-white leading-none mb-1 uppercase tracking-widest">Bolu Adeoye</h4><p className="text-[8px] text-gray-400 font-bold truncate uppercase tracking-tight">Dept. of English & Literary Studies</p></div></div>
           <div className="h-8 w-[1px] bg-white/10 mx-4"></div>
-          <div className="text-right shrink-0"><p className="text-[7px] font-black text-gray-500 uppercase tracking-[0.2em] mb-0.5">Partner</p><p className="text-[10px] font-black text-white leading-none uppercase tracking-wide">Abel Kings</p><p className="text-[7px] font-bold text-green-500 uppercase tracking-tighter mt-0.5">Tutorial Center</p></div>
+          <div className="text-right shrink-0">
+            <p className="text-[7px] font-black text-gray-500 uppercase tracking-[0.2em] mb-0.5">Partner</p>
+            <p className="text-[10px] font-black text-white leading-none uppercase tracking-wide">Abel Kings</p>
+            <p className="text-[7px] font-bold text-green-500 uppercase tracking-tighter mt-0.5">Tutorial Center</p>
+          </div>
         </div>
       </div>
     </main>
-  );
-}
-/* === 3. THE ACADEMIC PRO CARD (RE-DESIGNED) === */
-function CourseCard({ course, onLaunch, isPremium }) {
-  const isGst = course.code.toUpperCase().startsWith("GST");
-  const isBlocked = !isPremium && course.user_attempts >= 2;
-  
-  // 1. Dynamic Icon Selection
-  let SealIcon = Library;
-  if (!isGst) {
-    if (course.code.startsWith("BIO") || course.code.startsWith("CHM")) SealIcon = Microscope;
-    else if (course.code.startsWith("LAW") || course.code.startsWith("BUS")) SealIcon = Landmark;
-    else SealIcon = PenTool;
-  }
-
-  // 2. Theme Configuration (Emerald vs Navy Slate)
-  const theme = isGst 
-    ? { border: "border-emerald-500", badge: "bg-emerald-50 text-emerald-800 border-emerald-100", icon: "text-emerald-900", btn: "bg-[#004d00] hover:bg-emerald-900" }
-    : { border: "border-slate-600", badge: "bg-slate-50 text-slate-700 border-slate-100", icon: "text-slate-800", btn: "bg-slate-800 hover:bg-slate-900" };
-
-  return (
-    <div onClick={() => onLaunch(course)} className="group relative bg-white rounded-2xl border border-gray-200 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer overflow-hidden flex flex-col h-full">
-      {/* Top Accent Line */}
-      <div className={`h-1.5 w-full ${isGst ? 'bg-[#004d00]' : 'bg-slate-700'}`}></div>
-      
-      <div className="p-5 flex flex-col h-full justify-between relative">
-        {/* Background Watermark (Subtle Texture) */}
-        <div className={`absolute -right-6 -top-6 opacity-[0.03] transform rotate-12 scale-[2.5] ${theme.icon}`}>
-          <SealIcon />
-        </div>
-
-        <div className="relative z-10">
-          {/* Header: Code Badge & Lock */}
-          <div className="flex justify-between items-start mb-3">
-            <span className={`px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-widest border ${theme.badge}`}>
-              {course.code}
-            </span>
-            {isBlocked && <div className="bg-red-50 text-red-500 p-1 rounded-md"><Lock size={12} /></div>}
-          </div>
-
-          {/* Title */}
-          <h3 className="font-bold text-gray-900 text-sm leading-snug mb-1 line-clamp-2 min-h-[2.5rem]">
-            {course.title}
-          </h3>
-        </div>
-
-        {/* Footer: Stats & Action */}
-        <div className="mt-4 pt-4 border-t border-gray-50 flex items-center justify-between relative z-10">
-          <div className="flex items-center gap-1.5">
-            <History size={12} className="text-gray-400" />
-            <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wide">
-              {course.user_attempts || 0} <span className="hidden sm:inline">Submissions</span>
-            </span>
-          </div>
-          
-          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white shadow-md transition-transform group-hover:scale-110 ${isBlocked ? 'bg-gray-200 text-gray-400' : theme.btn}`}>
-            {isBlocked ? <Lock size={12} /> : <Play size={12} fill="currentColor" className="ml-0.5" />}
-          </div>
-        </div>
-      </div>
-    </div>
   );
 }
