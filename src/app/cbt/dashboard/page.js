@@ -324,3 +324,64 @@ export default function StudentDashboard() {
     </main>
   );
 }
+/* === 3. THE ACADEMIC PRO CARD (RE-DESIGNED) === */
+function CourseCard({ course, onLaunch, isPremium }) {
+  const isGst = course.code.toUpperCase().startsWith("GST");
+  const isBlocked = !isPremium && course.user_attempts >= 2;
+  
+  // 1. Dynamic Icon Selection
+  let SealIcon = Library;
+  if (!isGst) {
+    if (course.code.startsWith("BIO") || course.code.startsWith("CHM")) SealIcon = Microscope;
+    else if (course.code.startsWith("LAW") || course.code.startsWith("BUS")) SealIcon = Landmark;
+    else SealIcon = PenTool;
+  }
+
+  // 2. Theme Configuration (Emerald vs Navy Slate)
+  const theme = isGst 
+    ? { border: "border-emerald-500", badge: "bg-emerald-50 text-emerald-800 border-emerald-100", icon: "text-emerald-900", btn: "bg-[#004d00] hover:bg-emerald-900" }
+    : { border: "border-slate-600", badge: "bg-slate-50 text-slate-700 border-slate-100", icon: "text-slate-800", btn: "bg-slate-800 hover:bg-slate-900" };
+
+  return (
+    <div onClick={() => onLaunch(course)} className="group relative bg-white rounded-2xl border border-gray-200 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer overflow-hidden flex flex-col h-full">
+      {/* Top Accent Line */}
+      <div className={`h-1.5 w-full ${isGst ? 'bg-[#004d00]' : 'bg-slate-700'}`}></div>
+      
+      <div className="p-5 flex flex-col h-full justify-between relative">
+        {/* Background Watermark (Subtle Texture) */}
+        <div className={`absolute -right-6 -top-6 opacity-[0.03] transform rotate-12 scale-[2.5] ${theme.icon}`}>
+          <SealIcon />
+        </div>
+
+        <div className="relative z-10">
+          {/* Header: Code Badge & Lock */}
+          <div className="flex justify-between items-start mb-3">
+            <span className={`px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-widest border ${theme.badge}`}>
+              {course.code}
+            </span>
+            {isBlocked && <div className="bg-red-50 text-red-500 p-1 rounded-md"><Lock size={12} /></div>}
+          </div>
+
+          {/* Title */}
+          <h3 className="font-bold text-gray-900 text-sm leading-snug mb-1 line-clamp-2 min-h-[2.5rem]">
+            {course.title}
+          </h3>
+        </div>
+
+        {/* Footer: Stats & Action */}
+        <div className="mt-4 pt-4 border-t border-gray-50 flex items-center justify-between relative z-10">
+          <div className="flex items-center gap-1.5">
+            <History size={12} className="text-gray-400" />
+            <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wide">
+              {course.user_attempts || 0} <span className="hidden sm:inline">Submissions</span>
+            </span>
+          </div>
+          
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white shadow-md transition-transform group-hover:scale-110 ${isBlocked ? 'bg-gray-200 text-gray-400' : theme.btn}`}>
+            {isBlocked ? <Lock size={12} /> : <Play size={12} fill="currentColor" className="ml-0.5" />}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
