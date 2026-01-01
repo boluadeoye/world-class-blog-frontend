@@ -48,8 +48,8 @@ function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
   const isBlocked = !isPremium && course.user_attempts >= 2;
 
   return (
-    <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in zoom-in duration-300">
-      <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden border border-gray-200 relative">
+    <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in zoom-in duration-200">
+      <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-sm overflow-hidden border border-gray-200 relative">
         <div className={`p-8 relative z-10 ${isBlocked ? 'bg-red-50' : 'bg-green-50'} border-b border-gray-100`}>
           <h3 className={`font-black text-xl uppercase tracking-tighter ${isBlocked ? 'text-red-900' : 'text-[#004d00]'}`}>Examination Setup</h3>
           <p className={`text-[10px] font-mono font-bold uppercase tracking-widest mt-1 ${isBlocked ? 'text-red-400' : 'text-green-600'}`}>{course.code} • {course.title}</p>
@@ -128,10 +128,11 @@ function DisclaimerCard() {
   );
 }
 
-/* === 4. THE REGISTRAR CARD (RESTORED DESIGN) === */
+/* === 4. THE RESTORED COURSE CARD (SCREENSHOT DESIGN) === */
 function CourseCard({ course, onLaunch, isPremium }) {
   const isGst = course.code.toUpperCase().startsWith("GST");
   const isBlocked = !isPremium && course.user_attempts >= 2;
+  
   let SealIcon = Library;
   if (!isGst) {
     if (course.code.startsWith("BIO") || course.code.startsWith("CHM")) SealIcon = Microscope;
@@ -140,23 +141,22 @@ function CourseCard({ course, onLaunch, isPremium }) {
   }
 
   return (
-    <div onClick={() => onLaunch(course)} className={`bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden group active:scale-[0.99] transition-all duration-200 hover:shadow-md cursor-pointer flex flex-col h-full border-l-4 ${isGst ? 'border-l-[#004d00]' : 'border-l-blue-800'}`}>
-      <div className="p-5 flex-1 flex flex-col justify-between">
-        <div>
-          <div className="flex justify-between items-start mb-3">
-            <div className={`p-2 rounded-lg ${isGst ? 'bg-green-50 text-[#004d00]' : 'bg-blue-50 text-blue-800'}`}><SealIcon size={18} /></div>
-            {isBlocked && <div className="bg-red-50 text-red-600 px-2 py-1 rounded text-[8px] font-black uppercase tracking-widest border border-red-100">Locked</div>}
+    <div onClick={() => onLaunch(course)} className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm p-6 flex flex-col justify-between h-full relative group active:scale-[0.97] transition-all duration-300 hover:shadow-xl cursor-pointer">
+       <div>
+          <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600 mb-4 shadow-inner">
+             <SealIcon size={20} />
           </div>
-          <h3 className="font-mono font-bold text-gray-500 text-xs tracking-wider mb-1">{course.code}</h3>
-          <h2 className="font-bold text-gray-900 text-sm leading-snug line-clamp-2 mb-4">{course.title}</h2>
-        </div>
-        <div className="pt-4 border-t border-gray-50">
-          <div className="flex items-center justify-between">
-            <span className="text-[9px] font-medium text-gray-400 uppercase tracking-wide">{course.total_questions || 0} Questions</span>
-            <span className={`text-[9px] font-black uppercase tracking-widest flex items-center gap-1 ${isBlocked ? 'text-gray-300' : 'text-[#004d00] group-hover:underline'}`}>Start <ChevronRight size={10} /></span>
+          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">{course.code}</p>
+          <h3 className="font-bold text-gray-900 text-sm leading-snug line-clamp-3 min-h-[2.5rem]">{course.title}</h3>
+       </div>
+       <div className="flex justify-between items-center mt-6 pt-4 border-t border-gray-50">
+          <p className="text-[9px] font-bold text-gray-300 uppercase tracking-tighter">
+            {course.total_questions || 0} Questions Available
+          </p>
+          <div className={`flex items-center gap-1 text-[10px] font-black ${isBlocked ? 'text-gray-300' : 'text-[#004d00] group-hover:underline'}`}>
+             START <ChevronRight size={12} />
           </div>
-        </div>
-      </div>
+       </div>
     </div>
   );
 }
@@ -263,7 +263,7 @@ export default function StudentDashboard() {
     </div>
   );
   return (
-    <main className="min-h-screen bg-[#f8f9fa] font-sans text-gray-900 pb-48 relative selection:bg-green-200">
+    <main className="min-h-screen bg-[#f8f9fa] font-sans text-slate-900 pb-48 relative selection:bg-emerald-100">
       <LiveTracker />
       {statusModal && <InternalStatusModal {...statusModal} />}
       {showUpgrade && <UpgradeModal student={student} onClose={() => setShowUpgrade(false)} onSuccess={() => window.location.reload()} />}
@@ -272,6 +272,7 @@ export default function StudentDashboard() {
       <header className="bg-[#004d00] text-white pt-10 pb-24 px-6 rounded-b-[3rem] shadow-2xl relative z-10 overflow-hidden">
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#003300]/20 to-[#002200]/40"></div>
+        
         <div className="relative z-10">
           <div className="flex justify-between items-center mb-8">
             <div className="flex items-center gap-4">
@@ -283,15 +284,16 @@ export default function StudentDashboard() {
               </div>
               <div><p className="text-green-200 text-[9px] font-black uppercase tracking-[0.2em] mb-1">{greeting}</p><h1 className="text-2xl font-black leading-none truncate w-48 tracking-tight">{student.name.split(" ")[0]}</h1></div>
             </div>
-            {/* NUDGED LOGOUT BUTTON CONTAINER */}
-            <div className="flex gap-3 mr-2">
-              <a href="https://wa.me/2348106293674" target="_blank" className="bg-white/10 p-3 rounded-2xl border border-white/10 text-white hover:bg-white hover:text-[#004d00] transition-all active:scale-95"><Headset size={20} /></a>
+            <div className="flex gap-3 mr-6">
+              <a href="https://wa.me/2348106293674" target="_blank" className="bg-green-500 p-3 rounded-2xl border border-green-400 text-white shadow-[0_0_20px_rgba(34,197,94,0.6)] animate-pulse hover:scale-105 transition-all"><Headset size={20} /></a>
               <button onClick={triggerLogout} className="bg-white/10 p-3 rounded-2xl border border-white/10 text-red-200 hover:bg-red-600 hover:text-white transition-all active:scale-95"><LogOut size={20} /></button>
             </div>
           </div>
           <div className="bg-[#003300] border border-white/10 rounded-3xl p-6 flex items-center justify-between shadow-inner relative overflow-hidden">
-            <div className="relative z-10"><p className="text-[9px] font-bold text-green-400 uppercase tracking-widest mb-1">Academic Status</p><p className="font-black text-sm text-white tracking-widest flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span> SESSION 2026 ACTIVE</p></div>
-            <div className="bg-white text-[#004d00] px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg">Enrolled</div>
+            <div className="relative z-10">
+              <p className="font-black text-[11px] text-white tracking-widest uppercase whitespace-nowrap">EXAMFORGE SESSION 2026 ACTIVE</p>
+            </div>
+            <div className="bg-white text-[#004d00] px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg">Online</div>
           </div>
         </div>
       </header>
@@ -315,6 +317,14 @@ export default function StudentDashboard() {
         </Link>
 
         <section>
+          <div className="flex items-center justify-between mb-3 px-2">
+            <div className="flex items-center gap-2"><History size={14} className="text-gray-400" /><h2 className="font-black text-[10px] text-gray-400 uppercase tracking-widest">Recent Operations</h2></div>
+            {examHistory.length > 2 && (<button onClick={() => setHistoryExpanded(!historyExpanded)} className="text-[9px] font-bold text-green-600 uppercase tracking-wider flex items-center gap-1">{historyExpanded ? "Show Less" : "View All"} {historyExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}</button>)}
+          </div>
+          {examHistory.length > 0 ? (<div className="space-y-2">{visibleHistory.map((item) => { const pct = Math.round((item.score / item.total) * 100); let colorClass = "text-emerald-700 bg-emerald-50 border-emerald-100"; if (pct < 40) colorClass = "text-red-700 bg-red-50 border-red-100"; else if (pct < 60) colorClass = "text-amber-700 bg-amber-50 border-amber-100"; return (<div key={item.id} className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex items-center justify-between animate-in fade-in slide-in-from-top-1"><div className="flex items-center gap-4"><div className="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center text-gray-400 font-black text-[10px] border border-gray-100">{item.course_code.slice(0,3)}</div><div><p className="font-black text-xs text-gray-900 uppercase tracking-tight">{item.course_code}</p><p className="text-[8px] text-gray-400 font-bold uppercase tracking-wide">{new Date(item.created_at).toLocaleDateString()}</p></div></div><div className={`text-right px-3 py-1.5 rounded-xl border ${colorClass}`}><p className="font-black text-xs">{pct}%</p><p className="text-[7px] font-black uppercase opacity-70">{item.score}/{item.total}</p></div></div>); })}</div>) : (<div className="bg-white rounded-2xl p-6 border border-dashed border-gray-200 text-center"><p className="text-[9px] font-black text-gray-300 uppercase tracking-widest">No Mission History</p></div>)}
+        </section>
+
+        <section>
            <div className="flex items-center justify-between mb-4 px-2">
              <div className="flex items-center gap-3"><div className="bg-green-100 p-1.5 rounded-lg text-[#004d00]"><BookOpen size={14} /></div><h2 className="font-black text-xs text-gray-500 uppercase tracking-[0.2em]">Course Directory</h2></div>
            </div>
@@ -324,19 +334,11 @@ export default function StudentDashboard() {
         </section>
 
         <section>
-          <div className="flex items-center justify-between mb-3 px-2">
-            <div className="flex items-center gap-2"><History size={14} className="text-gray-400" /><h2 className="font-black text-[10px] text-gray-400 uppercase tracking-widest">Recent Operations</h2></div>
-            {examHistory.length > 2 && (<button onClick={() => setHistoryExpanded(!historyExpanded)} className="text-[9px] font-bold text-green-600 uppercase tracking-wider flex items-center gap-1">{historyExpanded ? "Show Less" : "View All"} {historyExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}</button>)}
-          </div>
-          {examHistory.length > 0 ? (<div className="space-y-2">{visibleHistory.map((item) => { const pct = Math.round((item.score / item.total) * 100); let colorClass = "text-emerald-700 bg-emerald-50 border-emerald-100"; if (pct < 40) colorClass = "text-red-700 bg-red-50 border-red-100"; else if (pct < 60) colorClass = "text-amber-700 bg-amber-50 border-amber-100"; return (<div key={item.id} className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex items-center justify-between animate-in fade-in slide-in-from-top-1"><div className="flex items-center gap-4"><div className="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center text-gray-400 font-black text-[10px] border border-gray-100">{item.course_code.slice(0,3)}</div><div><p className="font-black text-xs text-gray-900 uppercase tracking-tight">{item.course_code}</p><p className="text-[8px] text-gray-400 font-bold uppercase tracking-wide">{new Date(item.created_at).toLocaleDateString()}</p></div></div><div className={`text-right px-3 py-1.5 rounded-lg border ${colorClass}`}><p className="font-black text-xs">{pct}%</p><p className="text-[7px] font-black uppercase opacity-70">{item.score}/{item.total}</p></div></div>); })}</div>) : (<div className="bg-white rounded-2xl p-6 border border-dashed border-gray-200 text-center"><p className="text-[9px] font-black text-gray-300 uppercase tracking-widest">No Mission History</p></div>)}
-        </section>
-
-        <section>
           <div className="flex items-center justify-between mb-5 px-2">
             <div className="flex items-center gap-3"><div className="bg-yellow-100 p-1.5 rounded-lg text-yellow-700"><Trophy size={14} /></div><h2 className="font-black text-xs text-gray-400 uppercase tracking-[0.2em]">Hall of Legends</h2></div>
             <div className="flex items-center gap-1.5 bg-green-50 text-green-700 px-3 py-1 rounded-full border border-green-100"><div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div><span className="text-[8px] font-black uppercase tracking-widest">Live</span></div>
           </div>
-          {qualifiedLeaders.length > 0 ? (<div className="flex gap-4 overflow-x-auto pb-8 px-2 -mx-2 custom-scrollbar snap-x">{qualifiedLeaders.map((user, i) => { const isFirst = i === 0; const isSecond = i === 1; const isThird = i === 2; let cardStyle = "bg-white border-gray-100"; let rankBadge = null; if (isFirst) { cardStyle = "bg-gradient-to-b from-yellow-50 to-white border-yellow-200 shadow-xl shadow-yellow-500/10"; rankBadge = <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-yellow-400 to-yellow-600 text-white px-4 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-lg flex items-center gap-1"><Crown size={10} fill="currentColor" /> Vanguard</div>; } else if (isSecond) { cardStyle = "bg-gradient-to-b from-gray-50 to-white border-gray-200"; rankBadge = <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gray-400 text-white px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-md">Elite</div>; } else if (isThird) { cardStyle = "bg-gradient-to-b from-orange-50 to-white border-orange-200"; rankBadge = <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-orange-400 text-white px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-md">Operative</div>; } return (<div key={i} className={`min-w-[180px] rounded-[2rem] p-6 border ${cardStyle} flex flex-col items-center text-center relative mt-4 snap-center group transition-transform hover:-translate-y-1`}>{rankBadge}<div className="relative mb-4"><div className={`w-20 h-20 rounded-3xl flex items-center justify-center overflow-hidden border-4 ${isFirst ? 'border-yellow-400' : 'border-white shadow-sm'}`}><img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${user.name.replace(/\s/g, '')}&backgroundColor=transparent`} alt={user.name} className="w-full h-full object-cover bg-gray-50" /></div>{isFirst && <div className="absolute -bottom-2 -right-2 bg-yellow-400 text-white p-1.5 rounded-full border-4 border-white shadow-sm"><Sparkles size={10} fill="currentColor" /></div>}</div><h3 className="font-black text-xs text-gray-900 truncate w-full mb-1 uppercase tracking-tight">{user.name}</h3><p className="text-[8px] text-gray-400 font-bold uppercase tracking-wide mb-4 truncate w-full">{user.department || "Unknown Unit"}</p><div className={`w-full py-2 rounded-xl text-[10px] font-black flex items-center justify-center gap-1 ${isFirst ? 'bg-[#004d00] text-white shadow-lg shadow-green-900/20' : 'bg-gray-100 text-gray-600'}`}><Target size={10} /> <span>{user.score}%</span></div></div>); })}</div>) : (<div className="text-center py-12 bg-white rounded-[2.5rem] border border-dashed border-gray-200"><div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse"><Trophy size={24} className="text-gray-300" /></div><p className="text-gray-400 text-[10px] font-black uppercase tracking-widest">Roster Empty. Be the First.</p></div>)}
+          {qualifiedLeaders.length > 0 ? (<div className="flex gap-4 overflow-x-auto pb-8 px-2 -mx-2 custom-scrollbar snap-x">{qualifiedLeaders.map((user, i) => { const isFirst = i === 0; const isSecond = i === 1; const isThird = i === 2; let cardStyle = "bg-white border-gray-100"; let rankBadge = null; if (isFirst) { cardStyle = "bg-gradient-to-b from-yellow-50 to-white border-yellow-200 shadow-xl shadow-yellow-500/10"; rankBadge = <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-yellow-400 to-yellow-600 text-white px-4 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-lg flex items-center gap-1"><Crown size={10} fill="currentColor" /> Vanguard</div>; } else if (isSecond) { cardStyle = "bg-gradient-to-b from-gray-50 to-white border-gray-200"; rankBadge = <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gray-400 text-white px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-md">Elite</div>; } else if (isThird) { cardStyle = "bg-gradient-to-b from-orange-50 to-white border-orange-200"; rankBadge = <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-orange-400 text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-md">Operative</div>; } return (<div key={i} className={`min-w-[180px] rounded-[2rem] p-6 border ${cardStyle} flex flex-col items-center text-center relative mt-4 snap-center group transition-transform hover:-translate-y-1`}>{rankBadge}<div className="relative mb-4"><div className={`w-20 h-20 rounded-3xl flex items-center justify-center overflow-hidden border-4 ${isFirst ? 'border-yellow-400' : 'border-white shadow-sm'}`}><img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${user.name.replace(/\s/g, '')}&backgroundColor=transparent`} alt={user.name} className="w-full h-full object-cover bg-gray-50" /></div>{isFirst && <div className="absolute -bottom-2 -right-2 bg-yellow-400 text-white p-1.5 rounded-full border-4 border-white shadow-sm"><Sparkles size={10} fill="currentColor" /></div>}</div><h3 className="font-black text-xs text-gray-900 truncate w-full mb-1 uppercase tracking-tight">{user.name}</h3><p className="text-[8px] text-gray-400 font-bold uppercase tracking-wide mb-4 truncate w-full">{user.department || "Unknown Unit"}</p><div className={`w-full py-2 rounded-xl text-[10px] font-black flex items-center justify-center gap-1 ${isFirst ? 'bg-[#004d00] text-white shadow-lg shadow-green-900/20' : 'bg-gray-100 text-gray-600'}`}><Target size={10} /> <span>{user.score}%</span></div></div>); })}</div>) : (<div className="text-center py-12 bg-white rounded-[2.5rem] border border-dashed border-gray-200"><div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse"><Trophy size={24} className="text-gray-300" /></div><p className="text-gray-400 text-[10px] font-black uppercase tracking-widest">Roster Empty. Be the First.</p></div>)}
         </section>
       </div>
 
