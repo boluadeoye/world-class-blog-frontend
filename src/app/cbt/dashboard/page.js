@@ -83,7 +83,6 @@ function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
     </div>
   );
 }
-
 /* === 2. DISCLAIMER CARD === */
 function DisclaimerCard() {
   const [isOpen, setIsOpen] = useState(true);
@@ -110,17 +109,18 @@ function DisclaimerCard() {
     </div>
   );
 }
-/* === 3. COURSE CARD (SCREENSHOT MATCH) === */
+
+/* === 3. COURSE CARD (BLUE ACCENT FIX) === */
 function CourseCard({ course, onLaunch, variant = "green", isPremium }) {
   const isGst = variant === "green";
   const isBlocked = !isPremium && course.user_attempts >= 2;
   
-  // Visual Styles matching the screenshot
-  const accentColor = isGst ? "bg-[#004d00]" : "bg-[#1e293b]"; // Deep Green vs Dark Slate
-  const badgeStyle = "bg-gray-100 text-gray-700"; // Neutral badge like screenshot
+  // Visual Styles: Green for GST, Blue for Others
+  const accentColor = isGst ? "bg-[#004d00]" : "bg-blue-600"; 
+  const badgeStyle = "bg-gray-100 text-gray-700"; 
   const btnStyle = isBlocked 
     ? "bg-gray-100 text-gray-300" 
-    : isGst ? "bg-[#004d00] text-white" : "bg-[#1e293b] text-white";
+    : isGst ? "bg-[#004d00] text-white" : "bg-blue-600 text-white";
 
   return (
     <div 
@@ -160,7 +160,6 @@ function CourseCard({ course, onLaunch, variant = "green", isPremium }) {
     </div>
   );
 }
-
 export default function StudentDashboard() {
   const router = useRouter();
   const [student, setStudent] = useState(null);
@@ -285,6 +284,7 @@ export default function StudentDashboard() {
           <div className="bg-white text-[#004d00] px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wide shadow-sm">Active</div>
         </div>
       </header>
+
       <div className="px-5 -mt-8 relative z-20 space-y-6">
         <DisclaimerCard />
 
