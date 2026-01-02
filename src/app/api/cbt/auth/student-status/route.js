@@ -6,13 +6,20 @@ export const dynamic = 'force-dynamic';
 async function getStatus(id) {
   const res = await sql`SELECT subscription_status, premium_expires_at FROM cbt_students WHERE id = ${id}`;
   if (res.length === 0) return null;
-  
+
   const student = res[0];
+  
+  // If status is not premium, they are definitely free
+  if (student.subscription_status !== 'premium') return 'free';
+
+  // If status is premium, check the date. 
+  // If no date is set, we assume it's a manual lifetime upgrade.
+  if (!student.premium_expires_at) return 'premium';
+
   const now = new Date();
   const expiresAt = new Date(student.premium_expires_at);
-  const isPremium = student.subscription_status === 'premium' && expiresAt > now;
   
-  return isPremium ? 'premium' : 'free';
+  return expiresAt > now ? 'premium' : 'free';
 }
 
 export async function GET(req) {
