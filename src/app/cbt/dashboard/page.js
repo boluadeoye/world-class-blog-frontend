@@ -271,6 +271,13 @@ export default function StudentDashboard() {
   const visibleHistory = historyExpanded ? examHistory : examHistory.slice(0, 2);
   const qualifiedLeaders = leaders.filter(user => user.score >= 60);
 
+  if (loading) return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#004d00] gap-4">
+      <div className="w-12 h-12 border-4 border-white/20 border-t-white rounded-full animate-spin"></div>
+      <p className="text-white font-black text-xs uppercase tracking-[0.3em]">Loading HQ...</p>
+    </div>
+  );
+
   return (
     <main className="min-h-screen bg-[#fcfdfc] font-sans text-gray-900 pb-48 relative">
       <LiveTracker />
