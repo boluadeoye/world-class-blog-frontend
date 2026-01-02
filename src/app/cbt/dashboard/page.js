@@ -14,7 +14,7 @@ import LiveTracker from "@/components/cbt/LiveTracker";
 
 const UpgradeModal = dynamic(() => import("@/components/cbt/UpgradeModal"), { ssr: false });
 
-/* === 1. LOGOUT CONFIRMATION MODAL === */
+/* === 1. LOGOUT CONFIRMATION MODAL (STABLE) === */
 function LogoutModal({ onConfirm, onCancel }) {
   return (
     <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/90 backdrop-blur-sm p-6 animate-in fade-in">
@@ -33,15 +33,11 @@ function LogoutModal({ onConfirm, onCancel }) {
   );
 }
 
-/* === 2. EXAMINATION SETUP MODAL (UPDATED LOGIC) === */
+/* === 2. EXAMINATION SETUP MODAL === */
 function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
   const [duration, setDuration] = useState(course.duration || 15);
   const [qCount, setQCount] = useState(30);
-  
-  // LOGIC UPDATE: GST = 2 Attempts, Others = 1 Attempt
-  const isGst = course.code.toUpperCase().startsWith("GST");
-  const allowedAttempts = isGst ? 2 : 1;
-  const isBlocked = !isPremium && course.user_attempts >= allowedAttempts;
+  const isBlocked = !isPremium && course.user_attempts >= 2;
 
   return (
     <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in zoom-in duration-300">
@@ -54,9 +50,7 @@ function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
           {isBlocked ? (
             <div className="text-center py-4">
               <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-200"><Lock size={32} className="text-red-600" /></div>
-              <p className="text-gray-600 text-xs font-medium mb-8 leading-relaxed">
-                {isGst ? "Maximum free attempts (2/2) recorded." : "Departmental courses allow only 1 free attempt."} <br/>Upgrade required.
-              </p>
+              <p className="text-gray-600 text-xs font-medium mb-8 leading-relaxed">Maximum free attempts recorded. Upgrade required.</p>
               <button onClick={onUpgrade} className="w-full py-4 bg-yellow-500 text-black rounded-xl font-black text-xs uppercase tracking-[0.2em] shadow-lg hover:scale-105 transition-transform">Upgrade Clearance</button>
               <button onClick={onClose} className="mt-4 text-gray-400 text-[10px] font-bold uppercase tracking-widest hover:text-gray-600">Return to Catalog</button>
             </div>
@@ -101,7 +95,7 @@ function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
     </div>
   );
 }
-/* === 3. IMPORTANT DISCLAIMER === */
+/* === 3. IMPORTANT DISCLAIMER (BEIGE/ORANGE - RESTORED) === */
 function DisclaimerCard() {
   const [isOpen, setIsOpen] = useState(true);
   return (
@@ -120,7 +114,7 @@ function DisclaimerCard() {
             <li className="flex gap-2"><span className="text-orange-400 font-black">•</span> <span>The purpose of this mock is <strong>NOT</strong> to expose likely questions.</span></li>
             <li className="flex gap-2"><span className="text-orange-400 font-black">•</span> <span>The aim is to <strong>simulate the environment</strong> psychologically.</span></li>
             <li className="flex gap-2"><span className="text-orange-400 font-black">•</span> <span>Use this to practice <strong>time management</strong>.</span></li>
-            <li className="flex gap-2"><span className="text-orange-400 font-black">•</span> <span>Success here <strong>does not guarantee success</strong> in the main exam.</span></li>
+            <li className="flex gap-2"><span className="text-orange-400 font-black">•</span> <span>Success here <strong>does not guarantee success</strong> in the main exam; this is purely for preparation.</span></li>
           </ul>
         </div>
       )}
@@ -128,13 +122,10 @@ function DisclaimerCard() {
   );
 }
 
-/* === 4. THE ACADEMIC PRO CARD (UPDATED LOGIC) === */
+/* === 4. THE ACADEMIC PRO CARD === */
 function CourseCard({ course, onLaunch, isPremium }) {
   const isGst = course.code.toUpperCase().startsWith("GST");
-  
-  // LOGIC UPDATE: GST = 2 Attempts, Others = 1 Attempt
-  const allowedAttempts = isGst ? 2 : 1;
-  const isBlocked = !isPremium && course.user_attempts >= allowedAttempts;
+  const isBlocked = !isPremium && course.user_attempts >= 2;
   
   let SealIcon = Library;
   if (!isGst) {
@@ -281,6 +272,7 @@ export default function StudentDashboard() {
       <p className="text-green-200 font-black text-[10px] uppercase tracking-[0.4em] animate-pulse">Loading Modules...</p>
     </div>
   );
+
   return (
     <main className="min-h-screen bg-[#f8f9fa] font-sans text-gray-900 pb-48 relative selection:bg-green-200">
       <LiveTracker />
