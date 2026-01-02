@@ -134,7 +134,7 @@ export default function CommunityPage() {
     const diff = (new Date() - new Date(d)) / 1000;
     if (diff < 60) return "Just now";
     if (diff < 3600) return `${Math.floor(diff/60)}m ago`;
-    return new Date(d).toLocaleDateString();
+    return new Date(d).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
   if (!student) return null;
@@ -191,7 +191,6 @@ export default function CommunityPage() {
 
           {posts.map((post) => (
             <div key={post.id} onClick={() => openThread(post)} className={`p-6 rounded-[2rem] shadow-sm border relative group transition-all duration-500 animate-in slide-in-from-bottom-2 cursor-pointer active:scale-[0.99] ${post.is_announcement ? 'bg-gradient-to-br from-[#2b0a0a] to-[#4a0f0f] border-red-900 text-white shadow-red-900/20' : 'bg-white border-gray-100 text-gray-800'} ${post.is_hidden ? 'opacity-50 grayscale' : ''}`}>
-              {/* ADMIN CONTROLS (Floating) */}
               {isAdmin && (
                 <div className="absolute top-4 right-4 flex gap-2 z-20">
                   <button onClick={(e) => handleHide(e, post.id, 'post')} className="p-2 bg-white/90 backdrop-blur shadow-md rounded-full text-gray-600 hover:bg-black hover:text-white transition-all border border-gray-200">
@@ -245,51 +244,66 @@ export default function CommunityPage() {
         </div>
       </div>
 
-      {/* === THREAD MODAL === */}
+      {/* === THREAD MODAL (CHAT STYLE) === */}
       {activePost && (
         <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-end justify-center animate-in fade-in duration-200">
-          <div className="bg-[#f4f6f8] w-full max-w-lg h-[85vh] rounded-t-[2.5rem] flex flex-col overflow-hidden shadow-2xl animate-in slide-in-from-bottom duration-300">
-            <div className="bg-white p-5 border-b flex justify-between items-center">
-              <h3 className="font-black text-sm uppercase tracking-widest text-gray-800">Thread</h3>
-              <button onClick={() => setActivePost(null)} className="p-2 bg-gray-200 text-gray-700 rounded-full hover:bg-red-50 hover:text-red-600 transition-colors"><X size={20} /></button>
+          <div className="bg-[#e5ddd5] w-full max-w-lg h-[90vh] rounded-t-[2.5rem] flex flex-col overflow-hidden shadow-2xl animate-in slide-in-from-bottom duration-300 relative">
+            {/* Chat Header */}
+            <div className="bg-white p-4 border-b flex justify-between items-center shadow-sm z-10">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gray-100 rounded-full overflow-hidden border border-gray-200">
+                   <img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${activePost.author_name.replace(/\s/g, '')}`} alt="Avatar" className="w-full h-full object-cover" />
+                </div>
+                <div>
+                  <h3 className="font-black text-xs uppercase text-gray-900">{activePost.author_name}</h3>
+                  <p className="text-[9px] text-gray-500 font-medium truncate w-40">{activePost.content.substring(0, 30)}...</p>
+                </div>
+              </div>
+              <button onClick={() => setActivePost(null)} className="p-2 bg-gray-100 text-gray-600 rounded-full hover:bg-red-50 hover:text-red-600 transition-colors"><X size={18} /></button>
             </div>
-            <div className="flex-1 overflow-y-auto p-5 custom-scrollbar">
-              <div className="bg-white p-5 rounded-[2rem] border border-gray-100 mb-6 shadow-sm">
-                <h4 className="font-black text-xs uppercase mb-2 flex items-center gap-2 text-gray-900">
-                  {activePost.author_name}
-                  {activePost.is_admin && <BadgeCheck size={14} className="text-blue-500 fill-blue-500 text-white" />}
-                </h4>
-                <p className="text-sm text-gray-700 whitespace-pre-wrap">{activePost.content}</p>
+
+            {/* Chat Area */}
+            <div className="flex-1 overflow-y-auto p-4 custom-scrollbar bg-[#e5ddd5] space-y-4">
+              {/* Original Post Bubble (Center/Top) */}
+              <div className="flex justify-center mb-6">
+                <div className="bg-white/90 backdrop-blur-sm p-4 rounded-2xl shadow-sm border border-white/50 max-w-[90%] text-center">
+                  <p className="text-xs text-gray-800 font-medium leading-relaxed">{activePost.content}</p>
+                  <p className="text-[8px] text-gray-400 mt-2 font-bold uppercase">{formatTime(activePost.created_at)}</p>
+                </div>
               </div>
-              <div className="space-y-3">
-                {comments.map(c => (
-                  <div key={c.id} className={`bg-white p-4 rounded-2xl border border-gray-50 relative ${c.is_hidden ? 'opacity-50 bg-gray-50' : ''}`}>
-                    {isAdmin && (
-                      <div className="absolute top-3 right-3 flex gap-2">
-                        <button onClick={() => handleHide(null, c.id, 'comment')} className="p-1.5 bg-gray-100 rounded-full text-gray-500 hover:bg-black hover:text-white transition-all">
-                          {c.is_hidden ? <Eye size={12} /> : <EyeOff size={12} />}
-                        </button>
-                        <button onClick={() => handleDelete(null, c.id, 'comment')} className="p-1.5 bg-gray-100 rounded-full text-red-400 hover:bg-red-600 hover:text-white transition-all">
-                          <Trash2 size={12} />
-                        </button>
+
+              {/* Comments Stream */}
+              {comments.map(c => {
+                const isMe = c.student_id === student.id;
+                return (
+                  <div key={c.id} className={`flex w-full ${isMe ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-1`}>
+                    <div className={`relative max-w-[85%] px-4 py-3 shadow-sm text-sm group ${isMe ? 'bg-gradient-to-br from-[#004d00] to-[#006600] text-white rounded-[1.2rem] rounded-br-none' : 'bg-white text-gray-800 border border-gray-100 rounded-[1.2rem] rounded-bl-none'}`}>
+                      
+                      {/* Admin Controls (Hidden by default, visible on hover/admin) */}
+                      {isAdmin && (
+                        <div className="absolute -top-3 right-0 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity bg-white/80 rounded-full p-0.5 shadow-sm border">
+                          <button onClick={() => handleHide(null, c.id, 'comment')} className="p-1 text-gray-500 hover:text-black"><EyeOff size={10} /></button>
+                          <button onClick={() => handleDelete(null, c.id, 'comment')} className="p-1 text-red-400 hover:text-red-600"><Trash2 size={10} /></button>
+                        </div>
+                      )}
+
+                      {/* Name (Only for others) */}
+                      {!isMe && <p className="text-[9px] font-black text-orange-600 uppercase mb-1 tracking-wide flex items-center gap-1">{c.author_name} {c.is_premium && <BadgeCheck size={10} className="text-blue-500" />}</p>}
+                      
+                      <p className={`whitespace-pre-wrap leading-relaxed ${isMe ? 'text-green-50' : 'text-gray-700'}`}>{c.content}</p>
+                      
+                      <div className={`flex items-center gap-1 mt-1.5 ${isMe ? 'justify-end text-green-300' : 'justify-start text-gray-400'}`}>
+                        <span className="text-[8px] font-mono">{formatTime(c.created_at)}</span>
+                        {isMe && <CheckCircle size={10} />}
                       </div>
-                    )}
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="text-[10px] font-black uppercase flex items-center gap-1 text-gray-900">
-                        {c.author_name}
-                        {c.is_premium && <BadgeCheck size={10} className="text-blue-400" />}
-                        {c.is_hidden && <span className="text-[7px] text-yellow-600 font-black ml-1">[HIDDEN]</span>}
-                      </span>
-                      <span className="text-[8px] opacity-50 mr-14">{formatTime(c.created_at)}</span>
                     </div>
-                    <p className="text-xs text-gray-600 whitespace-pre-wrap">{c.content}</p>
                   </div>
-                ))}
-              </div>
+                );
+              })}
             </div>
             
-            {/* === UPDATED CHAT INPUT === */}
-            <div className="p-3 bg-white border-t flex items-end gap-2">
+            {/* Chat Input */}
+            <div className="p-3 bg-white border-t flex items-end gap-2 z-20">
               <textarea
                 value={commentText}
                 onChange={(e) => setCommentText(e.target.value)}
@@ -300,7 +314,7 @@ export default function CommunityPage() {
               <button 
                 onClick={sendComment} 
                 disabled={!commentText.trim()} 
-                className="bg-[#004d00] text-white w-12 h-12 rounded-full shadow-lg disabled:opacity-50 flex items-center justify-center shrink-0 mb-0.5"
+                className="bg-[#004d00] text-white w-12 h-12 rounded-full shadow-lg disabled:opacity-50 flex items-center justify-center shrink-0 mb-0.5 active:scale-95 transition-transform"
               >
                 <Send size={20} className="ml-0.5" />
               </button>
