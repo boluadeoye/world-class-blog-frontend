@@ -1,10 +1,10 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { 
-  Send, Users, ShieldAlert, Trash2, Building2, Megaphone, 
-  MessageCircle, Heart, MessageSquare, X, CheckCircle, 
-  BadgeCheck, Eye, EyeOff, Sparkles 
+import {
+  Send, Users, ShieldAlert, Trash2, Building2, Megaphone,
+  MessageCircle, Heart, MessageSquare, X, CheckCircle,
+  BadgeCheck, Eye, EyeOff, Sparkles
 } from "lucide-react";
 
 export default function CommunityPage() {
@@ -14,7 +14,7 @@ export default function CommunityPage() {
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(true);
   const [posting, setPosting] = useState(false);
-  
+
   // THREAD STATE
   const [activePost, setActivePost] = useState(null);
   const [comments, setComments] = useState([]);
@@ -50,13 +50,13 @@ export default function CommunityPage() {
       await fetch("/api/cbt/community/post", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          studentId: student.id, 
-          name: student.name, 
-          email: student.email, 
-          department: student.department, 
-          content, 
-          isAdmin 
+        body: JSON.stringify({
+          studentId: student.id,
+          name: student.name,
+          email: student.email,
+          department: student.department,
+          content,
+          isAdmin
         })
       });
       setContent("");
@@ -160,15 +160,14 @@ export default function CommunityPage() {
       </header>
 
       <div className="pt-36 px-4 max-w-2xl mx-auto">
-        
         {/* === INPUT TERMINAL === */}
         <div className={`bg-white p-1.5 rounded-[2rem] shadow-xl border mb-8 transition-all transform hover:scale-[1.01] duration-300 ${isAdmin ? 'border-red-200 shadow-red-900/10' : 'border-green-100 shadow-green-900/5'}`}>
           <div className="bg-gray-50 rounded-[1.8rem] p-4 relative">
-            <textarea 
-              value={content} 
-              onChange={(e) => setContent(e.target.value)} 
-              placeholder={isAdmin ? "Broadcast an official announcement..." : "Ask a question or share an update..."} 
-              className="w-full bg-transparent text-sm font-medium focus:outline-none resize-none h-24 text-gray-900 placeholder:text-gray-500" 
+            <textarea
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder={isAdmin ? "Broadcast an official announcement..." : "Ask a question or share an update..."}
+              className="w-full bg-transparent text-sm font-medium focus:outline-none resize-none h-24 text-gray-900 placeholder:text-gray-500"
             />
             {isAdmin && <div className="absolute top-4 right-4"><ShieldAlert className="text-red-200" size={24} /></div>}
           </div>
@@ -176,9 +175,9 @@ export default function CommunityPage() {
             <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-lg ${isAdmin ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-500'}`}>
               {isAdmin ? "OFFICIAL CHANNEL" : "PUBLIC FEED"}
             </span>
-            <button 
-              onClick={handlePost} 
-              disabled={posting || !content.trim()} 
+            <button
+              onClick={handlePost}
+              disabled={posting || !content.trim()}
               className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all shadow-lg active:scale-95 disabled:opacity-50 ${isAdmin ? 'bg-gradient-to-r from-red-700 to-red-600 text-white shadow-red-200' : 'bg-[#004d00] text-white shadow-green-200'}`}
             >
               {posting ? "..." : (isAdmin ? "ANNOUNCE" : "POST")} {isAdmin ? <Megaphone size={12} /> : <Send size={12} />}
@@ -189,10 +188,9 @@ export default function CommunityPage() {
         {/* === FEED STREAM === */}
         <div className="space-y-5 pb-10">
           {loading && <div className="text-center text-gray-400 text-[10px] font-black uppercase animate-pulse mt-10 tracking-widest">Loading Intel...</div>}
-          
+
           {posts.map((post) => (
             <div key={post.id} onClick={() => openThread(post)} className={`p-6 rounded-[2rem] shadow-sm border relative group transition-all duration-500 animate-in slide-in-from-bottom-2 cursor-pointer active:scale-[0.99] ${post.is_announcement ? 'bg-gradient-to-br from-[#2b0a0a] to-[#4a0f0f] border-red-900 text-white shadow-red-900/20' : 'bg-white border-gray-100 text-gray-800'} ${post.is_hidden ? 'opacity-50 grayscale' : ''}`}>
-              
               {/* ADMIN CONTROLS (Floating) */}
               {isAdmin && (
                 <div className="absolute top-4 right-4 flex gap-2 z-20">
@@ -212,7 +210,7 @@ export default function CommunityPage() {
                   </div>
                   <div>
                     <h3 className={`font-black text-xs uppercase flex items-center gap-1.5 ${post.is_announcement ? 'text-red-100' : 'text-gray-900'}`}>
-                      {post.author_name} 
+                      {post.author_name}
                       {post.is_admin && <BadgeCheck size={14} className="text-blue-400 fill-blue-400 text-white" />}
                     </h3>
                     <div className="flex items-center gap-2 mt-0.5">
@@ -229,7 +227,7 @@ export default function CommunityPage() {
                   </div>
                 </div>
               </div>
-              
+
               <div className={`text-sm font-medium leading-relaxed pl-1 whitespace-pre-wrap break-words ${post.is_announcement ? 'text-red-50' : 'text-gray-600'}`}>
                 {post.content}
               </div>
@@ -258,7 +256,7 @@ export default function CommunityPage() {
             <div className="flex-1 overflow-y-auto p-5 custom-scrollbar">
               <div className="bg-white p-5 rounded-[2rem] border border-gray-100 mb-6 shadow-sm">
                 <h4 className="font-black text-xs uppercase mb-2 flex items-center gap-2 text-gray-900">
-                  {activePost.author_name} 
+                  {activePost.author_name}
                   {activePost.is_admin && <BadgeCheck size={14} className="text-blue-500 fill-blue-500 text-white" />}
                 </h4>
                 <p className="text-sm text-gray-700 whitespace-pre-wrap">{activePost.content}</p>
@@ -278,7 +276,7 @@ export default function CommunityPage() {
                     )}
                     <div className="flex justify-between items-center mb-1">
                       <span className="text-[10px] font-black uppercase flex items-center gap-1 text-gray-900">
-                        {c.author_name} 
+                        {c.author_name}
                         {c.is_premium && <BadgeCheck size={10} className="text-blue-400" />}
                         {c.is_hidden && <span className="text-[7px] text-yellow-600 font-black ml-1">[HIDDEN]</span>}
                       </span>
@@ -289,16 +287,22 @@ export default function CommunityPage() {
                 ))}
               </div>
             </div>
-            <div className="p-4 bg-white border-t flex gap-2">
-              <input 
-                type="text" 
-                value={commentText} 
-                onChange={(e) => setCommentText(e.target.value)} 
-                placeholder="Write a reply..." 
-                className="flex-1 bg-gray-50 rounded-xl px-4 py-3 text-sm text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500" 
+            
+            {/* === UPDATED CHAT INPUT === */}
+            <div className="p-3 bg-white border-t flex items-end gap-2">
+              <textarea
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                placeholder="Type a message..."
+                className="flex-1 bg-gray-100 rounded-[1.5rem] px-5 py-3 text-sm text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500/50 resize-none min-h-[50px] max-h-[120px]"
+                rows={1}
               />
-              <button onClick={sendComment} disabled={!commentText.trim()} className="bg-[#004d00] text-white p-3 rounded-xl shadow-lg disabled:opacity-50">
-                <Send size={18} />
+              <button 
+                onClick={sendComment} 
+                disabled={!commentText.trim()} 
+                className="bg-[#004d00] text-white w-12 h-12 rounded-full shadow-lg disabled:opacity-50 flex items-center justify-center shrink-0 mb-0.5"
+              >
+                <Send size={20} className="ml-0.5" />
               </button>
             </div>
           </div>
