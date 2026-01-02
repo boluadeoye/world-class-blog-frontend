@@ -114,7 +114,7 @@ function DisclaimerCard() {
   );
 }
 
-/* === 3. COURSE CARD (REDESIGNED: SPACIOUS & CLEAN) === */
+/* === 3. COURSE CARD (POLISHED: COLORS & ELEMENTS) === */
 function CourseCard({ course, onLaunch, variant = "green", isPremium }) {
   const isGstVariant = variant === "green";
   
@@ -123,25 +123,39 @@ function CourseCard({ course, onLaunch, variant = "green", isPremium }) {
   const attemptLimit = isGstCode ? 2 : 1;
   const isBlocked = !isPremium && course.user_attempts >= attemptLimit;
   
-  // Visual Styles
-  const accentColor = isGstVariant ? "text-[#004d00]" : "text-blue-600"; 
-  const btnBg = isBlocked 
+  // === THE POLISH: DYNAMIC STYLES ===
+  // 1. Theme Colors
+  const theme = isGstVariant 
+    ? { bg: "bg-green-50", text: "text-green-800", border: "border-green-100", icon: "text-green-600", btn: "bg-[#004d00]", shadow: "shadow-green-900/20" }
+    : { bg: "bg-blue-50", text: "text-blue-800", border: "border-blue-100", icon: "text-blue-600", btn: "bg-blue-600", shadow: "shadow-blue-900/20" };
+
+  // 2. Badge Style (Tinted Backgrounds)
+  const badgeStyle = isBlocked 
+    ? "bg-gray-100 text-gray-400 border-gray-200" 
+    : `${theme.bg} ${theme.text} ${theme.border}`;
+
+  // 3. Button Style (Juicy Glow)
+  const btnStyle = isBlocked 
     ? "bg-gray-100 text-gray-300" 
-    : isGstVariant ? "bg-[#004d00] text-white shadow-green-900/20" : "bg-blue-600 text-white shadow-blue-900/20";
-  const glow = isBlocked ? "" : (isGstVariant ? "shadow-lg shadow-green-200" : "shadow-lg shadow-blue-200");
+    : `${theme.btn} text-white ${theme.shadow} shadow-lg`;
+
+  // 4. Status Text
+  const statusText = isBlocked 
+    ? <span className="text-red-300 flex items-center gap-1"><Lock size={8} /> LOCKED</span> 
+    : <span className={`${theme.icon} flex items-center gap-1`}><Sparkles size={8} /> READY</span>;
 
   return (
     <div 
       onClick={(e) => { e.preventDefault(); onLaunch(course); }} 
-      className="group relative bg-white rounded-[2rem] shadow-sm border border-gray-100/50 overflow-hidden flex flex-col h-full min-h-[210px] cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+      className={`group relative bg-white rounded-[2rem] shadow-sm border border-transparent overflow-hidden flex flex-col h-full min-h-[210px] cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ${!isBlocked && (isGstVariant ? 'hover:border-green-100' : 'hover:border-blue-100')}`}
     >
       <div className="p-6 flex flex-col h-full relative z-10">
         {/* HEADER: Code + Count */}
         <div className="flex justify-between items-start mb-4">
-          <span className={`inline-block px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest bg-gray-50 text-gray-600 border border-gray-100`}>
+          <span className={`inline-block px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border ${badgeStyle} transition-colors`}>
             {course.code}
           </span>
-          <div className="flex items-center gap-1 text-gray-400">
+          <div className={`flex items-center gap-1 ${isBlocked ? 'text-gray-300' : theme.icon} opacity-70`}>
             <Database size={10} />
             <span className="text-[9px] font-bold">{course.total_questions || 0}</span>
           </div>
@@ -149,18 +163,18 @@ function CourseCard({ course, onLaunch, variant = "green", isPremium }) {
 
         {/* BODY: Title (Centered & Spacious) */}
         <div className="flex-1 flex items-center">
-          <h3 className={`font-black text-sm leading-relaxed text-gray-900 line-clamp-3 group-hover:${accentColor} transition-colors`}>
+          <h3 className={`font-black text-sm leading-relaxed text-gray-900 line-clamp-3 group-hover:opacity-80 transition-opacity`}>
             {course.title}
           </h3>
         </div>
 
         {/* FOOTER: Action */}
         <div className="mt-4 flex justify-between items-center">
-           <div className="text-[9px] font-bold text-gray-300 uppercase tracking-wider">
-             {isBlocked ? "Locked" : "Ready"}
+           <div className="text-[9px] font-black uppercase tracking-wider">
+             {statusText}
            </div>
            
-           <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-transform group-hover:scale-110 ${btnBg} ${glow}`}>
+           <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-transform group-hover:scale-110 ${btnStyle}`}>
              {isBlocked ? <Lock size={16} /> : <Play size={16} fill="currentColor" className="ml-0.5" />}
            </div>
         </div>
