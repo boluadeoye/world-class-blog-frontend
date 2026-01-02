@@ -14,7 +14,7 @@ import LiveTracker from "@/components/cbt/LiveTracker";
 
 const UpgradeModal = dynamic(() => import("@/components/cbt/UpgradeModal"), { ssr: false });
 
-/* === 1. LOGOUT CONFIRMATION MODAL === */
+/* === 1. LOGOUT CONFIRMATION MODAL (STABLE) === */
 function LogoutModal({ onConfirm, onCancel }) {
   return (
     <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/90 backdrop-blur-sm p-6 animate-in fade-in">
@@ -37,11 +37,7 @@ function LogoutModal({ onConfirm, onCancel }) {
 function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
   const [duration, setDuration] = useState(course.duration || 15);
   const [qCount, setQCount] = useState(30);
-  
-  // LOGIC UPDATE: GST = 2 Attempts, Others = 1 Attempt
-  const isGst = course.code.toUpperCase().startsWith("GST");
-  const allowedAttempts = isGst ? 2 : 1;
-  const isBlocked = !isPremium && course.user_attempts >= allowedAttempts;
+  const isBlocked = !isPremium && course.user_attempts >= 2;
 
   return (
     <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in zoom-in duration-300">
@@ -54,9 +50,7 @@ function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
           {isBlocked ? (
             <div className="text-center py-4">
               <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-200"><Lock size={32} className="text-red-600" /></div>
-              <p className="text-gray-600 text-xs font-medium mb-8 leading-relaxed">
-                {isGst ? "Maximum free attempts (2/2) recorded." : "Departmental courses allow only 1 free attempt."} <br/>Upgrade required.
-              </p>
+              <p className="text-gray-600 text-xs font-medium mb-8 leading-relaxed">Maximum free attempts recorded. Upgrade required.</p>
               <button onClick={onUpgrade} className="w-full py-4 bg-yellow-500 text-black rounded-xl font-black text-xs uppercase tracking-[0.2em] shadow-lg hover:scale-105 transition-transform">Upgrade Clearance</button>
               <button onClick={onClose} className="mt-4 text-gray-400 text-[10px] font-bold uppercase tracking-widest hover:text-gray-600">Return to Catalog</button>
             </div>
@@ -101,8 +95,7 @@ function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
     </div>
   );
 }
-
-/* === 3. IMPORTANT DISCLAIMER === */
+/* === 3. IMPORTANT DISCLAIMER (BEIGE/ORANGE - RESTORED) === */
 function DisclaimerCard() {
   const [isOpen, setIsOpen] = useState(true);
   return (
@@ -121,7 +114,7 @@ function DisclaimerCard() {
             <li className="flex gap-2"><span className="text-orange-400 font-black">•</span> <span>The purpose of this mock is <strong>NOT</strong> to expose likely questions.</span></li>
             <li className="flex gap-2"><span className="text-orange-400 font-black">•</span> <span>The aim is to <strong>simulate the environment</strong> psychologically.</span></li>
             <li className="flex gap-2"><span className="text-orange-400 font-black">•</span> <span>Use this to practice <strong>time management</strong>.</span></li>
-            <li className="flex gap-2"><span className="text-orange-400 font-black">•</span> <span>Success here <strong>does not guarantee success</strong> in the main exam.</span></li>
+            <li className="flex gap-2"><span className="text-orange-400 font-black">•</span> <span>Success here <strong>does not guarantee success</strong> in the main exam; this is purely for preparation.</span></li>
           </ul>
         </div>
       )}
@@ -132,10 +125,7 @@ function DisclaimerCard() {
 /* === 4. THE ACADEMIC PRO CARD === */
 function CourseCard({ course, onLaunch, isPremium }) {
   const isGst = course.code.toUpperCase().startsWith("GST");
-  
-  // LOGIC UPDATE: GST = 2 Attempts, Others = 1 Attempt
-  const allowedAttempts = isGst ? 2 : 1;
-  const isBlocked = !isPremium && course.user_attempts >= allowedAttempts;
+  const isBlocked = !isPremium && course.user_attempts >= 2;
   
   let SealIcon = Library;
   if (!isGst) {
@@ -168,7 +158,6 @@ function CourseCard({ course, onLaunch, isPremium }) {
     </div>
   );
 }
-
 export default function StudentDashboard() {
   const router = useRouter();
   const [student, setStudent] = useState(null);
@@ -233,21 +222,6 @@ export default function StudentDashboard() {
     }
     fetchData();
   }, [router]);
-
-  // Real-time Leaderboard Polling
-  useEffect(() => {
-    const poll = async () => {
-      try {
-        const res = await fetch('/api/cbt/leaderboard');
-        if (res.ok) {
-          const data = await res.json();
-          setLeaders(Array.isArray(data) ? data : []);
-        }
-      } catch (e) {}
-    };
-    const inv = setInterval(poll, 10000);
-    return () => clearInterval(inv);
-  }, []);
 
   const handleForumEnter = () => {
     localStorage.setItem('cbt_forum_read_count', totalForumPosts.toString());
@@ -358,39 +332,12 @@ export default function StudentDashboard() {
            </div>
         </section>
 
-        <section className="pt-12 pb-12">
-          <div className="flex items-center justify-between mb-6 px-2">
-            <div className="flex items-center gap-3"><div className="bg-yellow-100 p-2 rounded-xl text-yellow-700 shadow-sm"><Trophy size={16} /></div><h2 className="font-black text-xs text-slate-500 uppercase tracking-[0.25em]">Daily Leaderboard</h2></div>
-            <div className="flex items-center gap-2 bg-emerald-50 text-emerald-700 px-4 py-1.5 rounded-full border border-emerald-100 shadow-sm"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div><span className="text-[9px] font-black uppercase tracking-widest">Live</span></div>
+        <section>
+          <div className="flex items-center justify-between mb-5 px-2">
+            <div className="flex items-center gap-3"><div className="bg-yellow-100 p-1.5 rounded-lg text-yellow-700"><Trophy size={14} /></div><h2 className="font-black text-xs text-gray-400 uppercase tracking-[0.2em]">Daily Leaderboard</h2></div>
+            <div className="flex items-center gap-1.5 bg-green-50 text-green-700 px-3 py-1 rounded-full border border-green-100"><div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div><span className="text-[8px] font-black uppercase tracking-widest">Live</span></div>
           </div>
-          {qualifiedLeaders.length > 0 ? (
-            <div className="flex gap-5 overflow-x-auto pb-10 px-2 -mx-2 custom-scrollbar snap-x">
-              {qualifiedLeaders.map((user, i) => {
-                const isFirst = i === 0;
-                const isSecond = i === 1;
-                const isThird = i === 2;
-                let cardStyle = "bg-white border-slate-100";
-                let rankBadge = null;
-                if (isFirst) { cardStyle = "bg-gradient-to-b from-yellow-50 to-white border-yellow-200 shadow-2xl shadow-yellow-500/10"; rankBadge = <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-yellow-400 to-yellow-600 text-white px-5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl flex items-center gap-1.5"><Crown size={12} fill="currentColor" /> Vanguard</div>; }
-                else if (isSecond) { cardStyle = "bg-gradient-to-b from-slate-50 to-white border-slate-200"; rankBadge = <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-slate-400 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg">Elite</div>; }
-                else if (isThird) { cardStyle = "bg-gradient-to-b from-orange-50 to-white border-orange-200"; rankBadge = <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-orange-400 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg">Operative</div>; }
-                return (
-                  <div key={i} className={`min-w-[200px] rounded-[3rem] p-8 border ${cardStyle} flex flex-col items-center text-center relative mt-6 snap-center group transition-all duration-500 hover:-translate-y-2`}>
-                    {rankBadge}
-                    <div className="relative mb-5">
-                      <div className={`w-24 h-24 rounded-[2rem] flex items-center justify-center overflow-hidden border-4 ${isFirst ? 'border-yellow-400 shadow-xl' : 'border-white shadow-md'}`}><img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${user.name.replace(/\s/g, '')}&backgroundColor=transparent`} alt={user.name} className="w-full h-full object-cover bg-slate-50" /></div>
-                      {isFirst && <div className="absolute -bottom-2 -right-2 bg-yellow-400 text-white p-2 rounded-full border-4 border-white shadow-lg"><Sparkles size={12} fill="currentColor" /></div>}
-                    </div>
-                    <h3 className="font-black text-sm text-slate-900 truncate w-full mb-1 uppercase tracking-tight">{user.name}</h3>
-                    <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mb-5 truncate w-full">{user.department || "Unknown Unit"}</p>
-                    <div className={`w-full py-3 rounded-2xl text-[11px] font-black flex items-center justify-center gap-2 ${isFirst ? 'bg-emerald-700 text-white shadow-xl shadow-emerald-900/20' : 'bg-slate-100 text-slate-600'}`}><Target size={12} /> <span>{user.score}%</span></div>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="text-center py-16 bg-white rounded-[3rem] border border-dashed border-slate-200"><div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-5 animate-pulse"><Trophy size={32} className="text-slate-300" /></div><p className="text-slate-400 text-[11px] font-black uppercase tracking-widest">Roster Empty. Be the First.</p></div>
-          )}
+          {qualifiedLeaders.length > 0 ? (<div className="flex gap-4 overflow-x-auto pb-8 px-2 -mx-2 custom-scrollbar snap-x">{qualifiedLeaders.map((user, i) => { const isFirst = i === 0; const isSecond = i === 1; const isThird = i === 2; let cardStyle = "bg-white border-gray-100"; let rankBadge = null; if (isFirst) { cardStyle = "bg-gradient-to-b from-yellow-50 to-white border-yellow-200 shadow-xl shadow-yellow-500/10"; rankBadge = <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-yellow-400 to-yellow-600 text-white px-4 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-lg flex items-center gap-1"><Crown size={10} fill="currentColor" /> Vanguard</div>; } else if (isSecond) { cardStyle = "bg-gradient-to-b from-gray-50 to-white border-gray-200"; rankBadge = <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gray-400 text-white px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-md">Elite</div>; } else if (isThird) { cardStyle = "bg-gradient-to-b from-orange-50 to-white border-orange-200"; rankBadge = <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-orange-400 text-white px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-md">Operative</div>; } return (<div key={i} className={`min-w-[180px] rounded-[2rem] p-6 border ${cardStyle} flex flex-col items-center text-center relative mt-4 snap-center group transition-transform hover:-translate-y-1`}>{rankBadge}<div className="relative mb-4"><div className={`w-20 h-20 rounded-3xl flex items-center justify-center overflow-hidden border-4 ${isFirst ? 'border-yellow-400' : 'border-white shadow-sm'}`}><img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${user.name.replace(/\s/g, '')}&backgroundColor=transparent`} alt={user.name} className="w-full h-full object-cover bg-gray-50" /></div>{isFirst && <div className="absolute -bottom-2 -right-2 bg-yellow-400 text-white p-1.5 rounded-full border-4 border-white shadow-sm"><Sparkles size={10} fill="currentColor" /></div>}</div><h3 className="font-black text-xs text-gray-900 truncate w-full mb-1 uppercase tracking-tight">{user.name}</h3><p className="text-[8px] text-gray-400 font-bold uppercase tracking-wide mb-4 truncate w-full">{user.department || "Unknown Unit"}</p><div className={`w-full py-2 rounded-xl text-[10px] font-black flex items-center justify-center gap-1 ${isFirst ? 'bg-[#004d00] text-white shadow-lg shadow-green-900/20' : 'bg-gray-100 text-gray-600'}`}><Target size={10} /> <span>{user.score}%</span></div></div>); })}</div>) : (<div className="text-center py-12 bg-white rounded-[2.5rem] border border-dashed border-gray-200"><div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse"><Trophy size={24} className="text-gray-300" /></div><p className="text-gray-400 text-[10px] font-black uppercase tracking-widest">Roster Empty. Be the First.</p></div>)}
         </section>
       </div>
 
