@@ -271,13 +271,6 @@ export default function StudentDashboard() {
   const visibleHistory = historyExpanded ? examHistory : examHistory.slice(0, 2);
   const qualifiedLeaders = leaders.filter(user => user.score >= 60);
 
-  if (loading) return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#004d00] gap-4">
-      <div className="w-12 h-12 border-4 border-white/20 border-t-white rounded-full animate-spin"></div>
-      <p className="text-white font-black text-xs uppercase tracking-[0.3em]">Loading HQ...</p>
-    </div>
-  );
-
   return (
     <main className="min-h-screen bg-[#fcfdfc] font-sans text-gray-900 pb-48 relative">
       <LiveTracker />
@@ -422,7 +415,7 @@ export default function StudentDashboard() {
                       <div className={`w-16 h-16 rounded-2xl flex items-center justify-center overflow-hidden border-2 ${isFirst ? 'border-yellow-400 p-0.5' : 'border-gray-50'}`}><img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${user.name.replace(/\s/g, '')}&backgroundColor=transparent`} alt={user.name} className="w-full h-full object-cover rounded-xl bg-gray-50" /></div>
                       {isFirst && <div className="absolute -bottom-1 -right-1 bg-yellow-400 text-white p-1 rounded-full border-2 border-white"><Sparkles size={8} fill="currentColor" /></div>}
                     </div>
-                    <h3 className="font-black text-[11px] text-gray-900 truncate w-full mb-1 uppercase tracking-tight leading-tight">{user.name}</h3>
+                    <h3 className="font-black text-[11px] text-gray-900 truncate w-full mb-1 uppercase tracking-tight leading-tight">{user.name.split(" ")[0]}</h3>
                     <div className="flex flex-col items-center gap-1 w-full mb-3">
                       <div className="flex items-center gap-1 text-[8px] text-gray-400 font-bold uppercase tracking-wide truncate max-w-full"><GraduationCap size={10} /><span className="truncate">{user.department || "Student"}</span></div>
                       <div className="bg-blue-50 text-blue-700 px-2 py-0.5 rounded-md text-[7px] font-black uppercase tracking-wider border border-blue-100 flex items-center gap-1"><FileText size={8} /> {user.course_code || "GEN"}</div>
