@@ -19,7 +19,7 @@ function ExamSetupModal({ course, isPremium, onClose, onStart, onUpgrade }) {
   const [duration, setDuration] = useState(course.duration || 15);
   const [qCount, setQCount] = useState(30);
 
-  // LOGIC UPDATE: Dynamic Attempt Limits
+  // LOGIC: Dynamic Attempt Limits
   const isGst = course.code.toUpperCase().startsWith("GST");
   const attemptLimit = isGst ? 2 : 1;
   const isBlocked = !isPremium && course.user_attempts >= attemptLimit;
@@ -114,60 +114,61 @@ function DisclaimerCard() {
   );
 }
 
-/* === 3. COURSE CARD (BLUE ACCENT FIX) === */
+/* === 3. COURSE CARD (REDESIGNED: SPACIOUS & CLEAN) === */
 function CourseCard({ course, onLaunch, variant = "green", isPremium }) {
   const isGstVariant = variant === "green";
   
-  // LOGIC UPDATE: Dynamic Attempt Limits
+  // LOGIC: Dynamic Attempt Limits
   const isGstCode = course.code.toUpperCase().startsWith("GST");
   const attemptLimit = isGstCode ? 2 : 1;
   const isBlocked = !isPremium && course.user_attempts >= attemptLimit;
   
-  // Visual Styles: Green for GST, Blue for Others
-  const accentColor = isGstVariant ? "bg-[#004d00]" : "bg-blue-600"; 
-  const badgeStyle = "bg-gray-100 text-gray-700"; 
-  const btnStyle = isBlocked 
+  // Visual Styles
+  const accentColor = isGstVariant ? "text-[#004d00]" : "text-blue-600"; 
+  const btnBg = isBlocked 
     ? "bg-gray-100 text-gray-300" 
-    : isGstVariant ? "bg-[#004d00] text-white" : "bg-blue-600 text-white";
+    : isGstVariant ? "bg-[#004d00] text-white shadow-green-900/20" : "bg-blue-600 text-white shadow-blue-900/20";
+  const glow = isBlocked ? "" : (isGstVariant ? "shadow-lg shadow-green-200" : "shadow-lg shadow-blue-200");
 
   return (
     <div 
       onClick={(e) => { e.preventDefault(); onLaunch(course); }} 
-      className="group relative bg-white rounded-[1.5rem] shadow-sm border border-gray-100 overflow-hidden flex flex-col justify-between h-full min-h-[170px] cursor-pointer hover:shadow-md transition-all active:scale-[0.98]"
+      className="group relative bg-white rounded-[2rem] shadow-sm border border-gray-100/50 overflow-hidden flex flex-col h-full min-h-[210px] cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
     >
-      {/* Top Accent Bar */}
-      <div className={`h-1.5 w-full ${accentColor}`}></div>
-
-      <div className="p-5 flex flex-col h-full">
-        {/* Header: Badge */}
-        <div className="mb-3">
-          <span className={`inline-block px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest ${badgeStyle}`}>
+      <div className="p-6 flex flex-col h-full relative z-10">
+        {/* HEADER: Code + Count */}
+        <div className="flex justify-between items-start mb-4">
+          <span className={`inline-block px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest bg-gray-50 text-gray-600 border border-gray-100`}>
             {course.code}
           </span>
+          <div className="flex items-center gap-1 text-gray-400">
+            <Database size={10} />
+            <span className="text-[9px] font-bold">{course.total_questions || 0}</span>
+          </div>
         </div>
 
-        {/* Title */}
-        <h3 className="font-black text-gray-900 text-sm leading-tight mb-6 line-clamp-3">
-          {course.title}
-        </h3>
+        {/* BODY: Title (Centered & Spacious) */}
+        <div className="flex-1 flex items-center">
+          <h3 className={`font-black text-sm leading-relaxed text-gray-900 line-clamp-3 group-hover:${accentColor} transition-colors`}>
+            {course.title}
+          </h3>
+        </div>
 
-        {/* Footer: Stats & Action */}
-        <div className="mt-auto flex items-end justify-between">
-          <div className="flex items-center gap-1.5 text-gray-400">
-            <Database size={12} />
-            <span className="text-[9px] font-bold uppercase tracking-wider">
-              {course.total_questions || 0} Questions
-            </span>
-          </div>
-          
-          <div className={`w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-transform group-hover:scale-110 ${btnStyle}`}>
-            {isBlocked ? <Lock size={14} /> : <Play size={14} fill="currentColor" className="ml-0.5" />}
-          </div>
+        {/* FOOTER: Action */}
+        <div className="mt-4 flex justify-between items-center">
+           <div className="text-[9px] font-bold text-gray-300 uppercase tracking-wider">
+             {isBlocked ? "Locked" : "Ready"}
+           </div>
+           
+           <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-transform group-hover:scale-110 ${btnBg} ${glow}`}>
+             {isBlocked ? <Lock size={16} /> : <Play size={16} fill="currentColor" className="ml-0.5" />}
+           </div>
         </div>
       </div>
     </div>
   );
 }
+
 export default function StudentDashboard() {
   const router = useRouter();
   const [student, setStudent] = useState(null);
