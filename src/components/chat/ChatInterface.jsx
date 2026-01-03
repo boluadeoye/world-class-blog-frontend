@@ -1,9 +1,10 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import { Send, Trash2, Bot, User, ArrowLeft, Sparkles, Zap } from "lucide-react";
+import { Send, Trash2, Bot, User, ArrowLeft, Sparkles, Zap, ExternalLink } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 export default function ChatInterface({ blogContext }) {
   const [messages, setMessages] = useState([]);
@@ -18,10 +19,10 @@ export default function ChatInterface({ blogContext }) {
     if (saved) {
       try { setMessages(JSON.parse(saved)); } catch (e) { localStorage.removeItem("bolu_neural_history"); }
     } else {
-      setMessages([{ 
-        id: "init", 
-        role: "assistant", 
-        content: "Neural Link v2.0 Established. I am ready." 
+      setMessages([{
+        id: "init",
+        role: "assistant",
+        content: "Neural Link v2.0 Established. I am ready."
       }]);
     }
   }, []);
@@ -47,10 +48,10 @@ export default function ChatInterface({ blogContext }) {
 
     for (let i = 0; i < chars.length; i++) {
       currentText += chars[i];
-      setMessages(prev => prev.map(msg => 
+      setMessages(prev => prev.map(msg =>
         msg.id === tempId ? { ...msg, content: currentText } : msg
       ));
-      await new Promise(r => setTimeout(r, 10));
+      await new Promise(r => setTimeout(r, 5)); // Faster typing for better UX
     }
     setIsTyping(false);
   };
@@ -61,7 +62,7 @@ export default function ChatInterface({ blogContext }) {
 
     const userText = input.trim();
     setInput("");
-    
+
     const userMsg = { id: Date.now(), role: "user", content: userText };
     setMessages(prev => [...prev, userMsg]);
     setIsTyping(true);
@@ -70,33 +71,33 @@ export default function ChatInterface({ blogContext }) {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           messages: [...messages, userMsg],
-          context: blogContext 
+          context: blogContext
         }),
       });
 
       const data = await res.json();
-      setIsTyping(false); 
+      setIsTyping(false);
 
       if (res.ok && data.reply) {
         await simulateTyping(data.reply);
       } else {
-        setMessages(prev => [...prev, { 
-          id: Date.now(), 
-          role: "assistant", 
+        setMessages(prev => [...prev, {
+          id: Date.now(),
+          role: "assistant",
           content: data.error || "Connection severed.",
-          isError: true 
+          isError: true
         }]);
       }
 
     } catch (err) {
       setIsTyping(false);
-      setMessages(prev => [...prev, { 
-        id: Date.now(), 
-        role: "assistant", 
+      setMessages(prev => [...prev, {
+        id: Date.now(),
+        role: "assistant",
         content: "Network unreachable.",
-        isError: true 
+        isError: true
       }]);
     }
   };
@@ -105,20 +106,19 @@ export default function ChatInterface({ blogContext }) {
 
   return (
     <div className="flex flex-col h-full w-full bg-[#0a0a0a] relative z-20">
-      
-      {/* === HEADER (Solid & Visible) === */}
+
+      {/* === HEADER === */}
       <div className="flex items-center justify-between px-4 py-3 bg-slate-900 border-b border-white/10 shadow-md pt-safe-top">
         <div className="flex items-center gap-3">
           <Link href="/" className="p-2 -ml-2 text-slate-400 hover:text-white transition-colors">
             <ArrowLeft size={20} />
           </Link>
-          
+
           <div className="flex items-center gap-3">
             <div className="relative">
               <div className="w-10 h-10 rounded-full bg-slate-800 border border-white/10 flex items-center justify-center">
                 <Bot size={20} className="text-indigo-400" />
               </div>
-              {/* Status Light */}
               <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-slate-900 animate-pulse"></div>
             </div>
             <div className="flex flex-col">
@@ -128,8 +128,8 @@ export default function ChatInterface({ blogContext }) {
           </div>
         </div>
 
-        <button 
-          onClick={() => { localStorage.removeItem("bolu_neural_history"); setMessages([]); }} 
+        <button
+          onClick={() => { localStorage.removeItem("bolu_neural_history"); setMessages([]); }}
           className="p-2 text-slate-500 hover:text-red-400 transition-colors"
           title="Reset Chat"
         >
@@ -141,7 +141,7 @@ export default function ChatInterface({ blogContext }) {
       <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#050505]">
         <AnimatePresence initial={false}>
           {messages.map((msg) => (
-            <motion.div 
+            <motion.div
               key={msg.id}
               initial={{ opacity: 0, y: 5 }}
               animate={{ opacity: 1, y: 0 }}
@@ -152,19 +152,32 @@ export default function ChatInterface({ blogContext }) {
                   <Sparkles size={14} className="text-amber-400" />
                 </div>
               )}
-              
+
               <div className={`max-w-[85%] px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-sm ${
-                msg.role === 'user' 
-                  ? 'bg-indigo-600 text-white rounded-tr-sm' 
+                msg.role === 'user'
+                  ? 'bg-indigo-600 text-white rounded-tr-sm'
                   : msg.isError
                     ? 'bg-red-900/20 text-red-200 border border-red-500/20 rounded-tl-sm'
                     : 'bg-slate-900 border border-white/10 text-slate-200 rounded-tl-sm'
               }`}>
-                <ReactMarkdown 
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
                   components={{
-                    a: ({node, ...props}) => <a {...props} className="text-amber-400 underline" target="_blank" />,
-                    strong: ({node, ...props}) => <strong {...props} className="font-bold text-white" />,
-                    p: ({node, ...props}) => <p {...props} className="mb-1 last:mb-0" />
+                    a: ({node, ...props}) => (
+                      <a 
+                        {...props} 
+                        className="inline-flex items-center gap-1 text-emerald-400 font-bold underline decoration-emerald-500/30 hover:text-emerald-300 transition-colors break-all" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                      >
+                        {props.children}
+                        <ExternalLink size={10} className="shrink-0" />
+                      </a>
+                    ),
+                    strong: ({node, ...props}) => <strong {...props} className="font-black text-white tracking-tight" />,
+                    p: ({node, ...props}) => <p {...props} className="mb-2 last:mb-0" />,
+                    ul: ({node, ...props}) => <ul {...props} className="list-disc ml-4 mb-2 space-y-1" />,
+                    li: ({node, ...props}) => <li {...props} className="text-slate-300" />
                   }}
                 >
                   {msg.content}
@@ -179,19 +192,19 @@ export default function ChatInterface({ blogContext }) {
         <div ref={scrollRef} />
       </div>
 
-      {/* === INPUT DECK (Solid Bottom) === */}
+      {/* === INPUT DECK === */}
       <div className="p-4 bg-slate-900 border-t border-white/10 pb-safe-bottom">
         <form onSubmit={handleSend} className="flex items-center gap-3">
-          <input 
-            type="text" 
+          <input
+            type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Type a message..."
             className="flex-1 bg-slate-950 text-white placeholder-slate-500 px-5 py-3.5 rounded-full border border-white/10 focus:border-indigo-500 focus:outline-none text-sm transition-all"
             autoFocus
           />
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             disabled={!input.trim() || isTyping}
             className="p-3.5 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
           >
