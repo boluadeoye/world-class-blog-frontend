@@ -109,8 +109,14 @@ function ExamContent() {
     setMounted(true);
     const studentData = sessionStorage.getItem("cbt_student");
     if (!studentData) { router.push("/cbt"); return; }
-    const parsedStudent = JSON.parse(studentData);
-    setStudent(parsedStudent);
+    
+    let parsedStudent;
+    try {
+        parsedStudent = JSON.parse(studentData);
+        setStudent(parsedStudent);
+    } catch (e) {
+        router.push("/cbt"); return;
+    }
 
     async function loadExam() {
       try {
@@ -148,14 +154,20 @@ function ExamContent() {
 
         const savedSession = localStorage.getItem(getStorageKey(parsedStudent.email));
         if (savedSession) {
-          const session = JSON.parse(savedSession);
-          if (Math.abs(session.timeLeft - (finalDur * 60)) > 300 && session.timeLeft < (finalDur * 60)) {
-             localStorage.removeItem(getStorageKey(parsedStudent.email));
-             setTimeLeft(finalDur * 60);
-          } else {
-             setAnswers(session.answers || {});
-             setTimeLeft(session.timeLeft);
-             setCurrentQIndex(session.currentIndex || 0);
+          try {
+              const session = JSON.parse(savedSession);
+              if (Math.abs(session.timeLeft - (finalDur * 60)) > 300 && session.timeLeft < (finalDur * 60)) {
+                 localStorage.removeItem(getStorageKey(parsedStudent.email));
+                 setTimeLeft(finalDur * 60);
+              } else {
+                 setAnswers(session.answers || {});
+                 setTimeLeft(session.timeLeft);
+                 setCurrentQIndex(session.currentIndex || 0);
+              }
+          } catch (e) {
+              // Corrupted session, clear it
+              localStorage.removeItem(getStorageKey(parsedStudent.email));
+              setTimeLeft(finalDur * 60);
           }
         } else {
           setTimeLeft(finalDur * 60);
@@ -329,7 +341,7 @@ function ExamContent() {
           {activeTab === "corrections" ? (
             <div className="space-y-4">
               {questions.map((q, i) => {
-                const correctKey = `option_${q.correct_option.toLowerCase()}`;
+                const correctKey = `option_${(q.correct_option || 'a').toLowerCase()}`;
                 const correctText = q[correctKey] || "Option text unavailable";
                 const isCorrect = answers[q.id] === q.correct_option;
                 
