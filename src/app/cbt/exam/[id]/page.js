@@ -1,9 +1,9 @@
 "use client";
 import { useState, useEffect, useCallback, Suspense, useRef } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import {
+import { 
   Grid, CheckCircle, AlertOctagon, X, Crown, Sparkles,
-  BrainCircuit, Clock, ChevronRight, ChevronLeft, ShieldAlert,
+  BrainCircuit, Clock, ChevronRight, ChevronLeft, ShieldAlert, 
   Loader2, BookOpen, Target, Zap, FileText, Lock, ShieldCheck, Fingerprint
 } from "lucide-react";
 import dynamic from "next/dynamic";
@@ -97,10 +97,9 @@ function ExamContent() {
   const [analyzing, setAnalyzing] = useState(false);
   const [limitReached, setLimitReached] = useState(false);
 
-  // FIX: Use Refs to prevent Timer Re-renders on Android
   const answersRef = useRef(answers);
   const studentRef = useRef(student);
-  
+
   useEffect(() => { answersRef.current = answers; }, [answers]);
   useEffect(() => { studentRef.current = student; }, [student]);
 
@@ -117,17 +116,17 @@ function ExamContent() {
       try {
         const hwId = localStorage.getItem("cbt_hw_id") || "unknown";
         const limit = searchParams.get('limit') || '30';
-        
-        const query = new URLSearchParams({ 
-          courseId: params.id, 
-          studentId: parsedStudent.id, 
+
+        const query = new URLSearchParams({
+          courseId: params.id,
+          studentId: parsedStudent.id,
           token: parsedStudent.session_token || "",
           deviceId: hwId,
           limit: limit
         });
 
         const res = await fetch(`/api/cbt/exam?${query.toString()}`);
-        
+
         if (res.status === 403) {
            setLimitReached(true);
            setLoading(false);
@@ -165,6 +164,7 @@ function ExamContent() {
     }
     loadExam();
   }, [params.id, router, getStorageKey, searchParams]);
+
   const submitExam = useCallback(async () => {
     let correctCount = 0;
     questions.forEach(q => { if (answers[q.id] === q.correct_option) correctCount++; });
@@ -181,13 +181,13 @@ function ExamContent() {
             await fetch('/api/cbt/result', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                  studentId: student.id, 
-                  courseId: course.id, 
-                  score: correctCount, 
-                  total: questions.length, 
+                body: JSON.stringify({
+                  studentId: student.id,
+                  courseId: course.id,
+                  score: correctCount,
+                  total: questions.length,
                   answers: answers,
-                  deviceId: hwId 
+                  deviceId: hwId
                 })
             });
         } catch(e) { console.error("Save error", e); }
@@ -200,10 +200,8 @@ function ExamContent() {
     setTimeout(() => { submitExam(); }, 3000);
   }, [submitExam]);
 
-  // FIX: Optimized Timer using Refs
   useEffect(() => {
     if (!mounted || loading || isSubmitted || limitReached || error || timeLeft === null || showUpgrade || isTimeUp) return;
-    
     const interval = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 0) {
@@ -214,22 +212,22 @@ function ExamContent() {
         const newTime = prev - 1;
         if (studentRef.current && newTime % 5 === 0) {
           localStorage.setItem(
-            getStorageKey(studentRef.current.email), 
-            JSON.stringify({ answers: answersRef.current, timeLeft: newTime, currentIndex: currentQIndex }) 
+            getStorageKey(studentRef.current.email),
+            JSON.stringify({ answers: answersRef.current, timeLeft: newTime, currentIndex: currentQIndex })
           );
         }
         return newTime;
       });
     }, 1000);
     return () => clearInterval(interval);
-  }, [loading, isSubmitted, limitReached, error, timeLeft === null, showUpgrade, mounted, getStorageKey, handleAutoSubmit, isTimeUp]); 
+  }, [loading, isSubmitted, limitReached, error, timeLeft === null, showUpgrade, mounted, getStorageKey, handleAutoSubmit, isTimeUp]);
 
-  const handleSelect = (option) => { 
+  const handleSelect = (option) => {
     if (!isSubmitted && !isTimeUp && questions[currentQIndex]) {
       setAnswers(prev => ({ ...prev, [questions[currentQIndex].id]: option }));
     }
   };
-  
+
   const formatTime = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
   const navigateTo = (index) => { setCurrentQIndex(index); setShowMap(false); };
 
@@ -254,8 +252,9 @@ function ExamContent() {
     if (answers[qId]) return "bg-emerald-600 text-white border-emerald-700 font-bold";
     return "bg-red-50 text-red-400 border-red-100 font-medium";
   };
+
   if (!mounted) return null;
-  
+
   if (limitReached) return (
     <div className="min-h-screen bg-[#002b00] flex flex-col items-center justify-center p-6 relative overflow-hidden">
       {showUpgrade && <UpgradeModal student={student} onClose={() => setShowUpgrade(false)} onSuccess={() => window.location.reload()} />}
@@ -274,8 +273,8 @@ function ExamContent() {
     </div>
   );
 
-  if (showUpgrade) return <div className="min-h-screen flex items-center justify-center bg-white"><UpgradeModal student={student} onClose={() => router.push('/cbt/dashboard')} onSuccess={() => window.location.reload()} /></div>;
-  
+  if (showUpgrade) return <div className="min-h-screen flex items-center justify-center bg-white"><UpgradeModal student={student} onClose={() => setShowUpgrade(false)} onSuccess={() => window.location.reload()} /></div>;
+
   if (loading) return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#002b00] text-white relative overflow-hidden">
       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20"></div>
@@ -317,10 +316,10 @@ function ExamContent() {
                <span>Score: {score}/{questions.length}</span>
                <span className="w-1 h-1 bg-gray-600 rounded-full mt-1.5"></span>
                <span>Answered: {answeredCount}</span>
-             </div>
+            </div>
           </div>
         </header>
-        
+
         <div className="max-w-3xl mx-auto px-4 -mt-10 relative z-20">
           <div className="bg-white rounded-2xl shadow-lg p-1.5 mb-6 flex gap-2 border border-gray-100">
             <button onClick={() => setActiveTab("corrections")} className={`flex-1 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'corrections' ? 'bg-[#004d00] text-white shadow-md' : 'text-gray-400'}`}>Corrections</button>
@@ -332,19 +331,19 @@ function ExamContent() {
               {questions.map((q, i) => {
                 const correctKey = `option_${q.correct_option.toLowerCase()}`;
                 const correctText = q[correctKey] || "Option text unavailable";
+                const isCorrect = answers[q.id] === q.correct_option;
+                
                 return (
-                  <div key={q.id} className={`bg-white p-6 rounded-3xl shadow-sm border-l-[6px] ${answers[q.id] === q.correct_option ? 'border-green-500' : 'border-red-500'}`}>
-                    <div className="flex justify-between items-start mb-4"><span className="bg-gray-100 text-gray-500 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest">Question {i+1}</span>{answers[q.id] === q.correct_option ? <CheckCircle size={20} className="text-green-600" /> : <X size={20} className="text-red-500" />}</div>
+                  <div key={q.id} className={`bg-white p-6 rounded-3xl shadow-sm border-l-[6px] ${isCorrect ? 'border-green-500' : 'border-red-500'}`}>
+                    <div className="flex justify-between items-start mb-4">
+                      <span className="bg-gray-100 text-gray-500 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest">Question {i+1}</span>
+                      {isCorrect ? <CheckCircle size={20} className="text-green-600" /> : <X size={20} className="text-red-500" />}
+                    </div>
                     <p className="font-bold text-gray-900 text-sm leading-relaxed mb-6">{q.question_text}</p>
+                    
                     <div className="grid grid-cols-1 gap-3 mb-4">
-                      <div className="bg-green-50 border border-green-100 p-4 rounded-xl">
-                        <p className="text-[9px] font-black text-green-800 uppercase mb-1 flex items-center gap-2"><CheckCircle size={12}/> Correct Answer</p>
-                        <p className="text-sm font-bold text-green-900 leading-snug">
-                          <span className="font-black mr-2">{q.correct_option}.</span>
-                          {correctText}
-                        </p>
-                      </div>
-                      {answers[q.id] !== q.correct_option && (
+                      {/* WRONG ANSWER (Always Show) */}
+                      {!isCorrect && (
                         <div className="bg-red-50 border border-red-100 p-4 rounded-xl">
                           <p className="text-[9px] font-black text-red-800 uppercase mb-1 flex items-center gap-2"><X size={12}/> Your Selection</p>
                           <p className="text-sm font-bold text-red-900">
@@ -357,8 +356,38 @@ function ExamContent() {
                           </p>
                         </div>
                       )}
+
+                      {/* CORRECT ANSWER (LOCKED FOR FREE USERS) */}
+                      {isPremium ? (
+                        <div className="bg-green-50 border border-green-100 p-4 rounded-xl">
+                          <p className="text-[9px] font-black text-green-800 uppercase mb-1 flex items-center gap-2"><CheckCircle size={12}/> Correct Answer</p>
+                          <p className="text-sm font-bold text-green-900 leading-snug">
+                            <span className="font-black mr-2">{q.correct_option}.</span>
+                            {correctText}
+                          </p>
+                        </div>
+                      ) : (
+                        <div onClick={() => setShowUpgrade(true)} className="bg-gray-50 border border-gray-200 p-4 rounded-xl relative overflow-hidden cursor-pointer group">
+                          <div className="absolute inset-0 bg-white/50 backdrop-blur-[2px] flex items-center justify-center z-10">
+                            <div className="bg-black/80 text-white px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center gap-2 shadow-lg group-hover:scale-105 transition-transform">
+                              <Lock size={10} /> Unlock Answer
+                            </div>
+                          </div>
+                          <p className="text-[9px] font-black text-gray-400 uppercase mb-1 flex items-center gap-2"><CheckCircle size={12}/> Correct Answer</p>
+                          <p className="text-sm font-bold text-gray-300 blur-sm select-none">
+                            <span className="font-black mr-2">A.</span>
+                            This is a hidden answer that you cannot see without upgrading.
+                          </p>
+                        </div>
+                      )}
                     </div>
-                    {isPremium && q.explanation && <div className="mt-4 pt-4 border-t border-gray-100"><p className="text-[9px] font-black text-blue-600 uppercase tracking-widest mb-1">Concept Brief</p><p className="text-xs text-gray-600 leading-relaxed bg-blue-50/30 p-3 rounded-xl border border-blue-100 italic">{q.explanation}</p></div>}
+                    
+                    {isPremium && q.explanation && (
+                      <div className="mt-4 pt-4 border-t border-gray-100">
+                        <p className="text-[9px] font-black text-blue-600 uppercase tracking-widest mb-1">Concept Brief</p>
+                        <p className="text-xs text-gray-600 leading-relaxed bg-blue-50/30 p-3 rounded-xl border border-blue-100 italic">{q.explanation}</p>
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -442,22 +471,16 @@ function ExamContent() {
 
   const currentQ = questions[currentQIndex];
   const safeId = student?.id ? String(student.id) : "0000";
-  const answeredCount = Object.keys(answers).length;
-  const isLastQ = currentQIndex === questions.length - 1;
-
+  
   if (!currentQ) return <div className="h-screen flex items-center justify-center bg-white font-black text-xs tracking-[0.3em] uppercase text-green-900">Synchronizing...</div>;
 
   return (
     <main className="h-screen flex flex-col bg-[#f0f2f5] font-sans overflow-hidden select-none relative">
-      {/* === SECURITY WATERMARK === */}
       <SecurityWatermark text={`${student?.name || 'CBT'} - ${safeId}`} />
-      
-      {/* === LIVE TRACKER === */}
       <LiveTracker />
-
       {isTimeUp && <TimeUpOverlay />}
       <SubmitModal isOpen={showSubmitModal} onConfirm={submitExam} onCancel={() => setShowSubmitModal(false)} answeredCount={answeredCount} totalCount={questions.length} />
-      
+
       <header className="h-14 bg-[#004d00] text-white flex justify-between items-center px-4 shrink-0 z-[160] border-b border-green-800">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-[#004d00] font-black text-sm shadow-inner">{student?.name?.charAt(0).toUpperCase()}</div>
@@ -494,13 +517,13 @@ function ExamContent() {
           </div>
         </div>
       </div>
-      
+
       <footer className="h-16 bg-white border-t border-gray-100 flex justify-between items-center px-8 shrink-0 z-20">
         <button onClick={() => navigateTo(Math.max(0, currentQIndex - 1))} disabled={currentQIndex === 0} className="text-[10px] font-black text-gray-400 uppercase tracking-widest disabled:opacity-10 transition-colors hover:text-green-900">[ PREV ]</button>
         <button onClick={() => setShowMap(true)} className="bg-gray-100 text-gray-700 p-3.5 rounded-[1.2rem] hover:bg-green-50 hover:text-green-900 transition-all active:scale-95"><Grid size={22} /></button>
         <button onClick={() => navigateTo(Math.min(questions.length - 1, currentQIndex + 1))} disabled={currentQIndex === questions.length - 1} className={`px-10 py-3.5 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all shadow-lg ${currentQIndex === questions.length - 1 ? 'bg-gray-100 text-gray-400 border border-gray-200' : 'bg-[#004d00] text-white hover:bg-green-900 active:scale-95'}`}>Next</button>
       </footer>
-      
+
       <aside className={`fixed inset-x-0 bottom-0 z-[250] bg-white rounded-t-[3rem] shadow-[0_-20px_50px_rgba(0,0,0,0.15)] transition-transform duration-500 border-t border-gray-100 ${showMap ? 'translate-y-0' : 'translate-y-full'} h-[60vh] flex flex-col`}>
         <div className="p-6 bg-gray-50 border-b border-gray-100 flex justify-between items-center shrink-0 rounded-t-[3rem]"><span className="font-black text-xs uppercase tracking-widest text-gray-700 flex items-center gap-2"><Grid size={16} /> Question Matrix</span><button onClick={() => setShowMap(false)} className="p-2.5 bg-gray-200 text-gray-600 rounded-2xl hover:bg-gray-300 transition-colors"><X size={20}/></button></div>
         <div className="flex-1 overflow-y-auto p-6 custom-scrollbar bg-white"><div className="grid grid-cols-5 gap-3.5">{questions.map((q, i) => (<button key={q.id} onClick={() => navigateTo(i)} className={`h-12 rounded-2xl text-xs font-black transition-all border-2 ${getGridColor(i, q.id)} shadow-sm`}>{i + 1}</button>))}</div></div>
