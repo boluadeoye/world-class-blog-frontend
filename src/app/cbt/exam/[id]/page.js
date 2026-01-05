@@ -165,7 +165,6 @@ function ExamContent() {
                  setCurrentQIndex(session.currentIndex || 0);
               }
           } catch (e) {
-              // Corrupted session, clear it
               localStorage.removeItem(getStorageKey(parsedStudent.email));
               setTimeLeft(finalDur * 60);
           }
@@ -304,10 +303,10 @@ function ExamContent() {
   if (error) return <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6 text-center text-red-600 font-bold gap-4"><p>{error}</p><button onClick={() => window.location.reload()} className="bg-black text-white px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest">Retry Connection</button></div>;
 
   const marksPerQuestion = questions.length > 0 ? (100 / questions.length).toFixed(1) : 0;
+  const answeredCount = Object.keys(answers).length; // <--- FIXED: Defined here for main scope
 
   if (isSubmitted) {
     const percentage = Math.round((score / questions.length) * 100);
-    const answeredCount = Object.keys(answers).length;
     return (
       <main className="min-h-screen bg-[#f0f2f5] font-sans pb-20 overflow-y-auto">
         <header className="bg-[#002b00] text-white pt-10 pb-20 px-6 rounded-b-[3rem] shadow-2xl relative overflow-hidden">
