@@ -1,12 +1,12 @@
 "use client";
-import { Download, ArrowLeft, CheckSquare, Layers, Shield, Zap, Database, DollarSign, Briefcase } from "lucide-react";
+import { Download, ArrowLeft, CheckSquare, Layers, Shield, Zap, Database, Bot, MapPin, Smartphone, Server } from "lucide-react";
 import Link from "next/link";
 
 export default function AutoamProposal() {
   
   const handlePrint = () => {
     const originalTitle = document.title;
-    document.title = "AUTOAM_Technical_Financial_Blueprint_v3";
+    document.title = "AUTOAM Technical Architecture Blueprint v2.0";
     window.print();
     document.title = originalTitle;
   };
@@ -41,10 +41,10 @@ export default function AutoamProposal() {
           <div className="w-16 h-16 mx-auto bg-white rounded-2xl flex items-center justify-center mb-6 shadow-lg">
             <span className="font-black text-2xl text-slate-900">BA</span>
           </div>
-          <h1 className="text-2xl font-bold text-white mb-2">Technical & Financial Brief</h1>
-          <p className="text-slate-400 text-sm mb-8">v3.0 • Comprehensive Budget Analysis</p>
+          <h1 className="text-2xl font-bold text-white mb-2">Technical Architecture</h1>
+          <p className="text-slate-400 text-sm mb-8">Aligned with Autoam PRD v1.0</p>
           <button onClick={handlePrint} className="w-full flex items-center justify-center gap-3 bg-white hover:bg-slate-200 text-slate-950 font-bold py-4 rounded-xl transition-all transform hover:scale-[1.02] shadow-xl">
-            <Download size={20} /> <span>Download Full PDF</span>
+            <Download size={20} /> <span>Download Blueprint PDF</span>
           </button>
           <Link href="/" className="block mt-6 text-xs text-slate-500 hover:text-slate-300 transition-colors">← Return to Dashboard</Link>
         </div>
@@ -53,9 +53,10 @@ export default function AutoamProposal() {
       {/* === VIEW 2: THE DOCUMENT (Print Only) === */}
       <div id="print-container" className="bg-white w-full max-w-[210mm] mx-auto hidden print:block">
         
-        {/* === PAGE 1: EXECUTIVE SUMMARY === */}
+        {/* === PAGE 1 === */}
         <div className="p-[15mm] pt-[20mm] h-[297mm] relative flex flex-col justify-between">
           <div>
+            {/* Header */}
             <div className="flex justify-between items-start border-b-[6px] border-black pb-6 mb-8">
               <div>
                 <h1 className="text-7xl font-black uppercase tracking-tighter leading-none mb-2">Autoam</h1>
@@ -63,192 +64,201 @@ export default function AutoamProposal() {
               </div>
               <div className="text-right">
                 <div className="bg-black text-white px-6 py-2 font-bold text-sm uppercase inline-block mb-1">Confidential</div>
-                <p className="text-xs font-mono font-bold">DOC-ID: ATM-FIN-V3</p>
+                <p className="text-xs font-mono font-bold">REF: PRD-ALIGN-V2</p>
               </div>
             </div>
 
+            {/* 1. Executive Summary */}
             <section className="mb-8">
               <h2 className="text-2xl font-black uppercase border-l-[10px] border-black pl-4 mb-4">1. Executive Summary</h2>
               <p className="text-sm leading-relaxed text-justify mb-4 font-bold text-black">
-                Autoam is engineered to be a high-availability, geolocation-centric marketplace. The architecture prioritizes <strong>Zero-Latency Dispatching</strong> and <strong>Financial Trust</strong> via escrow.
+                This architecture is engineered to meet the specific KPIs outlined in the Autoam PRD (v1.0), specifically the <strong>&lt;3s load time</strong> and <strong>AI-driven diagnostics</strong>.
+              </p>
+              <p className="text-sm leading-relaxed text-justify font-bold text-black">
+                The system unifies three service verticals—<strong>Mechanics, Auto-Parts, and Fuel Stations</strong>—into a single geospatial engine. It introduces a dedicated <strong>AI Layer</strong> for vehicle fault diagnosis and utilizes an <strong>Offline-First</strong> data strategy to ensure reliability in low-connectivity zones across Nigeria.
               </p>
             </section>
 
+            {/* 2. Core Stack Strategy */}
             <section>
-              <h2 className="text-2xl font-black uppercase border-l-[10px] border-black pl-4 mb-4">2. Technology Stack</h2>
+              <h2 className="text-2xl font-black uppercase border-l-[10px] border-black pl-4 mb-4">2. Technology Stack Strategy</h2>
               <div className="grid grid-cols-2 gap-4">
                 <div className="border-4 border-black p-4">
-                  <p className="font-black text-lg">Mobile: React Native</p>
-                  <p className="text-xs font-bold text-slate-800">Offline-First, Native Maps.</p>
+                  <div className="flex items-center gap-2 mb-2 border-b-4 border-black pb-2">
+                    <Smartphone size={18} />
+                    <span className="font-black text-sm uppercase">Mobile (User & Pro)</span>
+                  </div>
+                  <p className="font-black text-lg">React Native (Expo)</p>
+                  <ul className="list-disc pl-4 mt-2 text-xs font-bold space-y-1 text-slate-800">
+                    <li>Unified iOS/Android codebase.</li>
+                    <li><strong>Offline Mode:</strong> Local caching (WatermelonDB).</li>
+                    <li><strong>Maps:</strong> Native Google Maps SDK.</li>
+                  </ul>
                 </div>
                 <div className="border-4 border-black p-4">
-                  <p className="font-black text-lg">Backend: NestJS</p>
-                  <p className="text-xs font-bold text-slate-800">Scalable Microservices.</p>
+                  <div className="flex items-center gap-2 mb-2 border-b-4 border-black pb-2">
+                    <Bot size={18} />
+                    <span className="font-black text-sm uppercase">AI & Logic Core</span>
+                  </div>
+                  <p className="font-black text-lg">NestJS + OpenAI</p>
+                  <ul className="list-disc pl-4 mt-2 text-xs font-bold space-y-1 text-slate-800">
+                    <li><strong>AI Assistant:</strong> GPT-4o Mini for diagnostics.</li>
+                    <li><strong>Matching:</strong> Geospatial Heuristic Engine.</li>
+                    <li><strong>Queue:</strong> BullMQ for reliable dispatch.</li>
+                  </ul>
                 </div>
                 <div className="border-4 border-black p-4">
-                  <p className="font-black text-lg">Data: PostgreSQL</p>
-                  <p className="text-xs font-bold text-slate-800">Geospatial Indexing.</p>
+                  <div className="flex items-center gap-2 mb-2 border-b-4 border-black pb-2">
+                    <Database size={18} />
+                    <span className="font-black text-sm uppercase">Data Layer</span>
+                  </div>
+                  <p className="font-black text-lg">PostgreSQL + PostGIS</p>
+                  <ul className="list-disc pl-4 mt-2 text-xs font-bold space-y-1 text-slate-800">
+                    <li><strong>Multi-Vendor:</strong> Mechanics, Parts, Fuel.</li>
+                    <li><strong>Geo-Index:</strong> "Find nearest X within 5km".</li>
+                  </ul>
                 </div>
                 <div className="border-4 border-black p-4">
-                  <p className="font-black text-lg">AI: OpenAI GPT-4o</p>
-                  <p className="text-xs font-bold text-slate-800">Diagnostic Assistant.</p>
+                  <div className="flex items-center gap-2 mb-2 border-b-4 border-black pb-2">
+                    <Shield size={18} />
+                    <span className="font-black text-sm uppercase">Security</span>
+                  </div>
+                  <p className="font-black text-lg">JWT + AES-256</p>
+                  <ul className="list-disc pl-4 mt-2 text-xs font-bold space-y-1 text-slate-800">
+                    <li><strong>Privacy:</strong> NDPR/GDPR Compliance.</li>
+                    <li><strong>Payments:</strong> PCI-DSS Escrow Logic.</li>
+                  </ul>
                 </div>
               </div>
             </section>
           </div>
+          
           <div className="text-right text-xs font-black text-slate-400">Page 1/3</div>
         </div>
 
         <div className="page-break"></div>
 
-        {/* === PAGE 2: ARCHITECTURE DIAGRAM === */}
+        {/* === PAGE 2 === */}
         <div className="p-[15mm] pt-[20mm] h-[297mm] relative flex flex-col justify-between">
-          <section className="mb-8">
-            <h2 className="text-2xl font-black uppercase border-l-[10px] border-black pl-4 mb-6">3. System Architecture</h2>
-            <div className="flex flex-col items-center gap-4 text-xs font-black uppercase">
-              <div className="flex gap-4 w-full justify-center">
-                <div className="border-[3px] border-black p-2 w-28 text-center bg-slate-100">User App</div>
-                <div className="border-[3px] border-black p-2 w-28 text-center bg-slate-100">Partner App</div>
-                <div className="border-[3px] border-black p-2 w-28 text-center bg-slate-100">Admin</div>
+          
+          <div>
+            {/* 3. System Architecture Diagram */}
+            <section className="mb-8">
+              <h2 className="text-2xl font-black uppercase border-l-[10px] border-black pl-4 mb-6">3. System Architecture Diagram</h2>
+              
+              {/* COMPACT BOLD DIAGRAM */}
+              <div className="flex flex-col items-center gap-4 text-xs font-black uppercase">
+                <div className="flex gap-4 w-full justify-center">
+                  <div className="border-[3px] border-black p-2 w-28 text-center bg-slate-100">User App<br/>(Driver)</div>
+                  <div className="border-[3px] border-black p-2 w-28 text-center bg-slate-100">Partner App<br/>(Mechanic/Dealer)</div>
+                  <div className="border-[3px] border-black p-2 w-28 text-center bg-slate-100">Admin<br/>Portal</div>
+                </div>
+                <div className="h-4 w-1.5 bg-black"></div>
+                <div className="border-[3px] border-black p-3 w-full max-w-md text-center bg-white relative">
+                  <span className="absolute -top-3 left-4 bg-white px-2 text-[10px] font-black">Load Balancer</span>
+                  API GATEWAY (Nginx / Cloudflare)
+                </div>
+                <div className="h-4 w-1.5 bg-black"></div>
+                <div className="flex gap-4 w-full justify-center">
+                  <div className="border-[3px] border-black p-3 w-36 text-center bg-white">
+                    CORE API<br/>(NestJS)
+                  </div>
+                  <div className="border-[3px] border-black p-3 w-36 text-center bg-slate-800 text-white">
+                    AI ENGINE<br/>(LLM / RAG)
+                  </div>
+                  <div className="border-[3px] border-black p-3 w-36 text-center bg-white">
+                    DISPATCH<br/>(Socket.io)
+                  </div>
+                </div>
+                <div className="h-4 w-1.5 bg-black"></div>
+                <div className="flex gap-4 w-full justify-center">
+                  <div className="border-[3px] border-black p-2 w-28 text-center bg-slate-100">PostgreSQL<br/>(Primary DB)</div>
+                  <div className="border-[3px] border-black p-2 w-28 text-center bg-slate-100">Redis<br/>(Cache)</div>
+                  <div className="border-[3px] border-black p-2 w-28 text-center bg-slate-100">S3 Bucket<br/>(Media)</div>
+                </div>
               </div>
-              <div className="h-4 w-1.5 bg-black"></div>
-              <div className="border-[3px] border-black p-3 w-full max-w-md text-center bg-white">
-                API GATEWAY (Load Balancer)
-              </div>
-              <div className="h-4 w-1.5 bg-black"></div>
-              <div className="flex gap-4 w-full justify-center">
-                <div className="border-[3px] border-black p-3 w-36 text-center bg-white">CORE API</div>
-                <div className="border-[3px] border-black p-3 w-36 text-center bg-slate-800 text-white">AI ENGINE</div>
-                <div className="border-[3px] border-black p-3 w-36 text-center bg-white">DISPATCH</div>
-              </div>
-              <div className="h-4 w-1.5 bg-black"></div>
-              <div className="flex gap-4 w-full justify-center">
-                <div className="border-[3px] border-black p-2 w-28 text-center bg-slate-100">PostgreSQL</div>
-                <div className="border-[3px] border-black p-2 w-28 text-center bg-slate-100">Redis</div>
-                <div className="border-[3px] border-black p-2 w-28 text-center bg-slate-100">S3 Bucket</div>
-              </div>
-            </div>
-          </section>
+            </section>
 
-          <section>
-            <h2 className="text-2xl font-black uppercase border-l-[10px] border-black pl-4 mb-6">4. Roadmap (9 Weeks)</h2>
-            <div className="border-l-[6px] border-black ml-2 space-y-0">
-              <div className="relative pl-8 pb-4">
-                <div className="absolute -left-[12px] top-0 w-5 h-5 bg-black rounded-full border-4 border-white"></div>
-                <h4 className="font-black text-sm uppercase">Phase 1: Foundation (Weeks 1-2)</h4>
-                <p className="text-xs font-bold text-slate-700">System Design, Database, UI/UX.</p>
+            {/* 4. Database Schema */}
+            <section>
+              <h2 className="text-2xl font-black uppercase border-l-[10px] border-black pl-4 mb-6">4. Core Database Schema</h2>
+              <div className="space-y-4 text-xs font-mono font-bold">
+                <div className="border-4 border-black p-3 avoid-break">
+                  <p className="font-black border-b-4 border-black pb-1 mb-2 text-sm">USERS (Drivers & Providers)</p>
+                  <p className="text-slate-900">id (UUID) • type (DRIVER/MECHANIC/DEALER/FUEL) • kyc_docs • rating_avg • location (Point)</p>
+                </div>
+                <div className="border-4 border-black p-3 avoid-break">
+                  <p className="font-black border-b-4 border-black pb-1 mb-2 text-sm">SERVICE_REQUESTS (Jobs)</p>
+                  <p className="text-slate-900">id • user_id • provider_id • service_type (REPAIR/TOW/FUEL) • ai_diagnosis_log • status • cost</p>
+                </div>
+                <div className="border-4 border-black p-3 avoid-break">
+                  <p className="font-black border-b-4 border-black pb-1 mb-2 text-sm">INVENTORY (Parts & Fuel)</p>
+                  <p className="text-slate-900">id • provider_id • item_name • stock_level • price • compatibility_tags</p>
+                </div>
               </div>
-              <div className="relative pl-8 pb-4">
-                <div className="absolute -left-[12px] top-0 w-5 h-5 bg-white border-[5px] border-black rounded-full"></div>
-                <h4 className="font-black text-sm uppercase">Phase 2: Core Engine (Weeks 3-5)</h4>
-                <p className="text-xs font-bold text-slate-700">Geolocation, AI Integration, Matching.</p>
-              </div>
-              <div className="relative pl-8 pb-4">
-                <div className="absolute -left-[12px] top-0 w-5 h-5 bg-white border-[5px] border-black rounded-full"></div>
-                <h4 className="font-black text-sm uppercase">Phase 3: Ecosystem (Weeks 6-7)</h4>
-                <p className="text-xs font-bold text-slate-700">Inventory, Payments, Wallet.</p>
-              </div>
-              <div className="relative pl-8">
-                <div className="absolute -left-[12px] top-0 w-5 h-5 bg-white border-[5px] border-black rounded-full"></div>
-                <h4 className="font-black text-sm uppercase">Phase 4: Launch (Weeks 8-9)</h4>
-                <p className="text-xs font-bold text-slate-700">Beta Testing, Deployment.</p>
-              </div>
-            </div>
-          </section>
+            </section>
+          </div>
+
           <div className="text-right text-xs font-black text-slate-400">Page 2/3</div>
         </div>
 
         <div className="page-break"></div>
 
-        {/* === PAGE 3: FINANCIALS & AGREEMENT === */}
+        {/* === PAGE 3 === */}
         <div className="p-[15mm] pt-[20mm] h-[297mm] relative flex flex-col justify-between">
           
           <div>
-            {/* 5. Post-Funding Budget */}
-            <section className="mb-10">
-              <div className="flex items-center gap-3 mb-6 border-l-[10px] border-black pl-4">
-                <DollarSign size={32} className="text-black" />
-                <h2 className="text-2xl font-black uppercase">5. Post-Funding Budget (Year 1)</h2>
+            {/* 5. Detailed Feature Scope */}
+            <section className="mb-8">
+              <h2 className="text-2xl font-black uppercase border-l-[10px] border-black pl-4 mb-6">5. Detailed Feature Scope</h2>
+              <div className="mb-4">
+                <h3 className="font-black text-lg uppercase mb-2">A. User Application</h3>
+                <ul className="list-disc pl-5 text-sm font-bold space-y-1 text-slate-900">
+                  <li><strong>AI Assistant:</strong> Chat interface for fault diagnosis before booking.</li>
+                  <li><strong>Multi-Service Map:</strong> Toggle between Mechanics, Parts, and Fuel.</li>
+                  <li><strong>Offline Mode:</strong> Access vehicle data without internet.</li>
+                </ul>
               </div>
-              <p className="text-xs font-bold text-slate-600 mb-4 uppercase tracking-widest">Projected Monthly Burn (Scale-Up Phase)</p>
-              
-              <table className="w-full border-4 border-black text-sm font-bold mb-6">
-                <thead className="bg-black text-white">
-                  <tr>
-                    <th className="p-2 text-left uppercase">Item</th>
-                    <th className="p-2 text-left uppercase">Monthly Cost</th>
-                    <th className="p-2 text-left uppercase">Notes</th>
-                  </tr>
-                </thead>
-                <tbody className="text-slate-900 text-xs">
-                  <tr className="border-b-2 border-black bg-slate-50">
-                    <td className="p-2">Lead Engineer / CTO</td>
-                    <td className="p-2">₦500k - ₦700k</td>
-                    <td className="p-2">Full-time Architecture & Management</td>
-                  </tr>
-                  <tr className="border-b-2 border-black">
-                    <td className="p-2">Junior Support Dev</td>
-                    <td className="p-2">₦150k - ₦200k</td>
-                    <td className="p-2">Maintenance & Bug Fixes</td>
-                  </tr>
-                  <tr className="border-b-2 border-black bg-slate-50">
-                    <td className="p-2">Google Maps API</td>
-                    <td className="p-2">$500 - $1,000</td>
-                    <td className="p-2">Geolocation at Scale (10k users)</td>
-                  </tr>
-                  <tr className="border-b-2 border-black">
-                    <td className="p-2">AI Intelligence (LLM)</td>
-                    <td className="p-2">$100 - $300</td>
-                    <td className="p-2">OpenAI Token Consumption</td>
-                  </tr>
-                  <tr className="border-b-2 border-black bg-slate-50">
-                    <td className="p-2">Cloud Infrastructure</td>
-                    <td className="p-2">$100 - $200</td>
-                    <td className="p-2">AWS/DigitalOcean Hosting</td>
-                  </tr>
-                  <tr className="border-b-2 border-black">
-                    <td className="p-2">App Store Fees</td>
-                    <td className="p-2">$125 (Yearly)</td>
-                    <td className="p-2">Apple ($99) + Google Play ($25)</td>
-                  </tr>
-                  <tr className="border-b-2 border-black bg-slate-50">
-                    <td className="p-2">DevOps & Monitoring</td>
-                    <td className="p-2">$50 - $100</td>
-                    <td className="p-2">Sentry, GitHub Pro, Vercel</td>
-                  </tr>
-                </tbody>
-              </table>
-              <div className="p-4 bg-black text-white text-center font-black uppercase text-sm">
-                Total Year 1 Tech Budget Requirement: ₦18M - ₦22M
+              <div className="mb-4">
+                <h3 className="font-black text-lg uppercase mb-2">B. Provider Application</h3>
+                <ul className="list-disc pl-5 text-sm font-bold space-y-1 text-slate-900">
+                  <li><strong>Job Radar:</strong> Background service detecting requests.</li>
+                  <li><strong>Inventory Mgmt:</strong> Simple interface for Dealers to update stock.</li>
+                  <li><strong>Earnings Wallet:</strong> Real-time commission tracking.</li>
+                </ul>
+              </div>
+              <div className="mb-4">
+                <h3 className="font-black text-lg uppercase mb-2">C. Admin Command Center</h3>
+                <ul className="list-disc pl-5 text-sm font-bold space-y-1 text-slate-900">
+                  <li><strong>God Mode Map:</strong> Real-time heatmap of all active agents.</li>
+                  <li><strong>Verification Portal:</strong> Review KYC docs for mechanics/dealers.</li>
+                </ul>
               </div>
             </section>
 
-            {/* 6. Immediate Agreement */}
-            <section className="mb-8">
-              <div className="flex items-center gap-3 mb-6 border-l-[10px] border-black pl-4">
-                <Briefcase size={32} className="text-black" />
-                <h2 className="text-2xl font-black uppercase">6. Founding Engineer Agreement</h2>
-              </div>
-              
-              <div className="border-4 border-black p-6">
-                <div className="grid grid-cols-3 gap-6 text-center">
-                  <div>
-                    <p className="text-xs font-bold text-slate-500 uppercase mb-1">Role</p>
-                    <p className="text-xl font-black">Founding Engineer</p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-slate-500 uppercase mb-1">Equity</p>
-                    <p className="text-xl font-black">3% (Permanent)</p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-slate-500 uppercase mb-1">Operational Stipend</p>
-                    <p className="text-xl font-black">₦80,000 / mo</p>
-                  </div>
+            {/* 6. Implementation Roadmap (9 WEEKS) */}
+            <section>
+              <h2 className="text-2xl font-black uppercase border-l-[10px] border-black pl-4 mb-6">6. Roadmap (9 Weeks)</h2>
+              <div className="border-l-[6px] border-black ml-2 space-y-0">
+                <div className="relative pl-8 pb-4">
+                  <div className="absolute -left-[12px] top-0 w-5 h-5 bg-black rounded-full border-4 border-white"></div>
+                  <h4 className="font-black text-sm uppercase">Phase 1: Foundation (Weeks 1-2)</h4>
+                  <p className="text-xs font-bold text-slate-700 mt-1">System Design, Database, UI/UX, Auth System.</p>
                 </div>
-                <div className="mt-6 pt-4 border-t-2 border-slate-200 text-center">
-                  <p className="text-xs font-bold text-slate-600">
-                    *Stipend covers Power/Data/Server costs during bootstrap phase.
-                  </p>
+                <div className="relative pl-8 pb-4">
+                  <div className="absolute -left-[12px] top-0 w-5 h-5 bg-white border-[5px] border-black rounded-full"></div>
+                  <h4 className="font-black text-sm uppercase">Phase 2: Core Engine (Weeks 3-5)</h4>
+                  <p className="text-xs font-bold text-slate-700 mt-1">Geolocation, AI Integration, Request Matching.</p>
+                </div>
+                <div className="relative pl-8 pb-4">
+                  <div className="absolute -left-[12px] top-0 w-5 h-5 bg-white border-[5px] border-black rounded-full"></div>
+                  <h4 className="font-black text-sm uppercase">Phase 3: Ecosystem (Weeks 6-7)</h4>
+                  <p className="text-xs font-bold text-slate-700 mt-1">Parts/Fuel Integration, Inventory System, Payments.</p>
+                </div>
+                <div className="relative pl-8">
+                  <div className="absolute -left-[12px] top-0 w-5 h-5 bg-white border-[5px] border-black rounded-full"></div>
+                  <h4 className="font-black text-sm uppercase">Phase 4: Launch (Weeks 8-9)</h4>
+                  <p className="text-xs font-bold text-slate-700 mt-1">Beta Testing, Security Audit, Deployment.</p>
                 </div>
               </div>
             </section>
