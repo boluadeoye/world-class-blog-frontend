@@ -75,10 +75,10 @@ export default function SovereignCV() {
           {/* LOADING SIMULATION */}
           {!isReady ? (
             <div className="space-y-2 text-left bg-black/50 p-6 rounded-lg border border-slate-800 font-mono text-[10px] text-green-400 h-32 flex flex-col justify-end">
-              <p className="opacity-50">> Accessing Secure Vault...</p>
-              <p className="opacity-75">> {loadingStep >= 1 ? "Mapping Geospatial Traces..." : "..."}</p>
-              <p className="opacity-90">> {loadingStep >= 2 ? "Syncing AI Nodes..." : "..."}</p>
-              <p className="text-white animate-pulse">> {loadingStep >= 3 ? "DECRYPTING_PROFILE..." : "..."}</p>
+              <p className="opacity-50">&gt; Accessing Secure Vault...</p>
+              <p className="opacity-75">&gt; {loadingStep >= 1 ? "Mapping Geospatial Traces..." : "..."}</p>
+              <p className="opacity-90">&gt; {loadingStep >= 2 ? "Syncing AI Nodes..." : "..."}</p>
+              <p className="text-white animate-pulse">&gt; {loadingStep >= 3 ? "DECRYPTING_PROFILE..." : "..."}</p>
             </div>
           ) : (
             <button
