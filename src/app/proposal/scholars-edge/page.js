@@ -1,12 +1,12 @@
 "use client";
-import { Download, ArrowLeft, Server, Database, Shield, Zap, Cpu, Layers, CheckCircle2, AlertTriangle, BarChart3 } from "lucide-react";
+import { Download, ArrowLeft, Server, Database, Shield, Zap, Cpu, Layers, CheckCircle2, AlertTriangle, Globe } from "lucide-react";
 import Link from "next/link";
 
 export default function ScholarsEdgeProposal() {
   
   const handlePrint = () => {
     const originalTitle = document.title;
-    document.title = "Scholars_Edge_Technical_Audit_v1";
+    document.title = "Scholars_Edge_Technical_Audit_Final";
     window.print();
     document.title = originalTitle;
   };
@@ -17,6 +17,8 @@ export default function ScholarsEdgeProposal() {
       {/* === GLOBAL PRINT STYLES === */}
       <style jsx global>{`
         @media print {
+          @page { size: A4; margin: 0; }
+          body { margin: 0; padding: 0; -webkit-print-color-adjust: exact; }
           body * { visibility: hidden; }
           #print-container, #print-container * { visibility: visible; }
           #print-container {
@@ -25,10 +27,21 @@ export default function ScholarsEdgeProposal() {
             margin: 0; padding: 0;
             background: white;
           }
-          @page { size: A4; margin: 0mm; }
           .no-print { display: none !important; }
-          .page-break { page-break-before: always; margin-top: 2rem; display: block; }
-          .avoid-break { break-inside: avoid; }
+          
+          /* STRICT PAGE BREAKING */
+          .print-page {
+            height: 297mm;
+            width: 210mm;
+            page-break-after: always;
+            position: relative;
+            overflow: hidden;
+            padding: 20mm;
+            padding-top: 20mm;
+          }
+          .print-page:last-child {
+            page-break-after: auto;
+          }
         }
       `}</style>
 
@@ -63,7 +76,7 @@ export default function ScholarsEdgeProposal() {
       <div id="print-container" className="bg-white w-full max-w-[210mm] mx-auto hidden print:block">
         
         {/* ================= PAGE 1: EXECUTIVE SUMMARY ================= */}
-        <div className="p-[20mm] pt-[20mm] h-[297mm] relative flex flex-col">
+        <div className="print-page flex flex-col">
           
           {/* Header */}
           <div className="border-b-4 border-blue-900 pb-6 mb-10 flex justify-between items-end">
@@ -136,13 +149,11 @@ export default function ScholarsEdgeProposal() {
             </div>
           </section>
 
-          <div className="text-right text-xs font-black text-slate-400">Page 1/6</div>
+          <div className="absolute bottom-8 right-8 text-xs font-black text-slate-400">Page 1/6</div>
         </div>
 
-        <div className="page-break"></div>
-
         {/* ================= PAGE 2: COST ANALYSIS ================= */}
-        <div className="p-[20mm] pt-[20mm] h-[297mm] relative flex flex-col">
+        <div className="print-page flex flex-col">
           
           {/* 3. Infrastructure Cost Analysis */}
           <section className="mb-12">
@@ -157,37 +168,44 @@ export default function ScholarsEdgeProposal() {
                   <th className="p-3 text-left uppercase">Service</th>
                   <th className="p-3 text-left uppercase">Provider</th>
                   <th className="p-3 text-left uppercase">Function</th>
-                  <th className="p-3 text-right uppercase">Est. Monthly Cost</th>
+                  <th className="p-3 text-right uppercase">Est. Cost</th>
                 </tr>
               </thead>
               <tbody className="text-slate-800 font-medium">
                 <tr className="border-b-2 border-slate-200">
                   <td className="p-3 font-bold">Hosting & Edge</td>
                   <td className="p-3">Vercel Pro</td>
-                  <td className="p-3 text-xs">Frontend Delivery & Serverless Functions</td>
-                  <td className="p-3 text-right">$20.00</td>
+                  <td className="p-3 text-xs">Frontend Delivery</td>
+                  <td className="p-3 text-right">$20.00 / mo</td>
                 </tr>
                 <tr className="border-b-2 border-slate-200">
                   <td className="p-3 font-bold">Database</td>
                   <td className="p-3">Neon Postgres</td>
-                  <td className="p-3 text-xs">Student Records & Exam Data</td>
-                  <td className="p-3 text-right">$20 - $50</td>
+                  <td className="p-3 text-xs">Student Records</td>
+                  <td className="p-3 text-right">$20 - $50 / mo</td>
                 </tr>
                 <tr className="border-b-2 border-slate-200">
                   <td className="p-3 font-bold">Email API</td>
                   <td className="p-3">Resend Pro</td>
-                  <td className="p-3 text-xs">Transactional Emails (Welcome/Results)</td>
-                  <td className="p-3 text-right">$20.00</td>
+                  <td className="p-3 text-xs">Transactional Emails</td>
+                  <td className="p-3 text-right">$20.00 / mo</td>
                 </tr>
                 <tr className="border-b-2 border-slate-200">
                   <td className="p-3 font-bold">AI Inference</td>
                   <td className="p-3">Groq / OpenAI</td>
-                  <td className="p-3 text-xs">Personalized Study Paths (Usage Based)</td>
-                  <td className="p-3 text-right">$20 - $40</td>
+                  <td className="p-3 text-xs">Study Paths (Usage)</td>
+                  <td className="p-3 text-right">$20 - $40 / mo</td>
+                </tr>
+                {/* ADDED DOMAIN COST */}
+                <tr className="border-b-2 border-slate-200 bg-yellow-50">
+                  <td className="p-3 font-bold">Domain Name</td>
+                  <td className="p-3">Namecheap</td>
+                  <td className="p-3 text-xs">Identity (.com/.ng)</td>
+                  <td className="p-3 text-right">~$15.00 / year</td>
                 </tr>
                 <tr className="bg-blue-50 font-black">
-                  <td className="p-3" colSpan="3">TOTAL ESTIMATED INFRASTRUCTURE COST</td>
-                  <td className="p-3 text-right text-blue-900">$80 - $130</td>
+                  <td className="p-3" colSpan="3">TOTAL ESTIMATED MONTHLY COST</td>
+                  <td className="p-3 text-right text-blue-900">~$100 - $130</td>
                 </tr>
               </tbody>
             </table>
@@ -227,13 +245,11 @@ export default function ScholarsEdgeProposal() {
             </div>
           </section>
 
-          <div className="text-right text-xs font-black text-slate-400">Page 2/6</div>
+          <div className="absolute bottom-8 right-8 text-xs font-black text-slate-400">Page 2/6</div>
         </div>
 
-        <div className="page-break"></div>
-
         {/* ================= PAGE 3: ARCHITECTURE DIAGRAM ================= */}
-        <div className="p-[20mm] pt-[20mm] h-[297mm] relative flex flex-col">
+        <div className="print-page flex flex-col">
           <h2 className="text-xl font-black uppercase border-l-8 border-blue-900 pl-4 mb-8 text-slate-900">5. System Architecture Diagram</h2>
           
           {/* DIAGRAM A: REQUEST LIFECYCLE */}
@@ -286,13 +302,11 @@ export default function ScholarsEdgeProposal() {
             </div>
           </div>
 
-          <div className="text-right text-xs font-black text-slate-400">Page 3/6</div>
+          <div className="absolute bottom-8 right-8 text-xs font-black text-slate-400">Page 3/6</div>
         </div>
 
-        <div className="page-break"></div>
-
         {/* ================= PAGE 4: TIER ACCESS DIAGRAM ================= */}
-        <div className="p-[20mm] pt-[20mm] h-[297mm] relative flex flex-col">
+        <div className="print-page flex flex-col">
           <h2 className="text-xl font-black uppercase border-l-8 border-blue-900 pl-4 mb-8 text-slate-900">6. Tier-Based Access Model</h2>
           
           {/* DIAGRAM B: ACCESS CONTROL */}
@@ -356,13 +370,11 @@ export default function ScholarsEdgeProposal() {
             </div>
           </div>
 
-          <div className="text-right text-xs font-black text-slate-400">Page 4/6</div>
+          <div className="absolute bottom-8 right-8 text-xs font-black text-slate-400">Page 4/6</div>
         </div>
 
-        <div className="page-break"></div>
-
         {/* ================= PAGE 5: AI & PEDAGOGY ================= */}
-        <div className="p-[20mm] pt-[20mm] h-[297mm] relative flex flex-col">
+        <div className="print-page flex flex-col">
           
           {/* 7. AI & Pedagogical Intelligence */}
           <section className="mb-10">
@@ -399,13 +411,11 @@ export default function ScholarsEdgeProposal() {
             </div>
           </section>
 
-          <div className="text-right text-xs font-black text-slate-400">Page 5/6</div>
+          <div className="absolute bottom-8 right-8 text-xs font-black text-slate-400">Page 5/6</div>
         </div>
 
-        <div className="page-break"></div>
-
         {/* ================= PAGE 6: CONCLUSION ================= */}
-        <div className="p-[20mm] pt-[20mm] h-[297mm] relative flex flex-col justify-between">
+        <div className="print-page flex flex-col justify-between">
           
           {/* 9. Conclusion */}
           <section className="mb-12">
