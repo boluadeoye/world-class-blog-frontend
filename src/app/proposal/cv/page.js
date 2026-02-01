@@ -4,7 +4,7 @@ import {
   Download, Cpu, Globe, Zap, Shield, Layers, 
   MapPin, Terminal, Database, Code2, Share2, 
   CheckCircle2, Box, Workflow, Activity, Server, Smartphone,
-  Eye, Brain, Anchor, Lock, Network
+  Eye, Brain, Anchor, Lock, Network, Bot
 } from "lucide-react";
 import Link from "next/link";
 
@@ -16,8 +16,8 @@ export default function StaffArchitectCV() {
   useEffect(() => {
     const steps = [
       "Initializing AI Infrastructure Protocol...",
-      "Optimizing Inference Latency...",
-      "Hardening Zero-Trust Layers...",
+      "Separating Neural Contexts...",
+      "Optimizing ExamForge Data Layers...",
       "Architectural Clearance: STAFF_LEVEL."
     ];
     
@@ -70,8 +70,8 @@ export default function StaffArchitectCV() {
           {!isReady ? (
             <div className="space-y-2 text-left bg-black p-6 border-l-4 border-blue-600 font-mono text-[10px] text-blue-400 h-32 flex flex-col justify-end">
               <p className="opacity-50">&gt; ESTABLISHING SECURE LINK...</p>
-              <p className="opacity-75">&gt; {loadingStep >= 1 ? "OPTIMIZING INFERENCE LATENCY..." : "..."}</p>
-              <p className="opacity-90">&gt; {loadingStep >= 2 ? "HARDENING ZERO-TRUST LAYERS..." : "..."}</p>
+              <p className="opacity-75">&gt; {loadingStep >= 1 ? "SEPARATING NEURAL CONTEXTS..." : "..."}</p>
+              <p className="opacity-90">&gt; {loadingStep >= 2 ? "OPTIMIZING DATA LAYERS..." : "..."}</p>
               <p className="text-white font-bold animate-pulse">&gt; {loadingStep >= 3 ? "ACCESS_GRANTED" : "..."}</p>
             </div>
           ) : (
@@ -232,35 +232,57 @@ export default function StaffArchitectCV() {
               {/* EXPERIENCE */}
               <section className="grow space-y-8">
                 
-                {/* JOB 1: EXAMFORGE */}
+                {/* JOB 1: DIGITAL CONSCIOUSNESS */}
                 <div className="relative pl-6 border-l-4 border-blue-200">
                   <div className="absolute -left-[10px] top-0 w-4 h-4 bg-blue-950 border-2 border-white rounded-full"></div>
                   
                   <div className="flex justify-between items-start mb-2">
                     <div>
-                      <h3 className="text-xl font-black uppercase text-blue-950">ExamForge Core</h3>
-                      <p className="text-[10px] font-bold text-blue-600 uppercase tracking-wider">Lead Architect • Digital Consciousness</p>
+                      <h3 className="text-xl font-black uppercase text-blue-950">Digital Consciousness</h3>
+                      <p className="text-[10px] font-bold text-blue-600 uppercase tracking-wider">Lead Architect • The Digital Twin</p>
                     </div>
                     <div className="bg-blue-100 text-blue-950 px-2 py-1 text-[10px] font-black">CURRENT</div>
                   </div>
 
                   <ul className="space-y-3 mb-4">
                     <li className="flex gap-3 items-start">
-                      <Zap size={14} className="text-blue-600 mt-0.5 shrink-0" />
+                      <Bot size={14} className="text-blue-600 mt-0.5 shrink-0" />
                       <p className="text-[10px] font-bold text-slate-700">
-                        <strong className="text-blue-950">Architected</strong> a "Digital Consciousness" AI twin achieving <span className="bg-slate-200 px-1">sub-200ms P95 latency</span> using Groq LPU and Next.js 15.
+                        <strong className="text-blue-950">Architected</strong> a recursive AI agent (<span className="font-mono text-blue-600">/chat</span>) achieving <span className="bg-slate-200 px-1">sub-200ms P95 latency</span> using Groq LPU and Next.js 15.
                       </p>
                     </li>
                     <li className="flex gap-3 items-start">
+                      <Zap size={14} className="text-blue-600 mt-0.5 shrink-0" />
+                      <p className="text-[10px] font-bold text-slate-700">
+                        <strong className="text-blue-950">Engineered</strong> a "Scale-to-Zero" serverless inference pipeline on Vercel, reducing operational costs by 80% while maintaining 99.9% uptime.
+                      </p>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* JOB 2: EXAMFORGE */}
+                <div className="relative pl-6 border-l-4 border-blue-200">
+                  <div className="absolute -left-[10px] top-0 w-4 h-4 bg-blue-950 border-2 border-white rounded-full"></div>
+                  
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <h3 className="text-xl font-black uppercase text-blue-950">ExamForge Core</h3>
+                      <p className="text-[10px] font-bold text-blue-600 uppercase tracking-wider">Systems Architect • EdTech Infrastructure</p>
+                    </div>
+                    <div className="bg-blue-100 text-blue-950 px-2 py-1 text-[10px] font-black">2024</div>
+                  </div>
+
+                  <ul className="space-y-3 mb-4">
+                    <li className="flex gap-3 items-start">
                       <Shield size={14} className="text-blue-600 mt-0.5 shrink-0" />
                       <p className="text-[10px] font-bold text-slate-700">
-                        <strong className="text-blue-950">Engineered</strong> a Zero-Trust data layer using Neon RLS, ensuring database-level multi-tenancy and 100% data isolation.
+                        <strong className="text-blue-950">Engineered</strong> a Zero-Trust data layer using Neon RLS, ensuring database-level multi-tenancy and 100% data isolation for institutional clients.
                       </p>
                     </li>
                     <li className="flex gap-3 items-start">
                       <Layers size={14} className="text-blue-600 mt-0.5 shrink-0" />
                       <p className="text-[10px] font-bold text-slate-700">
-                        <strong className="text-blue-950">Optimized</strong> infrastructure costs by 80% using a "Scale-to-Zero" serverless stack on Vercel and Cloudflare Edge.
+                        <strong className="text-blue-950">Orchestrated</strong> a high-concurrency assessment engine capable of supporting 30,000+ simultaneous learners.
                       </p>
                     </li>
                   </ul>
@@ -283,14 +305,14 @@ export default function StaffArchitectCV() {
                   </div>
                 </div>
 
-                {/* JOB 2: SCHOLARS EDGE */}
+                {/* JOB 3: SCHOLARS EDGE */}
                 <div className="relative pl-6 border-l-4 border-blue-200">
                   <div className="absolute -left-[10px] top-0 w-4 h-4 bg-blue-950 border-2 border-white rounded-full"></div>
                   
                   <div className="flex justify-between items-start mb-2">
                     <div>
                       <h3 className="text-xl font-black uppercase text-blue-950">Scholars Edge</h3>
-                      <p className="text-[10px] font-bold text-blue-600 uppercase tracking-wider">Systems Architect • EdTech Infrastructure</p>
+                      <p className="text-[10px] font-bold text-blue-600 uppercase tracking-wider">Lead Developer • Academic Systems</p>
                     </div>
                     <div className="bg-blue-100 text-blue-950 px-2 py-1 text-[10px] font-black">2024</div>
                   </div>
@@ -299,7 +321,7 @@ export default function StaffArchitectCV() {
                     <li className="flex gap-3 items-start">
                       <Server size={14} className="text-blue-600 mt-0.5 shrink-0" />
                       <p className="text-[10px] font-bold text-slate-700">
-                        <strong className="text-blue-950">Designed</strong> a high-concurrency EdTech infrastructure capable of supporting <span className="bg-slate-200 px-1">30,000+ learners</span> with 99.9% uptime and linear cost scaling.
+                        <strong className="text-blue-950">Designed</strong> a "Static Prestige" architecture using Next.js for zero-cost maintenance and instant load times.
                       </p>
                     </li>
                   </ul>
