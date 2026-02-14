@@ -189,7 +189,7 @@ export default function AgriProposal() {
               <h3 className="font-black text-lg uppercase mb-2">B. Hydraulic System</h3>
               <ul className="list-disc pl-5 text-sm font-medium text-slate-800 space-y-2">
                 <li><strong>Inlet Pipes:</strong> 1-inch Pressure Pipe (PVC). Control valve at each pond.</li>
-                <li><strong>Drainage Pipes:</strong> 4-inch Waste Pipe (PVC). Must handle "Flash Drain" (emptying pond in <15 mins).</li>
+                <li><strong>Drainage Pipes:</strong> 4-inch Waste Pipe (PVC). Must handle "Flash Drain" (emptying pond in &lt;15 mins).</li>
                 <li><strong>Overflow:</strong> Screened overflow pipe at 1.1m height to prevent flooding during rain.</li>
               </ul>
             </div>
