@@ -18,7 +18,7 @@ export default function OnyxBlueprint() {
       <style jsx global>{`
         @media print {
           @page { size: A4; margin: 0; }
-          body { background: black !important; -webkit-print-color-adjust: exact; }
+          body { background: black !important; -webkit-print-color-adjust: exact; color-adjust: exact; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
           body * { visibility: hidden; }
           #print-container, #print-container * { visibility: visible; }
           #print-container {
@@ -83,10 +83,10 @@ export default function OnyxBlueprint() {
           <section className="mb-16">
             <h2 className="text-3xl font-black uppercase border-l-8 border-blue-600 pl-6 mb-10 text-white">01. The Market Thesis</h2>
             
-            <p className="text-xl leading-relaxed font-medium text-gray-300 mb-8 text-justify">
+            <p className="text-xl leading-relaxed font-bold text-white mb-8 text-justify">
               We are building the <strong>"Bloomberg Terminal" for the Decentralized Economy.</strong>
             </p>
-            <p className="text-lg leading-relaxed font-medium text-gray-300 mb-10 text-justify">
+            <p className="text-lg leading-relaxed font-bold text-white mb-10 text-justify">
               Right now, trading crypto is dangerous and difficult. Users have to choose between <strong>Centralized Exchanges</strong> (where their money can be frozen) or <strong>Complex DeFi Tools</strong> (where they get hacked). Onyx Sovereign solves this by combining the <strong>Speed of an App</strong> with the <strong>Security of a Vault</strong>.
             </p>
 
@@ -118,7 +118,7 @@ export default function OnyxBlueprint() {
                 </div>
                 <div>
                   <h3 className="text-2xl font-black uppercase text-white mb-3">Problem: "Not Your Keys"</h3>
-                  <p className="text-sm font-medium text-gray-400 mb-4 leading-relaxed">
+                  <p className="text-sm font-bold text-gray-400 mb-4 leading-relaxed">
                     If you use Binance or Coinbase, you don't own your money. They can lock your account anytime.
                   </p>
                   <div className="border-l-4 border-red-500 pl-4">
@@ -136,7 +136,7 @@ export default function OnyxBlueprint() {
                 </div>
                 <div>
                   <h3 className="text-2xl font-black uppercase text-white mb-3">Problem: "It's Too Slow"</h3>
-                  <p className="text-sm font-medium text-gray-400 mb-4 leading-relaxed">
+                  <p className="text-sm font-bold text-gray-400 mb-4 leading-relaxed">
                     Traditional tools take 30+ seconds to make a trade. In that time, the price changes.
                   </p>
                   <div className="border-l-4 border-blue-500 pl-4">
@@ -154,7 +154,7 @@ export default function OnyxBlueprint() {
                 </div>
                 <div>
                   <h3 className="text-2xl font-black uppercase text-white mb-3">Problem: "Scams Everywhere"</h3>
-                  <p className="text-sm font-medium text-gray-400 mb-4 leading-relaxed">
+                  <p className="text-sm font-bold text-gray-400 mb-4 leading-relaxed">
                     New traders lose money to fake tokens and rug pulls every day.
                   </p>
                   <div className="border-l-4 border-yellow-500 pl-4">
@@ -246,7 +246,7 @@ export default function OnyxBlueprint() {
                   <DollarSign size={32} className="text-yellow-500" />
                 </div>
                 <p className="text-lg font-bold text-white mb-2">We charge 2% on PROFITS ONLY.</p>
-                <p className="text-sm font-medium text-gray-400 text-justify">
+                <p className="text-sm font-bold text-gray-400 text-justify">
                   If a user loses money, we charge $0. If they make profit, we take a small cut. This aligns our success with theirs.
                 </p>
               </div>
@@ -257,7 +257,7 @@ export default function OnyxBlueprint() {
                   <Shield size={32} className="text-blue-500" />
                 </div>
                 <p className="text-lg font-bold text-white mb-2">Premium Subscription</p>
-                <p className="text-sm font-medium text-gray-400 text-justify">
+                <p className="text-sm font-bold text-gray-400 text-justify">
                   For serious traders, we offer a monthly retainer that gives them faster speeds, deeper AI analysis, and tax-shielding tools.
                 </p>
               </div>
