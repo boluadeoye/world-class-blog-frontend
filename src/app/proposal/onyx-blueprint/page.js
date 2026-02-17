@@ -6,7 +6,7 @@ export default function OnyxBlueprint() {
   
   const handlePrint = () => {
     const originalTitle = document.title;
-    document.title = "ONYX_SOVEREIGN_MASTER_PLAN_V2";
+    document.title = "ONYX_SOVEREIGN_MASTER_PLAN_FINAL";
     window.print();
     document.title = originalTitle;
   };
@@ -18,7 +18,7 @@ export default function OnyxBlueprint() {
       <style jsx global>{`
         @media print {
           @page { size: A4; margin: 0; }
-          body { background: black !important; -webkit-print-color-adjust: exact; color-adjust: exact; print-color-adjust: exact; -webkit-print-color-adjust: exact; color-adjust: exact; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+          body { background: black !important; -webkit-print-color-adjust: exact; }
           body * { visibility: hidden; }
           #print-container, #print-container * { visibility: visible; }
           #print-container {
@@ -45,7 +45,7 @@ export default function OnyxBlueprint() {
           </div>
           
           <h1 className="text-5xl font-black text-white mb-4 tracking-tighter">ONYX<span className="text-red-600">.</span></h1>
-          <p className="text-gray-400 text-sm mb-10 font-bold uppercase tracking-widest">Master Plan • V2.0</p>
+          <p className="text-gray-400 text-sm mb-10 font-bold uppercase tracking-widest">Master Plan • Final</p>
 
           <button 
             onClick={handlePrint}
@@ -75,7 +75,7 @@ export default function OnyxBlueprint() {
             </div>
             <div className="text-right">
               <div className="border-2 border-red-600 text-red-600 px-4 py-2 font-black text-xs uppercase inline-block mb-2">Classified</div>
-              <p className="text-xs font-mono text-gray-500 font-bold">REF: MASTER-V2</p>
+              <p className="text-xs font-mono text-gray-500 font-bold">REF: MASTER-V3</p>
             </div>
           </div>
 
@@ -83,10 +83,10 @@ export default function OnyxBlueprint() {
           <section className="mb-16">
             <h2 className="text-3xl font-black uppercase border-l-8 border-blue-600 pl-6 mb-10 text-white">01. The Market Thesis</h2>
             
-            <p className="text-xl leading-relaxed font-bold text-white mb-8 text-justify">
+            <p className="text-xl leading-relaxed font-medium text-gray-300 mb-8 text-justify">
               We are building the <strong>"Bloomberg Terminal" for the Decentralized Economy.</strong>
             </p>
-            <p className="text-lg leading-relaxed font-bold text-white mb-10 text-justify">
+            <p className="text-lg leading-relaxed font-medium text-gray-300 mb-10 text-justify">
               Right now, trading crypto is dangerous and difficult. Users have to choose between <strong>Centralized Exchanges</strong> (where their money can be frozen) or <strong>Complex DeFi Tools</strong> (where they get hacked). Onyx Sovereign solves this by combining the <strong>Speed of an App</strong> with the <strong>Security of a Vault</strong>.
             </p>
 
@@ -118,7 +118,7 @@ export default function OnyxBlueprint() {
                 </div>
                 <div>
                   <h3 className="text-2xl font-black uppercase text-white mb-3">Problem: "Not Your Keys"</h3>
-                  <p className="text-sm font-bold text-gray-400 mb-4 leading-relaxed">
+                  <p className="text-sm font-medium text-gray-400 mb-4 leading-relaxed">
                     If you use Binance or Coinbase, you don't own your money. They can lock your account anytime.
                   </p>
                   <div className="border-l-4 border-red-500 pl-4">
@@ -136,7 +136,7 @@ export default function OnyxBlueprint() {
                 </div>
                 <div>
                   <h3 className="text-2xl font-black uppercase text-white mb-3">Problem: "It's Too Slow"</h3>
-                  <p className="text-sm font-bold text-gray-400 mb-4 leading-relaxed">
+                  <p className="text-sm font-medium text-gray-400 mb-4 leading-relaxed">
                     Traditional tools take 30+ seconds to make a trade. In that time, the price changes.
                   </p>
                   <div className="border-l-4 border-blue-500 pl-4">
@@ -154,7 +154,7 @@ export default function OnyxBlueprint() {
                 </div>
                 <div>
                   <h3 className="text-2xl font-black uppercase text-white mb-3">Problem: "Scams Everywhere"</h3>
-                  <p className="text-sm font-bold text-gray-400 mb-4 leading-relaxed">
+                  <p className="text-sm font-medium text-gray-400 mb-4 leading-relaxed">
                     New traders lose money to fake tokens and rug pulls every day.
                   </p>
                   <div className="border-l-4 border-yellow-500 pl-4">
@@ -172,105 +172,113 @@ export default function OnyxBlueprint() {
 
         <div className="page-break"></div>
 
-        {/* ================= PAGE 3: ARCHITECTURE & REVENUE ================= */}
+        {/* ================= PAGE 3: ARCHITECTURE ================= */}
         <div className="p-[20mm] pt-[25mm] h-[297mm] relative flex flex-col border-x-4 border-white/10">
           
           {/* 3. System Architecture */}
-          <section className="mb-16">
-            <h2 className="text-3xl font-black uppercase border-l-8 border-blue-600 pl-6 mb-12 text-white">03. The Architecture</h2>
+          <section className="flex-1 flex flex-col justify-center">
+            <h2 className="text-3xl font-black uppercase border-l-8 border-blue-600 pl-6 mb-16 text-white">03. The Architecture</h2>
             
             {/* CSS DIAGRAM */}
-            <div className="flex flex-col items-center gap-8 text-[10px] font-bold uppercase text-white w-full">
+            <div className="flex flex-col items-center gap-10 text-[10px] font-bold uppercase text-white w-full">
               
               {/* CLIENT LAYER */}
-              <div className="w-full border-4 border-white p-6 relative bg-black">
+              <div className="w-full border-4 border-white p-8 relative bg-black">
                 <span className="absolute -top-3 left-6 bg-black px-4 text-white text-sm font-bold">1. The User Interface</span>
                 <div className="flex justify-between items-center gap-6">
                   <div className="text-center">
-                    <Smartphone size={32} className="mx-auto mb-3 text-white"/>
-                    <span className="text-sm">Mobile App</span>
+                    <Smartphone size={40} className="mx-auto mb-4 text-white"/>
+                    <span className="text-base">Mobile App</span>
                   </div>
                   <div className="h-1 flex-1 bg-white/20"></div>
                   <div className="text-center">
-                    <Lock size={32} className="mx-auto mb-3 text-red-500"/>
-                    <span className="text-sm text-red-500">Secure Vault</span>
+                    <Lock size={40} className="mx-auto mb-4 text-red-500"/>
+                    <span className="text-base text-red-500">Secure Vault</span>
                   </div>
                 </div>
               </div>
 
               {/* ARROW */}
-              <div className="h-10 w-1 bg-white"></div>
+              <div className="h-12 w-1 bg-white"></div>
 
               {/* INTELLIGENCE LAYER */}
-              <div className="w-full border-4 border-blue-600 p-6 relative bg-blue-900/10">
+              <div className="w-full border-4 border-blue-600 p-8 relative bg-blue-900/10">
                 <span className="absolute -top-3 left-6 bg-black px-4 text-blue-500 text-sm font-bold">2. The Intelligence Layer</span>
                 <div className="grid grid-cols-3 gap-6">
                   <div className="text-center">
-                    <Cpu size={32} className="mx-auto mb-3 text-blue-400"/>
-                    <span className="text-sm">AI Audit</span>
+                    <Cpu size={40} className="mx-auto mb-4 text-blue-400"/>
+                    <span className="text-base">AI Audit</span>
                   </div>
                   <div className="text-center">
-                    <Activity size={32} className="mx-auto mb-3 text-blue-400"/>
-                    <span className="text-sm">Router</span>
+                    <Activity size={40} className="mx-auto mb-4 text-blue-400"/>
+                    <span className="text-base">Router</span>
                   </div>
                   <div className="text-center">
-                    <Layers size={32} className="mx-auto mb-3 text-blue-400"/>
-                    <span className="text-sm">Supabase</span>
+                    <Layers size={40} className="mx-auto mb-4 text-blue-400"/>
+                    <span className="text-base">Supabase</span>
                   </div>
                 </div>
               </div>
 
               {/* ARROW */}
-              <div className="h-10 w-1 bg-white"></div>
+              <div className="h-12 w-1 bg-white"></div>
 
               {/* EXECUTION LAYER */}
-              <div className="w-full border-4 border-white p-6 relative bg-black">
+              <div className="w-full border-4 border-white p-8 relative bg-black">
                 <span className="absolute -top-3 left-6 bg-black px-4 text-white text-sm font-bold">3. The Execution</span>
                 <div className="text-center">
-                  <Globe size={32} className="mx-auto mb-3 text-white"/>
-                  <span className="text-sm">Blockchain Network</span>
+                  <Globe size={40} className="mx-auto mb-4 text-white"/>
+                  <span className="text-base">Blockchain Network</span>
                 </div>
               </div>
 
             </div>
           </section>
 
+          <div className="mt-auto text-right text-[10px] font-bold text-white/30 uppercase tracking-widest">Page 03 // Architecture</div>
+        </div>
+
+        <div className="page-break"></div>
+
+        {/* ================= PAGE 4: REVENUE ================= */}
+        <div className="p-[20mm] pt-[25mm] h-[297mm] relative flex flex-col border-x-4 border-white/10">
+          
           {/* 4. The Revenue Engine */}
-          <section className="flex-1">
-            <h2 className="text-3xl font-black uppercase border-l-8 border-yellow-500 pl-6 mb-10 text-white">04. The Money Model</h2>
+          <section className="flex-1 flex flex-col justify-center">
+            <h2 className="text-3xl font-black uppercase border-l-8 border-yellow-500 pl-6 mb-16 text-white">04. The Money Model</h2>
             
-            <div className="grid grid-cols-1 gap-8">
-              <div className="border-4 border-yellow-500 p-8 bg-yellow-900/10">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-2xl font-black uppercase text-yellow-500">The 2% Rule</h3>
-                  <DollarSign size={32} className="text-yellow-500" />
+            <div className="grid grid-cols-1 gap-12">
+              <div className="border-4 border-yellow-500 p-10 bg-yellow-900/10">
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className="text-3xl font-black uppercase text-yellow-500">The 2% Rule</h3>
+                  <DollarSign size={48} className="text-yellow-500" />
                 </div>
-                <p className="text-lg font-bold text-white mb-2">We charge 2% on PROFITS ONLY.</p>
-                <p className="text-sm font-bold text-gray-400 text-justify">
-                  If a user loses money, we charge $0. If they make profit, we take a small cut. This aligns our success with theirs.
+                <p className="text-2xl font-bold text-white mb-4">We charge 2% on PROFITS ONLY.</p>
+                <p className="text-lg font-medium text-gray-400 text-justify leading-relaxed">
+                  If a user loses money, we charge $0. If they make profit, we take a small cut. This aligns our success with theirs. It is the ultimate trust signal.
                 </p>
               </div>
               
-              <div className="border-4 border-blue-500 p-8 bg-blue-900/10">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-2xl font-black uppercase text-blue-500">Onyx Black</h3>
-                  <Shield size={32} className="text-blue-500" />
+              <div className="border-4 border-blue-500 p-10 bg-blue-900/10">
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className="text-3xl font-black uppercase text-blue-500">Onyx Black</h3>
+                  <Shield size={48} className="text-blue-500" />
                 </div>
-                <p className="text-lg font-bold text-white mb-2">Premium Subscription</p>
-                <p className="text-sm font-bold text-gray-400 text-justify">
+                <p className="text-2xl font-bold text-white mb-4">Premium Subscription</p>
+                <p className="text-lg font-medium text-gray-400 text-justify leading-relaxed">
                   For serious traders, we offer a monthly retainer that gives them faster speeds, deeper AI analysis, and tax-shielding tools.
                 </p>
               </div>
             </div>
           </section>
 
-          <div className="mt-auto text-right text-[10px] font-bold text-white/30 uppercase tracking-widest">Page 03 // Structure</div>
+          <div className="mt-auto text-right text-[10px] font-bold text-white/30 uppercase tracking-widest">Page 04 // Revenue</div>
         </div>
 
         <div className="page-break"></div>
 
-        {/* ================= PAGE 4: ROADMAP & SIGNATURE ================= */}
-        <div className="p-[15mm] pt-[25mm] h-[297mm] relative flex flex-col border-x-4 border-white/10">
+        {/* ================= PAGE 5: ROADMAP & SIGNATURE ================= */}
+        <div className="p-[20mm] pt-[25mm] h-[297mm] relative flex flex-col border-x-4 border-white/10">
           
           {/* 5. The Plan (Roadmap) */}
           <section className="mb-20">
@@ -327,7 +335,7 @@ export default function OnyxBlueprint() {
             </div>
           </footer>
           
-          <div className="text-right text-[10px] font-bold text-white/30 uppercase tracking-widest mt-8">Page 04 // Approval</div>
+          <div className="text-right text-[10px] font-bold text-white/30 uppercase tracking-widest mt-8">Page 05 // Approval</div>
         </div>
 
       </div>
