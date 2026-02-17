@@ -110,7 +110,7 @@ export default function OnyxBlueprint() {
                 The global financial infrastructure is fracturing. Capital is fleeing Centralized Exchanges (CEXs) due to regulatory overreach, insolvency risks, and lack of ownership. The market is aggressively migrating toward <strong>Sovereign Execution</strong>, but the current tools (Metamask, Uniswap) are too slow, too complex, and too dangerous for serious capital.
               </p>
               <div className="bg-white/5 border border-white/10 p-6 mt-4">
-                <p className="text-xs font-mono text-red-500 mb-2">>> CRITICAL INSIGHT</p>
+                <p className="text-xs font-mono text-red-500 mb-2">&gt;&gt; CRITICAL INSIGHT</p>
                 <p className="text-xl font-bold text-white leading-tight">
                   Onyx Sovereign combines the <span className="text-white border-b border-white">Speed of an App</span> with the <span className="text-white border-b border-white">Security of a Cold Vault</span>.
                 </p>
