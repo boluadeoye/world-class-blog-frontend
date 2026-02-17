@@ -1,5 +1,5 @@
 "use client";
-import { Download, ArrowLeft, Shield, Zap, Globe, Lock, Cpu, Layers, Activity } from "lucide-react";
+import { Download, ArrowLeft, Shield, Zap, Globe, Lock, Cpu, Layers, Activity, Smartphone } from "lucide-react";
 import Link from "next/link";
 
 export default function OnyxBlueprint() {
@@ -31,9 +31,6 @@ export default function OnyxBlueprint() {
           .no-print { display: none !important; }
           .page-break { page-break-before: always; display: block; height: 0; }
           .avoid-break { break-inside: avoid; }
-          
-          /* Invert colors for print readability if needed, but we keep dark mode for Onyx brand */
-          /* For standard printers, we might want white bg, but for digital PDF, Dark is premium */
         }
       `}</style>
 
