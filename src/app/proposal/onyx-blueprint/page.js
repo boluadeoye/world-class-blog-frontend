@@ -18,7 +18,7 @@ export default function OnyxBlueprint() {
       <style jsx global>{`
         @media print {
           @page { size: A4; margin: 0; }
-          body { background: black !important; -webkit-print-color-adjust: exact; color-adjust: exact; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+          body { background: black !important; -webkit-print-color-adjust: exact; color-adjust: exact; print-color-adjust: exact; -webkit-print-color-adjust: exact; color-adjust: exact; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
           body * { visibility: hidden; }
           #print-container, #print-container * { visibility: visible; }
           #print-container {
