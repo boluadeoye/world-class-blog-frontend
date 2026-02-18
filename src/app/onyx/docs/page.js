@@ -76,7 +76,7 @@ const sections = [
             <h4 className="text-white font-bold text-sm uppercase mb-1">Detection Scope</h4>
             <ul className="text-xs text-slate-400 space-y-1 font-mono">
               <li>[x] Honeypot Logic (Transfer disable)</li>
-              <li>[x] Hidden Tax Modifiers (>50%)</li>
+              <li>[x] Hidden Tax Modifiers (&gt;50%)</li>
               <li>[x] Renounced Ownership Verification</li>
               <li>[x] Proxy Contract Vulnerabilities</li>
             </ul>
