@@ -1,6 +1,6 @@
 "use client";
 import { motion } from "framer-motion";
-import { Shield, Zap, Cpu, Database, Lock, Globe, ArrowRight, MessageSquare, CheckCircle2, Terminal, Activity, Smartphone } from "lucide-react";
+import { Shield, Zap, Cpu, Database, Lock, Globe, ArrowRight, MessageSquare, CheckCircle2, Terminal, Activity, Smartphone, Layers } from "lucide-react";
 import Link from "next/link";
 
 export default function ArchitectureVerification() {
