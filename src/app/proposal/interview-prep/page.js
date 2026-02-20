@@ -1,5 +1,5 @@
 "use client";
-import { Download, ArrowLeft, User, Code, Cpu, GitBranch, Star, MessageSquare, CheckCircle2 } from "lucide-react";
+import { Download, ArrowLeft, User, GitBranch, CheckCircle2, Globe } from "lucide-react";
 import Link from "next/link";
 
 export default function InterviewPrep() {
@@ -349,7 +349,7 @@ export default function InterviewPrep() {
               <p className="text-xs font-bold text-slate-500">Senior AI Systems Architect</p>
             </div>
             <div className="text-right">
-              <div className="w-16 h-16 bg-slate-900 text-white flex items-center justify-center font-black text-2xl rounded-lg">
+              <div className="w-16 h-16 bg-emerald-600 text-white flex items-center justify-center font-black text-2xl rounded-lg">
                 BA
               </div>
             </div>
