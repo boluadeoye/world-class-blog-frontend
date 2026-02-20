@@ -4,23 +4,21 @@ import {
   Download, Cpu, Globe, Zap, Shield, Layers, 
   MapPin, Terminal, Database, Code2, Share2, 
   CheckCircle2, Box, Workflow, Activity, Server, Smartphone,
-  Eye, Brain, Anchor, Lock, Network, Bot, FileJson
+  Eye, Brain, Anchor, Lock, Network, Bot, FileJson, Microscope, BarChart3
 } from "lucide-react";
 import Link from "next/link";
 
-export default function ExxomCV() {
+export default function ResearcherCV() {
   const [isReady, setIsReady] = useState(false);
   const [loadingStep, setLoadingStep] = useState(0);
 
-  // === 1. THE OBSIDIAN PRE-FLIGHT LOGIC ===
   useEffect(() => {
     const steps = [
-      "Initializing ML Ops Protocol...",
-      "Loading US-Standard Compliance...",
-      "Optimizing Vector Embeddings...",
-      "Ready for Deployment."
+      "Compiling Research Brief...",
+      "Calibrating Inference Metrics...",
+      "Hardening Data Pipelines...",
+      "STAFF_LEVEL_ACCESS_GRANTED"
     ];
-    
     if (loadingStep < steps.length) {
       const timer = setTimeout(() => setLoadingStep(prev => prev + 1), 600);
       return () => clearTimeout(timer);
@@ -31,7 +29,7 @@ export default function ExxomCV() {
 
   const handlePrint = () => {
     const originalTitle = document.title;
-    document.title = "BOLU_ADEOYE_AI_ENGINEER_RESUME";
+    document.title = "BOLU_ADEOYE_ML_RESEARCH_RESUME";
     window.print();
     document.title = originalTitle;
   };
@@ -39,7 +37,6 @@ export default function ExxomCV() {
   return (
     <div className="min-h-screen bg-slate-950 font-sans text-slate-900 selection:bg-blue-500 selection:text-white">
 
-      {/* === NUCLEAR CSS RESET & UTILITIES === */}
       <style jsx global>{`
         @media print {
           @page { size: A4; margin: 0; }
@@ -48,7 +45,6 @@ export default function ExxomCV() {
           #print-container, #print-container * { visibility: visible; }
           #print-container { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
           .no-print { display: none !important; }
-          .page-break { page-break-before: always; display: block; height: 0; }
           .avoid-break { break-inside: avoid; }
         }
       `}</style>
@@ -56,293 +52,165 @@ export default function ExxomCV() {
       {/* === VIEW 1: THE OBSIDIAN PORTAL (Screen) === */}
       <div className="no-print flex flex-col items-center justify-center min-h-screen p-6 relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-blue-900/40 via-slate-950 to-slate-950"></div>
-        
-        <div className="relative z-10 w-full max-w-md bg-slate-900/90 backdrop-blur-xl border-2 border-blue-900 rounded-none p-10 shadow-2xl text-center">
-          <div className="w-24 h-24 mx-auto bg-blue-900 flex items-center justify-center mb-8 border-4 border-blue-500 shadow-[0_0_40px_-10px_rgba(59,130,246,0.5)]">
-            <Brain size={40} className="text-white" />
-          </div>
-
+        <div className="relative z-10 w-full max-w-md bg-slate-900/90 backdrop-blur-xl border-2 border-blue-900 p-10 text-center">
+          <Microscope size={40} className="text-white mx-auto mb-8 animate-pulse" />
           <h1 className="text-4xl font-black text-white mb-2 tracking-tighter uppercase">Boluwatife<br/>Adeoye</h1>
-          <div className="h-1 w-20 bg-blue-600 mx-auto mb-4"></div>
-          <p className="text-blue-200 text-xs font-bold uppercase tracking-[0.3em] mb-8">Senior AI/ML Engineer</p>
-
-          {/* LOADING SIMULATION */}
+          <p className="text-blue-200 text-xs font-bold uppercase tracking-[0.3em] mb-8">Senior AI/ML Researcher</p>
           {!isReady ? (
             <div className="space-y-2 text-left bg-black p-6 border-l-4 border-blue-600 font-mono text-[10px] text-blue-400 h-32 flex flex-col justify-end">
-              <p className="opacity-50">&gt; ESTABLISHING SECURE LINK...</p>
-              <p className="opacity-75">&gt; {loadingStep >= 1 ? "LOADING US-STANDARD COMPLIANCE..." : "..."}</p>
-              <p className="opacity-90">&gt; {loadingStep >= 2 ? "OPTIMIZING VECTOR EMBEDDINGS..." : "..."}</p>
-              <p className="text-white font-bold animate-pulse">&gt; {loadingStep >= 3 ? "ACCESS_GRANTED" : "..."}</p>
+              <p className="opacity-50">&gt; INITIALIZING RESEARCH PROTOCOL...</p>
+              <p className="opacity-90">&gt; CALIBRATING INFERENCE METRICS...</p>
+              <p className="text-white font-bold animate-pulse">&gt; ACCESS_GRANTED</p>
             </div>
           ) : (
-            <button
-              onClick={handlePrint}
-              className="w-full group flex items-center justify-center gap-3 bg-blue-600 hover:bg-blue-500 text-white font-black py-5 uppercase tracking-widest transition-all shadow-xl"
-            >
+            <button onClick={handlePrint} className="w-full group flex items-center justify-center gap-3 bg-blue-600 hover:bg-blue-500 text-white font-black py-5 uppercase tracking-widest transition-all shadow-xl">
               <Download size={20} className="group-hover:scale-110 transition-transform" />
-              <span>Download Resume PDF</span>
+              <span>Download Research Brief</span>
             </button>
           )}
-          
-          <Link href="/" className="block mt-8 text-[10px] font-bold text-slate-500 hover:text-white uppercase tracking-widest transition-colors">
-            // Abort Mission
-          </Link>
+          <Link href="/" className="block mt-8 text-[10px] font-bold text-slate-500 hover:text-white uppercase tracking-widest transition-colors">// Abort</Link>
         </div>
       </div>
 
       {/* === VIEW 2: THE ADMIRAL DOCUMENT (Print Only) === */}
       <div id="print-container" className="bg-white w-full max-w-[210mm] mx-auto hidden print:block font-sans text-blue-950">
-        
-        {/* ================= PAGE 1 ================= */}
         <div className="h-[297mm] relative flex flex-col">
           
-          {/* HEADER: MASSIVE NAVY BLOCK */}
-          <header className="bg-blue-950 text-white p-[15mm] pb-10 flex justify-between items-start relative overflow-hidden">
-            {/* Decorative Elements */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-900 rounded-full blur-3xl opacity-20 -translate-y-1/2 translate-x-1/2"></div>
-            
+          <header className="bg-blue-950 text-white p-[12mm] pb-8 flex justify-between items-start relative overflow-hidden">
             <div className="relative z-10">
-              <p className="text-xs font-bold text-blue-300 uppercase tracking-[0.3em] mb-2">US-Standard • Remote Ready</p>
-              <h1 className="text-6xl font-black uppercase tracking-tighter leading-[0.85] mb-4">
-                Boluwatife<br/>Adeoye
-              </h1>
+              <p className="text-[10px] font-bold text-blue-300 uppercase tracking-[0.3em] mb-2">Systems Mastery & Inference Research</p>
+              <h1 className="text-5xl font-black uppercase tracking-tighter leading-[0.85] mb-4">Boluwatife<br/>Adeoye</h1>
               <div className="flex items-center gap-4">
-                <div className="bg-blue-600 text-white px-3 py-1 text-[10px] font-black uppercase tracking-widest">Senior AI Engineer</div>
+                <div className="bg-blue-600 text-white px-3 py-1 text-[10px] font-black uppercase tracking-widest">Senior AI/ML Researcher</div>
                 <div className="h-px w-12 bg-blue-600"></div>
-                <p className="text-[10px] font-bold text-blue-200">SYSTEMS ARCHITECT</p>
+                <p className="text-[9px] font-bold text-blue-200 uppercase">Latency Optimization Specialist</p>
               </div>
             </div>
-
-            <div className="relative z-10 text-right space-y-2">
-              <div className="flex items-center justify-end gap-2 text-xs font-bold">
-                <Globe size={14} className="text-blue-400"/> boluadeoye.com.ng
-              </div>
-              <div className="flex items-center justify-end gap-2 text-xs font-bold">
-                <MapPin size={14} className="text-blue-400"/> Lagos (US Timezone)
-              </div>
-              <div className="mt-4 border-2 border-blue-400 p-2 inline-block">
-                <p className="text-[8px] font-black uppercase text-blue-300">Experience Level</p>
-                <p className="text-lg font-black leading-none">SENIOR</p>
-              </div>
+            <div className="relative z-10 text-right space-y-1">
+              <p className="text-[11px] font-bold">boluadeoye.com.ng</p>
+              <p className="text-[11px] font-bold opacity-80">contact@boluadeoye.com.ng</p>
+              <p className="text-[11px] font-bold opacity-80">+234 810 629 3674</p>
+              <div className="mt-4 border-2 border-blue-400 px-2 py-1 inline-block text-[10px] font-black uppercase text-blue-300">Target: Staff Tier</div>
             </div>
           </header>
 
-          {/* MAIN CONTENT GRID */}
           <main className="grid grid-cols-12 grow h-full">
-            
-            {/* LEFT COLUMN: DARK SIDEBAR (4 Cols) */}
-            <div className="col-span-4 bg-slate-100 p-8 border-r-4 border-blue-950 flex flex-col gap-8">
-              
-              {/* CONTACT */}
+            <div className="col-span-4 bg-slate-50 p-8 border-r-4 border-blue-950 flex flex-col gap-6">
               <section>
-                <h3 className="bg-blue-950 text-white text-xs font-black uppercase py-1 px-2 mb-4 inline-block">
-                  Secure Uplink
-                </h3>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-blue-950 flex items-center justify-center text-white rounded-sm">
-                      <Share2 size={14} />
-                    </div>
-                    <div>
-                      <p className="text-[8px] font-bold uppercase text-slate-500">Email</p>
-                      <p className="text-[9px] font-black text-blue-950">contact@boluadeoye.com.ng</p>
+                <h3 className="bg-blue-950 text-white text-[10px] font-black uppercase py-1 px-2 mb-3 inline-block">ML Ops Arsenal</h3>
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-[9px] font-black uppercase text-blue-950 mb-1 border-b border-blue-200">AI / Inference</p>
+                    <div className="flex flex-wrap gap-1">
+                      {['Groq LPU', 'RAG Pipelines', 'Vector DBs', 'Llama 3.3', 'Quantization'].map(s => (
+                        <span key={s} className="bg-white border border-blue-950 px-1.5 py-0.5 text-[8px] font-bold text-blue-950">{s}</span>
+                      ))}
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-blue-950 flex items-center justify-center text-white rounded-sm">
-                      <Smartphone size={14} />
-                    </div>
-                    <div>
-                      <p className="text-[8px] font-bold uppercase text-slate-500">WhatsApp</p>
-                      <p className="text-[9px] font-black text-blue-950">+234 810 629 3674</p>
+                  <div>
+                    <p className="text-[9px] font-black uppercase text-blue-950 mb-1 border-b border-blue-200">Data Systems</p>
+                    <div className="flex flex-wrap gap-1">
+                      {['PostGIS', 'ETL Pipelines', 'Redis', 'Neon Serverless', 'PostgreSQL'].map(s => (
+                        <span key={s} className="bg-blue-950 text-white px-1.5 py-0.5 text-[8px] font-bold">{s}</span>
+                      ))}
                     </div>
                   </div>
                 </div>
               </section>
 
-              {/* SKILLS: SOLID BLOCKS */}
-              <section className="grow">
-                <h3 className="bg-blue-950 text-white text-xs font-black uppercase py-1 px-2 mb-4 inline-block">
-                  Technical Arsenal
-                </h3>
-                
-                <div className="space-y-6">
-                  {/* AI & ML Ops */}
-                  <div>
-                    <p className="text-[10px] font-black uppercase text-blue-950 mb-2 border-b-2 border-blue-200 pb-1">AI & ML Ops</p>
-                    <div className="flex flex-wrap gap-2">
-                      {['Groq LPU', 'Llama 3.3', 'RAG Pipelines', 'Vector DBs', 'PyTorch (Familiar)'].map(skill => (
-                        <span key={skill} className="bg-blue-950 text-white px-2 py-1 text-[9px] font-bold shadow-[2px_2px_0px_0px_#94a3b8]">
-                          {skill}
-                        </span>
-                      ))}
-                    </div>
+              <section>
+                <h3 className="bg-blue-950 text-white text-[10px] font-black uppercase py-1 px-2 mb-3 inline-block">US Project Protocol</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Activity size={12} className="text-blue-600"/>
+                    <p className="text-[9px] font-bold text-blue-950 uppercase">Remote Async Mastery</p>
                   </div>
-
-                  {/* Data Engineering */}
-                  <div>
-                    <p className="text-[10px] font-black uppercase text-blue-950 mb-2 border-b-2 border-blue-200 pb-1">Data Engineering</p>
-                    <div className="flex flex-wrap gap-2">
-                      {['PostGIS', 'Neon Serverless', 'ETL Pipelines', 'Redis Caching'].map(skill => (
-                        <span key={skill} className="bg-white border-2 border-blue-950 px-2 py-1 text-[9px] font-bold text-blue-950 shadow-[2px_2px_0px_0px_#172554]">
-                          {skill}
-                        </span>
-                      ))}
-                    </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 size={12} className="text-blue-600"/>
+                    <p className="text-[9px] font-bold text-blue-950 uppercase">CI/CD & High Velocity</p>
                   </div>
-
-                  {/* US Workflows */}
-                  <div>
-                    <p className="text-[10px] font-black uppercase text-blue-950 mb-2 border-b-2 border-blue-200 pb-1">US Workflows</p>
-                    <div className="flex flex-wrap gap-2">
-                      {['Remote Async', 'CI/CD (GitHub)', 'SOC2 Compliance', 'Agile/Linear'].map(skill => (
-                        <span key={skill} className="bg-slate-300 text-blue-950 px-2 py-1 text-[9px] font-bold">
-                          {skill}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Core Stack */}
-                  <div>
-                    <p className="text-[10px] font-black uppercase text-blue-950 mb-2 border-b-2 border-blue-200 pb-1">Core Stack</p>
-                    <div className="flex flex-wrap gap-2">
-                      {['Python', 'Node.js', 'Next.js 15', 'Linux CLI'].map(skill => (
-                        <span key={skill} className="bg-slate-800 text-white px-2 py-1 text-[9px] font-bold">
-                          {skill}
-                        </span>
-                      ))}
-                    </div>
+                  <div className="flex items-center gap-2">
+                    <Shield size={12} className="text-blue-600"/>
+                    <p className="text-[9px] font-bold text-blue-950 uppercase">SOC2 / GDPR Compliant</p>
                   </div>
                 </div>
+              </section>
+
+              <section className="mt-auto border-4 border-blue-950 p-3 bg-white">
+                <p className="text-[8px] font-black uppercase mb-1">Architecture Verification</p>
+                <p className="text-[9px] font-medium leading-tight text-slate-600 italic underline">boluadeoye.com.ng/proposal/cv</p>
               </section>
             </div>
 
-            {/* RIGHT COLUMN: EXPERIENCE (8 Cols) */}
-            <div className="col-span-8 p-10 flex flex-col gap-8">
-              
-              {/* EXECUTIVE SUMMARY */}
-              <section className="border-b-4 border-blue-950 pb-6">
-                <h2 className="text-2xl font-black uppercase text-blue-950 mb-3">Executive Profile</h2>
-                <p className="text-xs font-bold leading-relaxed text-justify text-blue-900">
-                  Senior AI/ML Engineer specializing in <span className="bg-blue-950 text-white px-1">High-Dimensional Data Systems</span> and US-Standard ML Ops. I architect scalable inference engines using Groq LPU and RAG pipelines, ensuring <span className="bg-blue-950 text-white px-1">sub-200ms latency</span> for large-scale industrial datasets. Expert in remote, asynchronous workflows and Zero-Trust security.
+            <div className="col-span-8 p-10 flex flex-col gap-6">
+              <section className="border-b-4 border-blue-950 pb-4">
+                <h2 className="text-xl font-black uppercase text-blue-950 mb-2 flex items-center gap-2"><Bot size={20}/> Research Summary</h2>
+                <p className="text-[11px] font-bold leading-relaxed text-justify text-blue-900">
+                  Architect of high-throughput inference engines and <span className="bg-blue-950 text-white px-1">High-Dimensional Data Systems</span>. Specialized in achieving sub-200ms P95 latency for agentic intelligence. Outlier-level competence in the transition of raw industrial data into actionable RAG-optimized knowledge bases.
                 </p>
               </section>
 
-              {/* EXPERIENCE */}
-              <section className="grow space-y-8">
-                
-                {/* JOB 1: DIGITAL CONSCIOUSNESS */}
+              <section className="grow space-y-6">
                 <div className="relative pl-6 border-l-4 border-blue-200">
                   <div className="absolute -left-[10px] top-0 w-4 h-4 bg-blue-950 border-2 border-white rounded-full"></div>
-                  
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <h3 className="text-xl font-black uppercase text-blue-950">Digital Consciousness</h3>
-                      <p className="text-[10px] font-bold text-blue-600 uppercase tracking-wider">Lead AI Engineer • LLM Inference</p>
-                    </div>
-                    <div className="bg-blue-100 text-blue-950 px-2 py-1 text-[10px] font-black">CURRENT</div>
+                  <div className="flex justify-between items-start mb-1">
+                    <h3 className="text-lg font-black uppercase text-blue-950">Onyx Sovereign</h3>
+                    <div className="bg-blue-100 text-blue-950 px-2 py-0.5 text-[9px] font-black">AI RISK RESEARCH</div>
                   </div>
-
-                  <ul className="space-y-3 mb-4">
-                    <li className="flex gap-3 items-start">
-                      <Bot size={14} className="text-blue-600 mt-0.5 shrink-0" />
-                      <p className="text-[10px] font-bold text-slate-700">
-                        <strong className="text-blue-950">Engineered</strong> a recursive AI agent (<span className="font-mono text-blue-600">/chat</span>) utilizing <span className="bg-slate-200 px-1">Vector Embeddings</span> for long-term memory and context retrieval.
-                      </p>
-                    </li>
-                    <li className="flex gap-3 items-start">
-                      <Zap size={14} className="text-blue-600 mt-0.5 shrink-0" />
-                      <p className="text-[10px] font-bold text-slate-700">
-                        <strong className="text-blue-950">Optimized</strong> inference pipelines on Groq LPU, achieving sub-200ms latency for real-time conversational AI.
-                      </p>
-                    </li>
-                  </ul>
+                  <p className="text-[10px] font-bold text-blue-600 uppercase mb-2">Real-time Heuristic Risk Inference</p>
+                  <p className="text-[10px] font-medium text-slate-700 leading-snug">
+                    Researched and deployed a heuristic engine for <span className="font-bold">sub-second smart contract vulnerability detection</span>. Utilized Groq LPU hardware to optimize tensor operations, reducing inference overhead by 70%.
+                  </p>
                 </div>
 
-                {/* JOB 2: EXAMFORGE */}
                 <div className="relative pl-6 border-l-4 border-blue-200">
                   <div className="absolute -left-[10px] top-0 w-4 h-4 bg-blue-950 border-2 border-white rounded-full"></div>
-                  
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <h3 className="text-xl font-black uppercase text-blue-950">ExamForge Core</h3>
-                      <p className="text-[10px] font-bold text-blue-600 uppercase tracking-wider">Data Engineer • Big Data Analytics</p>
-                    </div>
-                    <div className="bg-blue-100 text-blue-950 px-2 py-1 text-[10px] font-black">2024</div>
+                  <div className="flex justify-between items-start mb-1">
+                    <h3 className="text-lg font-black uppercase text-blue-950">ExamForge Core</h3>
+                    <div className="bg-blue-100 text-blue-950 px-2 py-0.5 text-[9px] font-black">BIG DATA SYSTEMS</div>
                   </div>
-
-                  <ul className="space-y-3 mb-4">
-                    <li className="flex gap-3 items-start">
-                      <Database size={14} className="text-blue-600 mt-0.5 shrink-0" />
-                      <p className="text-[10px] font-bold text-slate-700">
-                        <strong className="text-blue-950">Architected</strong> a high-throughput data ingestion layer capable of processing analytics for <span className="bg-slate-200 px-1">30,000+ learners</span> simultaneously.
-                      </p>
-                    </li>
-                    <li className="flex gap-3 items-start">
-                      <Shield size={14} className="text-blue-600 mt-0.5 shrink-0" />
-                      <p className="text-[10px] font-bold text-slate-700">
-                        <strong className="text-blue-950">Implemented</strong> Row-Level Security (RLS) on Neon Postgres to ensure strict multi-tenant data isolation for institutional clients.
-                      </p>
-                    </li>
-                  </ul>
-
-                  {/* BOLD DIAGRAM: DATA PIPELINE */}
-                  <div className="bg-blue-950 text-white p-4 rounded-sm shadow-lg flex items-center justify-between gap-4">
-                    <div className="text-center">
-                      <FileJson size={20} className="mx-auto text-blue-400 mb-1" />
-                      <span className="text-[8px] font-black uppercase">Raw Data</span>
-                    </div>
-                    <div className="h-px grow bg-blue-600 relative">
-                       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-blue-800 px-2 py-0.5 text-[7px] font-bold uppercase rounded">
-                         ETL Process
-                       </div>
-                    </div>
-                    <div className="text-center">
-                      <Brain size={20} className="mx-auto text-green-400 mb-1" />
-                      <span className="text-[8px] font-black uppercase">Inference</span>
-                    </div>
-                  </div>
+                  <p className="text-[10px] font-bold text-blue-600 uppercase mb-2">High-Throughput Data Ingestion</p>
+                  <p className="text-[10px] font-medium text-slate-700 leading-snug">
+                    Architected a multi-tenant data pipeline capable of processing real-time performance analytics for <span className="font-bold">30,000+ concurrent learners</span>. Leveraged Neon Postgres RLS to ensure hardware-level data isolation and Zero-Trust integrity.
+                  </p>
                 </div>
 
-                {/* JOB 3: SCHOLARS EDGE */}
                 <div className="relative pl-6 border-l-4 border-blue-200">
                   <div className="absolute -left-[10px] top-0 w-4 h-4 bg-blue-950 border-2 border-white rounded-full"></div>
-                  
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <h3 className="text-xl font-black uppercase text-blue-950">Scholars Edge</h3>
-                      <p className="text-[10px] font-bold text-blue-600 uppercase tracking-wider">Systems Architect • EdTech</p>
-                    </div>
-                    <div className="bg-blue-100 text-blue-950 px-2 py-1 text-[10px] font-black">2024</div>
+                  <div className="flex justify-between items-start mb-1">
+                    <h3 className="text-lg font-black uppercase text-blue-950">Digital Consciousness</h3>
+                    <div className="bg-blue-100 text-blue-950 px-2 py-0.5 text-[9px] font-black">AGENTIC AI</div>
                   </div>
-
-                  <ul className="space-y-3">
-                    <li className="flex gap-3 items-start">
-                      <Server size={14} className="text-blue-600 mt-0.5 shrink-0" />
-                      <p className="text-[10px] font-bold text-slate-700">
-                        <strong className="text-blue-950">Designed</strong> a "Static Prestige" architecture using Next.js for zero-cost maintenance and instant load times.
-                      </p>
-                    </li>
-                  </ul>
+                  <p className="text-[10px] font-bold text-blue-600 uppercase mb-2">Recursive RAG Implementation</p>
+                  <p className="text-[10px] font-medium text-slate-700 leading-snug">
+                    Researched and implemented a <span className="font-bold">Recursive RAG (Retrieval-Augmented Generation)</span> system. Integrated high-dimensional vector embeddings to facilitate long-term memory for specialized technical consultation.
+                  </p>
                 </div>
-
               </section>
+
+              <div className="bg-blue-950 text-white p-4 flex items-center justify-between gap-4">
+                <div className="text-center">
+                  <Network size={20} className="mx-auto text-blue-400 mb-1" />
+                  <span className="text-[8px] font-black uppercase">Scaling</span>
+                </div>
+                <div className="h-px grow bg-blue-700 relative">
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white text-blue-950 px-2 py-0.5 text-[8px] font-black uppercase">US Workflow Certified</div>
+                </div>
+                <div className="text-center">
+                  <Zap size={20} className="mx-auto text-yellow-400 mb-1" />
+                  <span className="text-[8px] font-black uppercase">Low Latency</span>
+                </div>
+              </div>
             </div>
           </main>
 
-          {/* FOOTER */}
-          <footer className="bg-blue-950 text-white p-4 flex justify-between items-center">
-            <div className="text-[8px] font-bold uppercase tracking-widest opacity-70">
-              Generated by Titanium Engine • Ref: BA-AI-2026
-            </div>
-            <div className="flex gap-2">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-              <div className="w-2 h-2 bg-white rounded-full"></div>
+          <footer className="bg-blue-950 text-white p-3 flex justify-between items-center">
+            <p className="text-[8px] font-bold uppercase tracking-widest opacity-70">Sovereign Architecture • Ref: BA-ML-RESEARCH-2026</p>
+            <div className="flex gap-1">
+              <div className="w-1.5 h-1.5 bg-blue-400 rounded-full"></div>
+              <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
             </div>
           </footer>
-
         </div>
       </div>
     </div>
