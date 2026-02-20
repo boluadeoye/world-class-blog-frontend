@@ -4,21 +4,21 @@ import {
   Download, Cpu, Globe, Zap, Shield, Layers, 
   MapPin, Terminal, Database, Code2, Share2, 
   CheckCircle2, Box, Workflow, Activity, Server, Smartphone,
-  Eye, Brain, Anchor, Lock, Network, Bot
+  Eye, Brain, Anchor, Lock, Network, Bot, FileJson
 } from "lucide-react";
 import Link from "next/link";
 
-export default function StaffArchitectCV() {
+export default function ExxomCV() {
   const [isReady, setIsReady] = useState(false);
   const [loadingStep, setLoadingStep] = useState(0);
 
   // === 1. THE OBSIDIAN PRE-FLIGHT LOGIC ===
   useEffect(() => {
     const steps = [
-      "Initializing AI Infrastructure Protocol...",
-      "Separating Neural Contexts...",
-      "Optimizing ExamForge Data Layers...",
-      "Architectural Clearance: STAFF_LEVEL."
+      "Initializing ML Ops Protocol...",
+      "Loading US-Standard Compliance...",
+      "Optimizing Vector Embeddings...",
+      "Ready for Deployment."
     ];
     
     if (loadingStep < steps.length) {
@@ -31,7 +31,7 @@ export default function StaffArchitectCV() {
 
   const handlePrint = () => {
     const originalTitle = document.title;
-    document.title = "BOLU_ADEOYE_STAFF_ARCHITECT_CV";
+    document.title = "BOLU_ADEOYE_AI_ENGINEER_RESUME";
     window.print();
     document.title = originalTitle;
   };
@@ -59,19 +59,19 @@ export default function StaffArchitectCV() {
         
         <div className="relative z-10 w-full max-w-md bg-slate-900/90 backdrop-blur-xl border-2 border-blue-900 rounded-none p-10 shadow-2xl text-center">
           <div className="w-24 h-24 mx-auto bg-blue-900 flex items-center justify-center mb-8 border-4 border-blue-500 shadow-[0_0_40px_-10px_rgba(59,130,246,0.5)]">
-            <Cpu size={40} className="text-white" />
+            <Brain size={40} className="text-white" />
           </div>
 
           <h1 className="text-4xl font-black text-white mb-2 tracking-tighter uppercase">Boluwatife<br/>Adeoye</h1>
           <div className="h-1 w-20 bg-blue-600 mx-auto mb-4"></div>
-          <p className="text-blue-200 text-xs font-bold uppercase tracking-[0.3em] mb-8">Staff Systems Architect</p>
+          <p className="text-blue-200 text-xs font-bold uppercase tracking-[0.3em] mb-8">Senior AI/ML Engineer</p>
 
           {/* LOADING SIMULATION */}
           {!isReady ? (
             <div className="space-y-2 text-left bg-black p-6 border-l-4 border-blue-600 font-mono text-[10px] text-blue-400 h-32 flex flex-col justify-end">
               <p className="opacity-50">&gt; ESTABLISHING SECURE LINK...</p>
-              <p className="opacity-75">&gt; {loadingStep >= 1 ? "SEPARATING NEURAL CONTEXTS..." : "..."}</p>
-              <p className="opacity-90">&gt; {loadingStep >= 2 ? "OPTIMIZING DATA LAYERS..." : "..."}</p>
+              <p className="opacity-75">&gt; {loadingStep >= 1 ? "LOADING US-STANDARD COMPLIANCE..." : "..."}</p>
+              <p className="opacity-90">&gt; {loadingStep >= 2 ? "OPTIMIZING VECTOR EMBEDDINGS..." : "..."}</p>
               <p className="text-white font-bold animate-pulse">&gt; {loadingStep >= 3 ? "ACCESS_GRANTED" : "..."}</p>
             </div>
           ) : (
@@ -80,7 +80,7 @@ export default function StaffArchitectCV() {
               className="w-full group flex items-center justify-center gap-3 bg-blue-600 hover:bg-blue-500 text-white font-black py-5 uppercase tracking-widest transition-all shadow-xl"
             >
               <Download size={20} className="group-hover:scale-110 transition-transform" />
-              <span>Download Brief</span>
+              <span>Download Resume PDF</span>
             </button>
           )}
           
@@ -102,14 +102,14 @@ export default function StaffArchitectCV() {
             <div className="absolute top-0 right-0 w-64 h-64 bg-blue-900 rounded-full blur-3xl opacity-20 -translate-y-1/2 translate-x-1/2"></div>
             
             <div className="relative z-10">
-              <p className="text-xs font-bold text-blue-300 uppercase tracking-[0.3em] mb-2">AI Infrastructure Specialist</p>
+              <p className="text-xs font-bold text-blue-300 uppercase tracking-[0.3em] mb-2">US-Standard • Remote Ready</p>
               <h1 className="text-6xl font-black uppercase tracking-tighter leading-[0.85] mb-4">
                 Boluwatife<br/>Adeoye
               </h1>
               <div className="flex items-center gap-4">
-                <div className="bg-blue-600 text-white px-3 py-1 text-[10px] font-black uppercase tracking-widest">Staff Architect</div>
+                <div className="bg-blue-600 text-white px-3 py-1 text-[10px] font-black uppercase tracking-widest">Senior AI Engineer</div>
                 <div className="h-px w-12 bg-blue-600"></div>
-                <p className="text-[10px] font-bold text-blue-200">PERFORMANCE AS AESTHETICS</p>
+                <p className="text-[10px] font-bold text-blue-200">SYSTEMS ARCHITECT</p>
               </div>
             </div>
 
@@ -118,11 +118,11 @@ export default function StaffArchitectCV() {
                 <Globe size={14} className="text-blue-400"/> boluadeoye.com.ng
               </div>
               <div className="flex items-center justify-end gap-2 text-xs font-bold">
-                <MapPin size={14} className="text-blue-400"/> Lagos, Nigeria
+                <MapPin size={14} className="text-blue-400"/> Lagos (US Timezone)
               </div>
               <div className="mt-4 border-2 border-blue-400 p-2 inline-block">
-                <p className="text-[8px] font-black uppercase text-blue-300">Market Valuation</p>
-                <p className="text-lg font-black leading-none">TIER-1</p>
+                <p className="text-[8px] font-black uppercase text-blue-300">Experience Level</p>
+                <p className="text-lg font-black leading-none">SENIOR</p>
               </div>
             </div>
           </header>
@@ -167,23 +167,11 @@ export default function StaffArchitectCV() {
                 </h3>
                 
                 <div className="space-y-6">
-                  {/* Frontend/Edge */}
+                  {/* AI & ML Ops */}
                   <div>
-                    <p className="text-[10px] font-black uppercase text-blue-950 mb-2 border-b-2 border-blue-200 pb-1">Frontend & Edge</p>
+                    <p className="text-[10px] font-black uppercase text-blue-950 mb-2 border-b-2 border-blue-200 pb-1">AI & ML Ops</p>
                     <div className="flex flex-wrap gap-2">
-                      {['Next.js 15', 'React Server Actions', 'Cloudflare Edge', 'Framer Motion'].map(skill => (
-                        <span key={skill} className="bg-white border-2 border-blue-950 px-2 py-1 text-[9px] font-bold text-blue-950 shadow-[2px_2px_0px_0px_#172554]">
-                          {skill}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* AI/Inference */}
-                  <div>
-                    <p className="text-[10px] font-black uppercase text-blue-950 mb-2 border-b-2 border-blue-200 pb-1">AI & Inference</p>
-                    <div className="flex flex-wrap gap-2">
-                      {['Groq LPU', 'Llama 3.3', 'RAG Systems', 'Vector DBs'].map(skill => (
+                      {['Groq LPU', 'Llama 3.3', 'RAG Pipelines', 'Vector DBs', 'PyTorch (Familiar)'].map(skill => (
                         <span key={skill} className="bg-blue-950 text-white px-2 py-1 text-[9px] font-bold shadow-[2px_2px_0px_0px_#94a3b8]">
                           {skill}
                         </span>
@@ -191,11 +179,23 @@ export default function StaffArchitectCV() {
                     </div>
                   </div>
 
-                  {/* Backend/Data */}
+                  {/* Data Engineering */}
                   <div>
-                    <p className="text-[10px] font-black uppercase text-blue-950 mb-2 border-b-2 border-blue-200 pb-1">Data & Security</p>
+                    <p className="text-[10px] font-black uppercase text-blue-950 mb-2 border-b-2 border-blue-200 pb-1">Data Engineering</p>
                     <div className="flex flex-wrap gap-2">
-                      {['Neon Serverless', 'Row-Level Security', 'PostgreSQL', 'Node.js'].map(skill => (
+                      {['PostGIS', 'Neon Serverless', 'ETL Pipelines', 'Redis Caching'].map(skill => (
+                        <span key={skill} className="bg-white border-2 border-blue-950 px-2 py-1 text-[9px] font-bold text-blue-950 shadow-[2px_2px_0px_0px_#172554]">
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* US Workflows */}
+                  <div>
+                    <p className="text-[10px] font-black uppercase text-blue-950 mb-2 border-b-2 border-blue-200 pb-1">US Workflows</p>
+                    <div className="flex flex-wrap gap-2">
+                      {['Remote Async', 'CI/CD (GitHub)', 'SOC2 Compliance', 'Agile/Linear'].map(skill => (
                         <span key={skill} className="bg-slate-300 text-blue-950 px-2 py-1 text-[9px] font-bold">
                           {skill}
                         </span>
@@ -203,11 +203,11 @@ export default function StaffArchitectCV() {
                     </div>
                   </div>
 
-                  {/* Systems */}
+                  {/* Core Stack */}
                   <div>
-                    <p className="text-[10px] font-black uppercase text-blue-950 mb-2 border-b-2 border-blue-200 pb-1">Systems Mastery</p>
+                    <p className="text-[10px] font-black uppercase text-blue-950 mb-2 border-b-2 border-blue-200 pb-1">Core Stack</p>
                     <div className="flex flex-wrap gap-2">
-                      {['Linux CLI', 'Termux/Subsystems', 'CI/CD Pipelines', 'Git/GitHub'].map(skill => (
+                      {['Python', 'Node.js', 'Next.js 15', 'Linux CLI'].map(skill => (
                         <span key={skill} className="bg-slate-800 text-white px-2 py-1 text-[9px] font-bold">
                           {skill}
                         </span>
@@ -223,9 +223,9 @@ export default function StaffArchitectCV() {
               
               {/* EXECUTIVE SUMMARY */}
               <section className="border-b-4 border-blue-950 pb-6">
-                <h2 className="text-2xl font-black uppercase text-blue-950 mb-3">Executive Anomaly</h2>
+                <h2 className="text-2xl font-black uppercase text-blue-950 mb-3">Executive Profile</h2>
                 <p className="text-xs font-bold leading-relaxed text-justify text-blue-900">
-                  Staff Systems Architect and 99th-percentile technical outlier specializing in <span className="bg-blue-950 text-white px-1">Sovereign AI Infrastructure</span>. Architecting enterprise-grade systems using Next.js 15, Groq LPU, and Neon RLS to achieve <span className="bg-blue-950 text-white px-1">sub-200ms inference latency</span>. Building the intersection of high-performance computing and Zero-Trust security.
+                  Senior AI/ML Engineer specializing in <span className="bg-blue-950 text-white px-1">High-Dimensional Data Systems</span> and US-Standard ML Ops. I architect scalable inference engines using Groq LPU and RAG pipelines, ensuring <span className="bg-blue-950 text-white px-1">sub-200ms latency</span> for large-scale industrial datasets. Expert in remote, asynchronous workflows and Zero-Trust security.
                 </p>
               </section>
 
@@ -239,7 +239,7 @@ export default function StaffArchitectCV() {
                   <div className="flex justify-between items-start mb-2">
                     <div>
                       <h3 className="text-xl font-black uppercase text-blue-950">Digital Consciousness</h3>
-                      <p className="text-[10px] font-bold text-blue-600 uppercase tracking-wider">Lead Architect • The Digital Twin</p>
+                      <p className="text-[10px] font-bold text-blue-600 uppercase tracking-wider">Lead AI Engineer • LLM Inference</p>
                     </div>
                     <div className="bg-blue-100 text-blue-950 px-2 py-1 text-[10px] font-black">CURRENT</div>
                   </div>
@@ -248,13 +248,13 @@ export default function StaffArchitectCV() {
                     <li className="flex gap-3 items-start">
                       <Bot size={14} className="text-blue-600 mt-0.5 shrink-0" />
                       <p className="text-[10px] font-bold text-slate-700">
-                        <strong className="text-blue-950">Architected</strong> a recursive AI agent (<span className="font-mono text-blue-600">/chat</span>) achieving <span className="bg-slate-200 px-1">sub-200ms P95 latency</span> using Groq LPU and Next.js 15.
+                        <strong className="text-blue-950">Engineered</strong> a recursive AI agent (<span className="font-mono text-blue-600">/chat</span>) utilizing <span className="bg-slate-200 px-1">Vector Embeddings</span> for long-term memory and context retrieval.
                       </p>
                     </li>
                     <li className="flex gap-3 items-start">
                       <Zap size={14} className="text-blue-600 mt-0.5 shrink-0" />
                       <p className="text-[10px] font-bold text-slate-700">
-                        <strong className="text-blue-950">Engineered</strong> a "Scale-to-Zero" serverless inference pipeline on Vercel, reducing operational costs by 80% while maintaining 99.9% uptime.
+                        <strong className="text-blue-950">Optimized</strong> inference pipelines on Groq LPU, achieving sub-200ms latency for real-time conversational AI.
                       </p>
                     </li>
                   </ul>
@@ -267,40 +267,40 @@ export default function StaffArchitectCV() {
                   <div className="flex justify-between items-start mb-2">
                     <div>
                       <h3 className="text-xl font-black uppercase text-blue-950">ExamForge Core</h3>
-                      <p className="text-[10px] font-bold text-blue-600 uppercase tracking-wider">Systems Architect • EdTech Infrastructure</p>
+                      <p className="text-[10px] font-bold text-blue-600 uppercase tracking-wider">Data Engineer • Big Data Analytics</p>
                     </div>
                     <div className="bg-blue-100 text-blue-950 px-2 py-1 text-[10px] font-black">2024</div>
                   </div>
 
                   <ul className="space-y-3 mb-4">
                     <li className="flex gap-3 items-start">
-                      <Shield size={14} className="text-blue-600 mt-0.5 shrink-0" />
+                      <Database size={14} className="text-blue-600 mt-0.5 shrink-0" />
                       <p className="text-[10px] font-bold text-slate-700">
-                        <strong className="text-blue-950">Engineered</strong> a Zero-Trust data layer using Neon RLS, ensuring database-level multi-tenancy and 100% data isolation for institutional clients.
+                        <strong className="text-blue-950">Architected</strong> a high-throughput data ingestion layer capable of processing analytics for <span className="bg-slate-200 px-1">30,000+ learners</span> simultaneously.
                       </p>
                     </li>
                     <li className="flex gap-3 items-start">
-                      <Layers size={14} className="text-blue-600 mt-0.5 shrink-0" />
+                      <Shield size={14} className="text-blue-600 mt-0.5 shrink-0" />
                       <p className="text-[10px] font-bold text-slate-700">
-                        <strong className="text-blue-950">Orchestrated</strong> a high-concurrency assessment engine capable of supporting 30,000+ simultaneous learners.
+                        <strong className="text-blue-950">Implemented</strong> Row-Level Security (RLS) on Neon Postgres to ensure strict multi-tenant data isolation for institutional clients.
                       </p>
                     </li>
                   </ul>
 
-                  {/* BOLD DIAGRAM: ZERO TRUST ARCHITECTURE */}
+                  {/* BOLD DIAGRAM: DATA PIPELINE */}
                   <div className="bg-blue-950 text-white p-4 rounded-sm shadow-lg flex items-center justify-between gap-4">
                     <div className="text-center">
-                      <Lock size={20} className="mx-auto text-blue-400 mb-1" />
-                      <span className="text-[8px] font-black uppercase">Neon RLS</span>
+                      <FileJson size={20} className="mx-auto text-blue-400 mb-1" />
+                      <span className="text-[8px] font-black uppercase">Raw Data</span>
                     </div>
                     <div className="h-px grow bg-blue-600 relative">
                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-blue-800 px-2 py-0.5 text-[7px] font-bold uppercase rounded">
-                         Zero Trust
+                         ETL Process
                        </div>
                     </div>
                     <div className="text-center">
-                      <Network size={20} className="mx-auto text-green-400 mb-1" />
-                      <span className="text-[8px] font-black uppercase">Multi-Tenant</span>
+                      <Brain size={20} className="mx-auto text-green-400 mb-1" />
+                      <span className="text-[8px] font-black uppercase">Inference</span>
                     </div>
                   </div>
                 </div>
@@ -312,7 +312,7 @@ export default function StaffArchitectCV() {
                   <div className="flex justify-between items-start mb-2">
                     <div>
                       <h3 className="text-xl font-black uppercase text-blue-950">Scholars Edge</h3>
-                      <p className="text-[10px] font-bold text-blue-600 uppercase tracking-wider">Lead Developer • Academic Systems</p>
+                      <p className="text-[10px] font-bold text-blue-600 uppercase tracking-wider">Systems Architect • EdTech</p>
                     </div>
                     <div className="bg-blue-100 text-blue-950 px-2 py-1 text-[10px] font-black">2024</div>
                   </div>
@@ -334,7 +334,7 @@ export default function StaffArchitectCV() {
           {/* FOOTER */}
           <footer className="bg-blue-950 text-white p-4 flex justify-between items-center">
             <div className="text-[8px] font-bold uppercase tracking-widest opacity-70">
-              Generated by Titanium Engine • Ref: BA-STAFF-2026
+              Generated by Titanium Engine • Ref: BA-AI-2026
             </div>
             <div className="flex gap-2">
               <div className="w-2 h-2 bg-green-500 rounded-full"></div>
