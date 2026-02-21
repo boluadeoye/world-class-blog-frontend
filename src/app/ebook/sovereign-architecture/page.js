@@ -1,16 +1,17 @@
 "use client";
 import { useState, useEffect } from "react";
 import { 
-  Download, BookOpen, ChevronRight, Layers, Cpu, 
-  Shield, Zap, Globe, Database, Server, Activity, 
-  Lock, Network, GitBranch, Terminal, Box
+  Download, BookOpen, Layers, Cpu, Shield, Zap, 
+  Globe, Database, Server, Activity, CheckCircle2, 
+  Eye, Box, Microscope, BarChart3
 } from "lucide-react";
+import Link from "next/link";
 
 export default function SovereignEbook() {
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    setTimeout(() => setIsReady(true), 2000);
+    setTimeout(() => setIsReady(true), 1500);
   }, []);
 
   const handlePrint = () => {
@@ -18,51 +19,21 @@ export default function SovereignEbook() {
     window.print();
   };
 
-  // === CONTENT DATA (15 PAGES) ===
   const pages = [
-    // P1: COVER
-    { type: 'cover', title: "The Sovereign Architecture", subtitle: "Engineering High-Performance Agentic Systems for Global Scale" },
-    
-    // P2: TOC
+    { type: 'cover', title: "The Sovereign Architecture", subtitle: "High-Performance Agentic Systems for Global Scale" },
     { type: 'toc', items: ["The Death of Full Stack", "Legacy vs. Sovereign", "The 200ms Threshold", "Next.js 15 & Edge", "Inference Pipeline", "Data Sovereignty", "Case Study: Autoam", "Geospatial Engine", "Case Study: HeirsGuard", "Vision Pipeline", "Scaling to 100k", "Conclusion"] },
-    
-    // P3: FOREWORD
-    { type: 'text', title: "01. Executive Foreword", content: "In 2026, speed is not a feature; it is the only metric that matters. The era of monolithic architectures is dead. We are entering the age of 'Sovereign Systems'—autonomous, high-performance infrastructures that live at the Edge. This manual outlines the blueprint for sub-200ms inference and Zero-Trust security." },
-    
-    // P4: DEATH OF FULL STACK
-    { type: 'text', title: "02. The Death of Full Stack", content: "Traditional REST APIs are too slow for Agentic AI. The round-trip latency of a standard request-response cycle kills the user experience of a conversational interface. We must move logic to the Edge." },
-    
-    // P5: DIAGRAM (LEGACY VS SOVEREIGN)
+    { type: 'text', title: "01. Executive Foreword", content: "In 2026, speed is the only metric that matters. Monolithic architectures are dead. We are entering the age of 'Sovereign Systems'—autonomous, high-performance infrastructures that live at the Edge. This manual outlines the blueprint for sub-200ms inference and Zero-Trust security." },
+    { type: 'text', title: "02. The Death of Full Stack", content: "Traditional REST APIs are too slow for Agentic AI. The round-trip latency of a standard request-response cycle kills the user experience of conversational interfaces. We move logic to the Edge to survive." },
     { type: 'diagram', title: "03. Architecture Comparison", diagramType: 'comparison' },
-    
-    // P6: 200MS THRESHOLD
-    { type: 'text', title: "04. The 200ms Threshold", content: "Human perception of 'instant' is 200ms. Anything slower breaks the flow state. Our architecture is optimized to deliver P95 latency well below this threshold using Groq LPU and Vercel Edge Functions." },
-    
-    // P7: NEXT.JS 15
-    { type: 'text', title: "05. Next.js 15 & The Edge", content: "We leverage React Server Components (RSC) to eliminate client-side bloat. By streaming UI directly from the Edge, we achieve First Contentful Paint (FCP) scores that rival native applications." },
-    
-    // P8: DIAGRAM (INFERENCE PIPELINE)
+    { type: 'text', title: "04. The 200ms Threshold", content: "Human perception of 'instant' is 200ms. Anything slower breaks the flow state. Our architecture is optimized for P95 latency well below this threshold using Groq LPU and Vercel Edge Functions." },
+    { type: 'text', title: "05. Next.js 15 & The Edge", content: "We leverage React Server Components (RSC) to eliminate client-side bloat. By streaming UI directly from the Edge, we achieve FCP scores that rival native applications." },
     { type: 'diagram', title: "06. The Inference Pipeline", diagramType: 'inference' },
-    
-    // P9: DATA SOVEREIGNTY
-    { type: 'text', title: "07. Data Sovereignty (RLS)", content: "Security cannot be an afterthought. We implement Row-Level Security (RLS) directly in the Postgres database (Neon). This ensures that even if the API is compromised, the data remains segregated and secure." },
-    
-    // P10: CASE STUDY AUTOAM
+    { type: 'text', title: "07. Data Sovereignty (RLS)", content: "Security cannot be an afterthought. We implement Row-Level Security (RLS) directly in Neon Postgres. This ensures that even if the API is compromised, the data remains segregated." },
     { type: 'text', title: "08. Case Study: Autoam", content: "Autoam required a geospatial matching engine capable of connecting drivers and mechanics in under 2 seconds. We utilized PostGIS and WebSockets to build a real-time, offline-first logistics network." },
-    
-    // P11: DIAGRAM (GEOSPATIAL)
     { type: 'diagram', title: "09. Geospatial Engine", diagramType: 'geo' },
-    
-    // P12: CASE STUDY HEIRSGUARD
     { type: 'text', title: "10. Case Study: HeirsGuard", content: "For HeirsGuard, we reduced insurance claim processing from 14 days to 5 minutes. This required a multi-modal AI pipeline combining Computer Vision for damage assessment and LLMs for policy verification." },
-    
-    // P13: DIAGRAM (VISION)
     { type: 'diagram', title: "11. Vision Pipeline", diagramType: 'vision' },
-    
-    // P14: SCALING
     { type: 'text', title: "12. Scaling to 100k Nodes", content: "Horizontal scaling is achieved via Serverless isolation. Each function runs in its own ephemeral container, allowing the system to handle massive concurrency spikes without provisioning permanent infrastructure." },
-    
-    // P15: CONCLUSION
     { type: 'signature', title: "13. The Architect's Conclusion", content: "The systems we build today will define the operational velocity of the next decade. We are ready to build." }
   ];
 
@@ -181,7 +152,7 @@ export default function SovereignEbook() {
                     <div className="border-4 border-blue-950 p-6 flex flex-col items-center justify-center bg-blue-50">
                       <Globe size={48} className="mb-4 text-blue-600"/>
                       <h3 className="font-black uppercase text-blue-950">Sovereign Edge</h3>
-                      <p className="text-center text-xs mt-2 font-bold">Global Distribution • < 50ms</p>
+                      <p className="text-center text-xs mt-2 font-bold">Global Distribution • &lt; 50ms</p>
                     </div>
                   </div>
                 </div>
