@@ -18,136 +18,120 @@ export default function AppreciationLetter() {
   const logoUrl = "https://res.cloudinary.com/dwbjb3svx/image/upload/v1772401576/blog_assets/vm1cxy8mcisdwwkghk3i.jpg";
 
   return (
-    <div className="min-h-screen bg-slate-100 font-sans text-slate-900 selection:bg-red-200">
+    <div className="min-h-screen bg-slate-200 font-sans text-slate-900">
       
-      {/* IMPORT PREMIUM FONTS */}
-      <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+      <link href="https://fonts.googleapis.com/css2?family=Times+New+Roman&family=Inter:wght@400;900&display=swap" rel="stylesheet" />
 
-      {/* === NUCLEAR CSS RESET & PRINT STYLES === */}
       <style jsx global>{`
         @media print {
           @page { size: A4; margin: 0; }
-          body { background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          body { background: white !important; }
           body * { visibility: hidden; }
-          #letter-container, #letter-container * { visibility: visible; }
-          #letter-container { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
+          #print-area, #print-area * { visibility: visible; }
+          #print-area { 
+            position: absolute; 
+            left: 0; 
+            top: 0; 
+            width: 210mm; 
+            height: 297mm;
+            padding: 20mm;
+            box-sizing: border-box;
+          }
           .no-print { display: none !important; }
         }
-        .font-playfair { font-family: 'Playfair Display', serif; }
-        .font-lora { font-family: 'Lora', serif; }
+        .letter-text {
+          font-family: 'Times New Roman', Times, serif;
+          font-size: 12pt;
+          line-height: 1.6;
+          color: #1a1a1a;
+        }
       `}</style>
 
-      {/* === VIEW 1: THE DASHBOARD (Screen Only) === */}
-      <div className="no-print flex flex-col items-center justify-center min-h-screen p-4 md:p-6">
-        <div className="w-full max-w-xl bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200">
+      {/* DASHBOARD */}
+      <div className="no-print flex flex-col items-center p-6">
+        <div className="w-full max-w-md bg-white p-6 rounded-xl shadow-xl border-t-4 border-red-600">
+          <h1 className="text-xl font-black mb-4 uppercase tracking-tighter">Letter Editor</h1>
           
-          <div className="bg-slate-900 p-6 text-white flex items-center gap-4 border-b-4 border-red-600">
-            <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center p-1">
-              <img src={logoUrl} alt="Logo" className="w-full h-full object-contain rounded-full" />
-            </div>
-            <div>
-              <h1 className="text-xl font-black uppercase tracking-widest">Premium Letterhead</h1>
-              <p className="text-xs text-slate-400">Inspirational Insight Ministries</p>
-            </div>
-          </div>
+          <label className="block text-xs font-bold uppercase mb-1">Minister Name</label>
+          <input 
+            type="text" 
+            value={ministerName}
+            onChange={(e) => setMinisterName(e.target.value)}
+            className="w-full p-2 border mb-4 rounded"
+          />
 
-          <div className="p-6 space-y-6">
-            <div>
-              <label className="flex items-center gap-2 text-sm font-bold text-slate-700 mb-2 uppercase tracking-wider">
-                <User size={16} className="text-red-600" /> Minister's Name
-              </label>
-              <input 
-                type="text" 
-                value={ministerName}
-                onChange={(e) => setMinisterName(e.target.value)}
-                className="w-full p-3 border-2 border-slate-200 rounded-lg focus:border-red-600 focus:ring-0 outline-none transition-colors font-bold"
-              />
-            </div>
+          <label className="block text-xs font-bold uppercase mb-1">Content</label>
+          <textarea 
+            value={letterBody}
+            onChange={(e) => setLetterBody(e.target.value)}
+            rows={10}
+            className="w-full p-2 border mb-6 rounded text-sm"
+          />
 
-            <div>
-              <label className="flex items-center gap-2 text-sm font-bold text-slate-700 mb-2 uppercase tracking-wider">
-                <FileText size={16} className="text-blue-600" /> Letter Content
-              </label>
-              <textarea 
-                value={letterBody}
-                onChange={(e) => setLetterBody(e.target.value)}
-                rows={12}
-                className="w-full p-3 border-2 border-slate-200 rounded-lg focus:border-blue-600 focus:ring-0 outline-none transition-colors text-sm leading-relaxed"
-              />
-            </div>
-
-            <button 
-              onClick={handlePrint}
-              className="w-full flex items-center justify-center gap-3 bg-red-600 hover:bg-red-700 text-white font-black py-4 rounded-xl uppercase tracking-widest transition-all shadow-lg shadow-red-600/30"
-            >
-              <Download size={20} />
-              Generate Premium PDF
-            </button>
-          </div>
+          <button 
+            onClick={handlePrint}
+            className="w-full bg-red-600 text-white font-bold py-3 rounded-lg uppercase tracking-widest"
+          >
+            Print Final Letter
+          </button>
         </div>
       </div>
 
-      {/* === VIEW 2: THE LETTERHEAD (Print Only) === */}
-      <div id="letter-container" className="hidden print:block bg-white w-full h-[297mm] relative overflow-hidden">
+      {/* THE ACTUAL LETTER */}
+      <div id="print-area" className="hidden print:block bg-white relative">
         
-        {/* WATERMARK */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-[0.05] pointer-events-none z-0">
-          <img src={logoUrl} alt="Watermark" className="w-[160mm] h-[160mm] object-contain grayscale" />
+        {/* TOP BORDER */}
+        <div className="absolute top-0 left-0 w-full h-3 flex">
+          <div className="bg-[#dc2626] w-1/2"></div>
+          <div className="bg-[#eab308] w-1/4"></div>
+          <div className="bg-[#2563eb] w-1/4"></div>
         </div>
 
-        {/* TOP BORDER (Red, Yellow, Blue) */}
-        <div className="flex h-4 w-full absolute top-0 left-0 z-10">
-          <div className="bg-[#dc2626] w-1/2"></div> {/* Red */}
-          <div className="bg-[#eab308] w-1/4"></div> {/* Yellow */}
-          <div className="bg-[#2563eb] w-1/4"></div> {/* Blue */}
+        {/* HEADER SECTION */}
+        <div className="flex flex-col items-center text-center mt-10 mb-10 border-b pb-6">
+          <img src={logoUrl} alt="Logo" className="h-24 mb-4" />
+          <h1 className="text-2xl font-serif font-bold uppercase tracking-widest text-[#dc2626]">
+            Inspirational Insight Ministries
+          </h1>
+          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#2563eb] mt-1">
+            Raising a generation of insight and fire
+          </p>
         </div>
 
-        {/* LETTER CONTENT WRAPPER */}
-        <div className="relative z-10 flex flex-col h-full px-[25mm] pt-[25mm] pb-[20mm]">
+        {/* SALUTATION */}
+        <div className="letter-text font-bold mb-6">
+          Dear {ministerName},
+        </div>
+
+        {/* BODY */}
+        <div className="letter-text text-justify whitespace-pre-line">
+          {letterBody}
+        </div>
+
+        {/* SIGNATURE BLOCK */}
+        <div className="mt-10">
+          <p className="letter-text italic mb-10">Yours in Christ,</p>
           
-          {/* PREMIUM HEADER */}
-          <header className="flex flex-col items-center text-center mb-14">
-            <img src={logoUrl} alt="Logo" className="h-28 object-contain mb-6" />
-            <h1 className="font-playfair text-3xl font-black uppercase tracking-[0.15em] text-[#dc2626] mb-4">
-              Inspirational Insight Ministries
-            </h1>
-            <div className="h-1 w-24 bg-[#eab308] mb-4"></div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#2563eb]">
-              Raising a generation of insight and fire
-            </p>
-          </header>
-
-          {/* SALUTATION */}
-          <div className="font-lora text-slate-900 mb-8">
-            <p className="text-xl font-bold text-[#1e293b]">Dear {ministerName},</p>
-          </div>
-
-          {/* DYNAMIC BODY CONTENT */}
-          <main className="font-lora text-slate-800 text-lg leading-[2.2] text-justify">
-            {letterBody.split('\n').map((paragraph, index) => (
-              <p key={index} className="mb-5">
-                {paragraph}
-              </p>
-            ))}
-          </main>
-
-          {/* SIGNATURE BLOCK (Now flows directly after text) */}
-          <footer className="mt-12">
-            {/* Signature Space */}
-            <div className="h-16 w-56 border-b-2 border-slate-300 mb-3"></div>
-            
-            <h3 className="font-playfair text-xl font-black uppercase text-[#dc2626] tracking-wider">Pastor Enitan Somuyiwa</h3>
-            <p className="text-xs font-bold uppercase tracking-widest text-[#2563eb] mt-1">Lead Pastor</p>
-            <p className="text-[10px] font-bold text-slate-500 mt-1 uppercase tracking-wider">Inspirational Insight Ministries</p>
-          </footer>
-
+          <div className="border-t border-slate-300 w-64 mb-2"></div>
+          <h2 className="text-lg font-bold uppercase text-[#dc2626] leading-none">
+            Pastor Enitan Somuyiwa
+          </h2>
+          <p className="text-[10px] font-bold uppercase text-[#2563eb] tracking-widest mt-1">
+            Lead Pastor
+          </p>
+          <p className="text-[9px] text-slate-500 uppercase">Inspirational Insight Ministries</p>
         </div>
 
-        {/* BOTTOM BORDER (Red, Yellow, Blue) */}
-        <div className="flex h-3 w-full absolute bottom-0 left-0 z-10">
-          <div className="bg-[#2563eb] w-1/4"></div> {/* Blue */}
-          <div className="bg-[#eab308] w-1/4"></div> {/* Yellow */}
-          <div className="bg-[#dc2626] w-1/2"></div> {/* Red */}
+        {/* BOTTOM BORDER */}
+        <div className="absolute bottom-0 left-0 w-full h-2 flex">
+          <div className="bg-[#2563eb] w-1/4"></div>
+          <div className="bg-[#eab308] w-1/4"></div>
+          <div className="bg-[#dc2626] w-1/2"></div>
+        </div>
+
+        {/* WATERMARK */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-[0.04] pointer-events-none">
+          <img src={logoUrl} alt="Watermark" className="w-96 h-96 object-contain grayscale" />
         </div>
 
       </div>
