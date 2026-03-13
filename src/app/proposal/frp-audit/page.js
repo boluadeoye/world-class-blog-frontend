@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { 
   Download, Cpu, ShieldCheck, Activity, Lock, 
   Hexagon, Sun, Camera, Database, Fingerprint, 
-  Crosshair, Network, FileDigit
+  Crosshair, Network, FileDigit, Globe
 } from "lucide-react";
 
 export default function FRPAuditDossier() {
