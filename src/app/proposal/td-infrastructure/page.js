@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { 
   Download, Cpu, Database, Zap, Shield, 
   Activity, Hexagon, Server, Network, Lock,
-  FileJson, CheckCircle2
+  FileJson, CheckCircle2, Globe
 } from "lucide-react";
 
 export default function TDInfrastructure() {
