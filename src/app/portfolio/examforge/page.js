@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { 
   Download, Server, ShieldCheck, Database, Lock, 
   QrCode, Network, Activity, Users, Layers,
-  CheckCircle2, Zap
+  CheckCircle2, Zap, Globe
 } from "lucide-react";
 
 export default function ExamForgeDossier() {
