@@ -1,17 +1,14 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Download, Star, Quote, Target, TrendingUp, Zap, CheckCircle2 } from "lucide-react";
+import { Star, Quote, Target, TrendingUp, Zap, CheckCircle2 } from "lucide-react";
 
 export default function ConversionMatrix() {
-  const[isReady, setIsReady] = useState(false);
-
-  useEffect(() => {
-    setTimeout(() => setIsReady(true), 1000);
-  },[]);
+  const [isReady, setIsReady] = useState(false);
+  useEffect(() => { setTimeout(() => setIsReady(true), 1000); },[]);
 
   const handlePrint = () => {
     const originalTitle = document.title;
-    document.title = "THE_7_FIGURE_CONVERSION_MATRIX_ELITE";
+    document.title = "THE_7_FIGURE_CONVERSION_MATRIX_FINAL";
     window.print();
     document.title = originalTitle;
   };
@@ -21,243 +18,208 @@ export default function ConversionMatrix() {
   const img3 = "https://res.cloudinary.com/dwbjb3svx/image/upload/v1774416992/blog_assets/eabilzeanxioyxiceeb7.png";
 
   return (
-    <div className="min-h-screen bg-[#050505] font-sans text-white selection:bg-[#D4AF37]/30">
+    <div className="min-h-screen bg-[#FDFCFB] font-sans text-[#0A0A0A] selection:bg-[#C5A059]/30">
       
-      {/* IMPORT LUXURY FONTS */}
-      <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;600;800;900&family=Newsreader:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" />
+      <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Inter:wght@300;400;600;800;900&family=Newsreader:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet" />
 
-      {/* === PRINT-SAFE CSS === */}
       <style jsx global>{`
         @media print {
           @page { size: A4; margin: 0; }
-          body { 
-            background-color: #050505 !important; 
-            -webkit-print-color-adjust: exact !important; 
-            print-color-adjust: exact !important; 
-            counter-reset: pageCounter;
-          }
+          body { background-color: #FDFCFB !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; counter-reset: pageCounter; }
           body * { visibility: hidden; }
           #render-area, #render-area * { visibility: visible; }
-          #render-area { position: absolute; left: 0; top: 0; width: 210mm; background: #050505; }
-          
-          /* STRICT A4 BLOCKS TO PREVENT CRASHING */
-          .a4-page { 
-            height: 297mm; 
-            width: 210mm; 
-            page-break-after: always; 
-            position: relative; 
-            background-color: #050505; 
-            box-sizing: border-box; 
-            overflow: hidden; 
-            display: block;
-          }
+          #render-area { position: absolute; left: 0; top: 0; width: 210mm; background: #FDFCFB; }
+          .a4-page { height: 297mm; width: 210mm; page-break-after: always; position: relative; background-color: #FDFCFB; box-sizing: border-box; overflow: hidden; }
           .page-num::after { counter-increment: pageCounter; content: "0" counter(pageCounter); }
           .no-print { display: none !important; }
         }
-        
         .font-playfair { font-family: 'Playfair Display', serif; }
         .font-inter { font-family: 'Inter', sans-serif; }
         .font-newsreader { font-family: 'Newsreader', serif; }
-        
-        /* PRINT-SAFE GOLD FOIL */
-        .text-gold-foil {
-          background: linear-gradient(to right, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          color: transparent;
-        }
-        .bg-gold-foil {
-          background: linear-gradient(135deg, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C);
-        }
       `}</style>
 
       {/* === VIEW 1: THE PORTAL === */}
-      <div className="no-print flex flex-col items-center justify-center min-h-screen p-6 bg-[#050505]">
-        <div className="w-full max-w-md bg-[#0A0A0A] p-12 text-center rounded-xl border border-[#D4AF37]/30 shadow-[0_0_30px_rgba(212,175,55,0.15)]">
-          <div className="w-20 h-20 mx-auto mb-8 flex items-center justify-center rounded-full border-2 border-[#D4AF37] bg-black">
-            <Star size={32} className="text-[#D4AF37]" />
-          </div>
-          <h1 className="font-playfair text-4xl font-black text-white mb-2 uppercase tracking-widest text-gold-foil">The Matrix</h1>
-          <p className="font-inter text-[#D4AF37] text-[10px] font-bold mb-10 tracking-[0.4em] uppercase">Elite Lead Magnet</p>
-          {!isReady ? (
-            <div className="text-xs font-mono animate-pulse text-[#D4AF37]">GILDING ASSETS...</div>
-          ) : (
-            <button onClick={handlePrint} className="w-full py-5 bg-gold-foil text-black font-inter font-black uppercase tracking-widest transition-all hover:scale-105 rounded-sm">
-              Extract Premium PDF
-            </button>
-          )}
+      <div className="no-print flex flex-col items-center justify-center min-h-screen p-6 bg-[#0A0A0A]">
+        <div className="relative z-10 w-full max-w-md bg-white p-12 text-center shadow-2xl border-b-8 border-[#C5A059]">
+          <h1 className="font-playfair text-4xl font-black text-[#0A0A0A] mb-2 uppercase tracking-tighter">The Matrix</h1>
+          <p className="font-inter text-slate-400 text-[10px] font-bold mb-10 tracking-[0.4em] uppercase">Editorial Lead Magnet</p>
+          {!isReady ? <div className="text-xs font-mono animate-pulse text-[#C5A059]">PREPARING MANUSCRIPT...</div> : 
+          <button onClick={handlePrint} className="w-full py-5 bg-[#0A0A0A] text-white font-inter font-black uppercase tracking-widest transition-all hover:bg-[#C5A059]">Extract Asset</button>}
         </div>
       </div>
 
-      {/* === VIEW 2: THE 4-PAGE DOCUMENT === */}
+      {/* === VIEW 2: THE 5-PAGE DOCUMENT === */}
       <div id="render-area" className="hidden print:block">
         
-        {/* PAGE 1: THE COVER */}
-        <div className="a4-page flex flex-col">
-          {/* Top Half: Image */}
-          <div className="h-[55%] w-full border-b-4 border-[#D4AF37]">
-            <img src={img1} alt="Ascension" className="w-full h-full object-cover" />
+        {/* PAGE 1: THE COVER (HARDCODED TOP/BOTTOM SPLIT) */}
+        <div className="a4-page">
+          {/* Top Image Block (160mm) */}
+          <div className="absolute top-0 left-0 w-full h-[160mm] overflow-hidden">
+            <img src={img1} alt="Ascension" className="w-full h-full object-cover grayscale contrast-125" />
+            <div className="absolute inset-0 bg-[#C5A059]/10 mix-blend-multiply"></div>
           </div>
           
-          {/* Bottom Half: Typography */}
-          <div className="h-[45%] w-full p-[20mm] flex flex-col justify-between bg-[#050505]">
+          {/* Bottom Text Block (137mm) */}
+          <div className="absolute top-[160mm] left-0 w-full h-[137mm] bg-[#FDFCFB] p-[20mm] flex flex-col justify-between">
             <div>
-              <div className="flex items-center gap-4 mb-6">
-                <div className="h-[2px] w-12 bg-[#D4AF37]"></div>
-                <p className="font-inter text-sm font-black text-[#D4AF37] uppercase tracking-[0.5em]">The Framework</p>
-              </div>
-              <h1 className="font-playfair text-6xl font-black uppercase tracking-tighter leading-[0.9] mb-6 text-gold-foil">
-                The 7-Figure<br/>Conversion<br/>Matrix
+              <p className="font-inter text-[10px] font-black text-[#C5A059] uppercase tracking-[0.4em] mb-4">The Framework</p>
+              <h1 className="font-playfair text-6xl font-black text-[#0A0A0A] uppercase tracking-tighter leading-tight mb-6">
+                The 7-Figure<br/>Conversion Matrix
               </h1>
-              <p className="font-newsreader text-xl italic text-slate-300 max-w-md leading-relaxed">
-                A Strategic Blueprint for High-Ticket Closing, Psychological Authority, and Elite Market Positioning.
+              <div className="h-[2px] w-16 bg-[#C5A059] mb-6"></div>
+              <p className="font-newsreader text-xl italic text-slate-600 leading-relaxed max-w-md">
+                A Strategic Blueprint for High-Ticket Closing and Psychological Authority.
               </p>
             </div>
             
-            <div className="flex justify-between items-end border-t border-white/20 pt-6">
+            <div className="flex justify-between items-end">
               <div>
-                <h2 className="font-playfair text-2xl font-black text-white uppercase tracking-[0.2em]">Boluwatife Adeoye</h2>
-                <p className="font-inter text-[10px] font-bold text-[#D4AF37] uppercase tracking-[0.4em] mt-1">Lead Design Architect</p>
+                <h2 className="font-playfair text-2xl font-black text-[#0A0A0A] uppercase tracking-[0.2em]">Bolu Adeoye</h2>
+                <p className="font-inter text-[8px] font-bold text-[#C5A059] uppercase tracking-[0.4em] mt-1">Lead Design Architect</p>
               </div>
-              <div className="font-inter text-[10px] font-black text-white uppercase tracking-widest bg-[#D4AF37]/20 px-3 py-1 border border-[#D4AF37]">
-                Exclusive Release
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* PAGE 2: THE FRAMEWORK */}
-        <div className="a4-page flex flex-col bg-[#050505]">
-          {/* Top Third: Image */}
-          <div className="h-[35%] w-full border-b-2 border-[#D4AF37]/50">
-            <img src={img2} alt="Strategy" className="w-full h-full object-cover" />
-          </div>
-          
-          {/* Bottom Two-Thirds: Content */}
-          <div className="h-[65%] w-full p-[20mm] flex flex-col">
-            <h2 className="font-playfair text-4xl font-black text-white uppercase mb-10 text-gold-foil text-center">The Three Pillars</h2>
-            
-            <div className="space-y-8 grow flex flex-col justify-center">
-              {/* Pillar 1 */}
-              <div className="flex gap-6 items-start bg-[#0A0A0A] p-6 border border-white/10 rounded-lg">
-                <div className="w-12 h-12 shrink-0 rounded-full bg-gold-foil flex items-center justify-center">
-                  <span className="font-playfair text-2xl font-black text-black">1</span>
-                </div>
-                <div>
-                  <h3 className="font-inter text-sm font-black uppercase tracking-widest mb-2 text-white flex items-center gap-2">
-                    <Target size={16} className="text-[#D4AF37]"/> The Psychological Hook
-                  </h3>
-                  <p className="font-newsreader text-base text-slate-300 leading-relaxed">Establishing immediate dominance through visual authority. Your prospect must feel they are entering a proven, expensive system, not a standard sales call.</p>
-                </div>
-              </div>
-
-              {/* Pillar 2 */}
-              <div className="flex gap-6 items-start bg-[#0A0A0A] p-6 border border-white/10 rounded-lg">
-                <div className="w-12 h-12 shrink-0 rounded-full bg-gold-foil flex items-center justify-center">
-                  <span className="font-playfair text-2xl font-black text-black">2</span>
-                </div>
-                <div>
-                  <h3 className="font-inter text-sm font-black uppercase tracking-widest mb-2 text-white flex items-center gap-2">
-                    <TrendingUp size={16} className="text-[#D4AF37]"/> Narrative Architecture
-                  </h3>
-                  <p className="font-newsreader text-base text-slate-300 leading-relaxed">Moving the prospect from uncertainty to inevitability using data-driven storytelling. We bridge the gap between their current pain and your high-ticket solution.</p>
-                </div>
-              </div>
-
-              {/* Pillar 3 */}
-              <div className="flex gap-6 items-start bg-[#0A0A0A] p-6 border border-white/10 rounded-lg">
-                <div className="w-12 h-12 shrink-0 rounded-full bg-gold-foil flex items-center justify-center">
-                  <span className="font-playfair text-2xl font-black text-black">3</span>
-                </div>
-                <div>
-                  <h3 className="font-inter text-sm font-black uppercase tracking-widest mb-2 text-white flex items-center gap-2">
-                    <Zap size={16} className="text-[#D4AF37]"/> The Frictionless Close
-                  </h3>
-                  <p className="font-newsreader text-base text-slate-300 leading-relaxed">Removing the "Ask." By the time you reach the price, the value has been so thoroughly engineered that a $10k+ transaction becomes the only logical next step.</p>
-                </div>
+              <div className="w-10 h-10 border border-[#0A0A0A] flex items-center justify-center">
+                <Star size={16} className="text-[#0A0A0A]" strokeWidth={1.5} />
               </div>
             </div>
           </div>
         </div>
 
-        {/* PAGE 3: THE PROOF */}
-        <div className="a4-page flex flex-col p-[20mm] bg-[#050505]">
-          <header className="border-b border-white/20 pb-4 mb-12">
-            <h2 className="font-inter text-[10px] font-black uppercase tracking-[0.5em] text-[#D4AF37]">Performance Metrics</h2>
+        {/* PAGE 2: THE MANIFESTO */}
+        <div className="a4-page p-[25mm] flex flex-col">
+          <header className="border-b border-slate-200 pb-4 mb-16 flex justify-between items-end">
+            <span className="font-inter text-[8px] font-bold uppercase tracking-[0.4em] text-slate-400">Section 01 // The Hook</span>
+            <span className="page-num font-inter text-[10px] font-black"></span>
           </header>
-
-          <main className="grow flex flex-col">
-            <h2 className="font-playfair text-5xl font-black text-white mb-12 text-gold-foil">Client Transformation</h2>
+          
+          <main className="grow flex flex-col justify-center items-center text-center px-10">
+            <Quote size={48} className="text-[#C5A059] opacity-30 mb-10" />
             
-            <div className="border border-[#D4AF37]/50 rounded-xl overflow-hidden bg-[#0A0A0A]">
-              <div className="grid grid-cols-3 bg-gold-foil text-black p-6 font-inter text-[10px] font-black uppercase tracking-widest">
+            <h2 className="font-playfair text-4xl font-black text-[#0A0A0A] leading-tight mb-12">
+              "If your lead magnet looks like a PDF, you are already losing the psychological battle."
+            </h2>
+            
+            <div className="w-full max-w-md">
+              <p className="font-newsreader text-xl text-slate-700 leading-[2] text-justify">
+                In the high-ticket coaching space, visual friction is the primary cause of lead drop-off. Your prospect must feel they are entering a proven, expensive system—not reading a generic Canva template. We do not design documents; we engineer <span className="font-playfair font-bold italic text-[#0A0A0A]">Visual Authority</span>.
+              </p>
+            </div>
+            
+            <div className="mt-16 h-16 w-[1px] bg-[#C5A059]"></div>
+          </main>
+        </div>
+
+        {/* PAGE 3: THE CONVERSION FUNNEL (HARDCODED TOP/BOTTOM SPLIT) */}
+        <div className="a4-page">
+          {/* Top Image Block (100mm) */}
+          <div className="absolute top-0 left-0 w-full h-[100mm] overflow-hidden">
+            <img src={img2} alt="Strategy" className="w-full h-full object-cover grayscale contrast-125" />
+            <div className="absolute inset-0 bg-[#C5A059]/10 mix-blend-multiply"></div>
+          </div>
+
+          {/* Bottom Text Block (197mm) */}
+          <div className="absolute top-[100mm] left-0 w-full h-[197mm] bg-[#FDFCFB] p-[25mm] flex flex-col">
+            <header className="flex justify-between items-end mb-10">
+              <h2 className="font-playfair text-4xl font-black text-[#0A0A0A] uppercase tracking-tighter leading-tight">The Architecture<br/>of Closing</h2>
+              <span className="page-num font-inter text-[10px] font-black"></span>
+            </header>
+            
+            <div className="space-y-10 grow">
+              <div className="relative pl-12 border-l border-slate-200">
+                <span className="absolute -left-5 top-0 font-playfair text-3xl font-black text-[#C5A059] bg-[#FDFCFB] py-2">01</span>
+                <h3 className="font-inter text-xs font-black uppercase tracking-[0.2em] mb-2 text-[#0A0A0A] flex items-center gap-3"><Target size={16} className="text-[#C5A059]"/> The Psychological Hook</h3>
+                <p className="font-newsreader text-lg text-slate-700 leading-relaxed">Establishing immediate dominance through visual authority. We replace generic layouts with editorial brutalism to command attention.</p>
+              </div>
+
+              <div className="relative pl-12 border-l border-slate-200">
+                <span className="absolute -left-5 top-0 font-playfair text-3xl font-black text-[#C5A059] bg-[#FDFCFB] py-2">02</span>
+                <h3 className="font-inter text-xs font-black uppercase tracking-[0.2em] mb-2 text-[#0A0A0A] flex items-center gap-3"><TrendingUp size={16} className="text-[#C5A059]"/> Narrative Architecture</h3>
+                <p className="font-newsreader text-lg text-slate-700 leading-relaxed">Moving the prospect from uncertainty to inevitability using data-driven storytelling. We bridge the gap between their current pain and your high-ticket solution.</p>
+              </div>
+
+              <div className="relative pl-12 border-l border-slate-200">
+                <span className="absolute -left-5 top-0 font-playfair text-3xl font-black text-[#C5A059] bg-[#FDFCFB] py-2">03</span>
+                <h3 className="font-inter text-xs font-black uppercase tracking-[0.2em] mb-2 text-[#0A0A0A] flex items-center gap-3"><Zap size={16} className="text-[#C5A059]"/> The Frictionless Close</h3>
+                <p className="font-newsreader text-lg text-slate-700 leading-relaxed">Removing the "Ask." We engineer the document so that a $10k+ transaction feels like a natural progression rather than a sales pitch.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* PAGE 4: THE STATUS MATRIX */}
+        <div className="a4-page p-[25mm] flex flex-col">
+          <header className="border-b border-slate-200 pb-4 mb-16 flex justify-between items-end">
+            <span className="font-inter text-[8px] font-bold uppercase tracking-[0.4em] text-slate-400">Section 03 // Performance</span>
+            <span className="page-num font-inter text-[10px] font-black"></span>
+          </header>
+          
+          <main className="grow flex flex-col">
+            <h2 className="font-playfair text-5xl font-black text-[#0A0A0A] mb-16 tracking-tighter">Client Transformation</h2>
+            
+            <div className="border border-[#0A0A0A] shadow-sm mb-16">
+              <div className="grid grid-cols-3 bg-[#0A0A0A] text-white p-6 font-inter text-[10px] font-black uppercase tracking-widest">
                 <div>Key Metric</div>
-                <div>Baseline Approach</div>
-                <div>Matrix Implementation</div>
+                <div className="text-slate-400">Baseline Approach</div>
+                <div className="text-[#C5A059]">Matrix Implementation</div>
               </div>
               
-              <div className="grid grid-cols-3 p-8 border-b border-white/10 items-center">
-                <div className="font-inter text-xs font-bold uppercase text-white">Lead Quality</div>
-                <div className="font-newsreader text-lg text-slate-400 italic">Unfiltered</div>
-                <div className="font-inter text-2xl font-black text-[#D4AF37]">High-Intent</div>
+              <div className="grid grid-cols-3 p-8 border-b border-slate-200 items-center">
+                <div className="font-inter text-xs font-bold uppercase text-[#0A0A0A]">Lead Quality</div>
+                <div className="font-newsreader text-xl text-slate-500 italic">Unfiltered</div>
+                <div className="font-inter text-2xl font-black text-[#0A0A0A]">High-Intent</div>
               </div>
 
-              <div className="grid grid-cols-3 p-8 border-b border-white/10 items-center bg-white/5">
-                <div className="font-inter text-xs font-bold uppercase text-white">Close Rate</div>
-                <div className="font-newsreader text-lg text-slate-400 italic">12.5%</div>
-                <div className="font-inter text-4xl font-black text-gold-foil">44.2%</div>
+              <div className="grid grid-cols-3 p-8 border-b border-slate-200 items-center bg-slate-50">
+                <div className="font-inter text-xs font-bold uppercase text-[#0A0A0A]">Close Rate</div>
+                <div className="font-newsreader text-xl text-slate-500 italic">12.5%</div>
+                <div className="font-inter text-3xl font-black text-[#C5A059]">44.2%</div>
               </div>
 
               <div className="grid grid-cols-3 p-8 items-center">
-                <div className="font-inter text-xs font-bold uppercase text-white">Avg. Ticket Size</div>
-                <div className="font-newsreader text-lg text-slate-400 italic">$2,500</div>
-                <div className="font-inter text-4xl font-black text-gold-foil">$15,000+</div>
+                <div className="font-inter text-xs font-bold uppercase text-[#0A0A0A]">Avg. Ticket Size</div>
+                <div className="font-newsreader text-xl text-slate-500 italic">$2,500</div>
+                <div className="font-inter text-3xl font-black text-[#0A0A0A]">$15,000+</div>
               </div>
             </div>
 
-            <div className="mt-16 p-10 bg-[#0A0A0A] border-l-4 border-l-[#D4AF37] relative">
-              <Quote size={48} className="absolute -top-6 -left-6 text-[#D4AF37] bg-[#050505] p-2 rounded-full" />
-              <p className="font-playfair text-3xl text-white leading-relaxed italic mt-4">
+            <div className="p-10 bg-white border border-slate-200 relative">
+              <div className="absolute -top-4 left-10 bg-[#C5A059] text-white px-4 py-1 font-inter text-[8px] font-black uppercase tracking-widest">The Verdict</div>
+              <p className="font-newsreader text-2xl text-slate-700 leading-relaxed italic">
                 "The Matrix didn't just change our numbers; it changed how we are perceived in the market. We went from being a vendor to being a premium partner."
               </p>
             </div>
           </main>
-          
-          <footer className="mt-auto pt-4 border-t border-white/20 flex justify-between items-center">
-            <span className="font-inter text-[8px] font-bold uppercase tracking-[0.5em] text-slate-500">THE CONVERSION MATRIX</span>
-            <span className="page-num font-inter text-[12px] font-black text-[#D4AF37]"></span>
-          </footer>
         </div>
 
-        {/* PAGE 4: THE CTA */}
-        <div className="a4-page flex flex-col bg-[#050505]">
-          {/* Top Half: Content */}
-          <div className="h-[60%] w-full p-[20mm] flex flex-col justify-center items-center text-center">
-            <h2 className="font-playfair text-5xl font-black text-white uppercase mb-6 text-gold-foil">Ready to Scale?</h2>
-            <p className="font-newsreader text-xl text-slate-300 mb-10 max-w-md italic">Apply the 7-Figure Matrix to your coaching infrastructure today.</p>
+        {/* PAGE 5: THE FINAL SEAL (HARDCODED TOP/BOTTOM SPLIT) */}
+        <div className="a4-page">
+          {/* Top Text Block (180mm) */}
+          <div className="absolute top-0 left-0 w-full h-[180mm] bg-[#FDFCFB] p-[25mm] flex flex-col justify-center items-center text-center">
+            <h2 className="font-playfair text-5xl font-black text-[#0A0A0A] uppercase mb-6 tracking-tighter">Ready to Scale?</h2>
+            <p className="font-newsreader text-2xl text-slate-600 mb-12 max-w-md italic">Apply the Inevitability Architecture to your coaching infrastructure today.</p>
             
-            <div className="w-full max-w-sm bg-[#0A0A0A] p-8 border border-[#D4AF37]/50 rounded-xl relative">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gold-foil text-black px-4 py-1 font-inter text-[10px] font-black uppercase tracking-widest rounded-sm">Next Step</div>
-              <h3 className="font-inter text-lg font-black uppercase mb-4 text-white mt-2">Book Strategy Call</h3>
-              <p className="font-inter text-xs text-slate-400 mb-6">Scan the secure code below to access the private calendar.</p>
-              <div className="w-32 h-32 bg-white mx-auto flex items-center justify-center p-2 rounded">
+            <div className="w-full max-w-sm bg-white p-10 relative border border-slate-200 shadow-xl">
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#0A0A0A] text-white px-6 py-1.5 font-inter text-[10px] font-black uppercase tracking-widest">Next Step</div>
+              <h3 className="font-inter text-lg font-black uppercase mb-4 text-[#0A0A0A]">Book Strategy Call</h3>
+              <p className="font-inter text-xs text-slate-500 mb-8">Scan the secure code below to access the private calendar.</p>
+              <div className="w-32 h-32 bg-slate-50 mx-auto flex items-center justify-center border border-slate-200 p-2">
                 <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://boluadeoye.com.ng/portfolio/conversion-matrix" alt="QR" className="w-full h-full" />
               </div>
             </div>
-
-            <div className="mt-12 flex flex-col items-center">
-              <div className="flex items-center gap-2 mb-2">
-                <CheckCircle2 size={16} className="text-[#D4AF37]" />
-                <p className="font-inter text-[10px] font-bold text-[#D4AF37] uppercase tracking-[0.5em]">Approved for Release</p>
-              </div>
-              <h2 className="font-playfair text-2xl font-black text-white uppercase tracking-widest">Boluwatife Adeoye</h2>
-            </div>
           </div>
 
-          {/* Bottom Half: Image */}
-          <div className="h-[40%] w-full border-t-4 border-[#D4AF37]">
-            <img src={img3} alt="Wealth" className="w-full h-full object-cover" />
+          {/* Bottom Image Block (117mm) */}
+          <div className="absolute top-[180mm] left-0 w-full h-[117mm] overflow-hidden">
+            <img src={img3} alt="Wealth" className="w-full h-full object-cover grayscale contrast-125" />
+            <div className="absolute inset-0 bg-[#0A0A0A]/80"></div>
+            
+            {/* Signature Overlay */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+              <div className="w-12 h-12 rounded-full border border-[#C5A059] flex items-center justify-center mb-4 bg-[#0A0A0A]">
+                <CheckCircle2 size={24} className="text-[#C5A059]" />
+              </div>
+              <p className="font-inter text-[10px] font-bold text-[#C5A059] uppercase tracking-[0.5em]">Approved for Release</p>
+              <h2 className="font-playfair text-3xl font-black text-white uppercase mt-3 tracking-widest">Bolu Adeoye</h2>
+            </div>
           </div>
         </div>
 
