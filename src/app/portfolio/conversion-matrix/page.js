@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Star, Quote, ArrowRight, Crown, TrendingUp, Target, Zap } from "lucide-react";
+import { Star, Quote, ArrowRight, Crown, TrendingUp, Target, Zap, CheckCircle2 } from "lucide-react";
 
 export default function ConversionMatrix() {
   const [isReady, setIsReady] = useState(false);
