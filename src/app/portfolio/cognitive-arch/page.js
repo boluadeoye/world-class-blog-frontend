@@ -2,11 +2,11 @@
 import { useState, useEffect } from "react";
 import { 
   Download, Eye, Grid, Type, ShieldCheck, 
-  QrCode, CheckCircle2, BrainCircuit 
+  QrCode, CheckCircle2, BrainCircuit, Activity 
 } from "lucide-react";
 
 export default function CognitiveArchitecture() {
-  const [isReady, setIsReady] = useState(false);
+  const[isReady, setIsReady] = useState(false);
   const [cryptoHash, setCryptoHash] = useState("");
 
   useEffect(() => {
