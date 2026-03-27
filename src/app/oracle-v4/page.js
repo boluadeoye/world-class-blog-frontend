@@ -1,311 +1,191 @@
 "use client";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Cpu, Send, Terminal, ChevronRight, 
-  Database, Box, Image as ImageIcon, Type,
-  Loader2, ArrowLeft, Printer, Hexagon
-} from "lucide-react";
+import { Cpu, Send, Terminal, Layers, Loader2, ArrowLeft, Printer, Hexagon, Shield, Zap } from "lucide-react";
 
 export default function RelationalGeometryEngine() {
-  const[view, setView] = useState("COMMAND");
+  const [view, setView] = useState("COMMAND");
   const [prompt, setPrompt] = useState("");
-  const[isGenerating, setIsGenerating] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const [graph, setGraph] = useState(null);
-  const [logs, setLogs] = useState([]);
   const [cryptoHash, setCryptoHash] = useState("");
-
-  const addLog = (msg) => setLogs(prev =>[...prev.slice(-4), `[SYS]: ${msg}`]);
 
   useEffect(() => {
     const generateHash = async () => {
-      const data = `ORACLE_V4_PROCEDURAL_${new Date().toISOString()}`;
+      const data = `ORACLE_V5_ELITE_${new Date().toISOString()}`;
       const encoder = new TextEncoder();
       const hashBuffer = await crypto.subtle.digest('SHA-256', encoder.encode(data));
       const hashArray = Array.from(new Uint8Array(hashBuffer));
-      setCryptoHash(hashArray.map(b => b.toString(16).padStart(2, '0')).join(''));
+      setCryptoHash(hashArray.map(b => b.toString(16).padStart(2, '0')).join('').substring(0, 32));
     };
     generateHash();
-  },[]);
+  }, []);
 
   const handleGenerate = () => {
     if (!prompt) return;
     setIsGenerating(true);
-    addLog("COMPILING RELATIONAL GRAPH...");
     
+    // SIMULATING THE "ART DIRECTOR" AI OUTPUT
     setTimeout(() => {
-      addLog("INJECTING PROCEDURAL ASSETS...");
       setGraph({
-        doc_identity: { title: "Procedural Architecture", protocol: "OBSIDIAN" },
-        elements:[
-          // PAGE 1: PROCEDURAL HUD & TYPOGRAPHY
-          {
-            id: "bg_base", type: "SHAPE", content: "",
-            style: { color: "#050505" },
-            geometry: { page: 1, margin_top_mm: 0, margin_left_mm: 0, width_pct: 100, height_mm: 297, z_index: 0 }
-          },
-          {
-            id: "procedural_hud", type: "PROCEDURAL", content: "RADAR_HUD",
-            style: { color: "#10B981" },
-            geometry: { page: 1, margin_top_mm: 20, margin_left_mm: 20, width_pct: 80, height_mm: 150, z_index: 1 }
-          },
-          {
-            id: "hero_title", type: "TEXT", content: "SYSTEM\nORACLE",
-            style: { font: "Playfair Display", size_pt: 85, color: "#FFFFFF", tracking: -2, leading: 0.85 },
-            geometry: { page: 1, margin_top_mm: 180, margin_left_mm: 20, width_pct: 80, height_mm: "auto", z_index: 10 }
-          },
-          {
-            id: "hero_sub", type: "TEXT", content: "Procedural Asset Generation Pipeline.",
-            style: { font: "JetBrains Mono", size_pt: 10, color: "#10B981", tracking: 4, leading: 1.5, uppercase: true },
-            geometry: { page: 1, margin_top_mm: 220, margin_left_mm: 20, width_pct: 80, height_mm: "auto", z_index: 10 }
-          },
+        doc_identity: { title: "Sovereign Spec", protocol: "MONOLITH" },
+        elements: [
+          // PAGE 1: THE BRUTALIST COVER
+          { id: "bg_1", type: "SHAPE", style: { color: "#050505" }, geometry: { page: 1, y: 0, x: 0, w: 100, h: 297, z: 0 } },
+          { id: "grid_1", type: "PROCEDURAL", content: "TECH_GRID", style: { color: "#10B981" }, geometry: { page: 1, y: 0, x: 0, w: 100, h: 297, z: 1 } },
+          { id: "hero_img", type: "IMAGE", content: "https://res.cloudinary.com/dwbjb3svx/image/upload/v1774358327/blog_assets/dp93jwtbmt04u0kdr3hb.png", style: { filter: "contrast(150%) grayscale(1)" }, geometry: { page: 1, y: 0, x: 40, w: 60, h: 297, z: 2 } },
+          { id: "big_title", type: "TEXT", content: "ORACLE", style: { font: "Inter", size: 180, color: "#FFFFFF", weight: 900, tracking: -15, leading: 0.8 }, geometry: { page: 1, y: 40, x: -10, w: 100, h: "auto", z: 10, blend: "difference" } },
+          { id: "sub_title", type: "TEXT", content: "V5 // ARCHITECTURAL MASTER SPECIFICATION", style: { font: "JetBrains Mono", size: 10, color: "#10B981", tracking: 8, uppercase: true }, geometry: { page: 1, y: 180, x: 15, w: 80, h: "auto", z: 10 } },
+          { id: "line_1", type: "SHAPE", style: { color: "#10B981" }, geometry: { page: 1, y: 195, x: 15, w: 20, h: 1, z: 10 } },
           
-          // PAGE 2: PROCEDURAL 3D GOLD CROWN & EDITORIAL
-          {
-            id: "bg_base_2", type: "SHAPE", content: "",
-            style: { color: "#FDFCFB" },
-            geometry: { page: 2, margin_top_mm: 0, margin_left_mm: 0, width_pct: 100, height_mm: 297, z_index: 0 }
-          },
-          {
-            id: "procedural_crown", type: "PROCEDURAL", content: "GOLDEN_CROWN",
-            style: { color: "url(#goldFoil)" },
-            geometry: { page: 2, margin_top_mm: 40, margin_left_mm: 65, width_pct: 40, height_mm: 80, z_index: 5 }
-          },
-          {
-            id: "page2_title", type: "TEXT", content: "The Authority",
-            style: { font: "Playfair Display", size_pt: 45, color: "#0A0A0A", tracking: 0, leading: 1 },
-            geometry: { page: 2, margin_top_mm: 140, margin_left_mm: 20, width_pct: 80, height_mm: "auto", z_index: 10 }
-          },
-          {
-            id: "page2_text", type: "TEXT", content: "By generating assets procedurally via SVG mathematics, we eliminate external dependencies. The crown above is not an image; it is a mathematical construct rendered at the exact moment of compilation, ensuring infinite resolution and zero latency.",
-            style: { font: "Newsreader", size_pt: 16, color: "#475569", tracking: 0, leading: 1.8, italic: true },
-            geometry: { page: 2, margin_top_mm: 160, margin_left_mm: 20, width_pct: 80, height_mm: "auto", z_index: 10 }
-          },
-          {
-            id: "hash_display", type: "TEXT", content: `HASH: ${cryptoHash}`,
-            style: { font: "JetBrains Mono", size_pt: 6, color: "#94A3B8", tracking: 2, leading: 1 },
-            geometry: { page: 2, margin_top_mm: 270, margin_left_mm: 20, width_pct: 80, height_mm: "auto", z_index: 10 }
-          }
+          // PAGE 2: THE DATA WATERFALL
+          { id: "bg_2", type: "SHAPE", style: { color: "#FDFCFB" }, geometry: { page: 2, y: 0, x: 0, w: 100, h: 297, z: 0 } },
+          { id: "grid_2", type: "PROCEDURAL", content: "BLUEPRINT_LINES", style: { color: "#E2E8F0" }, geometry: { page: 2, y: 0, x: 0, w: 100, h: 297, z: 1 } },
+          { id: "p2_header", type: "TEXT", content: "01 // THE AUDIT", style: { font: "Playfair Display", size: 45, color: "#0A0A0A", weight: 900, tracking: -2 }, geometry: { page: 2, y: 20, x: 15, w: 80, h: "auto", z: 5 } },
+          { id: "p2_metric_label", type: "TEXT", content: "COMPLEXITY_RATING", style: { font: "JetBrains Mono", size: 8, color: "#64748B", tracking: 4, uppercase: true }, geometry: { page: 2, y: 80, x: 15, w: 40, h: "auto", z: 5 } },
+          { id: "p2_metric_value", type: "TEXT", content: "9.1/10", style: { font: "Inter", size: 80, color: "#0A0A0A", weight: 900, tracking: -5 }, geometry: { page: 2, y: 85, x: 12, w: 80, h: "auto", z: 5 } },
+          { id: "p2_desc", type: "TEXT", content: "The system operates on a deterministic logic gate, ensuring that every data mutation is cryptographically bound to the physical ephemeris of the capture event.", style: { font: "Newsreader", size: 18, color: "#1E293B", italic: true, leading: 1.6 }, geometry: { page: 2, y: 180, x: 15, w: 70, h: "auto", z: 5 } },
+          { id: "seal_box", type: "SHAPE", style: { color: "#0A0A0A" }, geometry: { page: 2, y: 240, x: 15, w: 70, h: 40, z: 2 } },
+          { id: "seal_text", type: "TEXT", content: "APPROVED", style: { font: "Inter", size: 30, color: "#FFFFFF", weight: 900, tracking: 10 }, geometry: { page: 2, y: 252, x: 20, w: 60, h: "auto", z: 10 } }
         ]
       });
-      setView("NODES");
+      setView("CANVAS");
       setIsGenerating(false);
     }, 1500);
   };
 
-  const handlePrint = () => {
-    document.title = `${graph?.doc_identity?.title.replace(/\s+/g, '_')}_PROCEDURAL`;
-    window.print();
-  };
-
-  const updateGeometry = (id, field, value) => {
-    setGraph(prev => ({
-      ...prev,
-      elements: prev.elements.map(el => el.id === id ? { ...el, geometry: { ...el.geometry, [field]: value } } : el)
-    }));
-  };
-
-  // PROCEDURAL RENDERER COMPONENT
-  const ProceduralAsset = ({ type, color }) => {
-    if (type === "RADAR_HUD") {
-      return (
-        <svg width="100%" height="100%" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="100" cy="100" r="90" fill="none" stroke={color} strokeWidth="0.5" opacity="0.3" />
-          <circle cx="100" cy="100" r="60" fill="none" stroke={color} strokeWidth="0.5" opacity="0.5" strokeDasharray="4 4" />
-          <circle cx="100" cy="100" r="30" fill="none" stroke={color} strokeWidth="1" opacity="0.8" />
-          <line x1="100" y1="0" x2="100" y2="200" stroke={color} strokeWidth="0.5" opacity="0.5" />
-          <line x1="0" y1="100" x2="200" y2="100" stroke={color} strokeWidth="0.5" opacity="0.5" />
-          <path d="M100,100 L160,40" stroke={color} strokeWidth="1" opacity="0.8" />
-          <circle cx="160" cy="40" r="3" fill={color} />
-          <text x="165" y="38" fill={color} fontSize="6" fontFamily="monospace" opacity="0.8">OBJ_DETECTED</text>
-          <text x="10" y="15" fill={color} fontSize="6" fontFamily="monospace" opacity="0.5">SYS.OP: NOMINAL</text>
-          <text x="10" y="25" fill={color} fontSize="6" fontFamily="monospace" opacity="0.5">LAT: 6.5244</text>
-        </svg>
-      );
-    }
-    if (type === "GOLDEN_CROWN") {
-      return (
-        <svg width="100%" height="100%" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style={{ filter: "drop-shadow(0px 15px 20px rgba(212,175,55,0.2))" }}>
-          <path d="M10,80 L20,30 L40,60 L50,15 L60,60 L80,30 L90,80 Z" fill={color} stroke="#8B6508" strokeWidth="0.5" />
-          <polygon points="10,80 90,80 85,90 15,90" fill="#8B6508" />
-          <polygon points="40,60 50,15 60,60 50,65" fill="#FCF6BA" opacity="0.4" />
-        </svg>
-      );
-    }
+  const Procedural = ({ type, color }) => {
+    if (type === "TECH_GRID") return (
+      <svg width="100%" height="100%" className="opacity-20">
+        <defs>
+          <pattern id="smallGrid" width="10" height="10" patternUnits="userSpaceOnUse">
+            <path d="M 10 0 L 0 0 0 10" fill="none" stroke={color} strokeWidth="0.1"/>
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#smallGrid)" />
+      </svg>
+    );
+    if (type === "BLUEPRINT_LINES") return (
+      <svg width="100%" height="100%" className="opacity-50">
+        <line x1="15%" y1="0" x2="15%" y2="100%" stroke={color} strokeWidth="0.5" />
+        <line x1="85%" y1="0" x2="85%" y2="100%" stroke={color} strokeWidth="0.5" />
+        <path d="M 0 20 L 100 20" stroke={color} strokeWidth="0.5" strokeDasharray="2 2" />
+      </svg>
+    );
     return null;
   };
 
   return (
-    <div className="min-h-[100dvh] bg-[#050505] text-slate-300 font-sans selection:bg-[#AF9164]/30 overflow-x-hidden">
-      
-      <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Inter:wght@300;400;600;800;900&family=JetBrains+Mono:wght@400;700;800&family=Newsreader:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" />
-
-      {/* GLOBAL SVG DEFINITIONS (Gradients & Filters) */}
-      <svg width="0" height="0" className="absolute">
-        <defs>
-          <linearGradient id="goldFoil" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#BF953F" />
-            <stop offset="25%" stopColor="#FCF6BA" />
-            <stop offset="50%" stopColor="#B38728" />
-            <stop offset="75%" stopColor="#FBF5B7" />
-            <stop offset="100%" stopColor="#AA771C" />
-          </linearGradient>
-        </defs>
-      </svg>
+    <div className="min-h-[100dvh] bg-[#050505] text-slate-400 font-sans overflow-x-hidden">
+      <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,900;1,900&family=Inter:wght@400;900&family=JetBrains+Mono:wght@400;700&family=Newsreader:ital,wght@1,400;1,500&display=swap" rel="stylesheet" />
 
       <style jsx global>{`
         @media print {
           @page { size: A4; margin: 0; }
-          body { background: #050505 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+          body { background: white !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
           body * { visibility: hidden; }
           #canvas-engine, #canvas-engine * { visibility: visible; }
           #canvas-engine { position: absolute; left: 0; top: 0; width: 210mm; display: block !important; }
-          .a4-canvas { height: 297mm; width: 210mm; page-break-after: always; position: relative; box-sizing: border-box; overflow: hidden; }
+          .a4-page { height: 297mm; width: 210mm; page-break-after: always; position: relative; overflow: hidden; background: white; }
           .no-print { display: none !important; }
         }
       `}</style>
 
-      {/* === STATE: COMMAND CENTER === */}
-      {view === "COMMAND" && (
-        <div className="max-w-lg mx-auto px-6 py-12 flex flex-col min-h-[100dvh]">
-          <header className="flex items-center gap-4 mb-16 border-b border-white/10 pb-6">
-            <Cpu size={24} className="text-[#AF9164]" />
-            <div>
-              <h1 className="text-lg font-black uppercase tracking-[0.3em] text-white">RGE Compiler</h1>
-              <p className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">Procedural Asset Pipeline v4.1</p>
-            </div>
-          </header>
+      {/* COMMAND CENTER */}
+      <div className={`no-print max-w-lg mx-auto px-8 py-16 flex flex-col min-h-[100dvh] ${view === 'CANVAS' ? 'hidden' : 'flex'}`}>
+        <header className="flex items-center gap-4 mb-20">
+          <div className="w-12 h-12 bg-emerald-500/10 border border-emerald-500/40 flex items-center justify-center rounded-full">
+            <Cpu size={24} className="text-emerald-400" />
+          </div>
+          <div>
+            <h1 className="text-white font-black uppercase tracking-[0.4em] text-sm">Titanium Oracle</h1>
+            <p className="text-[9px] font-mono text-emerald-600 uppercase tracking-widest">Relational Geometry Engine v5.0</p>
+          </div>
+        </header>
 
-          <main className="grow flex flex-col justify-center">
-            <div className="bg-[#0A0A0A] border border-white/5 p-6 shadow-2xl relative">
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#AF9164] to-transparent"></div>
-              <label className="font-mono text-[10px] text-[#AF9164] uppercase tracking-widest mb-4 block">System Intent</label>
-              <textarea 
-                value={prompt} onChange={(e) => setPrompt(e.target.value)}
-                placeholder="Define architectural parameters..."
-                className="w-full bg-transparent border-b border-white/10 py-2 text-sm font-mono focus:border-[#AF9164] outline-none resize-none h-32 text-white"
-                disabled={isGenerating}
-              />
-              <div className="mt-6 flex justify-end">
-                <button onClick={handleGenerate} disabled={isGenerating} className="flex items-center gap-2 bg-white text-black px-6 py-3 font-black text-xs uppercase tracking-widest hover:bg-[#AF9164] transition-colors disabled:opacity-50">
-                  {isGenerating ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
-                  Execute
-                </button>
-              </div>
-            </div>
-            <div className="mt-12 font-mono text-[9px] text-slate-500 space-y-2">
-              {logs.map((log, i) => <p key={i}>{log}</p>)}
-            </div>
-          </main>
+        <div className="bg-[#0A0A0A] border border-white/5 p-8 shadow-2xl rounded-2xl">
+          <textarea 
+            value={prompt} onChange={(e) => setPrompt(e.target.value)}
+            placeholder="Enter System Intent..."
+            className="w-full bg-transparent border-b border-white/10 py-4 text-xl font-medium focus:border-emerald-500 outline-none resize-none h-40 text-white"
+          />
+          <button onClick={handleGenerate} disabled={isGenerating} className="w-full mt-8 bg-white text-black py-4 font-black uppercase tracking-widest hover:bg-emerald-500 transition-all flex items-center justify-center gap-3">
+            {isGenerating ? <Loader2 className="animate-spin" /> : <Zap size={18} />}
+            Compile Sovereign Spec
+          </button>
         </div>
-      )}
+      </div>
 
-      {/* === STATE: NODE INSPECTOR === */}
-      {view === "NODES" && graph && (
-        <div className="max-w-lg mx-auto px-6 py-8 flex flex-col min-h-[100dvh]">
-          <header className="flex items-center justify-between mb-8 border-b border-white/10 pb-4">
-            <div className="flex items-center gap-3">
-              <Database size={16} className="text-[#AF9164]" />
-              <h1 className="text-xs font-black uppercase tracking-[0.2em] text-white">Node Inspector</h1>
-            </div>
-            <button onClick={() => setView("CANVAS")} className="flex items-center gap-2 bg-[#AF9164] text-black px-4 py-2 font-black text-[10px] uppercase tracking-widest">
-              Render Canvas <ChevronRight size={12} />
-            </button>
-          </header>
-
-          <main className="grow overflow-y-auto space-y-4 pb-24">
-            {graph.elements.map((el) => (
-              <div key={el.id} className="bg-[#0A0A0A] border border-white/5 p-4 relative">
-                <div className="flex items-center gap-3 mb-4 border-b border-white/5 pb-2">
-                  {el.type === 'TEXT' && <Type size={12} className="text-slate-400" />}
-                  {el.type === 'PROCEDURAL' && <Hexagon size={12} className="text-[#AF9164]" />}
-                  {el.type === 'SHAPE' && <Box size={12} className="text-slate-400" />}
-                  <span className="font-mono text-[10px] font-bold text-white">{el.id}</span>
-                  <span className="font-mono text-[8px] text-[#AF9164] ml-auto border border-[#AF9164]/30 px-1">PG:{el.geometry.page}</span>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="font-mono text-[8px] text-slate-500 uppercase block mb-1">Y-Axis (mm)</label>
-                    <input type="number" value={el.geometry.margin_top_mm} onChange={(e) => updateGeometry(el.id, 'margin_top_mm', Number(e.target.value))} className="w-full bg-black border border-white/10 p-2 text-xs font-mono text-white outline-none focus:border-[#AF9164]" />
-                  </div>
-                  <div>
-                    <label className="font-mono text-[8px] text-slate-500 uppercase block mb-1">X-Axis (mm)</label>
-                    <input type="number" value={el.geometry.margin_left_mm} onChange={(e) => updateGeometry(el.id, 'margin_left_mm', Number(e.target.value))} className="w-full bg-black border border-white/10 p-2 text-xs font-mono text-white outline-none focus:border-[#AF9164]" />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </main>
-        </div>
-      )}
-
-      {/* === STATE: CANVAS PREVIEW === */}
+      {/* CANVAS PREVIEW */}
       {view === "CANVAS" && (
-        <div className="no-print fixed bottom-6 left-1/2 -translate-x-1/2 flex gap-4 z-50">
-          <button onClick={() => setView("NODES")} className="flex items-center gap-2 bg-[#0A0A0A] text-white px-6 py-3 font-bold text-[10px] uppercase tracking-widest border border-white/20 shadow-2xl">
-            <ArrowLeft size={14} /> Inspect Nodes
+        <div className="no-print fixed bottom-8 left-1/2 -translate-x-1/2 flex gap-4 z-50">
+          <button onClick={() => setView("COMMAND")} className="bg-black/80 backdrop-blur-md text-white px-8 py-4 rounded-full font-bold text-xs uppercase tracking-widest border border-white/10 shadow-2xl flex items-center gap-2">
+            <ArrowLeft size={16} /> Back
           </button>
-          <button onClick={handlePrint} className="flex items-center gap-2 bg-[#AF9164] text-black px-6 py-3 font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(175,145,100,0.4)]">
-            <Printer size={14} /> Execute Print
+          <button onClick={() => window.print()} className="bg-emerald-500 text-black px-8 py-4 rounded-full font-black text-xs uppercase tracking-widest shadow-[0_0_30px_rgba(16,185,129,0.5)] flex items-center gap-2">
+            <Printer size={16} /> Print PDF
           </button>
         </div>
       )}
 
-      {/* === VIEW 3: THE MILLIMETER SOLVER === */}
-      <div id="canvas-engine" className={`${view === 'CANVAS' ? 'block' : 'hidden'} print:block bg-[#050505]`}>
-        {[1, 2].map((pageNum) => (
-          <div key={pageNum} className="a4-canvas">
-            {graph?.elements.filter(el => el.geometry.page === pageNum).map((el) => {
-              
-              const styleObj = {
+      {/* THE ENGINE */}
+      <div id="canvas-engine" className={`${view === 'CANVAS' ? 'block' : 'hidden'} print:block`}>
+        {[1, 2].map(pageNum => (
+          <div key={pageNum} className="a4-page">
+            {graph?.elements.filter(el => el.geometry.page === pageNum).map(el => {
+              const style = {
                 position: "absolute",
-                top: `${el.geometry.margin_top_mm}mm`,
-                left: `${el.geometry.margin_left_mm}mm`,
-                width: el.geometry.width_pct ? `${el.geometry.width_pct}%` : "auto",
-                height: el.geometry.height_mm ? (typeof el.geometry.height_mm === 'number' ? `${el.geometry.height_mm}mm` : el.geometry.height_mm) : "auto",
-                zIndex: el.geometry.z_index,
-                mixBlendMode: el.geometry.overlap_mode || "normal",
+                top: `${el.geometry.y}mm`,
+                left: `${el.geometry.x}%`,
+                width: `${el.geometry.w}%`,
+                height: el.geometry.h === "auto" ? "auto" : `${el.geometry.h}mm`,
+                zIndex: el.geometry.z,
+                mixBlendMode: el.geometry.blend || "normal"
               };
 
               if (el.type === "TEXT") {
-                styleObj.fontFamily = el.style.font === "Playfair Display" ? "'Playfair Display', serif" : el.style.font === "Newsreader" ? "'Newsreader', serif" : el.style.font === "JetBrains Mono" ? "'JetBrains Mono', monospace" : "'Inter', sans-serif";
-                styleObj.fontSize = `${el.style.size_pt}pt`;
-                styleObj.color = el.style.color;
-                styleObj.letterSpacing = `${el.style.tracking}px`;
-                styleObj.lineHeight = el.style.leading;
-                styleObj.textTransform = el.style.uppercase ? "uppercase" : "none";
-                styleObj.fontWeight = el.style.weight || 400;
-                styleObj.fontStyle = el.style.italic ? "italic" : "normal";
-                styleObj.whiteSpace = "pre-wrap";
-              }
-
-              if (el.type === "SHAPE") {
-                styleObj.backgroundColor = el.style.color;
-              }
-
-              if (el.type === "PROCEDURAL") {
                 return (
-                  <div key={el.id} style={styleObj}>
-                    <ProceduralAsset type={el.content} color={el.style.color} />
+                  <div key={el.id} style={{
+                    ...style,
+                    fontFamily: el.style.font,
+                    fontSize: `${el.style.size}pt`,
+                    color: el.style.color,
+                    fontWeight: el.style.weight || 400,
+                    letterSpacing: `${el.style.tracking}px`,
+                    lineHeight: el.style.leading || 1.2,
+                    textTransform: el.style.uppercase ? "uppercase" : "none",
+                    fontStyle: el.style.italic ? "italic" : "normal",
+                    whiteSpace: "pre-wrap"
+                  }}>{el.content}</div>
+                );
+              }
+
+              if (el.type === "IMAGE") {
+                return (
+                  <div key={el.id} style={style}>
+                    <img src={el.content} className="w-full h-full object-cover" style={{ filter: el.style.filter }} />
                   </div>
                 );
               }
 
-              if (el.type === "TEXT") {
-                return <div key={el.id} style={styleObj}>{el.content}</div>;
+              if (el.type === "SHAPE") {
+                return <div key={el.id} style={{ ...style, backgroundColor: el.style.color }}></div>;
               }
 
-              if (el.type === "SHAPE") {
-                return <div key={el.id} style={styleObj}></div>;
+              if (el.type === "PROCEDURAL") {
+                return <div key={el.id} style={style}><Procedural type={el.content} color={el.style.color} /></div>;
               }
 
               return null;
             })}
+            
+            {/* FOOTER HASH */}
+            <div className="absolute bottom-[10mm] right-[15mm] font-mono text-[6px] text-slate-400 uppercase tracking-widest">
+              VERIFIED_HASH: {cryptoHash} // PAGE 0{pageNum}
+            </div>
           </div>
         ))}
       </div>
-
     </div>
   );
 }
