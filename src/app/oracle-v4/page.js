@@ -3,13 +3,14 @@ import { useState, useEffect } from "react";
 import { 
   Cpu, Send, Terminal, Layers, 
   Printer, ArrowLeft, Settings2, 
-  Database, Box, Image as ImageIcon, Type
+  Database, Box, Image as ImageIcon, Type,
+  Loader2, ChevronRight
 } from "lucide-react";
 
 export default function RelationalGeometryEngine() {
   const [view, setView] = useState("COMMAND"); // COMMAND, NODES, CANVAS
   const [prompt, setPrompt] = useState("");
-  const[isGenerating, setIsGenerating] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const [graph, setGraph] = useState(null);
   const [logs, setLogs] = useState([]);
 
@@ -35,8 +36,7 @@ export default function RelationalGeometryEngine() {
         throw new Error("API_FAULT");
       }
     } catch (err) {
-      addLog("API_FAULT. INJECTING DETERMINISTIC FALLBACK GRAPH...");
-      // FALLBACK GRAPH: Demonstrates overlapping, z-index, and absolute millimeter positioning
+      addLog("API_FAULT. INJECTING DETERMINISTIC FALLBACK...");
       setTimeout(() => {
         setGraph({
           doc_identity: { title: "The Matrix", protocol: "ALABASTER" },
@@ -95,6 +95,16 @@ export default function RelationalGeometryEngine() {
     setGraph(prev => ({
       ...prev,
       elements: prev.elements.map(el => el.id === id ? { ...el, [field]: value } : el)
+    }));
+  };
+
+  const updateGeometry = (id, field, value) => {
+    setGraph(prev => ({
+      ...prev,
+      elements: prev.elements.map(el => el.id === id ? { 
+        ...el, 
+        geometry: { ...el.geometry, [field]: value } 
+      } : el)
     }));
   };
 
@@ -187,17 +197,11 @@ export default function RelationalGeometryEngine() {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="font-mono text-[8px] text-slate-500 uppercase block mb-1">Y-Axis (mm)</label>
-                      <input type="number" value={el.geometry.margin_top_mm} onChange={(e) => {
-                        const newGeo = { ...el.geometry, margin_top_mm: Number(e.target.value) };
-                        updateElement(el.id, 'geometry', newGeo);
-                      }} className="w-full bg-black border border-white/10 p-2 text-xs font-mono text-white outline-none focus:border-[#AF9164]" />
+                      <input type="number" value={el.geometry.margin_top_mm} onChange={(e) => updateGeometry(el.id, 'margin_top_mm', Number(e.target.value))} className="w-full bg-black border border-white/10 p-2 text-xs font-mono text-white outline-none focus:border-[#AF9164]" />
                     </div>
                     <div>
                       <label className="font-mono text-[8px] text-slate-500 uppercase block mb-1">X-Axis (mm)</label>
-                      <input type="number" value={el.geometry.margin_left_mm} onChange={(e) => {
-                        const newGeo = { ...el.geometry, margin_left_mm: Number(e.target.value) };
-                        updateElement(el.id, 'geometry', newGeo);
-                      }} className="w-full bg-black border border-white/10 p-2 text-xs font-mono text-white outline-none focus:border-[#AF9164]" />
+                      <input type="number" value={el.geometry.margin_left_mm} onChange={(e) => updateGeometry(el.id, 'margin_left_mm', Number(e.target.value))} className="w-full bg-black border border-white/10 p-2 text-xs font-mono text-white outline-none focus:border-[#AF9164]" />
                     </div>
                   </div>
                 </div>
@@ -207,7 +211,7 @@ export default function RelationalGeometryEngine() {
         </div>
       )}
 
-      {/* === STATE: CANVAS PREVIEW (Screen Controls) === */}
+      {/* === STATE: CANVAS PREVIEW === */}
       {view === "CANVAS" && (
         <div className="no-print fixed bottom-6 left-1/2 -translate-x-1/2 flex gap-4 z-50">
           <button onClick={() => setView("NODES")} className="flex items-center gap-2 bg-[#0A0A0A] text-white px-6 py-3 font-bold text-[10px] uppercase tracking-widest border border-white/20 shadow-2xl">
@@ -219,23 +223,20 @@ export default function RelationalGeometryEngine() {
         </div>
       )}
 
-      {/* === VIEW 3: THE MILLIMETER SOLVER (Print & Canvas) === */}
+      {/* === VIEW 3: THE MILLIMETER SOLVER === */}
       <div id="canvas-engine" className={`${view === 'CANVAS' ? 'block' : 'hidden'} print:block bg-[#FDFCFB]`}>
-        <div className="a4-page">
+        <div className="a4-canvas">
           {graph?.elements.map((el) => {
-            
-            // MATHEMATICAL SOLVER: Translates JSON Geometry to Absolute CSS
             const styleObj = {
               position: "absolute",
               top: `${el.geometry.margin_top_mm}mm`,
               left: `${el.geometry.margin_left_mm}mm`,
               width: el.geometry.width_pct ? `${el.geometry.width_pct}%` : "auto",
-              height: el.geometry.height_mm ? `${el.geometry.height_mm}mm` : "auto",
+              height: el.geometry.height_mm ? (typeof el.geometry.height_mm === 'number' ? `${el.geometry.height_mm}mm` : el.geometry.height_mm) : "auto",
               zIndex: el.geometry.z_index,
               mixBlendMode: el.geometry.overlap_mode || "normal",
             };
 
-            // TYPOGRAPHY SOLVER
             if (el.type === "TEXT") {
               styleObj.fontFamily = el.style.font === "Playfair Display" ? "'Playfair Display', serif" : el.style.font === "Newsreader" ? "'Newsreader', serif" : el.style.font === "JetBrains Mono" ? "'JetBrains Mono', monospace" : "'Inter', sans-serif";
               styleObj.fontSize = `${el.style.size_pt}pt`;
@@ -247,12 +248,10 @@ export default function RelationalGeometryEngine() {
               styleObj.whiteSpace = "pre-wrap";
             }
 
-            // SHAPE SOLVER
             if (el.type === "SHAPE") {
               styleObj.backgroundColor = el.style.color;
             }
 
-            // RENDERER
             if (el.type === "IMAGE") {
               return (
                 <div key={el.id} style={styleObj} className="overflow-hidden">
