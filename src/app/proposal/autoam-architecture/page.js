@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { 
   Download, Triangle, Database, BrainCircuit, 
   Smartphone, Globe, Zap, Server, Network, 
-  ArrowRight, ArrowDown, CheckCircle2
+  ArrowRight, ArrowDown, CheckCircle2, FileCode2, ShieldCheck
 } from "lucide-react";
 
 export default function AutoamArchitecture() {
@@ -350,7 +350,7 @@ ORDER BY dist ASC;`}
           </main>
         </div>
 
-        {/* PAGE 7: CODE MOCKUPS (PLACEHOLDER) */}
+        {/* PAGE 7: CODE MOCKUPS */}
         <div className="a4-page p-[30mm]">
           <AFrameWatermark />
           <Header title="Autoam // System Logic Audit" />
@@ -374,20 +374,23 @@ ORDER BY dist ASC;`}
                 <div className="ml-4 bg-slate-700 px-4 py-1 rounded text-[8px] font-mono text-slate-400">src/app/api/match/route.ts</div>
               </div>
               {/* Code Area */}
-              <div className="p-6 font-mono text-[8px] text-slate-300 leading-relaxed">
-                <span className="text-purple-400">import</span> {`{ createClient }`} <span className="text-purple-400">from</span> <span className="text-green-400">'@supabase/supabase-js'</span>;<br/><br/>
-                <span className="text-purple-400">export async function</span> <span className="text-blue-400">POST</span>(req) {`{`}<br/>
-                &nbsp;&nbsp;<span className="text-slate-500">// 1. Parse incoming fault signal</span><br/>
-                &nbsp;&nbsp;<span className="text-purple-400">const</span> body = <span className="text-purple-400">await</span> req.json();<br/>
-                &nbsp;&nbsp;<span className="text-purple-400">const</span> {`{ driver_id, lat, lng }`} = body;<br/><br/>
-                &nbsp;&nbsp;<span className="text-slate-500">// 2. Execute PostGIS spatial query</span><br/>
-                &nbsp;&nbsp;<span className="text-purple-400">const</span> {`{ data: mechanics }`} = <span className="text-purple-400">await</span> supabase.rpc(<span className="text-green-400">'find_nearby_mechanics'</span>, {`{`}<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;driver_lat: lat,<br/>
-                &nbsp;&nbsp;&nbsp;&nbsp;driver_lng: lng<br/>
-                &nbsp;&nbsp;{`}`);`}<br/><br/>
-                &nbsp;&nbsp;<span className="text-purple-400">return</span> Response.json({`{ mechanics }`});<br/>
-                {`}`}
-              </div>
+              <pre className="p-6 font-mono text-[8px] text-slate-300 leading-relaxed overflow-x-auto">
+{`import { createClient } from '@supabase/supabase-js';
+
+export async function POST(req) {
+  // 1. Parse incoming fault signal
+  const body = await req.json();
+  const { driver_id, lat, lng } = body;
+
+  // 2. Execute PostGIS spatial query
+  const { data: mechanics } = await supabase.rpc('find_nearby_mechanics', {
+    driver_lat: lat,
+    driver_lng: lng
+  });
+
+  return Response.json({ mechanics });
+}`}
+              </pre>
             </div>
           </main>
         </div>
