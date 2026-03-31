@@ -13,23 +13,16 @@ export function useSovereign() {
         body: JSON.stringify({ query: userPrompt })
       });
       const { vectors } = await searchRes.json();
-      const context = vectors.map((v) => v.content).join('\n\n');
+      const context = vectors ? vectors.map((v) => v.content).join('\n\n') : '';
       
-      const response = await fetch('https://text.pollinations.ai/', {
+      const response = await fetch('/api/sovereign', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: [
-            { role: 'system', content: 'You are Sovereign Studio. Logic only. No apologies. Output multi-file cat payloads.' },
-            { role: 'user', content: `CONTEXT:\n${context}\n\nTASK:\n${userPrompt}` }
-          ],
-          model: 'llama',
-          seed: 42
-        })
+        body: JSON.stringify({ prompt: userPrompt, context })
       });
       
-      const result = await response.text();
-      setOutput(result);
+      const data = await response.json();
+      setOutput(data.result || data.error);
     } catch (error) {
       setOutput("EXECUTION_ERROR: LOGIC_COLLAPSE");
     } finally {
