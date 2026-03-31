@@ -5,7 +5,6 @@ export interface Message {
   role: 'user' | 'assistant' | 'system' | 'critic';
   content: string;
   timestamp: number;
-  model?: string;
 }
 
 export interface TruthVector {
