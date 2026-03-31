@@ -15,7 +15,6 @@ export function useSovereign() {
       const { vectors } = await searchRes.json();
       const context = vectors.map((v: any) => v.content).join('\n\n');
       
-      // Logic for Pollinations (Uncensored)
       const response = await fetch('https://text.pollinations.ai/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
