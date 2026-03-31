@@ -1,41 +1,12 @@
-import Dexie, { type Table } from 'dexie';
+import { neon } from '@neondatabase/serverless';
 
-export interface Message {
-  id?: number;
-  role: 'user' | 'assistant' | 'system' | 'critic';
-  content: string;
-  timestamp: number;
-  model?: string;
+// Ensure the environment variable exists
+if (!process.env.DATABASE_URL) {
+  console.warn("DATABASE_URL is missing. Check your environment variables.");
 }
 
-export interface TruthVector {
-  id?: number;
-  query: string;
-  sourceUrl: string;
-  markdown: string;
-  timestamp: number;
-}
+// Initialize the Neon serverless SQL connection
+const sql = neon(process.env.DATABASE_URL || '');
 
-export interface ProjectState {
-  id?: number;
-  name: string;
-  fileTree: Record<string, string>;
-  updatedAt: number;
-}
-
-export class SovereignDatabase extends Dexie {
-  messages!: Table<Message>;
-  truthVectors!: Table<TruthVector>;
-  projects!: Table<ProjectState>;
-
-  constructor() {
-    super('SovereignStudioV6');
-    this.version(1).stores({
-      messages: '++id, role, timestamp',
-      truthVectors: '++id, query, timestamp',
-      projects: '++id, name, updatedAt'
-    });
-  }
-}
-
-export const db = new SovereignDatabase();
+// Export as default to satisfy all 42 API routes (imported as 'sql' or 'pool')
+export default sql;
