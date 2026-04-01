@@ -7,7 +7,9 @@ export function useSovereign() {
 
   const execute = async (userPrompt) => {
     setLoading(true);
+    setOutput('INGESTING WEB DATA...');
     try {
+      // Step 1: Ghost Claw Search (Server-side is fast, stays here)
       const searchRes = await fetch('/api/search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -16,23 +18,27 @@ export function useSovereign() {
       const searchData = await searchRes.json();
       const context = searchData.vectors ? searchData.vectors.map((v) => v.content).join('\n\n') : '';
       
-      const response = await fetch('/api/sovereign', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: userPrompt, context })
-      });
+      setOutput('SYNTHESIZING ARCHITECTURE (BYPASSING VERCEL TIMEOUT)...');
       
-      const data = await response.json();
+      // Step 2: Direct Client-Side Inference (No 10s limit)
+      const systemPrompt = "You are Sovereign Studio. Logic only. No apologies. Output multi-file cat payloads.";
+      const fullPrompt = `CONTEXT:\n${context}\n\nTASK:\n${userPrompt}`;
+      const seed = Math.floor(Math.random() * 1000000);
       
-      if (data.error) {
-        setOutput(`ERROR: ${data.error}\nDETAILS: ${data.details || data.last_provider_error}`);
-        setActiveNode('FAILED');
-      } else {
-        setOutput(data.result);
-        setActiveNode(data.active_node);
-      }
+      // Using the GET protocol directly from the browser
+      const pollUrl = `https://text.pollinations.ai/${encodeURIComponent(fullPrompt)}?system=${encodeURIComponent(systemPrompt)}&model=llama&seed=${seed}`;
+      
+      const response = await fetch(pollUrl);
+
+      if (!response.ok) throw new Error(`BRAIN_UNREACHABLE: ${response.status}`);
+
+      const result = await response.text();
+      
+      setOutput(result);
+      setActiveNode('POLLINATIONS_LLAMA_3.1_DIRECT');
     } catch (error) {
-      setOutput("EXECUTION_ERROR: LOGIC_COLLAPSE");
+      setOutput(`EXECUTION_ERROR: ${error.message}`);
+      setActiveNode('FAILED');
     } finally {
       setLoading(false);
     }
