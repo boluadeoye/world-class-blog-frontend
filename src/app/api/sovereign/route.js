@@ -6,9 +6,19 @@ export const runtime = 'edge';
 export async function POST(req) {
   try {
     const { prompt, context } = await req.json();
-    const fullPrompt = `CONTEXT:\n${context}\n\nTASK:\n${prompt}`;
+    
+    // DETERMINISTIC GATEKEEPER
+    const wordCount = prompt.trim().split(/\s+/).length;
+    if (prompt.length < 15 || wordCount < 4) {
+      return NextResponse.json({ 
+        result: "ERROR: NULL_OBJECTIVE. Input lacks architectural entropy. Provide a complex directive.", 
+        node: "SOVEREIGN_GATEKEEPER (EDGE)" 
+      });
+    }
 
+    const fullPrompt = `CONTEXT:\n${context}\n\nTASK:\n${prompt}`;
     const groqKey = process.env.GROQ_API_KEY;
+    
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${groqKey}`, 'Content-Type': 'application/json' },
