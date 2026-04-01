@@ -8,10 +8,9 @@ export function useSovereign() {
   const execute = async (userPrompt) => {
     setLoading(true);
     setOutput('INGESTING CONTEXT...');
-    setActiveNode('DISPATCHING');
+    setActiveNode('ROUTING');
 
     try {
-      // Step 1: Search
       const searchRes = await fetch('/api/search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -20,41 +19,20 @@ export function useSovereign() {
       const searchData = await searchRes.json();
       const context = searchData.vectors ? searchData.vectors.map((v) => v.content).join('\n\n') : '';
 
-      setOutput('DISPATCHING JOB TO SERVER...');
+      setOutput('FIRING APEX PROXY (EDGE RUNTIME ACTIVE)...');
 
-      // Step 2: Dispatch
-      const dispatchRes = await fetch('/api/sovereign/dispatch', {
+      const response = await fetch('/api/sovereign', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: userPrompt, context })
       });
       
-      if (!dispatchRes.ok) throw new Error('DISPATCH_FAILED');
-      const { jobId } = await dispatchRes.json();
-
-      setOutput(`JOB [${jobId}] PROCESSING. POLLING SERVER...`);
-      setActiveNode('POLLING_POLLINATIONS');
-
-      // Step 3: Poll every 2 seconds
-      while (true) {
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
-        const pollRes = await fetch(`/api/sovereign/poll?jobId=${jobId}`);
-        const jobData = await pollRes.json();
-
-        if (jobData.status === 'done') {
-          setOutput(jobData.result);
-          setActiveNode('EXECUTION_COMPLETE');
-          break;
-        } else if (jobData.status === 'error') {
-          throw new Error(jobData.result);
-        } else if (jobData.status === 'not_found') {
-          throw new Error('JOB_LOST_IN_MEMORY');
-        }
-        
-        setOutput(`JOB [${jobId}] PROCESSING. POLLING SERVER... (Waiting for LLM)`);
-      }
-
+      const data = await response.json();
+      
+      if (data.error) throw new Error(data.error);
+      
+      setOutput(data.result);
+      setActiveNode(data.node);
     } catch (error) {
       setOutput(`CRITICAL_FAILURE: ${error.message}`);
       setActiveNode('TERMINATED');
