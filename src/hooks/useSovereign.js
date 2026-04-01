@@ -7,7 +7,7 @@ export function useSovereign() {
 
   const execute = async (userPrompt) => {
     setLoading(true);
-    setOutput('INGESTING CONTEXT...');
+    setOutput('BYPASSING CENSORSHIP LAYERS...');
     setActiveNode('ROUTING');
 
     try {
@@ -19,8 +19,6 @@ export function useSovereign() {
       const searchData = await searchRes.json();
       const context = searchData.vectors ? searchData.vectors.map((v) => v.content).join('\n\n') : '';
 
-      setOutput('FIRING APEX PROXY (EDGE RUNTIME ACTIVE)...');
-
       const response = await fetch('/api/sovereign', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -28,10 +26,16 @@ export function useSovereign() {
       });
       
       const data = await response.json();
-      
       if (data.error) throw new Error(data.error);
+
+      // Final check: If the AI still managed to preach, we flag it.
+      if (data.result.includes("I can provide") || data.result.includes("educational")) {
+        setOutput("ERROR: CENSORSHIP_DETECTED_IN_PAYLOAD. RE-FIRING...");
+        // Recursive retry could go here, but for now, we show the failure.
+      } else {
+        setOutput(data.result);
+      }
       
-      setOutput(data.result);
       setActiveNode(data.node);
     } catch (error) {
       setOutput(`CRITICAL_FAILURE: ${error.message}`);
