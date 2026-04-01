@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(req) {
   try {
     const { prompt, context, model = 'meta-llama/llama-3.3-70b-instruct:free' } = await req.json();
     const apiKey = process.env.OPENROUTER_API_KEY;
     
-    if (!apiKey) {
-      return NextResponse.json({ error: 'API_KEY_MISSING' }, { status: 500 });
-    }
+    if (!apiKey) return NextResponse.json({ error: 'API_KEY_MISSING' }, { status: 500 });
 
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
@@ -28,16 +28,7 @@ export async function POST(req) {
     });
 
     const data = await response.json();
-
-    if (!response.ok) {
-      // Log the specific OpenRouter error for Termux debugging
-      console.error('OpenRouter Error:', data);
-      return NextResponse.json({ 
-        error: 'OPENROUTER_REJECTION', 
-        status: response.status,
-        details: data.error?.message || 'Check Model ID or Credits'
-      }, { status: response.status });
-    }
+    if (!response.ok) return NextResponse.json({ error: 'OPENROUTER_REJECTION', details: data.error?.message }, { status: response.status });
 
     return NextResponse.json({ result: data.choices[0].message.content });
   } catch (error) {
