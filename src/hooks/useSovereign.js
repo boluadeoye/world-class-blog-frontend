@@ -7,35 +7,38 @@ export function useSovereign() {
 
   const execute = async (userPrompt) => {
     setLoading(true);
-    setOutput('GHOST CLAW INGESTING...');
+    setOutput('');
+    setActiveNode('POLLINATIONS_STREAM_ACTIVE');
+
     try {
-      // Step 1: Search
       const searchRes = await fetch('/api/search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: userPrompt })
       });
-      const searchData = await searchRes.json();
-      const context = searchData.vectors ? searchData.vectors.map((v) => v.content).join('\n\n') : '';
-      
-      setOutput('GROQ LPU FIRING...');
+      const { vectors } = await searchRes.json();
+      const context = vectors ? vectors.map((v) => v.content).join('\n\n') : '';
 
-      // Step 2: Hit our Groq Pooler
       const response = await fetch('/api/sovereign', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: userPrompt, context })
       });
-      
-      const data = await response.json();
-      
-      if (data.error) {
-        setOutput(`ERROR: ${data.error}\nDETAILS: ${data.details}`);
-        setActiveNode('FAILED');
-      } else {
-        setOutput(data.result);
-        setActiveNode(data.node);
+
+      if (!response.ok) throw new Error('STREAM_HANDSHAKE_FAILED');
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let accumulated = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value);
+        accumulated += chunk;
+        setOutput(accumulated); // Update UI in real-time
       }
+
     } catch (error) {
       setOutput(`CRITICAL_FAILURE: ${error.message}`);
       setActiveNode('TERMINATED');
