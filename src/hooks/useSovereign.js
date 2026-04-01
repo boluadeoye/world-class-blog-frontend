@@ -7,14 +7,16 @@ export function useSovereign() {
   const execute = async (userPrompt) => {
     setLoading(true);
     try {
+      // Step 1: Ghost Claw Search
       const searchRes = await fetch('/api/search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: userPrompt })
       });
-      const { vectors } = await searchRes.json();
-      const context = vectors ? vectors.map((v) => v.content).join('\n\n') : '';
+      const searchData = await searchRes.json();
+      const context = searchData.vectors ? searchData.vectors.map((v) => v.content).join('\n\n') : 'No web context found.';
       
+      // Step 2: Stealth Inference
       const response = await fetch('/api/sovereign', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -22,7 +24,12 @@ export function useSovereign() {
       });
       
       const data = await response.json();
-      setOutput(data.result || data.error);
+      
+      if (data.error) {
+        setOutput(`ERROR: ${data.error}\nSTATUS: ${data.status || '500'}\nDETAILS: ${data.details || 'None'}`);
+      } else {
+        setOutput(data.result);
+      }
     } catch (error) {
       setOutput("EXECUTION_ERROR: LOGIC_COLLAPSE");
     } finally {
