@@ -3,20 +3,19 @@ import { useState } from 'react';
 export function useSovereign() {
   const [loading, setLoading] = useState(false);
   const [output, setOutput] = useState('');
+  const [activeNode, setActiveNode] = useState('');
 
   const execute = async (userPrompt) => {
     setLoading(true);
     try {
-      // Step 1: Ghost Claw Search
       const searchRes = await fetch('/api/search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: userPrompt })
       });
       const searchData = await searchRes.json();
-      const context = searchData.vectors ? searchData.vectors.map((v) => v.content).join('\n\n') : 'No web context found.';
+      const context = searchData.vectors ? searchData.vectors.map((v) => v.content).join('\n\n') : '';
       
-      // Step 2: Stealth Inference
       const response = await fetch('/api/sovereign', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -26,9 +25,11 @@ export function useSovereign() {
       const data = await response.json();
       
       if (data.error) {
-        setOutput(`ERROR: ${data.error}\nSTATUS: ${data.status || '500'}\nDETAILS: ${data.details || 'None'}`);
+        setOutput(`ERROR: ${data.error}\nDETAILS: ${data.details || data.last_provider_error}`);
+        setActiveNode('FAILED');
       } else {
         setOutput(data.result);
+        setActiveNode(data.active_node);
       }
     } catch (error) {
       setOutput("EXECUTION_ERROR: LOGIC_COLLAPSE");
@@ -37,5 +38,5 @@ export function useSovereign() {
     }
   };
 
-  return { execute, output, loading };
+  return { execute, output, loading, activeNode };
 }
