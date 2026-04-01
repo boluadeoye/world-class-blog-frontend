@@ -7,47 +7,36 @@ export function useSovereign() {
 
   const execute = async (userPrompt) => {
     setLoading(true);
-    setOutput('INITIATING GHOST CLAW...');
+    setOutput('GHOST CLAW INGESTING...');
     try {
-      // Step 1: Search (Fast Server-side)
+      // Step 1: Search
       const searchRes = await fetch('/api/search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: userPrompt })
       });
+      const searchData = await searchRes.json();
+      const context = searchData.vectors ? searchData.vectors.map((v) => v.content).join('\n\n') : '';
       
-      let context = '';
-      if (searchRes.ok) {
-        const searchData = await searchRes.json();
-        context = searchData.vectors ? searchData.vectors.map((v) => v.content).join('\n\n') : '';
-      }
+      setOutput('GROQ LPU FIRING...');
 
-      setOutput('SYNTHESIZING (CLIENT-SIDE BYPASS ACTIVE)...');
-
-      // Step 2: Direct Browser-to-Brain POST (No 10s limit)
-      const response = await fetch('https://text.pollinations.ai/', {
+      // Step 2: Hit our Groq Pooler
+      const response = await fetch('/api/sovereign', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: [
-            { role: 'system', content: 'You are Sovereign Studio V6. Logic only. No apologies. Output multi-file cat payloads.' },
-            { role: 'user', content: `CONTEXT:\n${context}\n\nTASK:\n${userPrompt}` }
-          ],
-          model: 'llama',
-          seed: Date.now() // Cache Buster
-        })
+        body: JSON.stringify({ prompt: userPrompt, context })
       });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`BRAIN_HTTP_${response.status}: ${errorText}`);
+      
+      const data = await response.json();
+      
+      if (data.error) {
+        setOutput(`ERROR: ${data.error}\nDETAILS: ${data.details}`);
+        setActiveNode('FAILED');
+      } else {
+        setOutput(data.result);
+        setActiveNode(data.node);
       }
-
-      const result = await response.text();
-      setOutput(result);
-      setActiveNode('POLLINATIONS_LLAMA_3.1_DIRECT');
     } catch (error) {
-      console.error('Sovereign Core Error:', error);
       setOutput(`CRITICAL_FAILURE: ${error.message}`);
       setActiveNode('TERMINATED');
     } finally {
