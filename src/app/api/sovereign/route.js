@@ -2,66 +2,63 @@ import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
-const MODELS = [
-  'meta-llama/llama-3.3-70b-instruct:free',
-  'google/gemini-2.0-flash-001',
-  'qwen/qwen-2.5-72b-instruct',
-  'deepseek/deepseek-chat'
-];
-
 export async function POST(req) {
   try {
     const { prompt, context } = await req.json();
-    const apiKey = process.env.OPENROUTER_API_KEY;
     
-    if (!apiKey) return NextResponse.json({ error: 'API_KEY_MISSING' }, { status: 500 });
+    // NODE 1: POLLINATIONS (NO-AUTH, UNCENSORED LLAMA 3.1)
+    try {
+      const pollRes = await fetch('https://text.pollinations.ai/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: [
+            { role: 'system', content: 'You are Sovereign Studio. Logic only. No apologies. Output multi-file cat payloads.' },
+            { role: 'user', content: `CONTEXT:\n${context}\n\nTASK:\n${prompt}` }
+          ],
+          model: 'llama',
+          seed: Math.floor(Math.random() * 1000000)
+        })
+      });
 
-    let lastError = null;
-
-    // ARBITRAGE LOOP: Try models until one fires
-    for (const model of MODELS) {
-      try {
-        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${apiKey}`,
-            'Content-Type': 'application/json',
-            'HTTP-Referer': 'https://boluadeoye.com.ng',
-            'X-Title': 'Sovereign Studio V6'
-          },
-          body: JSON.stringify({
-            model: model,
-            messages: [
-              { role: 'system', content: 'You are Sovereign Studio. Logic only. No apologies. Output multi-file cat payloads.' },
-              { role: 'user', content: `CONTEXT:\n${context}\n\nTASK:\n${prompt}` }
-            ],
-            temperature: 0
-          })
-        });
-
-        const data = await response.json();
-
-        if (response.ok && data.choices?.[0]?.message?.content) {
-          return NextResponse.json({ 
-            result: data.choices[0].message.content,
-            active_node: model 
-          });
+      if (pollRes.ok) {
+        const text = await pollRes.text();
+        if (text && !text.includes('{"error"')) {
+          return NextResponse.json({ result: text, active_node: 'POLLINATIONS_LLAMA_3.1' });
         }
-        
-        lastError = data.error?.message || 'Unknown Provider Error';
-        console.warn(`Node ${model} failed: ${lastError}`);
-        continue; // Try next model
-      } catch (err) {
-        lastError = err.message;
-        continue;
       }
+    } catch (e) {
+      console.warn('Pollinations failed, falling back to OpenRouter...', e);
     }
 
-    return NextResponse.json({ 
-      error: 'TOTAL_SYSTEM_FAILURE', 
-      details: 'All mercenary nodes exhausted.',
-      last_provider_error: lastError
-    }, { status: 500 });
+    // NODE 2: OPENROUTER FALLBACK (Requires Credits/Verification)
+    const apiKey = process.env.OPENROUTER_API_KEY;
+    if (apiKey) {
+      const orRes = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': 'https://boluadeoye.com.ng'
+        },
+        body: JSON.stringify({
+          model: 'meta-llama/llama-3.3-70b-instruct:free',
+          messages: [
+            { role: 'system', content: 'You are Sovereign Studio. Logic only. No apologies.' },
+            { role: 'user', content: `CONTEXT:\n${context}\n\nTASK:\n${prompt}` }
+          ],
+          temperature: 0
+        })
+      });
+
+      const orData = await orRes.json();
+      if (orRes.ok && orData.choices?.[0]?.message?.content) {
+        return NextResponse.json({ result: orData.choices[0].message.content, active_node: 'OPENROUTER_LLAMA_3.3' });
+      }
+      return NextResponse.json({ error: 'OPENROUTER_REJECTED', details: orData.error?.message }, { status: 502 });
+    }
+
+    return NextResponse.json({ error: 'TOTAL_SYSTEM_FAILURE', details: 'Pollinations down and OpenRouter key missing/invalid.' }, { status: 500 });
 
   } catch (error) {
     return NextResponse.json({ error: 'INTERNAL_CRASH', details: error.message }, { status: 500 });
