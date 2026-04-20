@@ -2,29 +2,27 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
-import { ArrowUpRight, Globe, Plus, Minus, Zap, ShieldCheck, Cpu, Layout, Code2 } from 'lucide-react';
+import { ArrowUpRight, Globe, Zap, ShieldCheck, Cpu, Layout, Code2, Layers } from 'lucide-react';
 import Lenis from 'lenis';
 
 // --- CORE CONFIGURATION ---
-const VISCOUS_EASE =[0.22, 1, 0.36, 1];
+const VISCOUS_EASE = [0.22, 1, 0.36, 1];
 const WHATSAPP_URL = "https://wa.me/2348106293674";
 
 const ASSETS = {
   portrait: "https://res.cloudinary.com/dwbjb3svx/image/upload/v1776665149/blog_assets/fw98pjm6elffhbuj3byc.jpg",
   projects:[
-    { title: "Sleigh Strands", tag: "Headless E-Commerce", image: "https://res.cloudinary.com/dwbjb3svx/image/upload/v1776180088/blog_assets/xqie8to9cmdxjiaom0tm.png", link: "https://sleigh-strands-headless.vercel.app/" },
-    { title: "AutoAM", tag: "Automotive Platform", image: "https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?q=80&w=1000&auto=format&fit=crop", link: "https://autoam-web.vercel.app/" },
-    { title: "Peace Academy", tag: "EdTech Ecosystem", image: "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1000&auto=format&fit=crop", link: "https://peace-service-academy.org" }
+    { title: "Sleigh Strands", tag: "Next.js E-Commerce", image: "https://res.cloudinary.com/dwbjb3svx/image/upload/v1776180088/blog_assets/xqie8to9cmdxjiaom0tm.png", link: "https://sleigh-strands-headless.vercel.app/" },
+    { title: "AutoAM", tag: "React Ecosystem", image: "https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?q=80&w=1000&auto=format&fit=crop", link: "https://autoam-web.vercel.app/" },
+    { title: "Peace Academy", tag: "TypeScript Architecture", image: "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1000&auto=format&fit=crop", link: "https://peace-service-academy.org" }
   ]
 };
 
 const FAQS =[
-  { q: "What is your architectural approach?", a: "I build headless, decoupled systems. By separating the frontend (Next.js) from the backend, I eliminate legacy technical debt, ensuring sub-second load times and absolute security." },
+  { q: "What is your architectural approach?", a: "I build headless, decoupled systems exclusively with Next.js and React. By leveraging Server Components and TypeScript, I eliminate legacy technical debt, ensuring sub-second load times." },
   { q: "How do you ensure design fidelity?", a: "I treat Figma as law. I use Tailwind CSS to map exact design tokens, ensuring that spacing, typography, and border-radii are mathematically identical to the designer's intent." },
-  { q: "Do you handle complex state and APIs?", a: "Yes. I specialize in bridging frontend interfaces with complex backends, including WooCommerce, payment gateways, and custom JWT authentication flows." }
+  { q: "Do you handle complex state and APIs?", a: "Yes. I specialize in bridging React interfaces with complex backends, utilizing TypeScript for end-to-end type safety across payment gateways and custom JWT flows." }
 ];
-
-const TECH_STACK =["Next.js 16", "React 19", "Framer Motion", "Tailwind CSS", "TypeScript", "WebGL", "Lenis", "Vercel Edge"];
 
 // --- MICRO-COMPONENTS ---
 const Reveal = ({ children, delay = 0, y = 40 }) => (
@@ -40,118 +38,118 @@ const Reveal = ({ children, delay = 0, y = 40 }) => (
 
 const ParallaxImage = ({ src, alt }) => {
   const ref = useRef(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
+  const { scrollYProgress } = useScroll({ target: ref, offset:["start end", "end start"] });
   const y = useTransform(scrollYProgress, [0, 1],["-15%", "15%"]);
 
   return (
     <div ref={ref} className="relative w-full h-full overflow-hidden rounded-[2rem] bg-white/5 border border-white/10">
       <motion.img style={{ y, scale: 1.15 }} src={src} alt={alt} className="absolute inset-0 w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-1000" />
-      <div className="absolute inset-0 bg-indigo-500/10 mix-blend-overlay opacity-0 hover:opacity-100 transition-opacity duration-700" />
+      <div className="absolute inset-0 bg-indigo-500/20 mix-blend-overlay opacity-0 hover:opacity-100 transition-opacity duration-700" />
     </div>
   );
 };
 
+const MeshBackground = () => (
+  <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden bg-[#020205]">
+    <motion.div animate={{ scale: [1, 1.2, 1], opacity:[0.15, 0.3, 0.15] }} transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }} className="absolute -top-[20%] -left-[10%] w-[50vw] h-[50vw] rounded-full bg-indigo-600 blur-[120px]" />
+    <motion.div animate={{ scale: [1, 1.5, 1], opacity:[0.1, 0.2, 0.1] }} transition={{ duration: 10, repeat: Infinity, delay: 2, ease: "easeInOut" }} className="absolute top-[40%] -right-[10%] w-[40vw] h-[40vw] rounded-full bg-teal-600 blur-[120px]" />
+    <motion.div animate={{ scale: [1, 1.3, 1], opacity:[0.15, 0.25, 0.15] }} transition={{ duration: 12, repeat: Infinity, delay: 4, ease: "easeInOut" }} className="absolute -bottom-[20%] left-[20%] w-[60vw] h-[60vw] rounded-full bg-violet-600 blur-[120px]" />
+    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-[0.04] mix-blend-overlay" />
+  </div>
+);
+
 export default function Portfolio() {
   const [activeFaq, setActiveFaq] = useState(null);
 
-  // Initialize Viscous Scroll
   useEffect(() => {
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       direction: 'vertical',
-      gestureDirection: 'vertical',
       smooth: true,
-      smoothTouch: false,
     });
-    function raf(time) {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
-    }
+    function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
     requestAnimationFrame(raf);
     return () => lenis.destroy();
-  },[]);
+  }, []);
 
   return (
-    <main className="bg-[#080808] text-[#F9FAFB] selection:bg-[#6366F1] selection:text-white overflow-hidden">
-      {/* Noise Overlay */}
-      <div className="fixed inset-0 z-50 pointer-events-none opacity-[0.03]" style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/stardust.png")' }} />
+    <main className="relative text-[#F9FAFB] selection:bg-[#6366F1] selection:text-white overflow-hidden">
+      <MeshBackground />
 
-      {/* --- NAVIGATION --- */}
-      <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-[100] w-[90%] max-w-5xl">
-        <div className="bg-[#080808]/60 backdrop-blur-xl border border-white/10 px-6 py-4 rounded-full flex justify-between items-center">
-          <span className="font-sans font-black tracking-tighter text-xl text-white">AB.</span>
+      {/* --- THIN GLASS HEADER --- */}
+      <nav className="fixed top-4 left-1/2 -translate-x-1/2 z-[100] w-[92%] max-w-5xl">
+        <div className="bg-[#080808]/40 backdrop-blur-xl border border-white/10 px-6 py-3 rounded-2xl flex justify-between items-center shadow-2xl">
+          <span className="font-sans font-bold tracking-widest text-xs text-white uppercase">Adeoye Boluwatife</span>
           <div className="flex items-center gap-6">
-            <a href="https://boluadeoye.com.ng" className="text-[10px] font-mono uppercase tracking-[0.3em] text-white/60 hover:text-white transition-colors flex items-center gap-2">
+            <a href="https://boluadeoye.com.ng" className="hidden md:flex text-[10px] font-mono uppercase tracking-[0.3em] text-white/60 hover:text-white transition-colors items-center gap-2">
               <Globe size={14} /> Index
             </a>
-            <a href={WHATSAPP_URL} className="bg-white text-black px-6 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-[#6366F1] hover:text-white transition-all duration-500">
-              Initiate
+            <a href={WHATSAPP_URL} className="text-[10px] font-bold uppercase tracking-widest text-indigo-400 hover:text-white transition-colors flex items-center gap-1">
+              Initiate <ArrowUpRight size={12} />
             </a>
           </div>
         </div>
       </nav>
 
       {/* --- 1. THE MONOLITH (HERO) --- */}
-      <section className="relative min-h-screen flex items-center justify-center pt-20 px-6">
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
-          <motion.h1 
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 2, ease: VISCOUS_EASE }}
-            className="text-[18vw] font-sans font-black tracking-tighter text-white/[0.03] whitespace-nowrap select-none"
-          >
-            BOLUWATIFE
-          </motion.h1>
-        </div>
-        
-        <div className="relative z-10 flex flex-col items-center">
-          <Reveal y={60}>
-            <div className="w-[60vw] md:w-[25vw] aspect-[3/4] rounded-[3rem] overflow-hidden border border-white/10 shadow-2xl relative group">
-              <img src={ASSETS.portrait} alt="Adeoye Boluwatife" className="w-full h-full object-cover saturate-0 group-hover:saturate-100 transition-all duration-1000 scale-105 group-hover:scale-100" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-transparent to-transparent opacity-80" />
-            </div>
+      <section className="relative z-10 min-h-screen flex flex-col items-center justify-center pt-[20vh] pb-20 px-6">
+        <Reveal y={20}>
+          <div className="flex flex-wrap justify-center gap-3 mb-12">
+            {['React 19', 'Next.js 16', 'TypeScript'].map((tech, i) => (
+              <div key={i} className="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-mono uppercase tracking-widest text-indigo-300 shadow-[0_0_15px_rgba(99,102,241,0.2)]">
+                {tech}
+              </div>
+            ))}
+          </div>
+        </Reveal>
+
+        <div className="relative flex flex-col items-center w-full max-w-5xl">
+          <Reveal delay={0.1}>
+            <h1 className="text-[15vw] md:text-[9vw] leading-[0.8] text-center flex flex-col items-center relative z-20">
+              <span className="font-sans font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-white/40 drop-shadow-2xl">ADEOYE</span>
+              <span className="font-serif italic font-light text-indigo-400 -mt-4 md:-mt-8 drop-shadow-[0_0_30px_rgba(99,102,241,0.4)]">Boluwatife</span>
+            </h1>
           </Reveal>
-          <Reveal delay={0.2}>
-            <div className="mt-12 text-center space-y-4">
-              <h2 className="text-4xl md:text-6xl font-serif italic font-light">Frontend Architect</h2>
-              <p className="text-sm font-mono uppercase tracking-[0.4em] text-white/40">Absolute Figma Fidelity</p>
+
+          <Reveal delay={0.3} y={60}>
+            <div className="mt-12 w-[55vw] md:w-[22vw] aspect-[3/4] rounded-[2rem] overflow-hidden border border-white/10 shadow-[0_0_50px_rgba(99,102,241,0.15)] relative group z-10">
+              <img src={ASSETS.portrait} alt="Adeoye Boluwatife" className="w-full h-full object-cover saturate-50 group-hover:saturate-100 transition-all duration-1000 scale-105 group-hover:scale-100" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#020205] via-transparent to-transparent opacity-90" />
             </div>
           </Reveal>
         </div>
       </section>
 
       {/* --- 2. THE MANIFESTO --- */}
-      <section className="py-40 px-6 max-w-4xl mx-auto text-center">
+      <section className="relative z-10 py-32 px-6 max-w-4xl mx-auto text-center">
         <Reveal>
-          <p className="text-3xl md:text-5xl font-serif italic leading-tight text-white/80">
-            "I do not build mere websites. I architect <span className="text-white font-medium">digital artifacts</span> engineered for sub-second performance and uncompromising visual authority."
+          <p className="text-2xl md:text-4xl font-serif italic leading-relaxed text-white/80">
+            "I architect high-performance digital artifacts. By leveraging the absolute power of <span className="text-indigo-400 font-medium">React</span>, <span className="text-indigo-400 font-medium">Next.js</span>, and <span className="text-indigo-400 font-medium">TypeScript</span>, I transform Figma blueprints into uncompromising, sub-second realities."
           </p>
         </Reveal>
       </section>
 
-      {/* --- 3. THE ARTIFACTS (SELECTED WORKS) --- */}
-      <section className="py-32 px-6 max-w-7xl mx-auto">
-        <Reveal><h2 className="text-[10vw] md:text-[6vw] font-sans font-black tracking-tighter mb-32 opacity-20">ARTIFACTS</h2></Reveal>
-        <div className="space-y-40">
+      {/* --- 3. THE ARTIFACTS --- */}
+      <section className="relative z-10 py-32 px-6 max-w-7xl mx-auto">
+        <Reveal><h2 className="text-[12vw] md:text-[6vw] font-sans font-black tracking-tighter mb-24 opacity-10">ARTIFACTS</h2></Reveal>
+        <div className="space-y-32">
           {ASSETS.projects.map((p, i) => (
-            <div key={i} className={`flex flex-col ${i % 2 !== 0 ? 'md:flex-row-reverse' : 'md:flex-row'} items-center gap-12 md:gap-24`}>
+            <div key={i} className={`flex flex-col ${i % 2 !== 0 ? 'md:flex-row-reverse' : 'md:flex-row'} items-center gap-8 md:gap-20`}>
               <div className="w-full md:w-3/5 aspect-[16/10]">
-                <a href={p.link} target="_blank" rel="noreferrer" className="block w-full h-full cursor-none">
+                <a href={p.link} target="_blank" rel="noreferrer" className="block w-full h-full">
                   <ParallaxImage src={p.image} alt={p.title} />
                 </a>
               </div>
-              <div className="w-full md:w-2/5 space-y-6">
+              <div className="w-full md:w-2/5 space-y-4">
                 <Reveal delay={0.1}>
-                  <span className="text-[10px] font-mono uppercase tracking-[0.4em] text-[#6366F1]">{String(i + 1).padStart(2, '0')} — {p.tag}</span>
-                  <h3 className="text-4xl md:text-5xl font-serif italic mt-4">{p.title}</h3>
+                  <span className="text-[10px] font-mono uppercase tracking-[0.4em] text-indigo-400">{String(i + 1).padStart(2, '0')} — {p.tag}</span>
+                  <h3 className="text-3xl md:text-5xl font-serif italic mt-2">{p.title}</h3>
                 </Reveal>
                 <Reveal delay={0.2}>
-                  <a href={p.link} target="_blank" rel="noreferrer" className="inline-flex items-center gap-4 mt-8 group">
-                    <span className="text-xs font-bold uppercase tracking-widest group-hover:text-[#6366F1] transition-colors">Explore Artifact</span>
-                    <div className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center group-hover:bg-[#6366F1] group-hover:border-transparent transition-all duration-500">
-                      <ArrowUpRight size={16} className="group-hover:rotate-45 transition-transform" />
-                    </div>
+                  <a href={p.link} target="_blank" rel="noreferrer" className="inline-flex items-center gap-3 mt-6 group">
+                    <span className="text-xs font-bold uppercase tracking-widest group-hover:text-indigo-400 transition-colors">Explore</span>
+                    <ArrowUpRight size={16} className="text-white/40 group-hover:text-indigo-400 group-hover:rotate-45 transition-all" />
                   </a>
                 </Reveal>
               </div>
@@ -161,42 +159,40 @@ export default function Portfolio() {
       </section>
 
       {/* --- 4. THE ENGINE (TECH STACK) --- */}
-      <section className="py-32 border-y border-white/5 overflow-hidden bg-white/[0.01]">
+      <section className="relative z-10 py-32 border-y border-white/5 overflow-hidden bg-white/[0.01] backdrop-blur-sm">
         <div className="flex whitespace-nowrap">
-          <motion.div 
-            animate={{ x:["0%", "-50%"] }}
-            transition={{ repeat: Infinity, ease: "linear", duration: 20 }}
-            className="flex gap-16 px-8 items-center"
-          >
-            {[...TECH_STACK, ...TECH_STACK].map((tech, i) => (
-              <span key={i} className="text-4xl md:text-7xl font-sans font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white/20 to-white/5 uppercase">
-                {tech}
-              </span>
+          <motion.div animate={{ x: ["0%", "-50%"] }} transition={{ repeat: Infinity, ease: "linear", duration: 25 }} className="flex gap-16 px-8 items-center">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="flex gap-16 items-center">
+                <span className="text-5xl md:text-7xl font-sans font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-indigo-400 to-indigo-900/20">REACT</span>
+                <span className="text-5xl md:text-7xl font-sans font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-white/10">NEXT.JS</span>
+                <span className="text-5xl md:text-7xl font-sans font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-teal-400 to-teal-900/20">TYPESCRIPT</span>
+              </div>
             ))}
           </motion.div>
         </div>
       </section>
 
-      {/* --- 5. THE FIDELITY LAB (PROCESS) --- */}
-      <section className="py-40 px-6 max-w-7xl mx-auto">
-        <div className="grid md:grid-cols-2 gap-24">
+      {/* --- 5. THE FIDELITY LAB --- */}
+      <section className="relative z-10 py-40 px-6 max-w-7xl mx-auto">
+        <div className="grid md:grid-cols-2 gap-16 md:gap-24">
           <Reveal>
-            <h2 className="text-5xl font-serif italic mb-8">The Fidelity Lab</h2>
+            <h2 className="text-4xl md:text-5xl font-serif italic mb-6">The Engineering Core</h2>
             <p className="text-white/50 leading-relaxed text-lg font-light">
-              The bridge between design and engineering is absolute precision. Every shadow, bezier curve, and typographic scale is mathematically translated from Figma into production-ready React architecture.
+              Beautiful design is irrelevant if the architecture crumbles. I enforce strict type safety, component polymorphism, and edge-runtime rendering to ensure the code is as flawless as the interface.
             </p>
           </Reveal>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {[
-              { icon: Layout, title: "Token Mapping", desc: "1:1 translation of design systems." },
-              { icon: Code2, title: "Component Logic", desc: "Scalable, polymorphic React structures." },
-              { icon: Zap, title: "State Orchestration", desc: "Fluid data flow and caching." },
-              { icon: ShieldCheck, title: "Edge Security", desc: "Hardened API routes and auth." }
+              { icon: Code2, title: "React 19", desc: "Server Components & concurrent rendering." },
+              { icon: Layers, title: "Next.js 16", desc: "App Router, Edge caching, & API routes." },
+              { icon: ShieldCheck, title: "TypeScript", desc: "End-to-end type safety & strict interfaces." },
+              { icon: Layout, title: "Tailwind", desc: "Mathematical token mapping from Figma." }
             ].map((item, i) => (
               <Reveal key={i} delay={i * 0.1}>
-                <div className="p-8 bg-white/5 rounded-[2rem] border border-white/5 hover:border-[#6366F1]/30 transition-colors group">
-                  <item.icon size={32} strokeWidth={1} className="text-[#6366F1] mb-6 group-hover:scale-110 transition-transform" />
-                  <h4 className="text-lg font-bold tracking-tight mb-2">{item.title}</h4>
+                <div className="p-6 bg-white/5 rounded-[1.5rem] border border-white/5 hover:border-indigo-500/30 transition-colors group">
+                  <item.icon size={28} strokeWidth={1.5} className="text-indigo-400 mb-4 group-hover:scale-110 transition-transform" />
+                  <h4 className="text-md font-bold tracking-tight mb-2">{item.title}</h4>
                   <p className="text-xs text-white/40 leading-relaxed">{item.desc}</p>
                 </div>
               </Reveal>
@@ -205,36 +201,24 @@ export default function Portfolio() {
         </div>
       </section>
 
-      {/* --- 6. THE PERFORMANCE AUDIT --- */}
-      <section className="py-32 px-6">
-        <div className="max-w-5xl mx-auto bg-gradient-to-br from-white/10 to-white/0 border border-white/10 rounded-[3rem] p-12 md:p-24 text-center relative overflow-hidden">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[#6366F1]/10 blur-[100px] pointer-events-none" />
-          <Reveal>
-            <span className="text-[10px] font-mono uppercase tracking-[0.5em] text-[#6366F1] mb-8 block">Lighthouse Metrics</span>
-            <h2 className="text-[15vw] md:text-[10vw] font-sans font-black tracking-tighter leading-none text-white drop-shadow-2xl">100</h2>
-            <p className="text-xl md:text-2xl font-serif italic text-white/60 mt-8">Sub-second LCP. Zero layout shift. Uncompromising speed.</p>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* --- 7. THE DIALOGUE (FAQ) --- */}
-      <section className="py-40 px-6 max-w-4xl mx-auto">
-        <Reveal><h2 className="text-4xl font-serif italic mb-16">Inquiries</h2></Reveal>
+      {/* --- 6. THE DIALOGUE (FAQ) --- */}
+      <section className="relative z-10 py-32 px-6 max-w-4xl mx-auto">
+        <Reveal><h2 className="text-3xl md:text-4xl font-serif italic mb-12">Inquiries</h2></Reveal>
         <div className="border-t border-white/10">
           {FAQS.map((faq, i) => (
             <Reveal key={i} delay={i * 0.1}>
               <div className="border-b border-white/10">
-                <button onClick={() => setActiveFaq(activeFaq === i ? null : i)} className="w-full py-8 flex justify-between items-center text-left group">
-                  <span className="text-xl md:text-2xl font-light group-hover:text-[#6366F1] transition-colors pr-8">{faq.q}</span>
-                  <div className="relative w-6 h-6 flex items-center justify-center flex-shrink-0">
-                    <div className={`absolute w-full h-[1px] bg-white transition-transform duration-500 ${activeFaq === i ? 'rotate-180 bg-[#6366F1]' : ''}`} />
-                    <div className={`absolute w-[1px] h-full bg-white transition-transform duration-500 ${activeFaq === i ? 'rotate-90 bg-[#6366F1] opacity-0' : ''}`} />
+                <button onClick={() => setActiveFaq(activeFaq === i ? null : i)} className="w-full py-6 flex justify-between items-center text-left group">
+                  <span className="text-lg md:text-xl font-light group-hover:text-indigo-400 transition-colors pr-8">{faq.q}</span>
+                  <div className="relative w-4 h-4 flex items-center justify-center flex-shrink-0">
+                    <div className={`absolute w-full h-[1px] bg-white transition-transform duration-500 ${activeFaq === i ? 'rotate-180 bg-indigo-400' : ''}`} />
+                    <div className={`absolute w-[1px] h-full bg-white transition-transform duration-500 ${activeFaq === i ? 'rotate-90 bg-indigo-400 opacity-0' : ''}`} />
                   </div>
                 </button>
                 <AnimatePresence>
                   {activeFaq === i && (
-                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.5, ease: VISCOUS_EASE }} className="overflow-hidden">
-                      <p className="pb-10 text-white/50 leading-relaxed text-lg font-light max-w-2xl">{faq.a}</p>
+                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.4, ease: VISCOUS_EASE }} className="overflow-hidden">
+                      <p className="pb-8 text-white/50 leading-relaxed text-base font-light max-w-2xl">{faq.a}</p>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -244,30 +228,27 @@ export default function Portfolio() {
         </div>
       </section>
 
-      {/* --- 8. THE INITIATION (CTA) --- */}
-      <section className="relative min-h-screen flex flex-col items-center justify-center px-6 bg-[#6366F1] text-white overflow-hidden">
-        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-10 mix-blend-overlay pointer-events-none" />
+      {/* --- 7. THE INITIATION (PRE-FOOTER) --- */}
+      <section className="relative z-10 py-40 px-6 flex flex-col items-center justify-center text-center">
         <Reveal>
-          <h2 className="text-[12vw] md:text-[8vw] font-sans font-black tracking-tighter leading-none text-center">INITIATE</h2>
+          <h2 className="text-[10vw] md:text-[6vw] font-sans font-black tracking-tighter leading-none mb-8">INITIATE</h2>
         </Reveal>
         <Reveal delay={0.2}>
-          <p className="text-xl md:text-3xl font-serif italic mt-8 mb-16 text-white/80 text-center max-w-2xl">
-            Ready to architect your next digital artifact? Let us establish the parameters.
-          </p>
-        </Reveal>
-        <Reveal delay={0.4}>
-          <a href={WHATSAPP_URL} className="group relative px-12 py-6 bg-[#080808] text-white rounded-full overflow-hidden flex items-center gap-4">
-            <div className="absolute inset-0 bg-white translate-y-[100%] group-hover:translate-y-0 transition-transform duration-500 ease-[0.22,1,0.36,1]" />
-            <span className="relative z-10 text-xs font-bold uppercase tracking-[0.3em] group-hover:text-black transition-colors duration-500">Start a Conversation</span>
-            <ArrowUpRight size={18} className="relative z-10 group-hover:text-black group-hover:rotate-45 transition-all duration-500" />
+          <a href={WHATSAPP_URL} className="group relative inline-flex items-center gap-4 text-xl md:text-2xl font-serif italic text-indigo-400 hover:text-white transition-colors">
+            <span className="border-b border-indigo-400/30 group-hover:border-white pb-1 transition-colors">Start a Conversation</span>
+            <ArrowUpRight size={24} className="group-hover:rotate-45 transition-transform" />
           </a>
         </Reveal>
-        
-        <div className="absolute bottom-8 w-full px-12 flex justify-between items-center text-[10px] font-mono uppercase tracking-[0.4em] text-white/50">
+      </section>
+
+      {/* --- 8. COMPRESSED COLOPHON (FOOTER) --- */}
+      <footer className="relative z-10 py-8 px-6 border-t border-white/10 bg-[#020205]/80 backdrop-blur-md">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-mono uppercase tracking-[0.3em] text-white/40">
           <span>© 2026 Adeoye Boluwatife</span>
+          <span className="hidden md:block text-indigo-400/50">React // Next.js // TypeScript</span>
           <span>Lagos, NG</span>
         </div>
-      </section>
+      </footer>
     </main>
   );
 }
