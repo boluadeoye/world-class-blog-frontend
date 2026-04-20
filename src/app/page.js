@@ -8,6 +8,7 @@ import Lenis from 'lenis';
 // --- CONFIGURATION ---
 const EASE =[0.19, 1.0, 0.22, 1.0];
 const WHATSAPP_URL = "https://wa.me/2348106293674";
+const PORTRAIT_URL = "https://res.cloudinary.com/dwbjb3svx/image/upload/v1776665149/blog_assets/fw98pjm6elffhbuj3byc.jpg";
 
 const PROJECTS =[
   { title: "Sleigh Strands", scope: "Next.js E-Commerce • Vercel", image: "https://res.cloudinary.com/dwbjb3svx/image/upload/v1776180088/blog_assets/xqie8to9cmdxjiaom0tm.png", link: "https://sleigh-strands-headless.vercel.app/" },
@@ -28,8 +29,8 @@ const ECOSYSTEM =[
 ];
 
 // --- MICRO-COMPONENTS ---
-const Reveal = ({ children, delay = 0, y = 30 }) => (
-  <motion.div initial={{ opacity: 0, y }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-10%" }} transition={{ duration: 1.2, delay, ease: EASE }}>
+const Reveal = ({ children, delay = 0, y = 30, className = "" }) => (
+  <motion.div className={className} initial={{ opacity: 0, y }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-10%" }} transition={{ duration: 1.2, delay, ease: EASE }}>
     {children}
   </motion.div>
 );
@@ -37,7 +38,7 @@ const Reveal = ({ children, delay = 0, y = 30 }) => (
 const ParallaxImage = ({ src }) => {
   const ref = useRef(null);
   const { scrollYProgress } = useScroll({ target: ref, offset:["start end", "end start"] });
-  const scale = useTransform(scrollYProgress, [0, 1], [1.1, 1]);
+  const scale = useTransform(scrollYProgress,[0, 1], [1.1, 1]);
   return (
     <div ref={ref} className="w-full h-full overflow-hidden">
       <motion.img style={{ scale }} src={src} className="w-full h-full object-cover transition-all duration-[2000ms] ease-out hover:scale-[1.12]" />
@@ -57,14 +58,14 @@ export default function Portfolio() {
 
   return (
     <main className="relative bg-[#020202] text-[#E0E0E0] overflow-x-hidden selection:bg-[#4338CA] selection:text-white">
-      {/* 1. ATMOSPHERIC ENVIRONMENT (No longer dry) */}
+      {/* 1. ATMOSPHERIC ENVIRONMENT */}
       <div className="fixed inset-0 pointer-events-none z-0 opacity-40">
         <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-[#4338CA] blur-[150px] opacity-20 animate-pulse" style={{ animationDuration: '8s' }} />
         <div className="absolute top-[60%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-[#9D4EDD] blur-[180px] opacity-10 animate-pulse" style={{ animationDuration: '12s' }} />
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-[0.05] mix-blend-screen" />
       </div>
 
-      {/* 2. THE NON-STICKY HEADER (Scrolls naturally out of view) */}
+      {/* 2. THE NON-STICKY HEADER */}
       <header className="absolute top-0 left-0 w-full pt-8 px-6 md:px-12 z-50">
         <div className="max-w-screen-2xl mx-auto flex justify-between items-center">
           <div className="flex flex-col">
@@ -100,7 +101,7 @@ export default function Portfolio() {
           <div className="md:col-span-4 hidden md:block">
             <Reveal delay={0.4}>
               <div className="w-full aspect-[4/5] rounded-[2rem] bg-white/5 border border-white/10 p-2 shadow-2xl relative">
-                <img src={ASSETS.portrait} className="w-full h-full object-cover rounded-[1.5rem] filter saturate-0 hover:saturate-100 transition-all duration-1000" />
+                <img src={PORTRAIT_URL} className="w-full h-full object-cover rounded-[1.5rem] filter saturate-0 hover:saturate-100 transition-all duration-1000" alt="Adeoye Boluwatife" />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#020202] via-transparent to-transparent opacity-80" />
               </div>
             </Reveal>
@@ -129,7 +130,7 @@ export default function Portfolio() {
         </div>
       </section>
 
-      {/* 5. IMMERSIVE ARTIFACT GALLERY (Standard scroll flow, absolute clickability) */}
+      {/* 5. IMMERSIVE ARTIFACT GALLERY */}
       <section className="relative z-10 py-40 px-6 md:px-12 max-w-screen-2xl mx-auto">
         <Reveal><h2 className="text-[12vw] md:text-[6vw] font-black tracking-tighter leading-none mb-24 opacity-10 uppercase">Select Artifacts</h2></Reveal>
         
@@ -137,7 +138,6 @@ export default function Portfolio() {
           {PROJECTS.map((p, i) => (
             <Reveal key={i} y={80}>
               <div className="relative group block z-20 cursor-default flex flex-col lg:flex-row gap-12 lg:items-center">
-                {/* Visual Half */}
                 <div className="w-full lg:w-2/3">
                   <div className="relative aspect-[16/10] md:aspect-[21/10] rounded-3xl overflow-hidden bg-white/5 border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)] z-20">
                     <a href={p.link} target="_blank" rel="noreferrer" className="block w-full h-full relative cursor-pointer group-hover:scale-100 scale-[0.98] transition-transform duration-700 ease-[0.19,1,0.22,1]">
@@ -146,7 +146,6 @@ export default function Portfolio() {
                     </a>
                   </div>
                 </div>
-                {/* Info Half */}
                 <div className="w-full lg:w-1/3 flex flex-col gap-6 pl-0 lg:pl-12">
                   <span className="text-[#9D4EDD] text-xs font-mono uppercase tracking-widest border border-[#9D4EDD]/20 px-4 py-2 rounded-full w-fit">
                     0{i + 1} — Live
@@ -229,7 +228,6 @@ export default function Portfolio() {
 
       {/* 8. COLOSSAL CTA FOOTER */}
       <footer className="relative z-10 flex flex-col px-6 md:px-12 bg-white text-black min-h-screen justify-between pt-32 pb-8 overflow-hidden rounded-t-[3rem] mt-[-2rem]">
-        {/* Decorative Grid SVG in Footer */}
         <div className="absolute inset-0 pointer-events-none opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at center, black 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
 
         <div className="max-w-screen-xl mx-auto w-full relative z-10 mt-auto flex flex-col md:flex-row justify-between items-end gap-16 md:gap-0 pb-32">
