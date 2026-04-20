@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { 
   ArrowUpRight, Globe, Layers, Code2, Database, Cpu, Server, 
   Figma, Braces, Sparkles, Workflow, Zap, Activity, Github, 
-  Terminal, Network
+  Terminal, Network, ArrowRight
 } from 'lucide-react';
 import Lenis from 'lenis';
 
@@ -29,30 +29,48 @@ const ECOSYSTEM =[
   { name: "Tailwind CSS", type: "Atomic Styling", icon: Workflow },
   { name: "Prisma ORM", type: "Database Layer", icon: Cpu },
   { name: "Framer Motion", type: "Kinetic UI Physics", icon: Sparkles },
-  { name: "GraphQL / REST", type: "API Architecture", icon: Network },
+  { name: "GraphQL", type: "API Architecture", icon: Network },
   { name: "Git / CI-CD", type: "Version Control", icon: Github },
-  { name: "Edge Computing", type: "Vercel Infrastructure", icon: Terminal },
-  { name: "Figma UI/UX", type: "High Fidelity Mapping", icon: Figma }
+  { name: "Edge Compute", type: "Vercel Infra", icon: Terminal },
+  { name: "Figma UI/UX", type: "Fidelity Mapping", icon: Figma }
 ];
 
 const METHODOLOGY =[
-  { step: "01", title: "Discovery & Architecture", desc: "Mapping the data flow, defining the tech stack, and establishing the database schema before a single component is written." },
-  { step: "02", title: "Figma Tokenization", desc: "Extracting exact design tokens (spacing, typography, colors) and translating them into a strict Tailwind configuration." },
-  { step: "03", title: "Component Engineering", desc: "Building polymorphic, reusable React components with strict TypeScript interfaces and Server Component optimization." },
-  { step: "04", title: "Edge Deployment", desc: "Deploying to Vercel's Edge network, auditing Lighthouse scores, and ensuring sub-second LCP globally." }
+  { step: "01", title: "Architecture", desc: "Mapping data flow, defining the stack, and establishing schemas before a single component is written." },
+  { step: "02", title: "Tokenization", desc: "Extracting exact design tokens and translating them into a strict, mathematical Tailwind configuration." },
+  { step: "03", title: "Engineering", desc: "Building polymorphic React components with strict TypeScript interfaces and Server Component optimization." },
+  { step: "04", title: "Deployment", desc: "Deploying to Vercel's Edge network, auditing Lighthouse scores, and ensuring sub-second LCP globally." }
 ];
 
 // --- MICRO-COMPONENTS ---
-const Reveal = ({ children, delay = 0, y = 30 }) => (
+const Reveal = ({ children, delay = 0, y = 40 }) => (
   <motion.div 
     initial={{ opacity: 0, y }} 
     whileInView={{ opacity: 1, y: 0 }} 
     viewport={{ once: true, margin: "-10%" }} 
-    transition={{ duration: 1, delay, ease: EASE }}
+    transition={{ duration: 1.2, delay, ease: EASE }}
   >
     {children}
   </motion.div>
 );
+
+const ParallaxImage = ({ src, alt }) => {
+  const ref = useRef(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset:["start end", "end start"] });
+  const y = useTransform(scrollYProgress, [0, 1],["-10%", "10%"]);
+  const scale = useTransform(scrollYProgress, [0, 1],[1.1, 1]);
+
+  return (
+    <div ref={ref} className="w-full h-full overflow-hidden bg-[#0A0A0A]">
+      <motion.img 
+        style={{ y, scale }} 
+        src={src} 
+        alt={alt} 
+        className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-1000" 
+      />
+    </div>
+  );
+};
 
 export default function Portfolio() {
   const[activeFaq, setActiveFaq] = useState(null);
@@ -67,72 +85,88 @@ export default function Portfolio() {
     function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
     requestAnimationFrame(raf);
     return () => lenis.destroy();
-  },[]);
+  }, []);
 
   return (
-    <main className="bg-[#050505] text-[#EAEAEA] min-h-screen selection:bg-white selection:text-black font-sans overflow-x-hidden">
-      {/* Modest Noise Texture */}
-      <div className="fixed inset-0 pointer-events-none z-0 opacity-[0.02]" style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/stardust.png")' }} />
+    <main className="bg-[#030303] text-[#EAEAEA] min-h-screen selection:bg-white selection:text-black font-sans overflow-x-hidden">
+      
+      {/* ARCHITECTURAL GRID BACKGROUND (The "Outline") */}
+      <div className="fixed inset-0 pointer-events-none z-0 flex justify-center overflow-hidden opacity-[0.15]">
+        <div className="w-full max-w-[100vw] h-full bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:4rem_4rem][mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_70%,transparent_100%)]" />
+      </div>
 
-      {/* 1. STATIC HEADER */}
-      <header className="relative z-10 w-full py-8 px-6 md:px-12 border-b border-white/5 flex justify-between items-center">
-        <div className="flex flex-col">
-          <span className="font-medium text-white tracking-wide text-sm">Adeoye Boluwatife</span>
-          <span className="text-[10px] uppercase font-mono tracking-widest text-white/40 mt-1">Frontend Architect</span>
-        </div>
-        <div className="flex items-center gap-8">
-          <a href="https://boluadeoye.com.ng" className="hidden md:flex text-xs font-mono uppercase text-white/40 hover:text-white transition-colors items-center gap-2">
-            <Globe size={14} /> Index
-          </a>
-          <a href={WHATSAPP_URL} className="text-xs font-medium text-black bg-white px-5 py-2.5 rounded-full hover:scale-105 transition-transform flex items-center gap-1">
-            Initiate <ArrowUpRight size={14} />
-          </a>
+      {/* 1. STRUCTURED HEADER */}
+      <header className="relative z-10 w-full py-6 px-6 md:px-12 border-b border-white/10 bg-[#030303]/80 backdrop-blur-md">
+        <div className="max-w-screen-2xl mx-auto flex justify-between items-center">
+          <div className="flex items-center gap-4">
+            <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+            <span className="font-medium text-white tracking-wide text-sm uppercase">Adeoye Boluwatife</span>
+          </div>
+          <div className="flex items-center gap-8">
+            <a href="https://boluadeoye.com.ng" className="hidden md:flex text-xs font-mono uppercase text-white/50 hover:text-white transition-colors items-center gap-2">
+              <Globe size={14} /> Index
+            </a>
+            <a href={WHATSAPP_URL} className="text-xs font-bold uppercase tracking-widest text-black bg-white px-6 py-3 rounded-none hover:bg-white/80 transition-colors flex items-center gap-2">
+              Initiate <ArrowUpRight size={14} />
+            </a>
+          </div>
         </div>
       </header>
 
-      {/* 2. THE REFINED HERO */}
-      <section className="relative z-10 pt-24 pb-32 px-6 md:px-12 max-w-7xl mx-auto flex flex-col items-center text-center">
-        <Reveal>
-          <div className="w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden mb-10 border border-white/10 p-1">
-            <img src={PORTRAIT_URL} alt="Adeoye Boluwatife" className="w-full h-full object-cover rounded-full grayscale hover:grayscale-0 transition-all duration-700" />
+      {/* 2. THE BLUEPRINT HERO */}
+      <section className="relative z-10 pt-32 pb-20 px-6 md:px-12 max-w-screen-2xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          <div className="lg:col-span-8 flex flex-col">
+            <Reveal>
+              <div className="inline-flex items-center gap-3 px-4 py-2 border border-white/10 rounded-full mb-8 w-fit bg-white/[0.02]">
+                <span className="text-[10px] font-mono uppercase tracking-widest text-white/60">Frontend Architect // Lagos, NG</span>
+              </div>
+            </Reveal>
+            <Reveal delay={0.1}>
+              <h1 className="text-6xl md:text-8xl lg:text-[110px] font-medium tracking-tighter leading-[0.9] text-white mb-8">
+                Engineering <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-white/80 to-white/20 italic font-serif">Fidelity.</span>
+              </h1>
+            </Reveal>
+            <Reveal delay={0.2}>
+              <p className="text-lg md:text-2xl font-light text-white/50 max-w-2xl leading-relaxed">
+                I architect high-performance digital artifacts. Transforming complex logic and Figma blueprints into uncompromising, sub-second realities.
+              </p>
+            </Reveal>
           </div>
-        </Reveal>
-        <Reveal delay={0.1}>
-          <h1 className="text-5xl md:text-7xl lg:text-[90px] font-medium tracking-tighter leading-[1.1] text-white mb-6">
-            Engineering <span className="font-serif italic text-white/60">Fidelity.</span>
-          </h1>
-        </Reveal>
-        <Reveal delay={0.2}>
-          <p className="text-lg md:text-xl font-light text-white/50 max-w-2xl leading-relaxed mb-12">
-            I architect high-performance digital artifacts. Transforming complex logic and Figma blueprints into uncompromising, sub-second realities.
-          </p>
-        </Reveal>
-        <Reveal delay={0.3}>
-          <div className="flex flex-wrap justify-center gap-4">
-            <span className="px-4 py-2 rounded-full border border-white/10 text-xs font-mono uppercase tracking-widest text-white/60 flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" /> Available for Projects
-            </span>
-            <span className="px-4 py-2 rounded-full border border-white/10 text-xs font-mono uppercase tracking-widest text-white/60">
-              Lagos, NG
-            </span>
+          
+          <div className="lg:col-span-4">
+            <Reveal delay={0.3} y={60}>
+              <div className="w-full aspect-[4/5] p-2 border border-white/10 rounded-2xl bg-white/[0.02] relative group">
+                <div className="w-full h-full rounded-xl overflow-hidden relative">
+                  <img src={PORTRAIT_URL} alt="Adeoye Boluwatife" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 scale-105 group-hover:scale-100" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#030303] via-transparent to-transparent opacity-60" />
+                </div>
+                {/* Corner Accents */}
+                <div className="absolute -top-1 -left-1 w-3 h-3 border-t-2 border-l-2 border-white/40" />
+                <div className="absolute -top-1 -right-1 w-3 h-3 border-t-2 border-r-2 border-white/40" />
+                <div className="absolute -bottom-1 -left-1 w-3 h-3 border-b-2 border-l-2 border-white/40" />
+                <div className="absolute -bottom-1 -right-1 w-3 h-3 border-b-2 border-r-2 border-white/40" />
+              </div>
+            </Reveal>
           </div>
-        </Reveal>
+        </div>
       </section>
 
-      {/* 3. PERFORMANCE METRICS */}
-      <section className="relative z-10 border-y border-white/5 bg-white/[0.01]">
-        <div className="max-w-7xl mx-auto py-12 px-6 md:px-12 grid grid-cols-1 md:grid-cols-3 gap-8 divide-y md:divide-y-0 md:divide-x divide-white/5">
+      {/* 3. STRUCTURED METRICS */}
+      <section className="relative z-10 border-y border-white/10 bg-white/[0.02] backdrop-blur-sm">
+        <div className="max-w-screen-2xl mx-auto grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-white/10">
           {[
             { stat: "Sub-Second", label: "LCP Optimization", icon: Zap },
             { stat: "React 19", label: "Server Components", icon: Code2 },
             { stat: "0ms Shift", label: "Cumulative Layout", icon: Activity }
           ].map((item, i) => (
             <Reveal key={i} delay={i * 0.1}>
-              <div className="flex items-center gap-6 pt-6 md:pt-0 md:pl-12 first:pl-0">
-                <item.icon size={24} className="text-white/40" />
+              <div className="flex items-center gap-6 p-8 md:p-12 hover:bg-white/[0.02] transition-colors">
+                <div className="p-4 border border-white/10 rounded-full bg-[#030303]"><item.icon size={20} className="text-white/60" /></div>
                 <div>
-                  <h3 className="text-xl font-medium text-white">{item.stat}</h3>
-                  <p className="text-[10px] font-mono uppercase tracking-widest text-white/40 mt-1">{item.label}</p>
+                  <h3 className="text-xl md:text-2xl font-medium text-white">{item.stat}</h3>
+                  <p className="text-[10px] font-mono uppercase tracking-widest text-white/40 mt-2">{item.label}</p>
                 </div>
               </div>
             </Reveal>
@@ -140,27 +174,28 @@ export default function Portfolio() {
         </div>
       </section>
 
-      {/* 4. SELECTED ARTIFACTS */}
-      <section className="relative z-10 py-40 px-6 md:px-12 max-w-7xl mx-auto">
-        <Reveal><h2 className="text-3xl md:text-4xl font-medium tracking-tight mb-20">Selected Artifacts</h2></Reveal>
-        <div className="flex flex-col gap-32">
+      {/* 4. FRAMED ARTIFACTS (The Bento Layout) */}
+      <section className="relative z-10 py-32 px-6 md:px-12 max-w-screen-2xl mx-auto">
+        <Reveal><h2 className="text-sm font-mono uppercase tracking-widest text-white/40 mb-16 flex items-center gap-4"><span className="w-12 h-[1px] bg-white/20" /> Selected Artifacts</h2></Reveal>
+        
+        <div className="flex flex-col gap-16">
           {PROJECTS.map((p, i) => (
-            <Reveal key={i} y={40}>
-              <div className="group block relative z-20">
-                <div className="w-full aspect-[16/10] md:aspect-[21/9] rounded-2xl overflow-hidden bg-[#0A0A0A] border border-white/5 mb-8 relative">
-                  <a href={p.link} target="_blank" rel="noreferrer" className="block w-full h-full cursor-pointer">
-                    <img src={p.image} alt={p.title} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 group-hover:scale-105" />
-                    <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-500 pointer-events-none" />
-                  </a>
-                </div>
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                  <div>
-                    <span className="text-[10px] font-mono uppercase tracking-widest text-white/40 block mb-3">0{i + 1} — {p.scope}</span>
-                    <h3 className="text-3xl md:text-4xl font-medium tracking-tight text-white">{p.title}</h3>
+            <Reveal key={i} y={60}>
+              <div className="group relative border border-white/10 rounded-3xl bg-white/[0.01] p-4 md:p-8 hover:bg-white/[0.03] transition-colors duration-500">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                  <div className="lg:col-span-8 w-full aspect-[16/10] md:aspect-[21/10] rounded-2xl overflow-hidden border border-white/10 relative">
+                    <a href={p.link} target="_blank" rel="noreferrer" className="block w-full h-full cursor-pointer">
+                      <ParallaxImage src={p.image} alt={p.title} />
+                      <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-500 pointer-events-none" />
+                    </a>
                   </div>
-                  <a href={p.link} target="_blank" rel="noreferrer" className="inline-flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-white/60 hover:text-white transition-colors">
-                    Explore <div className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center group-hover:bg-white group-hover:text-black transition-all"><ArrowUpRight size={16} /></div>
-                  </a>
+                  <div className="lg:col-span-4 flex flex-col justify-center p-4 md:p-8">
+                    <span className="text-[10px] font-mono uppercase tracking-widest text-white/40 border border-white/10 px-3 py-1 rounded-full w-fit mb-6">0{i + 1} — {p.scope}</span>
+                    <h3 className="text-4xl md:text-5xl font-medium tracking-tight text-white mb-8">{p.title}</h3>
+                    <a href={p.link} target="_blank" rel="noreferrer" className="inline-flex items-center gap-4 text-xs font-bold uppercase tracking-widest text-white hover:text-white/70 transition-colors w-fit">
+                      Explore Artifact <ArrowRight size={16} className="group-hover:translate-x-2 transition-transform" />
+                    </a>
+                  </div>
                 </div>
               </div>
             </Reveal>
@@ -168,24 +203,49 @@ export default function Portfolio() {
         </div>
       </section>
 
-      {/* 5. THE EXPANDED TECH ECOSYSTEM */}
-      <section className="relative z-10 py-40 px-6 md:px-12 border-t border-white/5 bg-[#030303]">
-        <div className="max-w-7xl mx-auto">
-          <Reveal>
-            <div className="mb-20 max-w-2xl">
-              <h2 className="text-3xl md:text-4xl font-medium tracking-tight mb-6">The Engineering Matrix</h2>
-              <p className="text-lg text-white/40 font-light leading-relaxed">A comprehensive suite of modern tools and frameworks utilized to architect scalable, type-safe, and high-performance applications.</p>
-            </div>
-          </Reveal>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      {/* 5. THE PERFECT MATRIX (1px Grid Outline) */}
+      <section className="relative z-10 py-32 px-6 md:px-12 max-w-screen-2xl mx-auto">
+        <Reveal>
+          <div className="mb-16 max-w-3xl">
+            <h2 className="text-4xl md:text-5xl font-medium tracking-tight mb-6">The Engineering Matrix</h2>
+            <p className="text-lg text-white/40 font-light leading-relaxed">A comprehensive suite of modern tools and frameworks utilized to architect scalable, type-safe, and high-performance applications.</p>
+          </div>
+        </Reveal>
+        
+        {/* The 1px Outline Grid Trick */}
+        <Reveal delay={0.2}>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-[1px] bg-white/10 border border-white/10 rounded-3xl overflow-hidden">
             {ECOSYSTEM.map((tech, i) => (
-              <Reveal key={i} delay={i * 0.05}>
-                <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.05] transition-colors duration-300 flex flex-col gap-6 h-full">
-                  <tech.icon size={24} className="text-white/60" />
-                  <div>
-                    <h3 className="text-base font-medium text-white mb-1">{tech.name}</h3>
-                    <p className="text-[10px] font-mono uppercase text-white/40 tracking-widest">{tech.type}</p>
-                  </div>
+              <div key={i} className="bg-[#050505] p-8 hover:bg-[#0A0A0A] transition-colors duration-300 flex flex-col gap-8 group">
+                <tech.icon size={28} className="text-white/30 group-hover:text-white transition-colors duration-500" />
+                <div>
+                  <h3 className="text-lg font-medium text-white mb-2">{tech.name}</h3>
+                  <p className="text-[10px] font-mono uppercase text-white/40 tracking-widest">{tech.type}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Reveal>
+      </section>
+
+      {/* 6. STICKY METHODOLOGY */}
+      <section className="relative z-10 py-32 px-6 md:px-12 max-w-screen-2xl mx-auto border-t border-white/10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
+          <div className="lg:col-span-5">
+            <div className="sticky top-32">
+              <Reveal>
+                <h2 className="text-4xl md:text-5xl font-medium tracking-tight mb-6">Execution<br/>Methodology</h2>
+                <p className="text-lg text-white/40 font-light leading-relaxed">The strict architectural parameters behind every digital artifact.</p>
+              </Reveal>
+            </div>
+          </div>
+          <div className="lg:col-span-7 flex flex-col gap-8">
+            {METHODOLOGY.map((item, i) => (
+              <Reveal key={i} delay={i * 0.1}>
+                <div className="p-8 md:p-12 border border-white/10 rounded-3xl bg-white/[0.01] hover:bg-white/[0.03] transition-colors">
+                  <span className="text-xs font-mono text-white/40 border border-white/10 px-3 py-1 rounded-full mb-6 inline-block">{item.step}</span>
+                  <h3 className="text-2xl md:text-3xl font-medium text-white mb-4">{item.title}</h3>
+                  <p className="text-white/50 font-light leading-relaxed text-lg">{item.desc}</p>
                 </div>
               </Reveal>
             ))}
@@ -193,38 +253,22 @@ export default function Portfolio() {
         </div>
       </section>
 
-      {/* 6. METHODOLOGY */}
-      <section className="relative z-10 py-40 px-6 md:px-12 max-w-7xl mx-auto border-t border-white/5">
-        <Reveal><h2 className="text-3xl md:text-4xl font-medium tracking-tight mb-20">Execution Methodology</h2></Reveal>
-        <div className="grid md:grid-cols-2 gap-12 md:gap-24">
-          {METHODOLOGY.map((item, i) => (
-            <Reveal key={i} delay={i * 0.1}>
-              <div className="flex flex-col gap-4">
-                <span className="text-sm font-mono text-white/30 border-b border-white/10 pb-4 mb-2">{item.step}</span>
-                <h3 className="text-2xl font-medium text-white">{item.title}</h3>
-                <p className="text-white/50 font-light leading-relaxed">{item.desc}</p>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </section>
-
-      {/* 7. INQUIRIES (FAQ) */}
-      <section className="relative z-10 py-40 px-6 md:px-12 max-w-4xl mx-auto border-t border-white/5">
-        <Reveal><h2 className="text-3xl md:text-4xl font-medium tracking-tight mb-16">Inquiries</h2></Reveal>
-        <div className="flex flex-col border-t border-white/5">
+      {/* 7. STRUCTURED INQUIRIES */}
+      <section className="relative z-10 py-32 px-6 md:px-12 max-w-4xl mx-auto border-t border-white/10">
+        <Reveal><h2 className="text-3xl md:text-4xl font-medium tracking-tight mb-16 text-center">Inquiries</h2></Reveal>
+        <div className="flex flex-col border-t border-white/10">
           {[
             { q: "Is Figma Fidelity really mathematical?", a: "Yes. Spacing tokens, precise border radii, Bezier easing curves, and layout gridding from your design files are hardcoded using Tailwind variables and exact CSS functions. No estimations." },
             { q: "How is performance achieved?", a: "Through decoupling. Moving rendering to Vercel's Edge, heavily compressing WebP/AVIF imagery, stripping unused Javascript payloads, and orchestrating strict React Server Component logic." },
             { q: "Data flows & Authentications?", a: "Implementing stateless JWT sessions across Prisma-connected databases (Neon/Supabase) to deliver an interface that requires no buffering or reloading to display mutation states." }
           ].map((faq, i) => (
             <Reveal key={i} delay={i * 0.1}>
-              <div className="border-b border-white/5">
+              <div className="border-b border-white/10">
                 <button onClick={() => setActiveFaq(activeFaq === i ? null : i)} className="w-full py-8 flex justify-between items-center text-left cursor-pointer group">
                   <span className="text-lg md:text-xl font-light text-white/70 group-hover:text-white transition-colors pr-8">{faq.q}</span>
-                  <div className="relative w-4 h-4 flex items-center justify-center flex-shrink-0">
-                    <div className={`absolute w-full h-[1px] bg-white/50 transition-transform duration-500 ${activeFaq === i ? 'rotate-180 bg-white' : ''}`} />
-                    <div className={`absolute w-[1px] h-full bg-white/50 transition-transform duration-500 ${activeFaq === i ? 'rotate-90 opacity-0' : ''}`} />
+                  <div className="relative w-6 h-6 flex items-center justify-center flex-shrink-0 border border-white/20 rounded-full group-hover:bg-white transition-colors">
+                    <div className={`absolute w-3 h-[1px] bg-white group-hover:bg-black transition-transform duration-500 ${activeFaq === i ? 'rotate-180' : ''}`} />
+                    <div className={`absolute w-[1px] h-3 bg-white group-hover:bg-black transition-transform duration-500 ${activeFaq === i ? 'rotate-90 opacity-0' : ''}`} />
                   </div>
                 </button>
                 <AnimatePresence>
@@ -240,29 +284,29 @@ export default function Portfolio() {
         </div>
       </section>
 
-      {/* 8. PREMIUM DARK FOOTER */}
-      <footer className="relative z-10 bg-[#020202] border-t border-white/5 pt-32 pb-12 px-6 md:px-12">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-end gap-16 mb-32">
+      {/* 8. ARCHITECTURAL FOOTER */}
+      <footer className="relative z-10 bg-[#050505] border-t border-white/10 pt-32 pb-12 px-6 md:px-12">
+        <div className="max-w-screen-2xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-end gap-16 mb-32">
           <Reveal>
-            <h2 className="text-5xl md:text-7xl font-medium tracking-tighter leading-[1.1] text-white mb-8">
+            <h2 className="text-6xl md:text-8xl font-medium tracking-tighter leading-[0.9] text-white mb-12">
               Initiate <br/><span className="font-serif italic text-white/40">Project.</span>
             </h2>
-            <a href={WHATSAPP_URL} className="inline-flex items-center gap-4 bg-white text-black px-8 py-4 rounded-full text-sm font-bold uppercase tracking-widest hover:scale-105 transition-transform">
+            <a href={WHATSAPP_URL} className="inline-flex items-center gap-4 bg-white text-black px-10 py-5 rounded-none text-sm font-bold uppercase tracking-widest hover:bg-white/80 transition-colors">
               Start a Conversation <ArrowUpRight size={18} />
             </a>
           </Reveal>
           <Reveal delay={0.2}>
-            <div className="flex flex-col gap-4 text-sm font-mono uppercase tracking-widest text-white/40">
-              <span className="text-white mb-2">Connect</span>
-              <a href={WHATSAPP_URL} className="hover:text-white transition-colors">WhatsApp Line</a>
-              <a href="mailto:boluadeoye97@gmail.com" className="hover:text-white transition-colors">boluadeoye97@gmail.com</a>
-              <a href="https://github.com" className="hover:text-white transition-colors">GitHub Profile</a>
+            <div className="flex flex-col gap-6 text-sm font-mono uppercase tracking-widest text-white/40">
+              <span className="text-white mb-2 border-b border-white/10 pb-4">Connect</span>
+              <a href={WHATSAPP_URL} className="hover:text-white transition-colors flex items-center gap-2"><ArrowRight size={14}/> WhatsApp Line</a>
+              <a href="mailto:boluadeoye97@gmail.com" className="hover:text-white transition-colors flex items-center gap-2"><ArrowRight size={14}/> boluadeoye97@gmail.com</a>
+              <a href="https://github.com" className="hover:text-white transition-colors flex items-center gap-2"><ArrowRight size={14}/> GitHub Profile</a>
             </div>
           </Reveal>
         </div>
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center pt-8 border-t border-white/5 text-[10px] font-mono uppercase tracking-widest text-white/30 gap-4">
+        <div className="max-w-screen-2xl mx-auto flex flex-col md:flex-row justify-between items-center pt-8 border-t border-white/10 text-[10px] font-mono uppercase tracking-widest text-white/30 gap-4">
           <span>© {new Date().getFullYear()} Adeoye Boluwatife</span>
-          <span>React // Next.js // TypeScript</span>
+          <span className="hidden md:block">React // Next.js // TypeScript</span>
           <span>Lagos, Nigeria</span>
         </div>
       </footer>
