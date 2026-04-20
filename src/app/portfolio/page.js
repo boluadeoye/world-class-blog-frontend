@@ -1,10 +1,13 @@
+"use client";
+import { motion } from 'framer-motion';
 import ProjectCard from '@/components/ProjectCard';
 import Portrait from '@/components/Portrait';
+import { ArrowUpRight } from 'lucide-react';
 
 export default function PortfolioPage() {
   return (
     <main className="min-h-screen py-16 md:py-32 px-6 md:px-12">
-      <div className="max-w-[1400px] mx-auto">
+      <div className="max-w-[1440px] mx-auto">
         {/* HERO STATEMENT */}
         <header className="mb-24 md:mb-40">
           <motion.div 
@@ -87,4 +90,3 @@ export default function PortfolioPage() {
     </main>
   );
 }
-import { motion } from 'framer-motion';
