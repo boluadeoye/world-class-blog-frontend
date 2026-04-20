@@ -5,13 +5,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ArrowUpRight, Globe, Layers, Code2, Database, Cpu, Server, 
   Figma, Braces, Sparkles, Workflow, Zap, Activity, Github, 
-  Terminal, Network, MonitorSmartphone, CheckCircle2
+  Terminal, Network
 } from 'lucide-react';
 import Lenis from 'lenis';
 
 // --- CORE CONFIGURATION ---
 const EASE =[0.16, 1, 0.3, 1];
 const WHATSAPP_URL = "https://wa.me/2348106293674";
+const PORTRAIT_URL = "https://res.cloudinary.com/dwbjb3svx/image/upload/v1776665149/blog_assets/fw98pjm6elffhbuj3byc.jpg";
 
 const PROJECTS =[
   { title: "Sleigh Strands", scope: "Next.js E-Commerce • Vercel", image: "https://res.cloudinary.com/dwbjb3svx/image/upload/v1776180088/blog_assets/xqie8to9cmdxjiaom0tm.png", link: "https://sleigh-strands-headless.vercel.app/" },
@@ -54,7 +55,7 @@ const Reveal = ({ children, delay = 0, y = 30 }) => (
 );
 
 export default function Portfolio() {
-  const [activeFaq, setActiveFaq] = useState(null);
+  const[activeFaq, setActiveFaq] = useState(null);
 
   useEffect(() => {
     const lenis = new Lenis({ 
@@ -70,10 +71,10 @@ export default function Portfolio() {
 
   return (
     <main className="bg-[#050505] text-[#EAEAEA] min-h-screen selection:bg-white selection:text-black font-sans overflow-x-hidden">
-      {/* Modest Noise Texture - No loud colors */}
+      {/* Modest Noise Texture */}
       <div className="fixed inset-0 pointer-events-none z-0 opacity-[0.02]" style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/stardust.png")' }} />
 
-      {/* 1. STATIC HEADER (Strictly in document flow, scrolls away naturally) */}
+      {/* 1. STATIC HEADER */}
       <header className="relative z-10 w-full py-8 px-6 md:px-12 border-b border-white/5 flex justify-between items-center">
         <div className="flex flex-col">
           <span className="font-medium text-white tracking-wide text-sm">Adeoye Boluwatife</span>
@@ -93,7 +94,7 @@ export default function Portfolio() {
       <section className="relative z-10 pt-24 pb-32 px-6 md:px-12 max-w-7xl mx-auto flex flex-col items-center text-center">
         <Reveal>
           <div className="w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden mb-10 border border-white/10 p-1">
-            <img src={ASSETS.portrait} alt="Adeoye Boluwatife" className="w-full h-full object-cover rounded-full grayscale hover:grayscale-0 transition-all duration-700" />
+            <img src={PORTRAIT_URL} alt="Adeoye Boluwatife" className="w-full h-full object-cover rounded-full grayscale hover:grayscale-0 transition-all duration-700" />
           </div>
         </Reveal>
         <Reveal delay={0.1}>
