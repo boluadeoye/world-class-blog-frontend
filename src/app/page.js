@@ -1,16 +1,16 @@
 "use client";
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
-import { ArrowUpRight, MessageSquare, Code2, Layers, Zap, ChevronDown, Terminal } from 'lucide-react';
-import { useState } from 'react';
+import { ArrowUpRight, Moon, Sun, Globe, ChevronDown } from 'lucide-react';
 
-// --- REUSABLE ANIMATION WRAPPER ---
-const FadeIn = ({ children, delay = 0, className = "" }) => (
+// --- HEAVY ANIMATION WRAPPER ---
+const Reveal = ({ children, delay = 0, className = "" }) => (
   <motion.div
-    initial={{ opacity: 0, y: 60 }}
+    initial={{ opacity: 0, y: 40 }}
     whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true, margin: "-100px" }}
-    transition={{ duration: 0.8, delay, ease: [0.16, 1, 0.3, 1] }}
+    viewport={{ once: true, margin: "-50px" }}
+    transition={{ duration: 1, delay, ease: [0.16, 1, 0.3, 1] }}
     className={className}
   >
     {children}
@@ -18,238 +18,237 @@ const FadeIn = ({ children, delay = 0, className = "" }) => (
 );
 
 export default function Portfolio() {
-  const whatsappUrl = "https://wa.me/2348106293674?text=Hello%20Boluwatife,%20I%20am%20blown%20away%20by%20your%20portfolio.%20Let's%20talk.";
+  const [theme, setTheme] = useState('dark');
   const [activeFaq, setActiveFaq] = useState(null);
+  const whatsappUrl = "https://wa.me/2348106293674?text=Hello%20Boluwatife,%20I%20would%20like%20to%20discuss%20a%20project.";
+
+  // Handle Dark/Light Mode Toggle
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [theme]);
+
+  const toggleTheme = () => setTheme(theme === 'dark' ? 'light' : 'dark');
 
   const projects = [
     {
       title: "Sleigh Strands",
       tag: "Headless E-Commerce",
       image: "https://res.cloudinary.com/dwbjb3svx/image/upload/v1776180088/blog_assets/xqie8to9cmdxjiaom0tm.png",
-      link: "https://sleigh-strands-headless.vercel.app/",
-      colSpan: "md:col-span-2"
+      link: "https://sleigh-strands-headless.vercel.app/"
     },
     {
       title: "AutoAM",
       tag: "Automotive Platform",
       image: "https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?q=80&w=1000&auto=format&fit=crop",
-      link: "https://autoam-web.vercel.app/",
-      colSpan: "md:col-span-1"
+      link: "https://autoam-web.vercel.app/"
     },
     {
       title: "Peace Academy",
       tag: "EdTech Ecosystem",
       image: "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1000&auto=format&fit=crop",
-      link: "https://peace-service-academy.org",
-      colSpan: "md:col-span-1"
+      link: "https://peace-service-academy.org"
     }
   ];
 
   const faqs = [
-    { q: "What is your core tech stack?", a: "I specialize in the modern React ecosystem: Next.js (App Router/Turbopack), TypeScript, Tailwind CSS v4, and Framer Motion for physics-based animations. I build headless architectures that consume REST/GraphQL APIs." },
-    { q: "Do you handle backend integration?", a: "Absolutely. I am an expert at bridging frontend interfaces with complex backends like WooCommerce, Stripe, Paystack, and custom Node.js/Python microservices." },
-    { q: "What does 'Absolute Figma Fidelity' mean?", a: "It means zero compromises. If a designer draws it, I engineer it to the exact pixel, border-radius, and easing curve. I don't use generic UI libraries that dilute the brand's identity." }
+    { q: "What is your architectural approach?", a: "I build headless, decoupled systems. By separating the frontend (Next.js) from the backend (WordPress/Node), I eliminate legacy technical debt, ensuring sub-second load times and absolute security." },
+    { q: "How do you ensure design fidelity?", a: "I treat Figma as law. I use Tailwind CSS to map exact design tokens, ensuring that spacing, typography, and border-radii are mathematically identical to the designer's intent." },
+    { q: "Do you handle complex state and APIs?", a: "Yes. I specialize in bridging frontend interfaces with complex backends, including WooCommerce, payment gateways (Stripe/Paystack), and custom JWT authentication flows." }
   ];
 
   return (
-    <main className="bg-[#050505] text-white min-h-screen selection:bg-[#4F46E5] selection:text-white overflow-hidden font-sans">
+    <main className="min-h-screen font-sans selection:bg-black selection:text-white dark:selection:bg-white dark:selection:text-black">
       
-      {/* --- 1. CINEMATIC HERO SECTION --- */}
-      <section className="relative h-[100svh] w-full flex items-center justify-center overflow-hidden">
-        {/* Background Glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] bg-[#4F46E5]/20 blur-[120px] rounded-full pointer-events-none" />
-        
-        <div className="relative z-10 w-full max-w-[1440px] mx-auto px-6 flex flex-col items-center justify-center h-full">
-          
-          {/* BACKGROUND TEXT (Z-0) */}
-          <motion.h1 
-            initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1.5, ease: "easeOut" }}
-            className="absolute top-[15%] md:top-[20%] text-[20vw] md:text-[15vw] font-black tracking-tighter text-transparent uppercase z-0"
-            style={{ WebkitTextStroke: '2px rgba(255,255,255,0.1)' }}
-          >
-            ADEOYE
-          </motion.h1>
-
-          {/* THE PORTRAIT (Z-10) */}
-          <motion.div 
-            initial={{ y: 100, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 1.2, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="relative z-10 w-[70vw] md:w-[30vw] max-w-[400px] aspect-[3/4] rounded-t-full overflow-hidden border-b-0 border border-white/10"
-          >
-            <Image 
-              src="https://res.cloudinary.com/dwbjb3svx/image/upload/v1776665149/blog_assets/fw98pjm6elffhbuj3byc.jpg" 
-              alt="Adeoye Boluwatife" fill priority unoptimized
-              className="object-cover saturate-0 hover:saturate-100 transition-all duration-1000"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent" />
-          </motion.div>
-
-          {/* FOREGROUND TEXT (Z-20) */}
-          <motion.h1 
-            initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 1, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="absolute bottom-[20%] md:bottom-[15%] text-[15vw] md:text-[12vw] font-black tracking-tighter text-white uppercase z-20 leading-none drop-shadow-2xl"
-          >
-            BOLUWATIFE
-          </motion.h1>
-
-          {/* FLOATING BADGE */}
-          <motion.div 
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5 }}
-            className="absolute bottom-10 flex flex-col items-center gap-4 z-30"
-          >
-            <div className="flex items-center gap-3 bg-white/5 backdrop-blur-md border border-white/10 px-6 py-3 rounded-full">
-              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-              <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/80">Frontend Architect</span>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* --- 2. THE ARSENAL (TECH STACK) --- */}
-      <section className="py-12 border-y border-white/5 bg-white/[0.02] overflow-hidden relative">
-        <div className="flex w-[200%]">
-          <motion.div 
-            animate={{ x: ["0%", "-50%"] }} transition={{ repeat: Infinity, ease: "linear", duration: 20 }}
-            className="flex w-full justify-around items-center"
-          >
-            {['NEXT.JS 16', 'REACT', 'TYPESCRIPT', 'TAILWIND V4', 'FRAMER MOTION', 'HEADLESS CMS', 'REST APIs'].map((tech, i) => (
-              <div key={i} className="flex items-center gap-8 px-8">
-                <span className="text-2xl md:text-4xl font-black text-white/10 uppercase tracking-tighter">{tech}</span>
-                <Terminal size={24} className="text-[#4F46E5]/50" />
-              </div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
-      {/* --- 3. SELECTED WORKS (HEAVY BENTO GRID) --- */}
-      <section className="py-32 px-6 md:px-12 max-w-[1440px] mx-auto">
-        <FadeIn>
-          <h2 className="text-5xl md:text-7xl font-black tracking-tighter mb-16">Selected <span className="text-[#4F46E5]">Works.</span></h2>
-        </FadeIn>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-          {projects.map((project, i) => (
-            <FadeIn key={i} delay={i * 0.1} className={project.colSpan}>
-              <motion.a
-                href={project.link} target="_blank" rel="noopener noreferrer"
-                whileHover="hover"
-                className="group relative block w-full h-[400px] md:h-[500px] rounded-[2rem] overflow-hidden bg-[#111] border border-white/5"
-              >
-                <motion.img 
-                  variants={{ hover: { scale: 1.05 } }} transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                  src={project.image} alt={project.title} className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity duration-500" 
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/20 to-transparent" />
-                
-                <div className="absolute inset-0 p-8 md:p-12 flex flex-col justify-between z-10">
-                  <div className="flex justify-end">
-                    <motion.div 
-                      variants={{ hover: { scale: 1.1, backgroundColor: "#4F46E5", color: "#ffffff", rotate: 45 } }}
-                      className="w-14 h-14 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 flex items-center justify-center text-white transition-colors duration-300"
-                    >
-                      <ArrowUpRight size={24} />
-                    </motion.div>
-                  </div>
-                  <motion.div variants={{ hover: { y: -10 } }} transition={{ duration: 0.4 }}>
-                    <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#4F46E5] mb-4 block">{project.tag}</span>
-                    <h3 className="text-4xl md:text-6xl font-black tracking-tighter text-white">{project.title}</h3>
-                  </motion.div>
-                </div>
-              </motion.a>
-            </FadeIn>
-          ))}
-        </div>
-      </section>
-
-      {/* --- 4. HOW I WORK (THE PROCESS) --- */}
-      <section className="py-32 px-6 md:px-12 bg-white/[0.02] border-y border-white/5">
-        <div className="max-w-[1440px] mx-auto">
-          <FadeIn>
-            <h2 className="text-5xl md:text-7xl font-black tracking-tighter mb-20">The <span className="text-[#4F46E5]">Process.</span></h2>
-          </FadeIn>
-          
-          <div className="grid md:grid-cols-3 gap-12 relative">
-            {/* Connecting Line */}
-            <div className="hidden md:block absolute top-12 left-10 right-10 h-[1px] bg-gradient-to-r from-[#4F46E5]/0 via-[#4F46E5] to-[#4F46E5]/0 opacity-30" />
-            
-            {[
-              { icon: Layers, title: "01. Architecture", desc: "I don't just write code; I plan ecosystems. I analyze the PRD, select the optimal headless stack, and map the API bridges before a single component is built." },
-              { icon: Code2, title: "02. Execution", desc: "Absolute Figma Fidelity. I translate high-end designs into pixel-perfect, responsive Tailwind CSS, powered by physics-based Framer Motion animations." },
-              { icon: Zap, title: "03. Performance", desc: "Speed is a design feature. I optimize rendering, enforce strict client/server boundaries, and guarantee 100/100 Lighthouse scores." }
-            ].map((step, i) => (
-              <FadeIn key={i} delay={i * 0.2} className="relative z-10">
-                <div className="w-24 h-24 rounded-3xl bg-[#050505] border border-white/10 flex items-center justify-center mb-8 shadow-[0_0_30px_rgba(79,70,229,0.15)]">
-                  <step.icon size={32} className="text-[#4F46E5]" />
-                </div>
-                <h3 className="text-2xl font-bold tracking-tight mb-4">{step.title}</h3>
-                <p className="text-white/50 leading-relaxed">{step.desc}</p>
-              </FadeIn>
-            ))}
+      {/* --- FIXED HEADER --- */}
+      <header className="fixed top-0 left-0 right-0 z-50 px-6 py-6 mix-blend-difference text-white">
+        <div className="max-w-[1200px] mx-auto flex justify-between items-center">
+          <span className="font-bold tracking-tighter text-lg">AB.</span>
+          <div className="flex items-center gap-6">
+            <a 
+              href="https://boluadeoye.com.ng" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest hover:opacity-50 transition-opacity"
+            >
+              <Globe size={14} /> Main Site
+            </a>
+            <button onClick={toggleTheme} className="p-2 hover:opacity-50 transition-opacity">
+              {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
           </div>
         </div>
-      </section>
+      </header>
 
-      {/* --- 5. FAQS --- */}
-      <section className="py-32 px-6 md:px-12 max-w-4xl mx-auto">
-        <FadeIn>
-          <h2 className="text-5xl md:text-7xl font-black tracking-tighter mb-16 text-center">Questions?</h2>
-        </FadeIn>
-        <div className="space-y-4">
-          {faqs.map((faq, i) => (
-            <FadeIn key={i} delay={i * 0.1}>
-              <div className="bg-white/[0.03] border border-white/5 rounded-2xl overflow-hidden">
-                <button 
-                  onClick={() => setActiveFaq(activeFaq === i ? null : i)}
-                  className="w-full px-8 py-6 flex justify-between items-center text-left hover:bg-white/[0.02] transition-colors"
+      <div className="max-w-[1200px] mx-auto px-6">
+        
+        {/* --- 1. HERO SECTION --- */}
+        <section className="min-h-[90vh] flex flex-col justify-center pt-20 pb-12">
+          <div className="grid lg:grid-cols-12 gap-12 items-center">
+            <div className="lg:col-span-7 order-2 lg:order-1">
+              <Reveal>
+                <h1 className="text-5xl md:text-7xl lg:text-[80px] font-bold tracking-tighter leading-[1.05] mb-8 text-black dark:text-white">
+                  Adeoye <br /> Boluwatife.
+                </h1>
+              </Reveal>
+              <Reveal delay={0.1}>
+                <p className="text-lg md:text-2xl text-gray-600 dark:text-gray-400 max-w-xl leading-relaxed tracking-tight font-medium mb-10">
+                  Frontend Architect. I engineer high-performance headless ecosystems with absolute visual fidelity.
+                </p>
+              </Reveal>
+              <Reveal delay={0.2}>
+                <div className="flex flex-wrap items-center gap-4">
+                  <a 
+                    href={whatsappUrl} target="_blank" rel="noopener noreferrer"
+                    className="px-8 py-4 bg-black text-white dark:bg-white dark:text-black rounded-full text-xs font-bold uppercase tracking-widest hover:scale-105 transition-transform duration-500"
+                  >
+                    Discuss a Project
+                  </a>
+                  <div className="flex items-center gap-3 px-6 py-4 rounded-full border border-black/10 dark:border-white/10">
+                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">Available</span>
+                  </div>
+                </div>
+              </Reveal>
+            </div>
+            
+            <div className="lg:col-span-5 order-1 lg:order-2 flex justify-start lg:justify-end">
+              <Reveal delay={0.3}>
+                <div className="relative w-48 h-48 md:w-72 md:h-72 rounded-full overflow-hidden border border-black/10 dark:border-white/10 shadow-2xl grayscale hover:grayscale-0 transition-all duration-700">
+                  <Image 
+                    src="https://res.cloudinary.com/dwbjb3svx/image/upload/v1776665149/blog_assets/fw98pjm6elffhbuj3byc.jpg" 
+                    alt="Adeoye Boluwatife" fill priority unoptimized className="object-cover"
+                  />
+                </div>
+              </Reveal>
+            </div>
+          </div>
+        </section>
+
+        {/* --- 2. SELECTED WORKS --- */}
+        <section className="py-32 border-t border-black/10 dark:border-white/10">
+          <Reveal>
+            <h2 className="text-3xl md:text-5xl font-bold tracking-tighter mb-16 text-black dark:text-white">Selected Works</h2>
+          </Reveal>
+          
+          <div className="space-y-8 md:space-y-12">
+            {projects.map((project, i) => (
+              <Reveal key={i} delay={0.1}>
+                <a 
+                  href={project.link} target="_blank" rel="noopener noreferrer"
+                  className="group block relative rounded-[2rem] overflow-hidden bg-gray-100 dark:bg-[#111] border border-black/5 dark:border-white/5"
                 >
-                  <span className="text-lg font-bold tracking-tight">{faq.q}</span>
-                  <motion.div animate={{ rotate: activeFaq === i ? 180 : 0 }} className="text-[#4F46E5]">
-                    <ChevronDown size={20} />
-                  </motion.div>
-                </button>
-                <AnimatePresence>
-                  {activeFaq === i && (
-                    <motion.div 
-                      initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
-                      className="overflow-hidden"
-                    >
-                      <div className="px-8 pb-8 text-white/50 leading-relaxed border-t border-white/5 pt-4">
-                        {faq.a}
+                  <div className="grid md:grid-cols-12 gap-0">
+                    <div className="md:col-span-5 p-8 md:p-12 flex flex-col justify-between min-h-[300px] z-10 relative bg-white dark:bg-[#0A0A0A] transition-colors duration-700">
+                      <div>
+                        <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500 mb-4 block">{project.tag}</span>
+                        <h3 className="text-3xl md:text-4xl font-bold tracking-tighter text-black dark:text-white">{project.title}</h3>
                       </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            </FadeIn>
-          ))}
-        </div>
-      </section>
+                      <div className="flex items-center gap-4 text-xs font-bold uppercase tracking-widest text-black dark:text-white group-hover:opacity-50 transition-opacity">
+                        View Project <ArrowUpRight size={16} />
+                      </div>
+                    </div>
+                    <div className="md:col-span-7 relative min-h-[300px] overflow-hidden">
+                      <Image 
+                        src={project.image} alt={project.title} fill unoptimized
+                        className="object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-1000 ease-apple" 
+                      />
+                    </div>
+                  </div>
+                </a>
+              </Reveal>
+            ))}
+          </div>
+        </section>
 
-      {/* --- 6. THE CLOSER (WHATSAPP CTA) --- */}
-      <section className="py-40 px-6 md:px-12 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[#4F46E5]/10 blur-[150px] rounded-full pointer-events-none" />
-        <FadeIn className="max-w-5xl mx-auto text-center relative z-10">
-          <h2 className="text-6xl md:text-[120px] font-black tracking-tighter leading-[0.9] mb-12">
-            Ready to deploy <br className="hidden md:block" />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4F46E5] to-purple-500">excellence?</span>
-          </h2>
-          <p className="text-xl text-white/50 mb-16 max-w-2xl mx-auto">
-            Stop settling for generic templates. Let's build a high-performance digital asset that dominates your industry.
-          </p>
-          <motion.a 
-            href={whatsappUrl} target="_blank" rel="noopener noreferrer"
-            whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-            className="inline-flex items-center gap-4 px-12 py-6 bg-white text-black rounded-full text-sm font-bold uppercase tracking-[0.2em] shadow-[0_0_40px_rgba(255,255,255,0.2)]"
-          >
-            <MessageSquare size={20} className="text-[#25D366]" />
-            Hire Me Now
-          </motion.a>
-        </FadeIn>
-      </section>
+        {/* --- 3. THE PROCESS & FAQS --- */}
+        <section className="py-32 border-t border-black/10 dark:border-white/10 grid lg:grid-cols-2 gap-20">
+          <div>
+            <Reveal>
+              <h2 className="text-3xl md:text-5xl font-bold tracking-tighter mb-8 text-black dark:text-white">How I Work</h2>
+              <p className="text-lg text-gray-600 dark:text-gray-400 leading-relaxed mb-12">
+                I bridge the gap between high-end design and complex engineering. My process is rooted in logic, performance, and absolute precision.
+              </p>
+            </Reveal>
+            
+            <div className="space-y-12">
+              {[
+                { step: "01", title: "Architecture", desc: "Analyzing requirements and selecting the optimal headless stack (Next.js, APIs, State Management)." },
+                { step: "02", title: "Development", desc: "Translating Figma designs into pixel-perfect, responsive code with heavy, physics-based animations." },
+                { step: "03", title: "Delivery", desc: "Ensuring 100/100 Lighthouse scores, secure payment integrations, and flawless deployment." }
+              ].map((item, i) => (
+                <Reveal key={i} delay={i * 0.1}>
+                  <div className="flex gap-6">
+                    <span className="text-sm font-bold text-gray-400 dark:text-gray-600">{item.step}</span>
+                    <div>
+                      <h4 className="text-xl font-bold tracking-tight text-black dark:text-white mb-2">{item.title}</h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{item.desc}</p>
+                    </div>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+          </div>
 
-      <footer className="py-8 text-center text-[10px] font-bold uppercase tracking-[0.3em] text-white/20 border-t border-white/5">
-        © {new Date().getFullYear()} Adeoye Boluwatife. Engineered with precision.
-      </footer>
+          <div>
+            <Reveal>
+              <h2 className="text-3xl md:text-5xl font-bold tracking-tighter mb-12 text-black dark:text-white">FAQ</h2>
+            </Reveal>
+            <div className="space-y-4">
+              {faqs.map((faq, i) => (
+                <Reveal key={i} delay={i * 0.1}>
+                  <div className="border border-black/10 dark:border-white/10 rounded-2xl overflow-hidden bg-white dark:bg-[#111] transition-colors duration-700">
+                    <button 
+                      onClick={() => setActiveFaq(activeFaq === i ? null : i)}
+                      className="w-full px-6 py-6 flex justify-between items-center text-left"
+                    >
+                      <span className="text-base font-bold tracking-tight text-black dark:text-white pr-4">{faq.q}</span>
+                      <motion.div animate={{ rotate: activeFaq === i ? 180 : 0 }} className="text-gray-400 shrink-0">
+                        <ChevronDown size={20} />
+                      </motion.div>
+                    </button>
+                    <AnimatePresence>
+                      {activeFaq === i && (
+                        <motion.div 
+                          initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                          className="overflow-hidden"
+                        >
+                          <div className="px-6 pb-6 text-sm text-gray-600 dark:text-gray-400 leading-relaxed border-t border-black/5 dark:border-white/5 pt-4">
+                            {faq.a}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* --- 4. THE CLOSER --- */}
+        <section className="py-40 border-t border-black/10 dark:border-white/10 text-center">
+          <Reveal>
+            <h2 className="text-5xl md:text-7xl font-bold tracking-tighter mb-12 text-black dark:text-white">
+              Ready to build?
+            </h2>
+            <a 
+              href={whatsappUrl} target="_blank" rel="noopener noreferrer"
+              className="inline-flex items-center gap-4 px-10 py-5 bg-black text-white dark:bg-white dark:text-black rounded-full text-xs font-bold uppercase tracking-widest hover:scale-105 transition-transform duration-500"
+            >
+              Discuss a Project <ArrowUpRight size={16} />
+            </a>
+          </Reveal>
+        </section>
+
+        <footer className="py-8 text-center text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400 border-t border-black/10 dark:border-white/10">
+          © {new Date().getFullYear()} Adeoye Boluwatife.
+        </footer>
+      </div>
     </main>
   );
 }

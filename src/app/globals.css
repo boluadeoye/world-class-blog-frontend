@@ -2,25 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --bg-color: #F9FAFB;
-  --text-color: #0A0A0A;
-}
-
-body {
-  background-color: var(--bg-color);
-  color: var(--text-color);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* Subtle Animated Mesh Background */
-.mesh-bg {
-  background-color: #F9FAFB;
-  background-image: 
-    radial-gradient(at 0% 0%, hsla(253,16%,7%,0.03) 0, transparent 50%), 
-    radial-gradient(at 50% 0%, hsla(225,39%,30%,0.03) 0, transparent 50%), 
-    radial-gradient(at 100% 0%, hsla(339,49%,30%,0.03) 0, transparent 50%);
+@layer base {
+  body {
+    @apply bg-[#FAFAFA] text-[#111111] dark:bg-[#0A0A0A] dark:text-[#EDEDED] antialiased transition-colors duration-700;
+  }
 }
 
 .no-scrollbar::-webkit-scrollbar { display: none; }

@@ -1,22 +1,18 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: 'class',
   content: [
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {
-      colors: {
-        cream: '#FDF8F0',
-        burgundy: '#8B2632',
-        coral: '#FF6B35',
-        blush: '#F5E6E8',
-        ink: '#0C0608',
-      },
       fontFamily: {
-        serif: ['var(--font-serif)', 'serif'],
-        sans: ['var(--font-sans)', 'sans-serif'],
+        sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
       },
+      transitionTimingFunction: {
+        'apple': 'cubic-bezier(0.16, 1, 0.3, 1)',
+      }
     },
   },
-  plugins: [require('@tailwindcss/typography')],
+  plugins: [],
 }
