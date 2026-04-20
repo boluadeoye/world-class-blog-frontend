@@ -2,20 +2,33 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  body {
-    @apply bg-[#F9F9F9] text-[#0A0A0A] dark:bg-[#050505] dark:text-[#F2F2F2] antialiased transition-colors duration-1000;
-  }
+:root {
+  --bg: #080808;
+  --accent: #6366F1;
+  --text: #F9FAFB;
 }
 
-/* Viscous Reveal Animation */
-.reveal {
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* High-End Grain Texture */
+.bg-grain {
+  background-image: url("https://www.transparenttextures.com/patterns/stardust.png");
+  opacity: 0.03;
+}
+
+/* Viscous Scroll Physics */
+.reveal-section {
   opacity: 0;
-  transform: translateY(30px);
-  transition: all 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+  transform: translateY(40px);
+  transition: all 1s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.reveal.active {
+.reveal-section.active {
   opacity: 1;
   transform: translateY(0);
 }
