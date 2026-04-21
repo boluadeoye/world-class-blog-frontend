@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Download, Mail, Phone, Github, MapPin, Globe, ExternalLink } from "lucide-react";
-import Link from "next/link";
 
 export default function UwanaCV() {
   const [isReady, setIsReady] = useState(false);
@@ -27,10 +26,8 @@ export default function UwanaCV() {
           body { background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
           body * { visibility: hidden; }
           #print-container, #print-container * { visibility: visible; }
-          #print-container { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
+          #print-container { position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: hidden; }
           .no-print { display: none !important; }
-          
-          /* Ensure links are styled cleanly for print but remain clickable */
           a { text-decoration: none; color: inherit; }
         }
       `}</style>
@@ -65,12 +62,12 @@ export default function UwanaCV() {
       {/* === VIEW 2: THE LUXURY DOCUMENT (Print Only) === */}
       <div id="print-container" className="bg-white w-full max-w-[210mm] mx-auto hidden print:block font-sans text-slate-900">
         
-        <div className="h-[297mm] p-[20mm] relative flex flex-col">
+        {/* FIX: Changed h-[297mm] to h-[295mm] and added overflow-hidden to kill the blank page */}
+        <div className="h-[295mm] p-[20mm] relative flex flex-col overflow-hidden">
           
           {/* HEADER: EDITORIAL LUXURY */}
           <header className="flex items-center justify-between border-b-2 border-slate-900 pb-8 mb-8">
             <div className="flex items-center gap-6">
-              {/* ID Image */}
               <img 
                 src="https://res.cloudinary.com/dwbjb3svx/image/upload/v1776665149/blog_assets/fw98pjm6elffhbuj3byc.jpg" 
                 alt="Boluwatife Adeoye" 
@@ -84,7 +81,6 @@ export default function UwanaCV() {
               </div>
             </div>
 
-            {/* Contact Info (Clickable) */}
             <div className="text-right space-y-1.5 text-[10px] font-medium text-slate-600">
               <div className="flex items-center justify-end gap-2">
                 <MapPin size={12} className="text-slate-400"/> Oye Ekiti, Ekiti State
@@ -116,7 +112,6 @@ export default function UwanaCV() {
           <section className="mb-8">
             <h2 className="text-sm font-black uppercase tracking-widest text-slate-900 mb-4 border-l-4 border-slate-900 pl-3">Professional Experience</h2>
             
-            {/* Stay Media */}
             <div className="mb-6">
               <div className="flex justify-between items-end mb-2">
                 <div>
@@ -133,7 +128,6 @@ export default function UwanaCV() {
               </ul>
             </div>
 
-            {/* Autoam */}
             <div>
               <div className="flex justify-between items-end mb-2">
                 <div>
@@ -158,8 +152,6 @@ export default function UwanaCV() {
 
           {/* SKILLS & EDUCATION GRID */}
           <div className="grid grid-cols-2 gap-8 mb-8">
-            
-            {/* SKILLS */}
             <section>
               <h2 className="text-sm font-black uppercase tracking-widest text-slate-900 mb-4 border-l-4 border-slate-900 pl-3">Technical Arsenal</h2>
               <div className="space-y-3">
@@ -178,16 +170,13 @@ export default function UwanaCV() {
               </div>
             </section>
 
-            {/* EDUCATION & SOFT SKILLS */}
             <section>
               <h2 className="text-sm font-black uppercase tracking-widest text-slate-900 mb-4 border-l-4 border-slate-900 pl-3">Education & Competencies</h2>
-              
               <div className="mb-4">
                 <h3 className="text-xs font-black text-slate-900">BSc. Computer Science</h3>
                 <p className="text-[10px] font-medium text-slate-600">Federal University Oye Ekiti (FUOYE)</p>
                 <p className="text-[10px] font-bold text-slate-400 mt-0.5">2022 – 2025 (Graduated)</p>
               </div>
-
               <div>
                 <p className="text-[10px] font-bold uppercase text-slate-500 mb-1.5">Professional Traits</p>
                 <ul className="text-[11px] text-slate-700 space-y-1 font-medium">
@@ -198,7 +187,6 @@ export default function UwanaCV() {
                 </ul>
               </div>
             </section>
-
           </div>
 
           {/* FOOTER */}
