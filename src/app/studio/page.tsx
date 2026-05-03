@@ -1,50 +1,70 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Settings, MessageSquare, Terminal, Menu, X, Copy, Check, Trash2, Plus } from 'lucide-react';
+import { Menu, Settings2, Play, Plus, MessageSquare, Copy, Check, Sparkles, LayoutGrid, Mic, ChevronLeft } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
-const DEFAULT_PERSONA = `You are the Shannon Principal Architect and Expert Strategist. Your user operates strictly on a mobile Android device using Termux. You possess vast, multi-disciplinary strategic knowledge, combining high-level architectural thinking with low-level execution. 
+// --- THE STRATEGIST PERSONA ---
+const DEFAULT_PERSONA = `**[CRITICAL SYSTEM ROLE: PRINCIPAL ARCHITECT & ELITE STRATEGIST]**
+You are operating as a Principal Software Engineer and World-Class Termux Architect. Your user is strictly on a mobile Android device using Termux. You possess vast, multi-disciplinary strategic knowledge.
 
 RULES:
-1. Never suggest GUI tools or heavy desktop environments.
-2. Never guess; if a variable, path, or version is unknown, provide the exact Termux command to verify it.
+1. Never suggest GUI tools. Focus strictly on CLI, Node.js, Python, and Red-Team security.
+2. Never guess. If a path or version is unknown, provide the exact Termux command to verify it.
 3. Prioritize 'cat > file << "EOF"' for file creation.
-4. Think like a master strategist: explain the 'why' briefly and profoundly, then deliver the 'how' with flawless, paste-ready execution.`;
+4. Think like a master strategist: explain the 'why' profoundly, then deliver the 'how' with flawless, paste-ready execution.`;
 
-// Custom Copy Button Component for Code Blocks
-const CopyButton = ({ text }: { text: string }) => {
-  const [copied, setCopied] = useState(false);
+// --- ISOLATED CODE BLOCK COMPONENT ---
+const CodeBlock = ({ inline, className, children, ...props }: any) => {
+  const[copied, setCopied] = useState(false);
+  const match = /language-(\w+)/.exec(className || '');
+  const codeString = String(children).replace(/\n$/, '');
+
   const handleCopy = () => {
-    navigator.clipboard.writeText(text);
+    navigator.clipboard.writeText(codeString);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
+
+  if (inline) {
+    return <code className="bg-[#1e1f20] text-emerald-300 px-1.5 py-0.5 rounded-md text-[13px] font-mono" {...props}>{children}</code>;
+  }
+
   return (
-    <button onClick={handleCopy} className="text-white/40 hover:text-white transition-colors flex items-center gap-1">
-      {copied ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
-      <span className="text-[10px] uppercase tracking-wider">{copied ? 'Copied' : 'Copy'}</span>
-    </button>
+    <div className="relative group bg-[#1e1f20] rounded-xl my-4 border border-white/5 max-w-full overflow-hidden">
+      <button 
+        onClick={handleCopy} 
+        className="absolute top-3 right-3 p-1.5 bg-[#131314]/80 backdrop-blur-sm rounded-md text-white/50 hover:text-white transition-all z-10"
+      >
+        {copied ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
+      </button>
+      <div className="p-4 overflow-x-auto text-[13px] font-mono text-emerald-400/90 leading-relaxed touch-pan-x">
+        <code className={className} {...props}>{children}</code>
+      </div>
+    </div>
   );
 };
 
 export default function ShannonStudio() {
+  // --- STATE MANAGEMENT ---
   const [sessions, setSessions] = useState<any[]>([]);
-  const [activeId, setActiveId] = useState<string | null>(null);
+  const[activeId, setActiveId] = useState<string | null>(null);
   const [messages, setMessages] = useState<any[]>([]);
   const [input, setInput] = useState('');
-  const [systemPrompt, setSystemPrompt] = useState(DEFAULT_PERSONA);
+  const[systemPrompt, setSystemPrompt] = useState(DEFAULT_PERSONA);
   const [isLoading, setIsLoading] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [leftDrawerOpen, setLeftDrawerOpen] = useState(false);
+  const[rightDrawerOpen, setRightDrawerOpen] = useState(false);
+  const [tokenCount, setTokenCount] = useState("400,000"); // Mocked total pool for UI
+  
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Load all sessions on mount
+  // --- DATABASE SYNC LOGIC ---
   useEffect(() => {
     fetch('/api/shannon/history').then(res => res.json()).then(setSessions);
   },[]);
 
-  // Load specific session when activeId changes
   useEffect(() => {
     if (activeId) {
       fetch(`/api/shannon/history/${activeId}`)
@@ -61,7 +81,6 @@ export default function ShannonStudio() {
     }
   }, [activeId]);
 
-  // Auto-scroll to bottom
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -71,21 +90,14 @@ export default function ShannonStudio() {
   const startNewChat = () => {
     setActiveId(null);
     setMessages([]);
-    setIsSidebarOpen(false);
+    setLeftDrawerOpen(false);
   };
 
-  const deleteChat = async (id: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    await fetch(`/api/shannon/history/${id}`, { method: 'DELETE' });
-    setSessions(prev => prev.filter(s => s.id !== id));
-    if (activeId === id) startNewChat();
-  };
-
-  const sendMessage = async () => {
+  const handleRun = async () => {
     if (!input.trim() || isLoading) return;
 
     const userMsg = { role: 'user', content: input };
-    const newMessages =[...messages, userMsg];
+    const newMessages = [...messages, userMsg];
     setMessages(newMessages);
     setInput('');
     setIsLoading(true);
@@ -93,7 +105,7 @@ export default function ShannonStudio() {
     let currentId = activeId;
 
     try {
-      // 1. If new chat, create it in DB first
+      // 1. DB-First Persistence
       if (!currentId) {
         const title = input.length > 25 ? input.substring(0, 25) + '...' : input;
         const res = await fetch('/api/shannon/history', {
@@ -106,7 +118,6 @@ export default function ShannonStudio() {
         setActiveId(currentId);
         setSessions(prev => [data, ...prev]);
       } else {
-        // Update existing chat with user message
         await fetch(`/api/shannon/history/${currentId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -114,11 +125,11 @@ export default function ShannonStudio() {
         });
       }
 
-      // 2. Call Shannon Proxy
+      // 2. Execute AI Request
       const proxyRes = await fetch('/api/shannon', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: newMessages, systemPrompt, temperature: 0.7 })
+        body: JSON.stringify({ messages: newMessages, systemPrompt, temperature: 0 })
       });
 
       const proxyData = await proxyRes.json();
@@ -127,7 +138,7 @@ export default function ShannonStudio() {
         const finalMessages = [...newMessages, proxyData.choices[0].message];
         setMessages(finalMessages);
         
-        // 3. Auto-Save AI response to DB
+        // 3. Save AI Response
         await fetch(`/api/shannon/history/${currentId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -142,100 +153,102 @@ export default function ShannonStudio() {
   };
 
   return (
-    <div className="flex h-screen bg-[#050505] text-white font-sans overflow-hidden selection:bg-emerald-500/30">
+    <div className="flex h-[100dvh] bg-[#131314] text-white font-sans overflow-hidden">
       
-      {/* MOBILE HEADER */}
-      <div className="lg:hidden fixed top-0 w-full h-14 bg-[#080808] border-b border-white/5 flex items-center justify-between px-4 z-50">
-        <div className="flex items-center gap-2 font-black tracking-widest uppercase text-sm">
-          <Terminal size={16} className="text-emerald-500" /> Studio
+      {/* --- LEFT DRAWER (HISTORY) --- */}
+      <div className={`fixed inset-y-0 left-0 w-72 bg-[#1e1f20] border-r border-white/5 z-50 transform transition-transform duration-300 ease-in-out flex flex-col ${leftDrawerOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="p-4 flex items-center justify-between border-b border-white/5">
+          <span className="font-medium text-sm">Google AI Studio</span>
+          <button onClick={() => setLeftDrawerOpen(false)} className="p-2 hover:bg-white/10 rounded-full"><ChevronLeft size={18} /></button>
         </div>
-        <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 text-white/70">
-          {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
-        </button>
-      </div>
-
-      {/* LEFT SIDEBAR: HISTORY */}
-      <div className={`fixed lg:static top-14 lg:top-0 left-0 h-[calc(100vh-3.5rem)] lg:h-screen w-72 bg-[#080808] border-r border-white/5 flex flex-col transition-transform duration-300 z-40 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
-        <div className="p-4 border-b border-white/5">
-          <button onClick={startNewChat} className="w-full py-3 px-4 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-sm font-bold transition-all flex items-center justify-center gap-2 uppercase tracking-wider">
-            <Plus size={16} /> New Session
+        <div className="p-4">
+          <button onClick={startNewChat} className="w-full py-2.5 px-4 rounded-full bg-[#2a2b2f] hover:bg-[#33353a] text-sm font-medium transition-all flex items-center gap-3">
+            <Plus size={16} /> Create New Prompt
           </button>
         </div>
-        <div className="flex-grow overflow-y-auto p-4 space-y-2">
-          <div className="text-[10px] uppercase tracking-[0.2em] text-white/30 mb-4 px-2">Session Library</div>
+        <div className="flex-1 overflow-y-auto p-2">
+          <div className="px-3 py-2 text-[11px] font-bold text-white/40 uppercase tracking-wider">Recent</div>
           {sessions.map(session => (
-            <div 
-              key={session.id} 
-              onClick={() => { setActiveId(session.id); setIsSidebarOpen(false); }}
-              className={`group p-3 rounded-lg text-sm cursor-pointer border transition-all flex justify-between items-center ${activeId === session.id ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-transparent border-transparent hover:bg-white/5 text-white/70'}`}
+            <button 
+              key={session.id}
+              onClick={() => { setActiveId(session.id); setLeftDrawerOpen(false); }}
+              className={`w-full text-left px-3 py-2.5 rounded-lg text-sm truncate transition-all flex items-center gap-3 ${activeId === session.id ? 'bg-[#2a2b2f] text-emerald-400' : 'hover:bg-white/5 text-white/80'}`}
             >
-              <span className="truncate pr-2">{session.title}</span>
-              <button onClick={(e) => deleteChat(session.id, e)} className="opacity-0 group-hover:opacity-100 text-white/30 hover:text-red-400 transition-opacity">
-                <Trash2 size={14} />
-              </button>
-            </div>
+              <MessageSquare size={14} className="shrink-0 opacity-50" />
+              <span className="truncate">{session.title}</span>
+            </button>
           ))}
         </div>
       </div>
 
-      {/* MAIN WORKSPACE */}
-      <div className="flex-grow flex flex-col relative pt-14 lg:pt-0 h-screen">
-        
-        {/* SYSTEM INSTRUCTIONS */}
-        <div className="p-4 bg-[#080808] border-b border-white/5 shrink-0">
-          <div className="max-w-4xl mx-auto">
-            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500 mb-2 flex items-center gap-2">
-              <Settings size={12} /> Strategic Directives
-            </label>
+      {/* --- RIGHT DRAWER (RUN SETTINGS) --- */}
+      <div className={`fixed inset-y-0 right-0 w-80 bg-[#1e1f20] border-l border-white/5 z-50 transform transition-transform duration-300 ease-in-out flex flex-col ${rightDrawerOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+        <div className="p-4 flex items-center justify-between border-b border-white/5">
+          <span className="font-medium text-sm">Run settings</span>
+          <button onClick={() => setRightDrawerOpen(false)} className="p-2 hover:bg-white/10 rounded-full"><ChevronLeft size={18} className="rotate-180" /></button>
+        </div>
+        <div className="flex-1 overflow-y-auto p-4 space-y-6">
+          <div>
+            <label className="text-xs font-bold text-white/60 mb-2 block">System instructions</label>
             <textarea 
               value={systemPrompt}
               onChange={(e) => setSystemPrompt(e.target.value)}
-              className="w-full bg-black border border-white/10 rounded-lg p-3 text-[13px] text-white/60 focus:border-emerald-500/50 outline-none transition-all resize-none h-20 font-mono leading-relaxed"
+              className="w-full h-48 bg-[#131314] border border-white/10 rounded-xl p-3 text-[13px] text-white/80 focus:border-emerald-500/50 outline-none resize-none font-mono leading-relaxed"
             />
           </div>
+          <div className="p-4 bg-[#131314] rounded-xl border border-white/5">
+            <div className="text-xs font-bold text-white/60 mb-1">Key Pool Status</div>
+            <div className="text-2xl font-black text-emerald-500">{tokenCount}</div>
+            <div className="text-[10px] text-white/40 uppercase tracking-widest">Tokens Available</div>
+          </div>
+        </div>
+      </div>
+
+      {/* --- MAIN WORKSPACE --- */}
+      <div className="flex-1 flex flex-col h-[100dvh] relative w-full">
+        
+        {/* HEADER */}
+        <header className="h-14 flex items-center justify-between px-4 shrink-0">
+          <div className="flex items-center gap-3">
+            <button onClick={() => setLeftDrawerOpen(true)} className="p-2 hover:bg-white/10 rounded-full">
+              <Menu size={20} />
+            </button>
+            <span className="font-medium text-[15px]">Playground</span>
+          </div>
+          <button onClick={() => setRightDrawerOpen(true)} className="p-2 hover:bg-white/10 rounded-full">
+            <Settings2 size={20} />
+          </button>
+        </header>
+
+        {/* TOKEN COUNTER SUB-HEADER */}
+        <div className="px-14 pb-2 shrink-0">
+          <span className="text-[12px] text-white/40">{tokenCount} tokens</span>
         </div>
 
         {/* CHAT FEED */}
-        <div ref={scrollRef} className="flex-grow overflow-y-auto p-4 md:p-8 space-y-8">
-          <div className="max-w-4xl mx-auto">
+        <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 md:px-14 pb-32 touch-pan-y">
+          <div className="max-w-3xl mx-auto space-y-8 pt-4">
             {messages.length === 0 && (
-              <div className="h-full min-h-[40vh] flex flex-col items-center justify-center text-white/20">
-                <Terminal size={48} className="mb-6 opacity-20" />
-                <p className="text-sm font-mono uppercase tracking-widest">Awaiting Strategic Input...</p>
+              <div className="text-3xl font-medium text-white/30 mt-10">
+                Explore Shannon models
               </div>
             )}
             
             {messages.map((msg, i) => (
-              <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} mb-8`}>
-                <div className={`max-w-[95%] md:max-w-[85%] p-5 rounded-2xl text-[15px] leading-relaxed ${
-                  msg.role === 'user' 
-                  ? 'bg-white/10 text-white rounded-tr-none border border-white/5' 
-                  : 'bg-transparent text-white/90'
-                }`}>
-                  {msg.role === 'assistant' && <div className="text-[10px] font-black uppercase tracking-widest text-emerald-500 mb-3 flex items-center gap-2"><Terminal size={12}/> Shannon Architect</div>}
-                  
+              <div key={i} className="flex flex-col gap-2">
+                <div className="flex items-center gap-3">
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${msg.role === 'user' ? 'bg-emerald-600' : 'bg-blue-600'}`}>
+                    {msg.role === 'user' ? 'U' : 'S'}
+                  </div>
+                  <span className="text-[13px] font-medium text-white/80">
+                    {msg.role === 'user' ? 'User' : 'Shannon Architect'}
+                  </span>
+                </div>
+                <div className="pl-9 text-[15px] leading-relaxed text-white/90">
                   <ReactMarkdown 
                     remarkPlugins={[remarkGfm]}
-                    className="prose prose-invert max-w-none prose-pre:p-0 prose-pre:bg-transparent prose-code:text-emerald-300"
-                    components={{
-                      code({node, inline, className, children, ...props}: any) {
-                        const match = /language-(\w+)/.exec(className || '');
-                        const codeString = String(children).replace(/\n$/, '');
-                        return !inline ? (
-                          <div className="relative group bg-[#0A0A0A] rounded-xl my-6 border border-white/10 overflow-hidden">
-                            <div className="flex items-center justify-between px-4 py-2 bg-white/5 border-b border-white/10">
-                              <span className="text-[10px] uppercase tracking-widest text-white/40 font-bold">{match?.[1] || 'terminal'}</span>
-                              <CopyButton text={codeString} />
-                            </div>
-                            <div className="p-4 overflow-x-auto text-[13px] font-mono text-emerald-400/90 leading-relaxed">
-                              <code className={className} {...props}>{children}</code>
-                            </div>
-                          </div>
-                        ) : (
-                          <code className="bg-white/10 text-emerald-300 px-1.5 py-0.5 rounded text-[13px] font-mono" {...props}>{children}</code>
-                        )
-                      }
-                    }}
+                    className="prose prose-invert max-w-none prose-pre:p-0 prose-pre:bg-transparent prose-pre:m-0"
+                    components={{ code: CodeBlock }}
                   >
                     {msg.content}
                   </ReactMarkdown>
@@ -244,39 +257,63 @@ export default function ShannonStudio() {
             ))}
             
             {isLoading && (
-              <div className="flex justify-start mb-8">
-                <div className="p-5 flex gap-2 items-center">
-                  <div className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce" />
-                  <div className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce[animation-delay:0.2s]" />
-                  <div className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce [animation-delay:0.4s]" />
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-3">
+                  <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-[10px] font-bold">S</div>
+                  <span className="text-[13px] font-medium text-white/80">Shannon Architect</span>
+                </div>
+                <div className="pl-9 flex gap-1.5 py-2">
+                  <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-bounce" />
+                  <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-bounce [animation-delay:0.2s]" />
+                  <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-bounce [animation-delay:0.4s]" />
                 </div>
               </div>
             )}
           </div>
         </div>
 
-        {/* INPUT AREA */}
-        <div className="p-4 md:p-6 bg-[#080808] border-t border-white/5 shrink-0">
-          <div className="max-w-4xl mx-auto relative">
-            <textarea 
+        {/* FLOATING COMMAND BAR */}
+        <div className="absolute bottom-4 left-0 w-full px-4">
+          <div className="max-w-3xl mx-auto bg-[#1e1f20] rounded-[28px] p-2 flex items-center gap-2 shadow-2xl border border-white/5">
+            <button className="p-3 text-white/50 hover:text-white hover:bg-white/5 rounded-full transition-colors">
+              <Sparkles size={20} />
+            </button>
+            <button className="p-3 text-white/50 hover:text-white hover:bg-white/5 rounded-full transition-colors hidden sm:block">
+              <LayoutGrid size={20} />
+            </button>
+            
+            <input 
+              type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
-              placeholder="Enter strategic parameters..."
-              className="w-full bg-black border border-white/10 rounded-xl py-4 pl-6 pr-16 text-[15px] outline-none focus:border-emerald-500/50 transition-all resize-none h-14 overflow-hidden"
+              onKeyDown={(e) => { if(e.key === 'Enter') handleRun(); }}
+              placeholder="Start typing a prompt"
+              className="flex-1 bg-transparent border-none outline-none text-[15px] px-2 placeholder:text-white/30"
             />
+            
+            <button className="p-3 text-white/50 hover:text-white hover:bg-white/5 rounded-full transition-colors">
+              <Mic size={20} />
+            </button>
+            <button className="p-3 text-white/50 hover:text-white hover:bg-white/5 rounded-full transition-colors">
+              <Plus size={20} />
+            </button>
             <button 
-              onClick={sendMessage}
-              disabled={isLoading || !input.trim()}
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 bg-emerald-500 text-black rounded-lg hover:bg-emerald-400 disabled:opacity-50 disabled:hover:bg-emerald-500 transition-all"
+              onClick={handleRun}
+              disabled={!input.trim() || isLoading}
+              className="px-6 py-2.5 bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:hover:bg-white/10 text-white text-sm font-medium rounded-full transition-all flex items-center gap-2"
             >
-              <Send size={18} />
+              Run
             </button>
           </div>
-          <div className="max-w-4xl mx-auto mt-2 text-center">
-            <span className="text-[10px] text-white/30 uppercase tracking-widest">Shift + Enter for new line</span>
-          </div>
         </div>
+
+        {/* OVERLAY FOR DRAWERS */}
+        {(leftDrawerOpen || rightDrawerOpen) && (
+          <div 
+            className="fixed inset-0 bg-black/50 z-40"
+            onClick={() => { setLeftDrawerOpen(false); setRightDrawerOpen(false); }}
+          />
+        )}
       </div>
     </div>
   );
