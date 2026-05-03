@@ -1,26 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getRotatedKey, updateTokenUsage } from '@/lib/shannon';
-import sql from '@/lib/db';
+import { neon } from "@neondatabase/serverless";
 
 export const runtime = 'edge';
 
 export async function POST(req: NextRequest) {
   try {
-    const { messages, systemPrompt, sessionId, temperature = 0 } = await req.json();
-    
-    if (!sessionId) return NextResponse.json({ error: "Session ID missing" }, { status: 400 });
-
-    const session = await sql`SELECT summary FROM shannon_history WHERE id = ${sessionId}`;
-    const currentSummary = session[0]?.summary || "";
+    const body = await req.json();
+    const { sessionId, messages, systemPrompt, temperature = 0 } = body;
 
     const keyData = await getRotatedKey();
-    if (!keyData) return NextResponse.json({ error: "API Pool Exhausted" }, { status: 429 });
+    if (!keyData) return new Response(JSON.stringify({ error: "API Pool Exhausted" }), { status: 429 });
+
+    const sql = neon(process.env.DATABASE_URL!);
+    let currentSummary = "";
+    if (sessionId) {
+      const session = await sql`SELECT summary FROM shannon_history WHERE id = ${sessionId}`;
+      currentSummary = session[0]?.summary || "";
+    }
 
     const context = [{ role: "system", content: systemPrompt }];
     if (currentSummary) context.push({ role: "system", content: `[STRATEGIC CONTEXT]: ${currentSummary}` });
     context.push(...messages.slice(-4));
 
-    const response = await fetch('https://api.shannon-ai.com/v1/chat/completions', {
+    const upstream = await fetch('https://api.shannon-ai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -30,50 +33,85 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({ model: "shannon-pro-1.6", messages: context, temperature, stream: true })
     });
 
-    if (response.status === 401) {
+    if (upstream.status === 401) {
       await sql`UPDATE shannon_api_pool SET is_active = FALSE WHERE id = ${keyData.id}`;
-      return NextResponse.json({ error: `Key SHN-POOL-00${keyData.id} invalid. Disabled.` }, { status: 401 });
+      return new Response(JSON.stringify({ error: `Key SHN-POOL-00${keyData.id} invalid. Disabled.` }), { status: 401 });
     }
 
-    if (!response.ok) return NextResponse.json({ error: `API Error: ${response.status}` }, { status: response.status });
+    if (!upstream.ok) {
+      const errText = await upstream.text();
+      return new Response(JSON.stringify({ error: `API Error: ${upstream.status} - ${errText}` }), { status: upstream.status });
+    }
 
-    // --- SSE STREAMING INTERCEPTOR ---
-    const stream = new ReadableStream({
+    const encoder = new TextEncoder();
+    const decoder = new TextDecoder();
+
+    const readableStream = new ReadableStream({
       async start(controller) {
-        const reader = response.body?.getReader();
-        if (!reader) { controller.close(); return; }
-        
-        const decoder = new TextDecoder();
+        const reader = upstream.body!.getReader();
+        let buffer = "";
         let fullText = "";
 
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          
-          const chunk = decoder.decode(value, { stream: true });
-          controller.enqueue(value); // Forward to client instantly
-          
-          // Parse for background token calculation
-          const lines = chunk.split('\n');
-          for (const line of lines) {
-            if (line.startsWith('data: ') && line !== 'data:[DONE]') {
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split("\n");
+            buffer = lines.pop() ?? "";
+
+            for (const line of lines) {
+              const trimmed = line.trim();
+              if (!trimmed || !trimmed.startsWith("data:")) continue;
+
+              const data = trimmed.slice(5).trim();
+              if (data === "[DONE]") {
+                controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+                continue;
+              }
+
               try {
-                const data = JSON.parse(line.slice(6));
-                if (data.choices[0].delta.content) fullText += data.choices[0].delta.content;
-              } catch (e) {}
+                const parsed = JSON.parse(data);
+                if (parsed.choices?.[0]?.delta?.content) {
+                  const content = parsed.choices[0].delta.content;
+                  fullText += content;
+                  const chunk = JSON.stringify({ text: content });
+                  controller.enqueue(encoder.encode(`data: ${chunk}\n\n`));
+                }
+              } catch {}
             }
           }
+        } finally {
+          controller.close();
+          reader.releaseLock();
+          const estimatedTokens = Math.floor(fullText.length / 4) + 3600;
+          await updateTokenUsage(keyData.id, estimatedTokens);
         }
-        controller.close();
-
-        // Background Token Deduction (1 token ~= 4 chars approximation for streaming)
-        const estimatedTokens = Math.floor(fullText.length / 4) + 3600; // 3600 is Shannon's base preamble
-        await updateTokenUsage(keyData.id, estimatedTokens);
       }
     });
 
-    return new Response(stream, { headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache', 'Connection': 'keep-alive' } });
+    return new Response(readableStream, {
+      headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache', 'Connection': 'keep-alive' }
+    });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+  }
+}
+
+export async function PUT(req: NextRequest) {
+  try {
+    const { sessionId, messages } = await req.json();
+    if (!sessionId || !messages) return new Response("Missing data", { status: 422 });
+
+    const sql = neon(process.env.DATABASE_URL!);
+    await sql`
+      UPDATE shannon_history 
+      SET messages = ${JSON.stringify(messages)}::jsonb 
+      WHERE id = ${sessionId}
+    `;
+    return new Response(JSON.stringify({ ok: true }), { status: 200 });
+  } catch (err: any) {
+    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
   }
 }
