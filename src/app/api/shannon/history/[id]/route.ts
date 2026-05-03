@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import sql from '@/lib/db';
 
+// FORCE NEXT.JS TO NEVER CACHE THIS ROUTE
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const rows = await sql`SELECT * FROM shannon_history WHERE id = ${params.id}`;
@@ -15,7 +18,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     const { messages, title } = await req.json();
     await sql`
       UPDATE shannon_history 
-      SET messages = ${JSON.stringify(messages)}, title = ${title} 
+      SET messages = ${JSON.stringify(messages)}::jsonb, title = ${title} 
       WHERE id = ${params.id}
     `;
     return NextResponse.json({ success: true });
