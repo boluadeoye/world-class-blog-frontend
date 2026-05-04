@@ -2,20 +2,7 @@ import { neon } from "@neondatabase/serverless";
 import { notFound } from "next/navigation";
 import StudioIDE from "@/components/StudioIDE";
 
-export interface Message {
-  id: string;
-  role: "user" | "assistant" | "system_error";
-  content: string;
-  createdAt: string;
-}
-
-export interface Session {
-  id: string;
-  title: string;
-  systemPrompt: string;
-  summary: string;
-  messages: Message[];
-}
+export const dynamic = 'force-dynamic';
 
 export default async function StudioPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -28,16 +15,16 @@ export default async function StudioPage({ params }: { params: Promise<{ id: str
 
   if (rows.length === 0) notFound();
 
-  const session: Session = {
+  const session = {
     id: rows[0].id,
     title: rows[0].title ?? "Untitled Session",
     systemPrompt: rows[0].system_prompt ?? "",
     summary: rows[0].summary ?? "",
-    messages: (rows[0].messages as Message[]) ?? [],
+    messages: rows[0].messages ?? [],
   };
 
   return (
-    <main className="h-[100dvh] overflow-hidden bg-[#0d0d0f]">
+    <main className="h-[100dvh] overflow-hidden bg-[#0a0a0a]">
       <StudioIDE initialSession={session} />
     </main>
   );
