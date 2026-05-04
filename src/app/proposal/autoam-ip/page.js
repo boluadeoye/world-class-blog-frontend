@@ -4,7 +4,6 @@ import {
   Download, CheckCircle, Code, Database, Cpu, 
   Globe, ShieldCheck, FileSignature, Stamp, ArrowRight
 } from "lucide-react";
-import Link from "next/link";
 
 export default function AutoamIPAssignment() {
   const [isReady, setIsReady] = useState(false);
@@ -15,7 +14,7 @@ export default function AutoamIPAssignment() {
 
   const handlePrint = () => {
     const originalTitle = document.title;
-    document.title = "AUTOAM_IP_ASSIGNMENT_FINAL";
+    document.title = "AUTOAM_IP_ASSIGNMENT_MAY_4_2026";
     window.print();
     document.title = originalTitle;
   };
@@ -98,7 +97,7 @@ export default function AutoamIPAssignment() {
             </div>
             <div className="text-right">
               <p className="text-[10px] font-mono font-bold text-slate-400 uppercase">Document Ref: IP-2026-001</p>
-              <p className="text-[10px] font-mono font-bold text-slate-400 uppercase">Date: May 2026</p>
+              <p className="text-[10px] font-mono font-bold text-[#D97B0C] uppercase">Date: May 4, 2026</p>
             </div>
           </header>
 
@@ -128,7 +127,7 @@ export default function AutoamIPAssignment() {
           {/* Statement */}
           <div className="mt-auto bg-slate-50 p-8 border-l-4 border-[#D97B0C]">
             <p className="text-sm leading-relaxed font-medium text-[#1A2C4E] text-justify">
-              This document confirms the full and final settlement of <strong className="text-lg">₦220,000</strong> for the acquisition of the Autoam proprietary codebase and infrastructure. Upon execution, all intellectual property rights, source code, and administrative controls are irrevocably transferred to the Assignee.
+              This document confirms the full and final settlement of <strong className="text-lg">₦220,000</strong> for the acquisition of the Autoam proprietary codebase and infrastructure. Upon execution on <strong>May 4, 2026</strong>, all intellectual property rights, source code, and administrative controls are irrevocably transferred to the Assignee.
             </p>
           </div>
         </div>
@@ -197,7 +196,7 @@ export default function AutoamIPAssignment() {
               </div>
             </div>
             <p className="text-xs leading-relaxed font-medium text-slate-300 text-justify">
-              The Assignor confirms the complete revocation of personal administrative privileges across all platforms listed in Section 1.0. The Assignee now holds exclusive root access, billing control, and repository ownership.
+              The Assignor confirms the complete revocation of personal administrative privileges across all platforms listed in Section 1.0. The Assignee now holds exclusive root access, billing control, and repository ownership as of May 4, 2026.
             </p>
           </div>
 
@@ -223,7 +222,7 @@ export default function AutoamIPAssignment() {
               <div className="w-64 border-b-[0.5px] border-[#1A2C4E] h-12 mb-2"></div>
               <p className="text-sm font-black uppercase text-[#1A2C4E]">Bolu Adeoye</p>
               <p className="text-[10px] font-bold text-slate-500 uppercase">Assignor (Lead Systems Architect)</p>
-              <p className="text-[10px] font-mono text-slate-400 mt-1">Date: ___________________</p>
+              <p className="text-[10px] font-mono font-bold text-[#D97B0C] mt-1 uppercase">Date: May 4, 2026</p>
             </div>
 
             {/* Signatory B */}
@@ -231,7 +230,7 @@ export default function AutoamIPAssignment() {
               <div className="w-64 border-b-[0.5px] border-[#1A2C4E] h-12 mb-2"></div>
               <p className="text-sm font-black uppercase text-[#1A2C4E]">Favour Nheachika Amusonu</p>
               <p className="text-[10px] font-bold text-slate-500 uppercase">Assignee (CEO, Autoam Limited)</p>
-              <p className="text-[10px] font-mono text-slate-400 mt-1">Date: ___________________</p>
+              <p className="text-[10px] font-mono font-bold text-[#D97B0C] mt-1 uppercase">Date: May 4, 2026</p>
             </div>
 
           </div>
@@ -245,7 +244,7 @@ export default function AutoamIPAssignment() {
               <Stamp size={32} className="text-[#D97B0C] mb-2" />
               <p className="text-2xl font-black text-[#D97B0C] tracking-widest uppercase">Approved</p>
               <p className="text-[7px] font-bold text-[#D97B0C] uppercase tracking-widest mt-2 text-center">
-                Bolu Adeoye<br/>Lead Architect<br/>2026
+                Bolu Adeoye<br/>Lead Architect<br/>May 4, 2026
               </p>
             </div>
           </div>
