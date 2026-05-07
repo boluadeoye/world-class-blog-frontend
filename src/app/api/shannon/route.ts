@@ -11,13 +11,10 @@ export async function POST(req: NextRequest) {
     if (!keyData) return new Response(JSON.stringify({ error: "API Pool Exhausted" }), { status: 429 });
 
     const sql = neon(process.env.DATABASE_URL!);
-    let currentSummary = "";
-    if (sessionId) {
-      const session = await sql`SELECT summary FROM shannon_history WHERE id = ${sessionId}`;
-      currentSummary = session[0]?.summary || "";
-    }
+    const session = await sql`SELECT summary FROM shannon_history WHERE id = ${sessionId}`;
+    const currentSummary = session[0]?.summary || "";
 
-    const context =[{ role: "system", content: systemPrompt }];
+    const context = [{ role: "system", content: systemPrompt }];
     if (currentSummary) context.push({ role: "system", content: `[STRATEGIC CONTEXT]: ${currentSummary}` });
     context.push(...messages.slice(-4));
 
@@ -25,7 +22,7 @@ export async function POST(req: NextRequest) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${keyData.key_val}`,
+        'x-api-key': keyData.key_val, // VERIFIED HEADER
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
       },
       body: JSON.stringify({ model: "shannon-pro-1.6", messages: context, temperature, stream: true })
@@ -33,9 +30,8 @@ export async function POST(req: NextRequest) {
 
     if (upstream.status === 401) {
       await sql`UPDATE shannon_api_pool SET is_active = FALSE WHERE id = ${keyData.id}`;
-      return new Response(JSON.stringify({ error: `Key SHN-POOL-00${keyData.id} invalid. Disabled.` }), { status: 401 });
+      return new Response(JSON.stringify({ error: "Key Authentication Failed. Key disabled." }), { status: 401 });
     }
-    if (!upstream.ok) return new Response(JSON.stringify({ error: `API Error: ${upstream.status}` }), { status: upstream.status });
 
     const encoder = new TextEncoder();
     const decoder = new TextDecoder();
@@ -45,19 +41,16 @@ export async function POST(req: NextRequest) {
         const reader = upstream.body!.getReader();
         let buffer = "";
         let fullText = "";
-
         try {
           while (true) {
             const { done, value } = await reader.read();
             if (done) break;
-
             buffer += decoder.decode(value, { stream: true });
             const lines = buffer.split("\n");
-            buffer = lines.pop() ?? ""; // STRICT BUFFER GUARD: Keep incomplete chunks in memory
-
+            buffer = lines.pop() ?? "";
             for (const line of lines) {
               const trimmed = line.trim();
-              if (!trimmed || !trimmed.startsWith("data:")) continue;
+              if (!trimmed.startsWith("data:")) continue;
               const data = trimmed.slice(5).trim();
               if (data === "[DONE]") {
                 controller.enqueue(encoder.encode("data: [DONE]\n\n"));
@@ -81,7 +74,7 @@ export async function POST(req: NextRequest) {
       }
     });
 
-    return new Response(readableStream, { headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache', 'Connection': 'keep-alive' } });
+    return new Response(readableStream, { headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache' } });
   } catch (error: any) {
     return new Response(JSON.stringify({ error: error.message }), { status: 500 });
   }
