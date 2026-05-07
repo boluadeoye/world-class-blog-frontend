@@ -20,11 +20,11 @@ export default async function StudioPage({ params }: { params: Promise<{ id: str
     title: rows[0].title ?? "Untitled Session",
     systemPrompt: rows[0].system_prompt ?? "",
     summary: rows[0].summary ?? "",
-    messages: rows[0].messages ?? [],
+    messages: rows[0].messages ??[],
   };
 
   return (
-    <main className="h-[100dvh] overflow-hidden bg-[#0a0a0a]">
+    <main className="h-[100dvh] w-full overflow-hidden bg-[#0a0a0a]">
       <StudioIDE initialSession={session} />
     </main>
   );
