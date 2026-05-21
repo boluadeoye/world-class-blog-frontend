@@ -1,16 +1,13 @@
 "use client";
 import { useState, useEffect, useCallback, Suspense, useRef } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { 
+import {
   Grid, CheckCircle, AlertOctagon, X, Crown, Sparkles,
-  BrainCircuit, Clock, ChevronRight, ChevronLeft, ShieldAlert, 
+  BrainCircuit, Clock, ChevronRight, ChevronLeft, ShieldAlert,
   Loader2, BookOpen, Target, Zap, FileText, Lock, ShieldCheck, Fingerprint
 } from "lucide-react";
-import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";
 import LiveTracker from "@/components/cbt/LiveTracker";
-
-const UpgradeModal = dynamic(() => import("@/components/cbt/UpgradeModal"), { ssr: false });
 
 /* === SECURITY WATERMARK COMPONENT === */
 function SecurityWatermark({ text }) {
@@ -71,6 +68,7 @@ function SubmitModal({ isOpen, onConfirm, onCancel, answeredCount, totalCount })
     </div>
   );
 }
+
 function ExamContent() {
   const params = useParams();
   const router = useRouter();
@@ -82,8 +80,10 @@ function ExamContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [mounted, setMounted] = useState(false);
-  const [showUpgrade, setShowUpgrade] = useState(false);
-  const [isPremium, setIsPremium] = useState(false);
+  
+  // LIBERATION: Force Premium Status
+  const [isPremium, setIsPremium] = useState(true);
+  
   const [currentQIndex, setCurrentQIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const [timeLeft, setTimeLeft] = useState(null);
@@ -95,9 +95,7 @@ function ExamContent() {
   const [activeTab, setActiveTab] = useState("corrections");
   const [analysis, setAnalysis] = useState(null);
   const [analyzing, setAnalyzing] = useState(false);
-  const [limitReached, setLimitReached] = useState(false);
 
-  // FIX: Use Refs to prevent Timer Re-renders on Android
   const answersRef = useRef(answers);
   const studentRef = useRef(student);
 
@@ -128,24 +126,19 @@ function ExamContent() {
 
         const res = await fetch(`/api/cbt/exam?${query.toString()}`);
 
-        if (res.status === 403) {
-           setLimitReached(true);
-           setLoading(false);
-           return;
-        }
-
         if (!res.ok) {
             if (res.status === 401) { router.push("/cbt"); return; }
-            if (res.status === 403) { setShowUpgrade(true); setLoading(false); return; }
             throw new Error("Data retrieval failed.");
         }
         const data = await res.json();
         setCourse(data.course);
         setQuestions(data.questions || []);
-        setIsPremium(data.isPremium);
+        
+        // LIBERATION: Ignore backend premium status
+        setIsPremium(true);
 
         const reqDur = searchParams.get('duration');
-        const finalDur = (data.isPremium && reqDur) ? parseInt(reqDur) : (data.course?.duration || 15);
+        const finalDur = reqDur ? parseInt(reqDur) : (data.course?.duration || 15);
 
         const savedSession = localStorage.getItem(getStorageKey(parsedStudent.email));
         if (savedSession) {
@@ -165,6 +158,7 @@ function ExamContent() {
     }
     loadExam();
   }, [params.id, router, getStorageKey, searchParams]);
+
   const submitExam = useCallback(async () => {
     let correctCount = 0;
     questions.forEach(q => { if (answers[q.id] === q.correct_option) correctCount++; });
@@ -200,9 +194,8 @@ function ExamContent() {
     setTimeout(() => { submitExam(); }, 3000);
   }, [submitExam]);
 
-  // FIX: Optimized Timer using Refs
   useEffect(() => {
-    if (!mounted || loading || isSubmitted || limitReached || error || timeLeft === null || showUpgrade || isTimeUp) return;
+    if (!mounted || loading || isSubmitted || error || timeLeft === null || isTimeUp) return;
     const interval = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 0) {
@@ -221,7 +214,7 @@ function ExamContent() {
       });
     }, 1000);
     return () => clearInterval(interval);
-  }, [loading, isSubmitted, limitReached, error, timeLeft === null, showUpgrade, mounted, getStorageKey, handleAutoSubmit, isTimeUp]);
+  }, [loading, isSubmitted, error, timeLeft === null, mounted, getStorageKey, handleAutoSubmit, isTimeUp]);
 
   const handleSelect = (option) => {
     if (!isSubmitted && !isTimeUp && questions[currentQIndex]) {
@@ -253,27 +246,8 @@ function ExamContent() {
     if (answers[qId]) return "bg-emerald-600 text-white border-emerald-700 font-bold";
     return "bg-red-50 text-red-400 border-red-100 font-medium";
   };
+  
   if (!mounted) return null;
-
-  if (limitReached) return (
-    <div className="min-h-screen bg-[#002b00] flex flex-col items-center justify-center p-6 relative overflow-hidden">
-      {showUpgrade && <UpgradeModal student={student} onClose={() => setShowUpgrade(false)} onSuccess={() => window.location.reload()} />}
-      <div className="relative z-10 bg-white rounded-[2.5rem] max-w-sm w-full text-center shadow-2xl overflow-hidden">
-         <div className="bg-[#004d00] p-8 relative">
-            <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg"><Lock size={40} className="text-[#004d00]" /></div>
-            <h2 className="text-2xl font-black text-white uppercase tracking-widest">Access Denied</h2>
-            <p className="text-green-200 text-[10px] font-mono mt-2 uppercase tracking-[0.2em]">Hardware Limit Reached (2/2)</p>
-         </div>
-         <div className="p-8">
-            <p className="text-gray-600 text-xs font-medium leading-relaxed mb-8">Your device has exhausted the free attempt allocation for this sector.</p>
-            <button onClick={() => setShowUpgrade(true)} className="w-full py-4 bg-[#004d00] text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl hover:bg-green-900 transition-all active:scale-95 flex items-center justify-center gap-2"><Crown size={14} /> Upgrade Clearance</button>
-            <button onClick={() => router.push('/cbt/dashboard')} className="mt-6 text-gray-400 text-[10px] font-black uppercase tracking-widest hover:text-gray-600">Return to Base</button>
-         </div>
-      </div>
-    </div>
-  );
-
-  if (showUpgrade) return <div className="min-h-screen flex items-center justify-center bg-white"><UpgradeModal student={student} onClose={() => router.push('/cbt/dashboard')} onSuccess={() => window.location.reload()} /></div>;
 
   if (loading) return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#002b00] text-white relative overflow-hidden">
@@ -359,81 +333,59 @@ function ExamContent() {
                         </div>
                       )}
                     </div>
-                    {isPremium && q.explanation && <div className="mt-4 pt-4 border-t border-gray-100"><p className="text-[9px] font-black text-blue-600 uppercase tracking-widest mb-1">Concept Brief</p><p className="text-xs text-gray-600 leading-relaxed bg-blue-50/30 p-3 rounded-xl border border-blue-100 italic">{q.explanation}</p></div>}
+                    {/* LIBERATION: Explanations are always visible if they exist */}
+                    {q.explanation && <div className="mt-4 pt-4 border-t border-gray-100"><p className="text-[9px] font-black text-blue-600 uppercase tracking-widest mb-1">Concept Brief</p><p className="text-xs text-gray-600 leading-relaxed bg-blue-50/30 p-3 rounded-xl border border-blue-100 italic">{q.explanation}</p></div>}
                   </div>
                 );
               })}
             </div>
           ) : (
             <div className="bg-[#0a0a0a] rounded-[2.5rem] shadow-2xl border border-yellow-900/30 overflow-hidden min-h-[500px] relative group">
-              {!isPremium ? (
-                <div className="absolute inset-0 z-10 bg-gradient-to-b from-black via-[#0a0a0a] to-[#1a1a1a] flex flex-col items-center justify-center text-center p-10">
-                  <div className="relative mb-10">
-                    <div className="absolute inset-0 bg-yellow-500 blur-[80px] opacity-20 group-hover:opacity-40 transition-opacity animate-pulse"></div>
-                    <div className="w-28 h-28 bg-gradient-to-br from-yellow-400 via-orange-600 to-yellow-700 rounded-[2.5rem] flex items-center justify-center relative z-10 shadow-[0_0_50px_rgba(234,179,8,0.3)] transform group-hover:scale-110 transition-transform duration-700">
-                      <Lock size={48} className="text-white drop-shadow-2xl" strokeWidth={2.5} />
-                    </div>
+              <div className="p-0">
+                {!analysis ? (
+                  <div className="text-center py-32 px-8 bg-white">
+                    <div className="w-16 h-16 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse"><BrainCircuit size={40} className="text-purple-600" /></div>
+                    <h3 className="font-black text-gray-900 text-xs uppercase tracking-widest mb-2">Analyzing Performance</h3>
+                    <p className="text-gray-400 text-[10px] mb-8 uppercase tracking-widest">Crafting personalized recovery roadmap...</p>
+                    <button onClick={generateAnalysis} disabled={analyzing} className="bg-purple-900 text-white px-10 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl active:scale-95 transition-all">{analyzing ? "PROCESSING..." : "GENERATE REPORT"}</button>
                   </div>
-                  <div className="relative z-10">
-                    <h3 className="text-3xl font-black text-white mb-4 tracking-tighter uppercase italic">Confidential Briefing</h3>
-                    <p className="text-gray-400 text-sm mb-12 max-w-xs font-medium leading-relaxed">
-                      Your cognitive performance data is locked. Access the <span className="text-yellow-500 font-bold">AI Tactical Roadmap</span> to secure your success.
-                    </p>
-                    <button onClick={() => setShowUpgrade(true)} className="bg-yellow-500 text-black px-12 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.3em] shadow-[0_10px_40px_rgba(234,179,8,0.4)] hover:bg-white hover:scale-105 transition-all active:scale-95">
-                      Unlock The Vault
-                    </button>
-                  </div>
-                  <div className="absolute bottom-6 left-0 w-full text-center opacity-5 pointer-events-none">
-                    <p className="text-[40px] font-black uppercase tracking-[0.5em] whitespace-nowrap">CLASSIFIED • CLASSIFIED • CLASSIFIED</p>
-                  </div>
-                </div>
-              ) : (
-                <div className="p-0">
-                  {!analysis ? (
-                    <div className="text-center py-32 px-8 bg-white">
-                      <div className="w-16 h-16 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse"><BrainCircuit size={40} className="text-purple-600" /></div>
-                      <h3 className="font-black text-gray-900 text-xs uppercase tracking-widest mb-2">Analyzing Performance</h3>
-                      <p className="text-gray-400 text-[10px] mb-8 uppercase tracking-widest">Crafting personalized recovery roadmap...</p>
-                      <button onClick={generateAnalysis} disabled={analyzing} className="bg-purple-900 text-white px-10 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl active:scale-95 transition-all">{analyzing ? "PROCESSING..." : "GENERATE REPORT"}</button>
-                    </div>
-                  ) : (
-                    <div className="bg-[#fcfcfc] min-h-[600px] animate-in fade-in duration-700">
-                      <div className="bg-purple-900 text-white p-10 pb-12 rounded-t-[2.5rem] shadow-lg relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-20 -mt-20 blur-3xl"></div>
-                        <div className="relative z-10 text-left">
-                          <div className="flex items-center gap-3 mb-4">
-                            <div className="bg-white/20 p-2 rounded-lg backdrop-blur-md"><Sparkles size={20} /></div>
-                            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-purple-200">Intelligence Briefing</span>
-                          </div>
-                          <h3 className="text-3xl font-black uppercase tracking-tighter leading-none">Tactical Brief</h3>
-                          <p className="text-purple-300 text-xs font-bold uppercase tracking-widest mt-3 opacity-80">Personalized Recovery Plan for {student?.name}</p>
+                ) : (
+                  <div className="bg-[#fcfcfc] min-h-[600px] animate-in fade-in duration-700">
+                    <div className="bg-purple-900 text-white p-10 pb-12 rounded-t-[2.5rem] shadow-lg relative overflow-hidden">
+                      <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-20 -mt-20 blur-3xl"></div>
+                      <div className="relative z-10 text-left">
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="bg-white/20 p-2 rounded-lg backdrop-blur-md"><Sparkles size={20} /></div>
+                          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-purple-200">Intelligence Briefing</span>
                         </div>
+                        <h3 className="text-3xl font-black uppercase tracking-tighter leading-none">Tactical Brief</h3>
+                        <p className="text-purple-300 text-xs font-bold uppercase tracking-widest mt-3 opacity-80">Personalized Recovery Plan for {student?.name}</p>
                       </div>
+                    </div>
 
-                      <div className="p-8 md:p-12 text-left border-l-[8px] border-l-purple-600 bg-white">
-                        <div className="text-gray-800 leading-relaxed font-medium space-y-6">
-                           <ReactMarkdown
-                             components={{
-                               h1: ({children}) => <h1 className="text-xl font-black text-gray-900 uppercase tracking-widest border-b border-purple-100 pb-2 mt-8 first:mt-0">{children}</h1>,
-                               h2: ({children}) => <h2 className="text-lg font-bold text-purple-900 mt-6 mb-3">{children}</h2>,
-                               p: ({children}) => <p className="text-sm text-gray-600 mb-4 leading-7">{children}</p>,
-                               ul: ({children}) => <ul className="list-disc pl-5 space-y-2 text-sm text-gray-700">{children}</ul>,
-                               li: ({children}) => <li className="pl-1">{children}</li>,
-                               strong: ({children}) => <strong className="font-black text-purple-800">{children}</strong>
-                             }}
-                           >
-                             {analysis}
-                           </ReactMarkdown>
-                        </div>
-                        <div className="mt-16 pt-8 border-t border-gray-50 flex items-center justify-between opacity-40">
-                          <div className="flex items-center gap-2"><BrainCircuit size={14} /><span className="text-[8px] font-black uppercase tracking-widest">ExamForge AI Engine</span></div>
-                          <span className="text-[8px] font-black uppercase tracking-widest">Classified Document</span>
-                        </div>
+                    <div className="p-8 md:p-12 text-left border-l-[8px] border-l-purple-600 bg-white">
+                      <div className="text-gray-800 leading-relaxed font-medium space-y-6">
+                         <ReactMarkdown
+                           components={{
+                             h1: ({children}) => <h1 className="text-xl font-black text-gray-900 uppercase tracking-widest border-b border-purple-100 pb-2 mt-8 first:mt-0">{children}</h1>,
+                             h2: ({children}) => <h2 className="text-lg font-bold text-purple-900 mt-6 mb-3">{children}</h2>,
+                             p: ({children}) => <p className="text-sm text-gray-600 mb-4 leading-7">{children}</p>,
+                             ul: ({children}) => <ul className="list-disc pl-5 space-y-2 text-sm text-gray-700">{children}</ul>,
+                             li: ({children}) => <li className="pl-1">{children}</li>,
+                             strong: ({children}) => <strong className="font-black text-purple-800">{children}</strong>
+                           }}
+                         >
+                           {analysis}
+                         </ReactMarkdown>
+                      </div>
+                      <div className="mt-16 pt-8 border-t border-gray-50 flex items-center justify-between opacity-40">
+                        <div className="flex items-center gap-2"><BrainCircuit size={14} /><span className="text-[8px] font-black uppercase tracking-widest">ExamForge AI Engine</span></div>
+                        <span className="text-[8px] font-black uppercase tracking-widest">Classified Document</span>
                       </div>
                     </div>
-                  )}
-                </div>
-              )}
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>
