@@ -1,62 +1,50 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import {
-  LogOut, Trophy, BookOpen, Play, Award,
-  ChevronDown, Info, Crown, Clock, ChevronRight,
-  AlertTriangle, Layers, Headset, History, CheckCircle, Building2, Settings, Lock, Sparkles,
-  ChevronUp, MessageCircle, Megaphone, Bell, GraduationCap, FileText, Target, Database
-} from "lucide-react";
-import Link from "next/link";
+import { Clock, Target, Play, Info, Crown, Award, Zap, Activity, ArrowUpRight, ArrowRight } from "lucide-react";
+import Sidebar from "../../../components/cbt/Sidebar";
+import TopBar from "../../../components/cbt/TopBar";
+import CourseCard from "../../../components/cbt/CourseCard";
 import StatusModal from "../../../components/cbt/StatusModal";
 import LiveTracker from "../../../components/cbt/LiveTracker";
 
-/* === 1. EXAM SETUP MODAL === */
+const EASE = [0.16, 1, 0.3, 1];
+const WHATSAPP_URL = "https://wa.me/2348106293674";
+const PORTRAIT_URL = "https://res.cloudinary.com/dwbjb3svx/image/upload/v1779690109/blog_assets/qrun4i1qi7l35sg8siql.jpg";
+
 function ExamSetupModal({ course, onClose, onStart }) {
   const [duration, setDuration] = useState(course.duration || 15);
   const [qCount, setQCount] = useState(30);
 
-  // LIBERATION: Attempt limits removed.
-  const isBlocked = false;
-
   return (
-    <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in zoom-in duration-200">
-      <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden border border-white">
-        <div className="bg-[#004d00] p-6 text-white relative">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-400 to-green-400"></div>
-          <h3 className="font-black text-xs uppercase tracking-[0.2em] flex items-center gap-2">
-            <Settings size={14} /> Mission Config
+    <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+      <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden border border-[#E0DDD4]">
+        <div className="bg-[#003600] p-6 text-white relative">
+          <h3 className="font-semibold text-xs uppercase tracking-[0.2em] flex items-center gap-2 text-[#D4BB7A]">
+            Config
           </h3>
-          <p className="text-green-200 text-[10px] font-bold uppercase mt-1 tracking-widest">{course.code} • {course.title}</p>
+          <p className="text-white/80 text-[10px] font-mono uppercase mt-1.5 tracking-widest">{course.code} • {course.title}</p>
         </div>
-        <div className="p-6">
+        <div className="p-6 bg-[#F7F6F2]">
           <div className="mb-6">
-            <label className="block text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3 flex items-center gap-2"><Clock size={10} /> Time Limit</label>
+            <label className="block text-[9px] font-mono uppercase tracking-[0.2em] mb-3"><Clock size={10} className="inline mr-1" /> Time Limit</label>
             <div className="grid grid-cols-4 gap-2">
-              {[15, 30, 45, 60].map((time) => {
-                return (
-                  <button key={time} onClick={() => setDuration(time)} className={`py-3 rounded-xl text-[10px] font-black transition-all relative overflow-hidden border ${duration === time ? 'border-green-600 bg-green-50 text-green-900 shadow-inner' : 'border-gray-100 text-gray-400 bg-gray-50'}`}>
-                    {time}
-                  </button>
-                );
-              })}
+              {[15, 30, 45, 60].map(t => (
+                <button key={t} onClick={() => setDuration(t)} className={`py-3 rounded-lg text-[10px] font-mono border ${duration === t ? 'border-[#004d00] bg-[#edf5ed] text-[#003600] font-bold' : 'border-[#E0DDD4] text-[#7A7870] bg-white'}`}>{t}m</button>
+              ))}
             </div>
           </div>
           <div className="mb-6">
-            <label className="block text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3 flex items-center gap-2"><Target size={10} /> Question Load</label>
+            <label className="block text-[9px] font-mono uppercase tracking-[0.2em] mb-3"><Target size={10} className="inline mr-1" /> Question Load</label>
             <div className="grid grid-cols-4 gap-2">
-              {[20, 40, 60, 100].map((count) => {
-                return (
-                  <button key={count} onClick={() => setQCount(count)} className={`py-3 rounded-xl text-[10px] font-black transition-all relative overflow-hidden border ${qCount === count ? 'border-blue-600 bg-blue-50 text-blue-900 shadow-inner' : 'border-gray-100 text-gray-400 bg-gray-50'}`}>
-                    {count}
-                  </button>
-                );
-              })}
+              {[20, 40, 60, 100].map(c => (
+                <button key={c} onClick={() => setQCount(c)} className={`py-3 rounded-lg text-[10px] font-mono border ${qCount === c ? 'border-[#004d00] bg-[#edf5ed] text-[#003600] font-bold' : 'border-[#E0DDD4] text-[#7A7870] bg-white'}`}>{c}q</button>
+              ))}
             </div>
           </div>
           <div className="flex gap-2">
-            <button onClick={onClose} className="flex-1 py-3 border border-gray-100 rounded-xl text-[9px] font-black text-gray-400 uppercase tracking-widest transition-all">Cancel</button>
-            <button onClick={() => onStart(duration, qCount)} className="flex-[1.5] py-3 bg-[#004d00] text-white rounded-xl text-[10px] font-black shadow-xl hover:bg-green-900 uppercase tracking-widest flex items-center justify-center gap-2">Start Mission <Play size={12} fill="currentColor" /></button>
+            <button onClick={onClose} className="flex-1 py-3 border border-[#E0DDD4] rounded-xl text-[9px] font-mono uppercase tracking-widest text-[#7A7870] hover:bg-[#F0EEE9]">Cancel</button>
+            <button onClick={() => onStart(duration, qCount)} className="flex-[1.5] py-3 bg-[#004d00] text-white rounded-xl text-[10px] font-mono shadow-xl uppercase tracking-widest flex items-center justify-center gap-2">Start <Play size={12} fill="currentColor" /></button>
           </div>
         </div>
       </div>
@@ -64,77 +52,25 @@ function ExamSetupModal({ course, onClose, onStart }) {
   );
 }
 
-/* === 2. DISCLAIMER CARD === */
 function DisclaimerCard() {
   const [isOpen, setIsOpen] = useState(true);
   return (
-    <div className="bg-[#FFF8F0] rounded-[2rem] overflow-hidden mb-6 shadow-sm border border-orange-50/50">
+    <div className="bg-[#FFF8F0] rounded-[2rem] overflow-hidden mb-6 border border-orange-50/50">
       <button onClick={() => setIsOpen(!isOpen)} className="w-full flex items-center justify-between p-6 text-left">
         <div className="flex items-center gap-4">
           <div className="bg-orange-100 w-10 h-10 flex items-center justify-center rounded-full text-orange-600 shadow-inner"><Info size={18} /></div>
-          <div><h3 className="font-black text-xs text-[#5A3A29] uppercase tracking-wide">Important Disclaimer</h3><p className="text-[9px] text-orange-400 font-bold mt-0.5">Read before starting</p></div>
+          <div><h3 className="font-semibold text-xs text-[#5A3A29] uppercase tracking-wide">Disclaimer</h3><p className="text-[9px] text-orange-400 font-bold mt-0.5">Read before starting</p></div>
         </div>
-        <ChevronDown size={16} className={`text-orange-300 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown size={16} className={`text-orange-300 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
       {isOpen && (
         <div className="px-6 pb-8 text-[10px] text-[#8B5E3C] leading-relaxed border-t border-orange-100/50 pt-4">
-          <p className="mb-3 font-black text-[#5A3A29] uppercase tracking-widest text-[9px]">Strict Warning:</p>
           <ul className="space-y-2 font-medium">
-            <li className="flex gap-2"><span className="text-orange-400 font-black">•</span> <span>The purpose of this mock is <strong>NOT</strong> to expose likely questions.</span></li>
-            <li className="flex gap-2"><span className="text-orange-400 font-black">•</span> <span>The aim is to <strong>simulate the environment</strong> psychologically.</span></li>
-            <li className="flex gap-2"><span className="text-orange-400 font-black">•</span> <span>Use this to practice <strong>time management</strong>.</span></li>
-            <li className="flex gap-2"><span className="text-orange-400 font-black">•</span> <span>Success here <strong>does not guarantee success</strong> in the main exam.</span></li>
+            <li>• Simulation of psychological test environment.</li>
+            <li>• Practice strict timing and resilience.</li>
           </ul>
         </div>
       )}
-    </div>
-  );
-}
-
-/* === 3. COURSE CARD === */
-function CourseCard({ course, onLaunch, variant = "green" }) {
-  const isGstVariant = variant === "green";
-
-  // LIBERATION: Attempt limits removed.
-  const isBlocked = false;
-
-  const theme = isGstVariant
-    ? { bg: "bg-green-50", text: "text-green-800", border: "border-green-100", icon: "text-green-600", btn: "bg-[#004d00]", shadow: "shadow-green-900/20" }
-    : { bg: "bg-blue-50", text: "text-blue-800", border: "border-blue-100", icon: "text-blue-600", btn: "bg-blue-600", shadow: "shadow-blue-900/20" };
-
-  const badgeStyle = `${theme.bg} ${theme.text} ${theme.border}`;
-  const btnStyle = `${theme.btn} text-white ${theme.shadow} shadow-lg`;
-  const statusText = <span className={`${theme.icon} flex items-center gap-1`}><Sparkles size={8} /> READY</span>;
-
-  return (
-    <div
-      onClick={(e) => { e.preventDefault(); onLaunch(course); }}
-      className={`group relative bg-white rounded-[2rem] shadow-sm border border-transparent overflow-hidden flex flex-col h-full min-h-[210px] cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ${isGstVariant ? 'hover:border-green-100' : 'hover:border-blue-100'}`}
-    >
-      <div className="p-6 flex flex-col h-full relative z-10">
-        <div className="flex justify-between items-start mb-4">
-          <span className={`inline-block px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border ${badgeStyle} transition-colors`}>
-            {course.code}
-          </span>
-          <div className={`flex items-center gap-1 ${theme.icon} opacity-70`}>
-            <Database size={10} />
-            <span className="text-[9px] font-bold">{course.total_questions || 0}</span>
-          </div>
-        </div>
-        <div className="flex-1 flex items-center">
-          <h3 className={`font-black text-sm leading-relaxed text-gray-900 line-clamp-3 group-hover:opacity-80 transition-opacity`}>
-            {course.title}
-          </h3>
-        </div>
-        <div className="mt-4 flex justify-between items-center">
-           <div className="text-[9px] font-black uppercase tracking-wider">
-             {statusText}
-           </div>
-           <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-transform group-hover:scale-110 ${btnStyle}`}>
-             <Play size={16} fill="currentColor" className="ml-0.5" />
-           </div>
-        </div>
-      </div>
     </div>
   );
 }
@@ -149,16 +85,11 @@ export default function StudentDashboard() {
   const [mounted, setMounted] = useState(false);
   const [statusModal, setStatusModal] = useState(null);
   const [greeting, setGreeting] = useState("GOOD DAY");
-  const [avatarUrl, setAvatarUrl] = useState("");
   const [setupCourse, setSetupCourse] = useState(null);
-  const [gstExpanded, setGstExpanded] = useState(true);
-  const [othersExpanded, setOthersExpanded] = useState(false);
   const [historyExpanded, setHistoryExpanded] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [totalForumPosts, setTotalForumPosts] = useState(0);
-
-  // LIBERATION: Force Premium Status
-  const isPremium = true;
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -171,9 +102,6 @@ export default function StudentDashboard() {
     if (!stored) { router.push("/cbt"); return; }
     const parsed = JSON.parse(stored);
     setStudent(parsed);
-
-    const seed = parsed.name.replace(/\s/g, '');
-    setAvatarUrl(`https://api.dicebear.com/7.x/notionists/svg?seed=${seed}&backgroundColor=b6e3f4,c0aede,d1d4f9`);
 
     async function fetchData() {
       try {
@@ -223,183 +151,385 @@ export default function StudentDashboard() {
   };
 
   if (!mounted || !student) return null;
-  const gstCourses = courses.filter(c => c.code.toUpperCase().startsWith("GST"));
-  const otherCourses = courses.filter(c => !c.code.toUpperCase().startsWith("GST"));
-  const visibleHistory = historyExpanded ? examHistory : examHistory.slice(0, 2);
-  const qualifiedLeaders = leaders.filter(user => user.score >= 60);
+
+  const visibleHistory = historyExpanded ? examHistory : examHistory.slice(0, 3);
+  const getBentoClass = (idx) => ["unit-gst-main", "unit-finance", "unit-procurement", "unit-hr", "unit-ops", "unit-audit", "unit-tax"][idx] || "unit-ops";
 
   if (loading) return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#004d00] gap-4">
-      <div className="w-12 h-12 border-4 border-white/20 border-t-white rounded-full animate-spin"></div>
-      <p className="text-white font-black text-xs uppercase tracking-[0.3em]">Loading HQ...</p>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#003600] gap-4">
+      <div className="w-12 h-12 border-4 border-[#D4BB7A]/20 border-t-[#D4BB7A] rounded-full animate-spin"></div>
+      <p className="text-[#D4BB7A] font-mono text-xs uppercase tracking-[0.3em]">SYNCHRONIZING TERMINAL...</p>
     </div>
   );
 
   return (
-    <main className="min-h-screen bg-[#fcfdfc] font-sans text-gray-900 pb-48 relative">
+    <main className="min-h-screen bg-[#F7F6F2] font-sans text-[#171613] relative">
       <LiveTracker />
-      {statusModal && <StatusModal {...statusModal} />}
-      {setupCourse && <ExamSetupModal course={setupCourse} onClose={() => setSetupCourse(null)} onStart={(dur, limit) => router.push(`/cbt/exam/${setupCourse.id}?duration=${dur}&limit=${limit || 30}`)} />}
+      
+      {/* Dynamic Style Injection */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        :root {
+          --canvas: #F7F6F2; --surface: #F0EEE9; --surface-raised: #FFFFFF;
+          --border-ghost: rgba(180,175,165,0.35); --border-fine: #E0DDD4;
+          --text-ink: #171613; --text-muted: #7A7870; --text-ghost: #ABA8A0;
+          --green-900: #002800; --green-800: #003600; --green-700: #004400; --green-600: #004d00;
+          --gold-500: #B8960C; --gold-300: #D4BB7A;
+          --ease-viscous: cubic-bezier(0.16, 1, 0.3, 1); --ease-expo: cubic-bezier(0.19, 1, 0.22, 1);
+          --dur-base: 360ms; --dur-slow: 560ms; --dur-cinematic: 800ms;
+          --sidebar-w: 252px; --ambassador-w: 300px; --radius-sm: 4px; --radius-md: 8px; --radius-lg: 12px;
+        }
+        body::before { content: ''; position: fixed; inset: 0; background-image: radial-gradient(circle, rgba(160,155,145,0.28) 1px, transparent 1px); background-size: 22px 22px; pointer-events: none; z-index: 0; }
+        .sidebar { width: var(--sidebar-w); min-height: 100vh; background: var(--green-800); display: flex; flex-direction: column; position: fixed; left: 0; top: 0; bottom: 0; z-index: 100; border-right: 1px solid var(--green-900); background-image: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.03) 3px, rgba(0,0,0,0.03) 4px), linear-gradient(180deg, var(--green-800) 0%, var(--green-900) 100%); }
+        .sidebar-logo { padding: 28px 24px 24px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+        .logo-mark { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+        .logo-icon { width: 32px; height: 32px; background: var(--gold-500); border-radius: var(--radius-sm); display: grid; place-items: center; }
+        .logo-name { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 600; color: #FFFFFF; letter-spacing: 0.02em; line-height: 1; }
+        .logo-suite { font-size: 9px; font-weight: 400; color: rgba(255,255,255,0.42); letter-spacing: 0.16em; text-transform: uppercase; }
+        .sidebar-nav { flex: 1; padding: 20px 0; overflow-y: auto; }
+        .nav-label { font-size: 9px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.28); padding: 0 24px; margin: 16px 0 6px; }
+        .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 24px; cursor: pointer; transition: background 120ms var(--ease-viscous); text-decoration: none; }
+        .nav-item:hover { background: rgba(255,255,255,0.06); }
+        .nav-item.active { background: rgba(255,255,255,0.10); }
+        .nav-text { font-size: 13px; font-weight: 400; color: rgba(255,255,255,0.72); }
+        .nav-badge { margin-left: auto; font-size: 10px; font-weight: 500; background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.60); padding: 2px 7px; border-radius: 20px; }
+        .forge-status { padding: 20px 24px; border-top: 1px solid rgba(255,255,255,0.08); background: rgba(0,0,0,0.15); }
+        .forge-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(184,150,12,0.18); border: 1px solid rgba(184,150,12,0.30); border-radius: 3px; padding: 3px 8px; margin-bottom: 12px; }
+        .forge-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold-300); animation: pulse-gold 2.5s ease-in-out infinite; }
+        .forge-badge-text { font-size: 9px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-300); }
+        .forge-stat { display: flex; align-items: baseline; gap: 4px; margin-bottom: 4px; }
+        .forge-stat-num { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 600; color: #FFFFFF; line-height: 1; }
+        .forge-stat-unit { font-size: 11px; color: rgba(255,255,255,0.38); }
+        .sidebar-user { display: flex; align-items: center; gap: 10px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.08); }
+        .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--green-600); border: 1.5px solid rgba(255,255,255,0.20); display: grid; place-items: center; font-family: 'Cormorant Garamond', serif; font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.90); }
+        .main-shell { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; position: relative; z-index: 1; }
+        .topbar { display: flex; align-items: center; justify-content: space-between; padding: 0 36px; height: 56px; border-bottom: 1px solid var(--border-ghost); background: rgba(247,246,242,0.88); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 50; }
+        .breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-ghost); }
+        .breadcrumb-active { color: var(--text-muted); font-weight: 500; }
+        .content { padding: 36px 36px 120px; display: flex; flex-direction: column; gap: 32px; }
+        .hero-row { display: grid; grid-template-columns: 1fr var(--ambassador-w); gap: 20px; align-items: stretch; }
+        .command-brief { background: var(--surface-raised); border: 1px solid var(--border-fine); border-radius: var(--radius-lg); padding: 32px 36px; display: flex; flex-direction: column; gap: 28px; }
+        .brief-eyebrow { font-size: 10px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-ghost); }
+        .brief-headline { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 500; color: var(--text-ink); line-height: 1.15; }
+        .brief-headline em { font-style: italic; color: var(--green-600); }
+        .brief-sub { font-size: 13px; color: var(--text-muted); line-height: 1.55; max-width: 420px; }
+        .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border-fine); border: 1px solid var(--border-fine); border-radius: var(--radius-md); overflow: hidden; }
+        .kpi-cell { background: var(--surface-raised); padding: 16px 20px; display: flex; flex-direction: column; gap: 4px; }
+        .kpi-label { font-size: 10px; font-weight: 500; letter-spacing: 0.10em; text-transform: uppercase; color: var(--text-ghost); }
+        .kpi-value { font-family: 'Cormorant Garamond', serif; font-size: 30px; font-weight: 600; color: var(--text-ink); line-height: 1; }
+        .kpi-value.green { color: var(--green-600); }
+        .kpi-delta { font-size: 10px; color: var(--text-ghost); }
+        .sovereignty-strip { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: var(--green-50); border: 1px solid var(--border-fine); border-radius: var(--radius-md); }
+        .sovereignty-icon { width: 32px; height: 32px; background: var(--green-600); border-radius: var(--radius-sm); display: grid; place-items: center; }
+        .sovereignty-text { flex: 1; }
+        .sovereignty-title { font-size: 12px; font-weight: 500; color: var(--green-700); }
+        .sovereignty-sub { font-size: 11px; color: var(--green-500); opacity: 0.75; }
+        .sovereignty-cta { font-family: 'Cormorant Garamond', serif; font-size: 14px; font-style: italic; color: var(--green-600); }
+        .ambassador-panel { background: var(--green-900); border: 1px solid var(--green-800); border-radius: var(--radius-lg); overflow: hidden; display: flex; flex-direction: column; position: relative; }
+        .ambassador-tag { position: relative; z-index: 1; padding: 14px 18px 0; display: flex; align-items: center; justify-content: space-between; }
+        .ambassador-label { font-size: 9px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,0.30); }
+        .ambassador-live { display: flex; align-items: center; gap: 5px; font-size: 9px; letter-spacing: 0.10em; text-transform: uppercase; color: var(--gold-300); opacity: 0.70; }
+        .ambassador-live-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--gold-300); animation: pulse-gold 3s ease-in-out infinite; }
+        .ambassador-portrait-frame { position: relative; z-index: 1; margin: 12px 18px 0; border-radius: var(--radius-md); overflow: hidden; aspect-ratio: 3/4; border: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; justify-content: flex-end; }
+        .ambassador-insight { position: relative; z-index: 2; width: 100%; padding: 14px 16px; background: linear-gradient(0deg, rgba(0,28,0,0.96) 0%, rgba(0,28,0,0.80) 60%, rgba(0,28,0,0) 100%); }
+        .insight-quote { font-family: 'Cormorant Garamond', serif; font-size: 13px; font-style: italic; color: rgba(255,255,255,0.80); line-height: 1.5; margin-bottom: 6px; }
+        .insight-attr { font-size: 10px; color: rgba(255,255,255,0.30); }
+        .cognitive-telemetry { position: relative; z-index: 1; padding: 14px 18px; border-top: 1px solid rgba(255,255,255,0.06); display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; }
+        .telemetry-cell { display: flex; flex-direction: column; gap: 2px; padding-left: 10px; }
+        .telemetry-cell:first-child { padding-left: 0; }
+        .telemetry-val { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; color: #FFFFFF; line-height: 1; }
+        .telemetry-key { font-size: 9px; letter-spacing: 0.10em; text-transform: uppercase; color: rgba(255,255,255,0.28); }
+        .section-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 16px; }
+        .section-title { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 500; color: var(--text-ink); }
+        .section-subtitle { font-size: 12px; color: var(--text-ghost); margin-left: 10px; }
+        .section-action { font-size: 12px; color: var(--green-600); cursor: pointer; border: none; background: none; font-family: 'DM Sans', sans-serif; }
+        .unit-matrix { display: grid; grid-template-columns: repeat(12, 1fr); gap: 12px; }
+        .unit-card { background: var(--surface-raised); border: 1px solid var(--border-fine); border-radius: var(--radius-lg); padding: 22px 24px; cursor: pointer; transition: border-color var(--dur-base) var(--ease-viscous), transform var(--dur-slow) var(--ease-expo); position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 12px; }
+        .unit-card::after { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(0,77,0,0.03) 0%, transparent 60%); pointer-events: none; opacity: 0; }
+        .unit-card:hover { border-color: var(--border-mid); transform: translateY(-1px); }
+        .unit-card:hover::after { opacity: 1; }
+        .unit-gst-main { grid-column: span 4; grid-row: span 2; }
+        .unit-finance { grid-column: span 4; }
+        .unit-procurement { grid-column: span 4; }
+        .unit-hr { grid-column: span 3; }
+        .unit-ops { grid-column: span 3; }
+        .unit-audit { grid-column: span 3; }
+        .unit-tax { grid-column: span 3; }
+        .unit-card.featured { background: var(--green-900); border-color: var(--green-800); }
+        .unit-card.featured .unit-cat { color: rgba(255,255,255,0.30); }
+        .unit-card.featured .unit-name { font-size: 24px; color: #FFFFFF; }
+        .unit-card.featured .unit-desc { color: rgba(255,255,255,0.45); font-size: 12px; }
+        .unit-card.featured .unit-stat-val { color: #FFFFFF; }
+        .unit-card.featured .unit-stat-key { color: rgba(255,255,255,0.28); }
+        .unit-card.featured .unit-attempt { color: var(--gold-300); }
+        .unit-cat { font-size: 9px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-ghost); }
+        .unit-icon { width: 36px; height: 36px; border-radius: var(--radius-sm); background: var(--green-50); border: 1px solid var(--green-100); display: grid; place-items: center; color: var(--green-600); }
+        .unit-icon-lg { width: 44px; height: 44px; border-radius: var(--radius-md); background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); display: grid; place-items: center; color: var(--gold-300); }
+        .unit-name { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 500; color: var(--text-ink); line-height: 1.2; }
+        .unit-desc { font-size: 11.5px; color: var(--text-muted); line-height: 1.55; }
+        .unit-progress { display: flex; flex-direction: column; gap: 5px; }
+        .progress-meta { display: flex; justify-content: space-between; }
+        .progress-label { font-size: 10px; color: var(--text-ghost); }
+        .progress-pct { font-size: 11px; font-weight: 500; color: var(--text-body); }
+        .progress-track { height: 2px; background: var(--border-fine); overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--green-500); }
+        .unit-card.featured .progress-fill { background: var(--gold-300); }
+        .unit-stats { display: flex; gap: 16px; margin-top: auto; }
+        .unit-stat { display: flex; flex-direction: column; gap: 2px; }
+        .unit-stat-val { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: var(--text-ink); line-height: 1; }
+        .unit-stat-key { font-size: 9px; letter-spacing: 0.10em; text-transform: uppercase; color: var(--text-ghost); }
+        .unit-action-row { display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: 10px; border-top: 1px solid var(--border-ghost); }
+        .unit-attempt { font-size: 11px; font-weight: 500; color: var(--green-600); border: none; background: none; font-family: 'DM Sans', sans-serif; cursor: pointer; }
+        .difficulty { display: inline-flex; align-items: center; gap: 4px; font-size: 9px; font-weight: 500; letter-spacing: 0.10em; text-transform: uppercase; padding: 3px 8px; border-radius: 2px; }
+        .difficulty.std { background: var(--surface); color: var(--text-ghost); border: 1px solid var(--border-fine); }
+        .history-stream { background: var(--surface-raised); border: 1px solid var(--border-fine); border-radius: var(--radius-lg); overflow: hidden; }
+        .history-head { display: grid; grid-template-columns: 120px 1fr 80px 80px 90px; padding: 10px 24px; border-bottom: 1px solid var(--border-fine); background: var(--surface); }
+        .history-head-cell { font-size: 9px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-ghost); }
+        .history-entry { display: grid; grid-template-columns: 120px 1fr 80px 80px 90px; padding: 14px 24px; border-bottom: 1px solid var(--border-ghost); align-items: center; transition: background 120ms var(--ease-viscous); }
+        .history-entry:last-child { border-bottom: none; }
+        .history-entry:hover { background: var(--surface); }
+        .entry-date { font-size: 11px; color: var(--text-muted); }
+        .entry-date-day { font-size: 10px; color: var(--text-ghost); margin-top: 1px; }
+        .entry-exam-name { font-size: 13px; font-weight: 500; color: var(--text-ink); }
+        .entry-exam-unit { font-size: 10px; color: var(--text-ghost); margin-top: 1px; }
+        .entry-score { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; color: var(--text-ink); line-height: 1; }
+        .entry-score.hi { color: var(--green-600); }
+        .entry-score.lo { color: var(--fail); }
+        .entry-score-denom { font-size: 10px; color: var(--text-ghost); }
+        .entry-duration { font-size: 12px; color: var(--text-muted); }
+        .entry-badge { display: inline-flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 500; letter-spacing: 0.10em; text-transform: uppercase; padding: 4px 10px; border-radius: 2px; min-width: 72px; }
+        .badge-excellent { background: var(--excellent-bg); color: var(--excellent); border: 1px solid rgba(26,77,140,0.18); }
+        .badge-pass { background: var(--pass-bg); color: var(--pass); border: 1px solid rgba(26,110,26,0.18); }
+        .badge-fail { background: var(--fail-bg); color: var(--fail); border: 1px solid rgba(139,32,32,0.18); }
+        @keyframes pulse-gold { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.55; transform: scale(0.85); } }
+        @keyframes fadeSlideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        @media (max-width: 900px) {
+          .sidebar { transform: translateX(-100%); transition: transform 0.4s var(--ease-viscous); z-index: 200; width: 230px; }
+          .sidebar.open { transform: translateX(0); }
+          .main-shell { margin-left: 0; }
+          .hero-row { grid-template-columns: 1fr; }
+          .unit-matrix { grid-template-columns: 1fr; }
+          .unit-card { grid-column: span 1 !important; }
+          .history-head, .history-entry { grid-template-columns: 100px 1fr 80px 80px; }
+          .history-head-cell:nth-child(5), .history-entry > *:nth-child(5) { display: none; }
+        }
+      ` }} />
 
-      <header className="bg-[#004d00] text-white pt-8 pb-20 px-6 rounded-b-[2.5rem] shadow-2xl relative z-10">
-        <div className="flex justify-between items-center mb-8">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center border-2 border-white/20 shadow-lg overflow-hidden relative">
-              {avatarUrl && <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />}
-              <div className="absolute top-0 right-0 bg-yellow-400 p-1 rounded-bl-lg shadow-sm"><Crown size={8} className="text-black" fill="currentColor" /></div>
-            </div>
-            <div>
-              <p className="text-green-200 text-[10px] font-bold uppercase tracking-widest mb-0.5">{greeting}</p>
-              <h1 className="text-xl font-black leading-none truncate w-40">{student.name.split(" ")[0]}</h1>
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <a href="https://wa.me/2348106293674" target="_blank" rel="noopener noreferrer" className="bg-green-500 p-3 rounded-xl border border-green-400 text-white shadow-[0_0_15px_rgba(34,197,94,0.6)] animate-pulse hover:scale-105 transition-all"><Headset size={18} /></a>
-            <button onClick={triggerLogout} className="bg-green-500/20 p-3 rounded-xl border border-white/10 hover:bg-red-600 transition-colors backdrop-blur-sm"><LogOut size={18} /></button>
-          </div>
-        </div>
-        <div className="bg-[#003300] border border-white/5 rounded-2xl p-5 flex items-center justify-between shadow-inner">
-          <div><p className="text-[9px] font-bold text-green-400 uppercase tracking-wider mb-1">Current Session</p><p className="font-black text-xs text-white tracking-wide">EXAMFORGE SESSION 2026</p></div>
-          <div className="bg-white text-[#004d00] px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wide shadow-sm">Active</div>
-        </div>
-      </header>
+      {/* Mobile Drawer Backdrop */}
+      {isMobileNavOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[150] md:hidden"
+          onClick={() => setIsMobileNavOpen(false)}
+        />
+      )}
 
-      <div className="px-5 -mt-8 relative z-20 space-y-6">
-        <DisclaimerCard />
+      {/* Render sidebar from components path */}
+      <Sidebar 
+        student={student} 
+        unreadCount={unreadCount} 
+        handleForumEnter={handleForumEnter} 
+        isOpen={isMobileNavOpen} 
+        setIsOpen={setIsMobileNavOpen} 
+      />
 
-        <Link href="/cbt/community" onClick={handleForumEnter} className="block">
-          <div className="bg-gradient-to-r from-blue-900 to-blue-800 rounded-[2rem] p-6 shadow-xl shadow-blue-900/20 border border-blue-700 relative overflow-hidden group active:scale-[0.98] transition-transform">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
-            <div className="relative z-10 flex justify-between items-center">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-md border border-white/10 relative">
-                  <MessageCircle size={24} className="text-white" />
-                  {unreadCount > 0 && (
-                    <div className="absolute -top-2 -right-2 bg-red-500 text-white text-[9px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-blue-900 animate-bounce shadow-lg">
-                      {unreadCount > 9 ? '9+' : unreadCount}
-                    </div>
-                  )}
+      <div className="main-shell">
+        {/* Render topbar from components path */}
+        <TopBar 
+          isOpen={isMobileNavOpen} 
+          setIsOpen={setIsMobileNavOpen} 
+          triggerLogout={triggerLogout} 
+        />
+
+        <main className="content">
+          <DisclaimerCard />
+
+          {/* Hero Row */}
+          <div className="hero-row anim-1" style={{ animation: 'fadeSlideUp 560ms cubic-bezier(0.19, 1, 0.22, 1) 0.05s both' }}>
+            <div className="command-brief">
+              <div className="brief-greeting">
+                <div className="brief-eyebrow">{greeting}, {student.name.split(" ")[0]}</div>
+                <h1 className="brief-headline">Forge your path.<br /><em>Again. And again.</em></h1>
+                <p className="brief-sub">Your preparation records are logged. Access to the entire testing matrix has been liberated. There are no remaining blocks on your attempts.</p>
+              </div>
+
+              <div className="kpi-row">
+                <div className="kpi-cell">
+                  <span className="kpi-label">Attempts</span>
+                  <span className="kpi-value">{examHistory.length}</span>
+                  <span className="kpi-delta font-mono">Sessions Run</span>
                 </div>
-                <div>
-                  <h2 className="text-white font-black text-sm uppercase tracking-widest mb-1 flex items-center gap-2">
-                    Community Forum
-                    {unreadCount > 0 && <span className="bg-red-500 text-white text-[8px] px-1.5 py-0.5 rounded animate-pulse">NEW</span>}
-                  </h2>
-                  <p className="text-blue-200 text-[10px] font-bold">
-                    {unreadCount > 0 ? `${unreadCount} New Messages Waiting...` : "Connect, Discuss & Get Updates"}
-                  </p>
+                <div className="kpi-cell">
+                  <span className="kpi-label">Highest Score</span>
+                  <span className="kpi-value green">
+                    {examHistory.length > 0 ? `${Math.max(...examHistory.map(h => Math.round((h.score / h.total) * 100)))}%` : "0%"}
+                  </span>
+                  <span className="kpi-delta font-mono">Archived Record</span>
+                </div>
+                <div className="kpi-cell">
+                  <span className="kpi-label">Status</span>
+                  <span className="kpi-value">Elite</span>
+                  <span className="text-emerald-700 text-[10px] font-mono uppercase font-black">Unlocked</span>
+                </div>
+                <div className="kpi-cell">
+                  <span className="kpi-label">Streak</span>
+                  <span className="kpi-value">21</span>
+                  <span className="kpi-delta font-mono">Days Active</span>
                 </div>
               </div>
-              <div className="bg-white text-blue-900 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-wide shadow-lg flex items-center gap-2">
-                Enter <ChevronRight size={12} />
+
+              <div className="sovereignty-strip">
+                <div className="sovereignty-icon">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M8 1L10 6H15L11 9.5L12.5 14.5L8 11.5L3.5 14.5L5 9.5L1 6H6L8 1Z" fill="white" opacity="0.9" />
+                  </svg>
+                </div>
+                <div className="sovereignty-text">
+                  <div className="sovereignty-title">Unrestricted Sovereignty — Fully Liberated Access</div>
+                  <div className="sovereignty-sub">All core courses and sub-modules unlocked indefinitely.</div>
+                </div>
+                <span className="sovereignty-cta">Infinite Retries active</span>
+              </div>
+            </div>
+
+            {/* Dr. Nneka Adeyemi Ambassador Frame */}
+            <div className="ambassador-panel">
+              <div className="ambassador-tag">
+                <span className="ambassador-label">Director of the Forge</span>
+                <span className="ambassador-live"><span className="ambassador-live-dot"></span>Live Mentor</span>
+              </div>
+
+              <div className="ambassador-portrait-frame">
+                <img 
+                  src={PORTRAIT_URL} 
+                  alt="Cognitive Director"
+                  style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top center' }}
+                />
+                <div className="ambassador-insight">
+                  <p className="insight-quote">"Mastery is not a destination — it is a discipline of return. Come back to the Forge, and the Forge will reward you."</p>
+                  <span className="insight-attr">Dr. Nneka Adeyemi · Cognitive Ambassador</span>
+                </div>
+              </div>
+
+              <div className="cognitive-telemetry">
+                <div className="telemetry-cell">
+                  <span className="telemetry-val gold">98</span>
+                  <span className="telemetry-key">Focus Score</span>
+                </div>
+                <div className="telemetry-cell">
+                  <span className="telemetry-val">21</span>
+                  <span className="telemetry-key">Day Streak</span>
+                </div>
+                <div className="telemetry-cell">
+                  <span className="telemetry-val">A+</span>
+                  <span className="telemetry-key">Readiness</span>
+                </div>
               </div>
             </div>
           </div>
-        </Link>
 
-        <section>
-          <div className="flex items-center justify-between mb-3 px-1">
-            <div className="flex items-center gap-2"><History size={14} className="text-gray-400" /><h2 className="font-black text-[10px] text-gray-400 uppercase tracking-widest">Exam History</h2></div>
-            {examHistory.length > 2 && (
-              <button onClick={() => setHistoryExpanded(!historyExpanded)} className="text-[9px] font-bold text-green-600 uppercase tracking-wider flex items-center gap-1">
-                {historyExpanded ? "Show Less" : "View All"} {historyExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
-              </button>
-            )}
+          {/* Unit Matrix */}
+          <div className="anim-2" style={{ animation: 'fadeSlideUp 560ms cubic-bezier(0.19, 1, 0.22, 1) 0.12s both' }}>
+            <div className="section-header">
+              <div>
+                <span className="section-title">Unit Matrix</span>
+                <span className="section-subtitle">— {courses.length} Tactical Portals Active</span>
+              </div>
+            </div>
+            <div className="unit-matrix">
+              {courses.map((course, idx) => (
+                <CourseCard 
+                  key={course.id} 
+                  course={course} 
+                  onLaunch={setSetupCourse} 
+                  bentoClass={getBentoClass(idx)}
+                />
+              ))}
+            </div>
           </div>
-          {examHistory.length > 0 ? (
-            <div className="space-y-2">
+
+          {/* History Log */}
+          <div className="anim-3" style={{ animation: 'fadeSlideUp 560ms cubic-bezier(0.19, 1, 0.22, 1) 0.20s both' }}>
+            <div className="section-header">
+              <div>
+                <span className="section-title">Examination Log</span>
+                <span className="section-subtitle">— Audited session history</span>
+              </div>
+              {examHistory.length > 3 && (
+                <button onClick={() => setHistoryExpanded(!historyExpanded)} className="section-action">
+                  {historyExpanded ? "Collapse History" : "View Full Log →"}
+                </button>
+              )}
+            </div>
+
+            <div className="history-stream">
+              <div className="history-head">
+                <div className="history-head-cell">Timestamp</div>
+                <div className="history-head-cell">Examination</div>
+                <div className="history-head-cell">Score</div>
+                <div className="history-head-cell">Duration</div>
+                <div className="history-head-cell">Result</div>
+              </div>
+
               {visibleHistory.map((item) => {
                 const pct = Math.round((item.score / item.total) * 100);
-                let colorClass = "text-emerald-700 bg-emerald-50 border-emerald-100";
-                if (pct < 40) colorClass = "text-red-700 bg-red-50 border-red-100";
-                else if (pct < 60) colorClass = "text-amber-700 bg-amber-50 border-amber-100";
+                const isExcel = pct >= 70;
+                const isFail = pct < 40;
                 return (
-                  <div key={item.id} className="bg-white p-3 rounded-2xl border border-gray-50 shadow-sm flex items-center justify-between animate-in fade-in slide-in-from-top-1">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 bg-gray-50 rounded-lg flex items-center justify-center text-gray-400 font-black text-[9px] border border-gray-100">{item.course_code.slice(0,3)}</div>
-                      <div><p className="font-black text-[10px] text-gray-900 uppercase">{item.course_code}</p><p className="text-[8px] text-gray-400 font-bold uppercase">{new Date(item.created_at).toLocaleDateString()}</p></div>
+                  <div key={item.id} className="history-entry">
+                    <div>
+                      <div className="entry-date">{new Date(item.created_at).toLocaleDateString()}</div>
+                      <div className="entry-date-day">WAT</div>
                     </div>
-                    <div className={`text-right px-3 py-1 rounded-lg border ${colorClass}`}>
-                      <p className="font-black text-xs">{pct}%</p>
-                      <p className="text-[7px] font-black uppercase opacity-70">{item.score}/{item.total}</p>
+                    <div>
+                      <div className="entry-exam-name">{item.course_code} Session</div>
+                      <div className="entry-exam-unit">CBT System Module</div>
+                    </div>
+                    <div>
+                      <span className={`entry-score ${isExcel ? 'hi' : isFail ? 'lo' : ''}`}>{pct}</span>
+                      <span className="entry-score-denom">/100</span>
+                    </div>
+                    <div className="entry-duration">Minutes</div>
+                    <div>
+                      <span className={`entry-badge ${isExcel ? 'badge-excellent' : isFail ? 'badge-fail' : 'badge-pass'}`}>
+                        {isExcel ? "Excellent" : isFail ? "Retry" : "Pass"}
+                      </span>
                     </div>
                   </div>
                 );
               })}
             </div>
-          ) : (
-            <div className="bg-white rounded-2xl p-6 border border-gray-50 shadow-sm text-center"><p className="text-[9px] font-black text-gray-300 uppercase tracking-widest">No history available</p></div>
-          )}
-        </section>
-
-        <section>
-           <div className="flex items-center justify-between mb-3 px-1">
-             <div className="flex items-center gap-2"><BookOpen size={14} className="text-[#004d00]" /><h2 className="font-black text-[10px] text-gray-500 uppercase tracking-widest">General Studies</h2></div>
-             <button onClick={() => setGstExpanded(!gstExpanded)} className="text-gray-400"><ChevronDown size={14} className={`transition-transform ${gstExpanded ? 'rotate-180' : ''}`} /></button>
-           </div>
-          {gstExpanded && <div className="grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2">{gstCourses.map(c => <CourseCard key={c.id} course={c} onLaunch={setSetupCourse} variant="green" />)}</div>}
-        </section>
-
-        <section className="bg-[#f0f4ff] rounded-[2rem] shadow-sm border border-blue-50 p-5">
-          <div className="flex items-center justify-between mb-4"><div className="flex items-center gap-2"><div className="bg-blue-600 p-1.5 rounded-lg text-white shadow-md"><Layers size={12} /></div><h2 className="font-black text-[10px] text-blue-900 uppercase tracking-widest">Other Courses</h2></div><Sparkles size={12} className="text-blue-400 animate-pulse" /></div>
-          <div className="grid grid-cols-2 gap-4">{otherCourses.slice(0, 2).map(c => <CourseCard key={c.id} course={c} onLaunch={setSetupCourse} variant="blue" />)}</div>
-          {otherCourses.length > 2 && (
-            <div className="mt-3">
-              <button onClick={() => setOthersExpanded(!othersExpanded)} className="w-full py-3 bg-white/50 border border-blue-100 rounded-xl text-[9px] font-black text-blue-600 uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-white transition-all">{othersExpanded ? "Hide Extra Units" : `View ${otherCourses.length - 2} More Units`}<ChevronDown size={12} className={`transition-transform ${othersExpanded ? 'rotate-180' : ''}`} /></button>
-              {othersExpanded && <div className="mt-3 grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2">{otherCourses.slice(2).map(c => <CourseCard key={c.id} course={c} onLaunch={setSetupCourse} variant="blue" />)}</div>}
-            </div>
-          )}
-        </section>
-
-        <section>
-          <div className="flex items-center justify-between mb-4 px-2">
-            <div className="flex items-center gap-2">
-              <div className="relative"><Trophy size={16} className="text-yellow-600" /><span className="absolute -top-1 -right-1 flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span><span className="relative inline-flex rounded-full h-2 w-2 bg-yellow-500"></span></span></div>
-              <h2 className="font-black text-[10px] text-gray-500 uppercase tracking-widest">Top Performers</h2>
-            </div>
-            <div className="flex items-center gap-1.5 bg-green-50 px-2 py-1 rounded-full border border-green-100"><div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div><span className="text-[8px] font-black text-green-700 uppercase tracking-tight">Live Ranking</span></div>
           </div>
-          {qualifiedLeaders.length > 0 ? (
-            <div className="flex gap-4 overflow-x-auto pb-4 px-2 -mx-2 custom-scrollbar snap-x">
-              {qualifiedLeaders.map((user, i) => {
-                const isFirst = i === 0;
-                const isSecond = i === 1;
-                const isThird = i === 2;
-                let borderColor = "border-gray-100";
-                let shadowClass = "shadow-sm";
-                let rankBadge = null;
-                if (isFirst) { borderColor = "border-yellow-200"; shadowClass = "shadow-lg shadow-yellow-100/50"; rankBadge = <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-yellow-400 to-yellow-600 text-white px-3 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest shadow-sm flex items-center gap-1"><Crown size={8} fill="currentColor" /> 1st Place</div>; }
-                else if (isSecond) { borderColor = "border-gray-200"; rankBadge = <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest shadow-sm">2nd</div>; }
-                else if (isThird) { borderColor = "border-orange-100"; rankBadge = <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest shadow-sm">3rd</div>; }
-                return (
-                  <div key={i} className={`min-w-[160px] bg-white rounded-[1.5rem] p-5 border ${borderColor} ${shadowClass} flex flex-col items-center text-center relative mt-3 snap-center group`}>
-                    {rankBadge}
-                    <div className={`relative mb-3 transition-transform duration-300 group-hover:scale-105`}>
-                      <div className={`w-16 h-16 rounded-2xl flex items-center justify-center overflow-hidden border-2 ${isFirst ? 'border-yellow-400 p-0.5' : 'border-gray-50'}`}><img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${user.name.replace(/\s/g, '')}&backgroundColor=transparent`} alt={user.name} className="w-full h-full object-cover rounded-xl bg-gray-50" /></div>
-                      {isFirst && <div className="absolute -bottom-1 -right-1 bg-yellow-400 text-white p-1 rounded-full border-2 border-white"><Sparkles size={8} fill="currentColor" /></div>}
-                    </div>
-                    <h3 className="font-black text-[11px] text-gray-900 truncate w-full mb-1 uppercase tracking-tight leading-tight">{user.name.split(" ")[0]}</h3>
-                    <div className="flex flex-col items-center gap-1 w-full mb-3">
-                      <div className="flex items-center gap-1 text-[8px] text-gray-400 font-bold uppercase tracking-wide truncate max-w-full"><GraduationCap size={10} /><span className="truncate">{user.department || "Student"}</span></div>
-                      <div className="bg-blue-50 text-blue-700 px-2 py-0.5 rounded-md text-[7px] font-black uppercase tracking-wider border border-blue-100 flex items-center gap-1"><FileText size={8} /> {user.course_code || "GEN"}</div>
-                    </div>
-                    <div className={`w-full py-1.5 rounded-xl text-[10px] font-black flex items-center justify-center gap-1 ${isFirst ? 'bg-[#004d00] text-white shadow-md shadow-green-900/20' : 'bg-gray-50 text-gray-600'}`}><span>{user.score}%</span></div>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="text-center py-10 bg-white rounded-[2rem] border border-dashed border-gray-200"><div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3 animate-pulse"><Trophy size={20} className="text-gray-300" /></div><p className="text-gray-400 text-[9px] font-black uppercase tracking-widest">No High Flyers Yet (60%+)</p></div>
-          )}
-        </section>
+        </main>
       </div>
-      <div className="fixed bottom-4 left-4 right-4 z-40 max-w-2xl mx-auto">
-        <div className="bg-white/90 backdrop-blur-md border border-green-100 shadow-xl rounded-2xl py-3 px-5 flex items-center justify-between">
-          <div className="flex items-center gap-3 flex-1 min-w-0"><div className="w-8 h-8 bg-[#004d00] rounded-lg flex items-center justify-center text-white shrink-0"><Award size={16} /></div><div className="min-w-0"><h4 className="font-black text-[10px] text-gray-900 leading-none mb-0.5 uppercase tracking-tight">Bolu Adeoye</h4><p className="text-[7px] text-green-700 font-bold truncate uppercase tracking-tighter">Dept. of English & Literary Studies</p></div></div>
-          <div className="h-6 w-[1px] bg-gray-200 mx-4"></div>
-          <div className="text-right shrink-0"><p className="text-[7px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Partner</p><p className="text-[9px] font-black text-gray-900 leading-none uppercase">Abel Kings</p><p className="text-[6px] font-bold text-green-600 uppercase tracking-tighter">Tutorial Center</p></div>
+
+      {/* Sovereign Credits Stamp (Quiet Luxury Colophon) */}
+      <div className="fixed bottom-4 left-4 right-4 z-40 max-w-2xl mx-auto pointer-events-none md:left-[272px] md:right-12">
+        <div className="bg-white/90 backdrop-blur-md border border-[#E0DDD4] shadow-xl rounded-2xl py-3.5 px-6 flex items-center justify-between pointer-events-auto">
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <div className="w-8 h-8 bg-[#003600] rounded-lg flex items-center justify-center text-white shrink-0">
+              <Award size={16} className="text-[#D4BB7A]" />
+            </div>
+            <div className="min-w-0">
+              <h4 className="font-sans font-semibold text-[10px] text-gray-900 leading-none mb-1 uppercase tracking-tight">Bolu Adeoye</h4>
+              <p className="text-[8px] text-[#004d00] font-medium truncate uppercase tracking-tighter">Dept. of English & Literary Studies</p>
+            </div>
+          </div>
+          <div className="h-6 w-[1px] bg-[#E0DDD4] mx-4"></div>
+          <div className="text-right shrink-0">
+            <p className="text-[7px] font-mono font-bold text-[#ABA8A0] uppercase tracking-widest mb-0.5">Partner</p>
+            <p className="text-[9px] font-sans font-bold text-gray-900 leading-none uppercase">Abel Kings</p>
+            <p className="text-[6px] font-medium text-[#004d00] uppercase tracking-tighter">Tutorial Center</p>
+          </div>
         </div>
       </div>
+
+      {statusModal && <StatusModal {...statusModal} />}
+      {setupCourse && (
+        <ExamSetupModal 
+          course={setupCourse} 
+          onClose={() => setSetupCourse(null)} 
+          onStart={(dur, limit) => router.push(`/cbt/exam/${setupCourse.id}?duration=${dur}&limit=${limit || 30}`)} 
+        />
+      )}
     </main>
   );
 }
