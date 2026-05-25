@@ -2,11 +2,11 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Clock, Target, Play, Info, Crown, Award, Zap, Activity, ArrowUpRight, ArrowRight, ChevronDown, ChevronUp } from "lucide-react";
-import Sidebar from "../../../components/cbt/Sidebar";
-import TopBar from "../../../components/cbt/TopBar";
-import CourseCard from "../../../components/cbt/CourseCard";
-import StatusModal from "../../../components/cbt/StatusModal";
-import LiveTracker from "../../../components/cbt/LiveTracker";
+import Sidebar from "@/components/cbt/Sidebar";
+import TopBar from "@/components/cbt/TopBar";
+import CourseCard from "@/components/cbt/CourseCard";
+import StatusModal from "@/components/cbt/StatusModal";
+import LiveTracker from "@/components/cbt/LiveTracker";
 
 const EASE = [0.16, 1, 0.3, 1];
 const WHATSAPP_URL = "https://wa.me/2348106293674";
@@ -150,7 +150,7 @@ export default function StudentDashboard() {
     });
   };
 
-  // Safe early return for hydration sync
+  // Pre-render isolation boundary
   if (!mounted || !student) return null;
 
   const visibleHistory = historyExpanded ? examHistory : examHistory.slice(0, 3);
@@ -164,10 +164,10 @@ export default function StudentDashboard() {
   );
 
   return (
-    <main className="min-h-screen bg-[#F7F6F2] font-sans text-[#171613] relative">
+    <div className="cbt-dashboard-root">
       <LiveTracker />
       
-      {/* Dynamic Style Injection */}
+      {/* SCOPED BLUEPRINT STYLESHEET (No body/html leaks) */}
       <style dangerouslySetInnerHTML={{ __html: `
         :root {
           --canvas: #F7F6F2; --surface: #F0EEE9; --surface-raised: #FFFFFF;
@@ -179,7 +179,28 @@ export default function StudentDashboard() {
           --dur-base: 360ms; --dur-slow: 560ms; --dur-cinematic: 800ms;
           --sidebar-w: 252px; --ambassador-w: 300px; --radius-sm: 4px; --radius-md: 8px; --radius-lg: 12px;
         }
-        body::before { content: ''; position: fixed; inset: 0; background-image: radial-gradient(circle, rgba(160,155,145,0.28) 1px, transparent 1px); background-size: 22px 22px; pointer-events: none; z-index: 0; }
+
+        .cbt-dashboard-root {
+          font-family: 'DM Sans', system-ui, sans-serif;
+          background: var(--canvas);
+          color: var(--text-body);
+          min-height: 100vh;
+          display: flex;
+          width: 100%;
+          position: relative;
+          z-index: 1;
+        }
+
+        .cbt-dashboard-root::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background-image: radial-gradient(circle, rgba(160,155,145,0.28) 1px, transparent 1px);
+          background-size: 22px 22px;
+          pointer-events: none;
+          z-index: 0;
+        }
+
         .sidebar { width: var(--sidebar-w); min-height: 100vh; background: var(--green-800); display: flex; flex-direction: column; position: fixed; left: 0; top: 0; bottom: 0; z-index: 100; border-right: 1px solid var(--green-900); background-image: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.03) 3px, rgba(0,0,0,0.03) 4px), linear-gradient(180deg, var(--green-800) 0%, var(--green-900) 100%); }
         .sidebar-logo { padding: 28px 24px 24px; border-bottom: 1px solid rgba(255,255,255,0.08); }
         .logo-mark { display: flex; align-items: center; gap: 10px; text-decoration: none; }
@@ -202,7 +223,8 @@ export default function StudentDashboard() {
         .forge-stat-unit { font-size: 11px; color: rgba(255,255,255,0.38); }
         .sidebar-user { display: flex; align-items: center; gap: 10px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.08); }
         .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--green-600); border: 1.5px solid rgba(255,255,255,0.20); display: grid; place-items: center; font-family: 'Cormorant Garamond', serif; font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.90); }
-        .main-shell { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; position: relative; z-index: 1; }
+        
+        .main-shell { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; position: relative; z-index: 1; width: calc(100% - var(--sidebar-w)); }
         .topbar { display: flex; align-items: center; justify-content: space-between; padding: 0 36px; height: 56px; border-bottom: 1px solid var(--border-ghost); background: rgba(247,246,242,0.88); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 50; }
         .breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-ghost); }
         .breadcrumb-active { color: var(--text-muted); font-weight: 500; }
@@ -306,7 +328,7 @@ export default function StudentDashboard() {
         @media (max-width: 900px) {
           .sidebar { transform: translateX(-100%); transition: transform 0.4s var(--ease-viscous); z-index: 200; width: 230px; }
           .sidebar.open { transform: translateX(0); }
-          .main-shell { margin-left: 0; }
+          .main-shell { margin-left: 0; width: 100%; }
           .hero-row { grid-template-columns: 1fr; }
           .unit-matrix { grid-template-columns: 1fr; }
           .unit-card { grid-column: span 1 !important; }
@@ -323,7 +345,7 @@ export default function StudentDashboard() {
         />
       )}
 
-      {/* Render modular sidebar with safe fallbacks */}
+      {/* Modular Sidebar with full optional chaining inside */}
       <Sidebar 
         student={student} 
         unreadCount={unreadCount} 
@@ -332,8 +354,8 @@ export default function StudentDashboard() {
         setIsOpen={setIsMobileNavOpen} 
       />
 
-      <div className="main-shell">
-        {/* Render modular topbar */}
+      <div className="main-shell animate-in fade-in duration-300">
+        {/* Modular Topbar */}
         <TopBar 
           isOpen={isMobileNavOpen} 
           setIsOpen={setIsMobileNavOpen} 
@@ -355,13 +377,17 @@ export default function StudentDashboard() {
               <div className="kpi-row">
                 <div className="kpi-cell">
                   <span className="kpi-label">Attempts</span>
-                  <span className="kpi-value">{examHistory.length}</span>
+                  <span className="kpi-value">{examHistory?.length || 0}</span>
                   <span className="kpi-delta font-mono">Sessions Run</span>
                 </div>
                 <div className="kpi-cell">
                   <span className="kpi-label">Highest Score</span>
                   <span className="kpi-value green">
-                    {examHistory.length > 0 ? `${Math.max(...examHistory.map(h => Math.round((h.score / h.total) * 100)))}%` : "0%"}
+                    {examHistory?.length > 0 ? `${Math.max(...examHistory.map(h => {
+                      const s = h?.score || 0;
+                      const t = h?.total || 1;
+                      return Math.round((s / t) * 100);
+                    }))}%` : "0%"}
                   </span>
                   <span className="kpi-delta font-mono">Archived Record</span>
                 </div>
@@ -427,12 +453,12 @@ export default function StudentDashboard() {
             </div>
           </div>
 
-          {/* Unit Matrix */}
+          {/* Unit Bento Matrix */}
           <div className="anim-2" style={{ animation: 'fadeSlideUp 560ms cubic-bezier(0.19, 1, 0.22, 1) 0.12s both' }}>
             <div className="section-header">
               <div>
                 <span className="section-title">Unit Matrix</span>
-                <span className="section-subtitle">— {courses.length} Tactical Portals Active</span>
+                <span className="section-subtitle">— {courses?.length || 0} Tactical Portals Active</span>
               </div>
             </div>
             <div className="unit-matrix">
@@ -454,7 +480,7 @@ export default function StudentDashboard() {
                 <span className="section-title">Examination Log</span>
                 <span className="section-subtitle">— Audited session history</span>
               </div>
-              {examHistory.length > 3 && (
+              {examHistory?.length > 3 && (
                 <button onClick={() => setHistoryExpanded(!historyExpanded)} className="section-action">
                   {historyExpanded ? "Collapse History" : "View Full Log →"}
                 </button>
@@ -471,17 +497,19 @@ export default function StudentDashboard() {
               </div>
 
               {visibleHistory.map((item) => {
-                const pct = Math.round((item.score / item.total) * 100);
+                const s = item?.score || 0;
+                const t = item?.total || 1;
+                const pct = Math.round((s / t) * 100);
                 const isExcel = pct >= 70;
                 const isFail = pct < 40;
                 return (
                   <div key={item.id} className="history-entry">
                     <div>
-                      <div className="entry-date">{new Date(item.created_at).toLocaleDateString()}</div>
+                      <div className="entry-date">{item?.created_at ? new Date(item.created_at).toLocaleDateString() : "Pending"}</div>
                       <div className="entry-date-day">WAT</div>
                     </div>
                     <div>
-                      <div className="entry-exam-name">{item.course_code} Session</div>
+                      <div className="entry-exam-name">{item?.course_code || "CBT"} Session</div>
                       <div className="entry-exam-unit">CBT System Module</div>
                     </div>
                     <div>
@@ -531,6 +559,6 @@ export default function StudentDashboard() {
           onStart={(dur, limit) => router.push(`/cbt/exam/${setupCourse.id}?duration=${dur}&limit=${limit || 30}`)} 
         />
       )}
-    </main>
+    </div>
   );
 }
