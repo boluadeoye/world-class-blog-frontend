@@ -2,7 +2,7 @@
 import { Play, Sparkles, Database } from "lucide-react";
 
 export default function CourseCard({ course, onLaunch, bentoClass }) {
-  const isGstCode = course.code.toUpperCase().startsWith("GST");
+  const isGstCode = course?.code?.toUpperCase().startsWith("GST");
   const isGstMain = isGstCode && bentoClass === "unit-gst-main";
 
   const theme = isGstMain
@@ -35,7 +35,7 @@ export default function CourseCard({ course, onLaunch, bentoClass }) {
       </div>
 
       <div className="unit-name">
-        {course.code} <br /> {course.title}
+        {course?.code} <br /> {course?.title}
       </div>
 
       {isGstMain && (

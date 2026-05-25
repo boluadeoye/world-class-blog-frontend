@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Clock, Target, Play, Info, Crown, Award, Zap, Activity, ArrowUpRight, ArrowRight } from "lucide-react";
+import { Clock, Target, Play, Info, Crown, Award, Zap, Activity, ArrowUpRight, ArrowRight, ChevronDown, ChevronUp } from "lucide-react";
 import Sidebar from "../../../components/cbt/Sidebar";
 import TopBar from "../../../components/cbt/TopBar";
 import CourseCard from "../../../components/cbt/CourseCard";
@@ -13,7 +13,7 @@ const WHATSAPP_URL = "https://wa.me/2348106293674";
 const PORTRAIT_URL = "https://res.cloudinary.com/dwbjb3svx/image/upload/v1779690109/blog_assets/qrun4i1qi7l35sg8siql.jpg";
 
 function ExamSetupModal({ course, onClose, onStart }) {
-  const [duration, setDuration] = useState(course.duration || 15);
+  const [duration, setDuration] = useState(course?.duration || 15);
   const [qCount, setQCount] = useState(30);
 
   return (
@@ -23,7 +23,7 @@ function ExamSetupModal({ course, onClose, onStart }) {
           <h3 className="font-semibold text-xs uppercase tracking-[0.2em] flex items-center gap-2 text-[#D4BB7A]">
             Config
           </h3>
-          <p className="text-white/80 text-[10px] font-mono uppercase mt-1.5 tracking-widest">{course.code} • {course.title}</p>
+          <p className="text-white/80 text-[10px] font-mono uppercase mt-1.5 tracking-widest">{course?.code} • {course?.title}</p>
         </div>
         <div className="p-6 bg-[#F7F6F2]">
           <div className="mb-6">
@@ -150,6 +150,7 @@ export default function StudentDashboard() {
     });
   };
 
+  // Safe early return for hydration sync
   if (!mounted || !student) return null;
 
   const visibleHistory = historyExpanded ? examHistory : examHistory.slice(0, 3);
@@ -322,7 +323,7 @@ export default function StudentDashboard() {
         />
       )}
 
-      {/* Render sidebar from components path */}
+      {/* Render modular sidebar with safe fallbacks */}
       <Sidebar 
         student={student} 
         unreadCount={unreadCount} 
@@ -332,7 +333,7 @@ export default function StudentDashboard() {
       />
 
       <div className="main-shell">
-        {/* Render topbar from components path */}
+        {/* Render modular topbar */}
         <TopBar 
           isOpen={isMobileNavOpen} 
           setIsOpen={setIsMobileNavOpen} 
@@ -346,7 +347,7 @@ export default function StudentDashboard() {
           <div className="hero-row anim-1" style={{ animation: 'fadeSlideUp 560ms cubic-bezier(0.19, 1, 0.22, 1) 0.05s both' }}>
             <div className="command-brief">
               <div className="brief-greeting">
-                <div className="brief-eyebrow">{greeting}, {student.name.split(" ")[0]}</div>
+                <div className="brief-eyebrow">{greeting}, {student?.name ? student.name.split(" ")[0] : "Scholar"}</div>
                 <h1 className="brief-headline">Forge your path.<br /><em>Again. And again.</em></h1>
                 <p className="brief-sub">Your preparation records are logged. Access to the entire testing matrix has been liberated. There are no remaining blocks on your attempts.</p>
               </div>

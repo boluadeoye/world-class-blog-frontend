@@ -3,6 +3,11 @@ import Link from "next/link";
 import { Layers, BookOpen, MessageCircle, Crown, User, History, Settings } from "lucide-react";
 
 export default function Sidebar({ student, unreadCount, handleForumEnter, isOpen, setIsOpen }) {
+  // Safe Fallback Resolution
+  const displayName = student?.name ? student.name.split(" ")[0] : "Student";
+  const displayAvatar = student?.name ? student.name.slice(0, 2).toUpperCase() : "ST";
+  const displayId = student?.id ? student.id.slice(0, 6) : "000000";
+
   return (
     <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
       <div className="sidebar-logo">
@@ -66,10 +71,10 @@ export default function Sidebar({ student, unreadCount, handleForumEnter, isOpen
         </div>
         <p className="forge-desc">No limits. No paywalls.<br />The Forge is yours.</p>
         <div className="sidebar-user">
-          <div className="user-avatar">{student.name.slice(0, 2).toUpperCase()}</div>
+          <div className="user-avatar">{displayAvatar}</div>
           <div className="user-info">
-            <div className="user-name">{student.name.split(" ")[0]}</div>
-            <div className="user-id">ID • {student.id.slice(0, 6)}</div>
+            <div className="user-name">{displayName}</div>
+            <div className="user-id">ID • {displayId}</div>
           </div>
         </div>
       </div>
