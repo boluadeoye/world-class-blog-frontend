@@ -3,10 +3,10 @@ import Link from "next/link";
 import { Layers, BookOpen, MessageCircle, Crown, User, History, Settings } from "lucide-react";
 
 export default function Sidebar({ student, unreadCount, handleForumEnter, isOpen, setIsOpen }) {
-  // Safe Fallback Resolution
+  // Safe Fallback Resolution with explicit String casting for ID fields
   const displayName = student?.name ? student.name.split(" ")[0] : "Student";
   const displayAvatar = student?.name ? student.name.slice(0, 2).toUpperCase() : "ST";
-  const displayId = student?.id ? student.id.slice(0, 6) : "000000";
+  const displayId = student?.id ? String(student.id).slice(0, 6) : "000000";
 
   return (
     <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
