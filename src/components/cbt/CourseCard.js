@@ -1,7 +1,7 @@
 "use client";
-import { Play, Sparkles, Database } from "lucide-react";
+import { Play, Database } from "lucide-react";
 
-export default function CourseCard({ course, onLaunch, bentoClass }) {
+export default function CourseCard({ course, onLaunch, bentoClass, courseAvg }) {
   const isGstCode = course?.code?.toUpperCase().startsWith("GST");
   const isGstMain = isGstCode && bentoClass === "unit-gst-main";
 
@@ -47,7 +47,7 @@ export default function CourseCard({ course, onLaunch, bentoClass }) {
               <span className="unit-stat-key">Exams</span>
             </div>
             <div className="unit-stat">
-              <span className="unit-stat-val">87%</span>
+              <span className="unit-stat-val">{courseAvg}%</span>
               <span className="unit-stat-key">Avg</span>
             </div>
             <div className="unit-stat">
@@ -61,10 +61,10 @@ export default function CourseCard({ course, onLaunch, bentoClass }) {
       <div className="unit-progress">
         <div className="progress-meta">
           <span className="progress-label">Mastery Progress</span>
-          <span className="progress-pct">78%</span>
+          <span className="progress-pct">{courseAvg}%</span>
         </div>
         <div className="progress-track">
-          <div className="progress-fill" style={{ width: '78%' }}></div>
+          <div className="progress-fill" style={{ width: `${courseAvg}%` }}></div>
         </div>
       </div>
 

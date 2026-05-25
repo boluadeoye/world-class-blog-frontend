@@ -13,12 +13,12 @@ export default function TopBar({ isOpen, setIsOpen, triggerLogout }) {
             <path d="M2 4h14M2 9h14M2 14h14" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
           </svg>
         </button>
-        <span>ExamForge</span>
-        <span className="breadcrumb-active ml-2">/ Student Dashboard</span>
+        <span className="font-semibold">ExamForge</span>
+        <span className="breadcrumb-active ml-1">/ Dashboard</span>
       </div>
-      <div className="topbar-right">
-        <span className="topbar-date">Active Session • 2026 WAT</span>
-        <button onClick={triggerLogout} className="topbar-action bg-[#8B2020] hover:bg-red-800 transition-colors flex items-center gap-1 border-0">
+      <div className="topbar-right flex items-center gap-4">
+        <span className="topbar-date hidden sm:inline text-xs text-[#7A7870] font-mono">Active Session • 2026 WAT</span>
+        <button onClick={triggerLogout} className="topbar-action bg-[#8B2020] hover:bg-red-800 transition-colors flex items-center gap-1.5 border-0 py-2 px-4 rounded text-white text-xs font-mono">
           <LogOut size={12} /> Disconnect
         </button>
       </div>
