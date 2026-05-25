@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Clock, Target, Play, Info, Crown, Award, Zap, Activity, ArrowUpRight, ArrowRight, ChevronDown, ChevronUp } from "lucide-react";
+import { Clock, Target, Play, Info, Crown, Award, Zap, Activity, ArrowUpRight, ArrowRight, ChevronDown } from "lucide-react";
 import Sidebar from "@/components/cbt/Sidebar";
 import TopBar from "@/components/cbt/TopBar";
 import CourseCard from "@/components/cbt/CourseCard";
@@ -20,9 +20,7 @@ function ExamSetupModal({ course, onClose, onStart }) {
     <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
       <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden border border-[#E0DDD4]">
         <div className="bg-[#003600] p-6 text-white relative">
-          <h3 className="font-semibold text-xs uppercase tracking-[0.2em] flex items-center gap-2 text-[#D4BB7A]">
-            Config
-          </h3>
+          <h3 className="font-semibold text-xs uppercase tracking-[0.2em] flex items-center gap-2 text-[#D4BB7A]">Config</h3>
           <p className="text-white/80 text-[10px] font-mono uppercase mt-1.5 tracking-widest">{course?.code} • {course?.title}</p>
         </div>
         <div className="p-6 bg-[#F7F6F2]">
@@ -63,14 +61,7 @@ function DisclaimerCard() {
         </div>
         <ChevronDown size={16} className={`text-orange-300 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
-      {isOpen && (
-        <div className="px-6 pb-8 text-[10px] text-[#8B5E3C] leading-relaxed border-t border-orange-100/50 pt-4">
-          <ul className="space-y-2 font-medium">
-            <li>• Simulation of psychological test environment.</li>
-            <li>• Practice strict timing and resilience.</li>
-          </ul>
-        </div>
-      )}
+      {isOpen && <div className="px-6 pb-8 text-[10px] text-[#8B5E3C] leading-relaxed border-t border-orange-100/50 pt-4"><ul className="space-y-2 font-medium"><li>• Simulation of psychological test environment.</li><li>• Practice strict timing and resilience.</li></ul></div>}
     </div>
   );
 }
@@ -79,7 +70,6 @@ export default function StudentDashboard() {
   const router = useRouter();
   const [student, setStudent] = useState(null);
   const [courses, setCourses] = useState([]);
-  const [leaders, setLeaders] = useState([]);
   const [examHistory, setExamHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
@@ -105,10 +95,9 @@ export default function StudentDashboard() {
 
     async function fetchData() {
       try {
-        const [syncRes, courseRes, lbRes, histRes, forumRes] = await Promise.all([
+        const [syncRes, courseRes, histRes, forumRes] = await Promise.all([
           fetch(`/api/cbt/auth/student-status?id=${parsed.id}`),
           fetch(`/api/cbt/courses?studentId=${parsed.id}`),
-          fetch('/api/cbt/leaderboard'),
           fetch(`/api/cbt/history?studentId=${parsed.id}`),
           fetch(`/api/cbt/community/status?dept=${encodeURIComponent(parsed.department || 'General')}`)
         ]);
@@ -121,8 +110,6 @@ export default function StudentDashboard() {
         }
         const courseData = await courseRes.json();
         setCourses(Array.isArray(courseData.courses) ? courseData.courses : []);
-        const lbData = await lbRes.json();
-        setLeaders(Array.isArray(lbData) ? lbData : []);
         const histData = await histRes.json();
         setExamHistory(Array.isArray(histData) ? histData : []);
 
@@ -137,20 +124,15 @@ export default function StudentDashboard() {
     fetchData();
   }, [router]);
 
-  const handleForumEnter = () => {
-    localStorage.setItem('cbt_forum_read_count', totalForumPosts.toString());
-    setUnreadCount(0);
-  };
-
+  const handleForumEnter = () => { setUnreadCount(0); };
   const triggerLogout = () => {
     setStatusModal({
-      type: 'logout', title: 'Terminate Session?', message: 'You are about to disconnect from the secure portal.', actionLabel: 'Logout',
+      type: 'logout', title: 'Terminate Session?', message: 'Disconnect from secure session?', actionLabel: 'Logout',
       onAction: () => { sessionStorage.removeItem("cbt_student"); router.push("/cbt"); },
       onCancel: () => setStatusModal(null)
     });
   };
 
-  // Pre-render isolation boundary
   if (!mounted || !student) return null;
 
   const visibleHistory = historyExpanded ? examHistory : examHistory.slice(0, 3);
@@ -159,15 +141,13 @@ export default function StudentDashboard() {
   if (loading) return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#003600] gap-4">
       <div className="w-12 h-12 border-4 border-[#D4BB7A]/20 border-t-[#D4BB7A] rounded-full animate-spin"></div>
-      <p className="text-[#D4BB7A] font-mono text-xs uppercase tracking-[0.3em]">SYNCHRONIZING TERMINAL...</p>
+      <p className="text-[#D4BB7A] font-mono text-xs uppercase tracking-[0.3em]">SYNCHRONIZING...</p>
     </div>
   );
 
   return (
     <div className="cbt-dashboard-root">
       <LiveTracker />
-      
-      {/* SCOPED BLUEPRINT STYLESHEET (No body/html leaks) */}
       <style dangerouslySetInnerHTML={{ __html: `
         :root {
           --canvas: #F7F6F2; --surface: #F0EEE9; --surface-raised: #FFFFFF;
@@ -179,28 +159,8 @@ export default function StudentDashboard() {
           --dur-base: 360ms; --dur-slow: 560ms; --dur-cinematic: 800ms;
           --sidebar-w: 252px; --ambassador-w: 300px; --radius-sm: 4px; --radius-md: 8px; --radius-lg: 12px;
         }
-
-        .cbt-dashboard-root {
-          font-family: 'DM Sans', system-ui, sans-serif;
-          background: var(--canvas);
-          color: var(--text-body);
-          min-height: 100vh;
-          display: flex;
-          width: 100%;
-          position: relative;
-          z-index: 1;
-        }
-
-        .cbt-dashboard-root::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background-image: radial-gradient(circle, rgba(160,155,145,0.28) 1px, transparent 1px);
-          background-size: 22px 22px;
-          pointer-events: none;
-          z-index: 0;
-        }
-
+        .cbt-dashboard-root { font-family: 'DM Sans', system-ui, sans-serif; background: var(--canvas); min-height: 100vh; display: flex; width: 100%; position: relative; z-index: 1; }
+        .cbt-dashboard-root::before { content: ''; position: absolute; inset: 0; background-image: radial-gradient(circle, rgba(160,155,145,0.28) 1px, transparent 1px); background-size: 22px 22px; pointer-events: none; z-index: 0; }
         .sidebar { width: var(--sidebar-w); min-height: 100vh; background: var(--green-800); display: flex; flex-direction: column; position: fixed; left: 0; top: 0; bottom: 0; z-index: 100; border-right: 1px solid var(--green-900); background-image: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.03) 3px, rgba(0,0,0,0.03) 4px), linear-gradient(180deg, var(--green-800) 0%, var(--green-900) 100%); }
         .sidebar-logo { padding: 28px 24px 24px; border-bottom: 1px solid rgba(255,255,255,0.08); }
         .logo-mark { display: flex; align-items: center; gap: 10px; text-decoration: none; }
@@ -223,7 +183,6 @@ export default function StudentDashboard() {
         .forge-stat-unit { font-size: 11px; color: rgba(255,255,255,0.38); }
         .sidebar-user { display: flex; align-items: center; gap: 10px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.08); }
         .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--green-600); border: 1.5px solid rgba(255,255,255,0.20); display: grid; place-items: center; font-family: 'Cormorant Garamond', serif; font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.90); }
-        
         .main-shell { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; position: relative; z-index: 1; width: calc(100% - var(--sidebar-w)); }
         .topbar { display: flex; align-items: center; justify-content: space-between; padding: 0 36px; height: 56px; border-bottom: 1px solid var(--border-ghost); background: rgba(247,246,242,0.88); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 50; }
         .breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-ghost); }
@@ -336,44 +295,19 @@ export default function StudentDashboard() {
           .history-head-cell:nth-child(5), .history-entry > *:nth-child(5) { display: none; }
         }
       ` }} />
-
-      {/* Mobile Drawer Backdrop */}
-      {isMobileNavOpen && (
-        <div 
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[150] md:hidden"
-          onClick={() => setIsMobileNavOpen(false)}
-        />
-      )}
-
-      {/* Modular Sidebar with full optional chaining inside */}
-      <Sidebar 
-        student={student} 
-        unreadCount={unreadCount} 
-        handleForumEnter={handleForumEnter} 
-        isOpen={isMobileNavOpen} 
-        setIsOpen={setIsMobileNavOpen} 
-      />
-
+      {isMobileNavOpen && <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[150] md:hidden" onClick={() => setIsMobileNavOpen(false)} />}
+      <Sidebar student={student} unreadCount={unreadCount} handleForumEnter={handleForumEnter} isOpen={isMobileNavOpen} setIsOpen={setIsMobileNavOpen} />
       <div className="main-shell animate-in fade-in duration-300">
-        {/* Modular Topbar */}
-        <TopBar 
-          isOpen={isMobileNavOpen} 
-          setIsOpen={setIsMobileNavOpen} 
-          triggerLogout={triggerLogout} 
-        />
-
+        <TopBar isOpen={isMobileNavOpen} setIsOpen={setIsMobileNavOpen} triggerLogout={triggerLogout} />
         <main className="content">
           <DisclaimerCard />
-
-          {/* Hero Row */}
-          <div className="hero-row anim-1" style={{ animation: 'fadeSlideUp 560ms cubic-bezier(0.19, 1, 0.22, 1) 0.05s both' }}>
+          <div className="hero-row">
             <div className="command-brief">
               <div className="brief-greeting">
                 <div className="brief-eyebrow">{greeting}, {student?.name ? student.name.split(" ")[0] : "Scholar"}</div>
                 <h1 className="brief-headline">Forge your path.<br /><em>Again. And again.</em></h1>
                 <p className="brief-sub">Your preparation records are logged. Access to the entire testing matrix has been liberated. There are no remaining blocks on your attempts.</p>
               </div>
-
               <div className="kpi-row">
                 <div className="kpi-cell">
                   <span className="kpi-label">Attempts</span>
@@ -402,7 +336,6 @@ export default function StudentDashboard() {
                   <span className="kpi-delta font-mono">Days Active</span>
                 </div>
               </div>
-
               <div className="sovereignty-strip">
                 <div className="sovereignty-icon">
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -416,123 +349,89 @@ export default function StudentDashboard() {
                 <span className="sovereignty-cta">Infinite Retries active</span>
               </div>
             </div>
-
-            {/* Dr. Nneka Adeyemi Ambassador Frame */}
             <div className="ambassador-panel">
               <div className="ambassador-tag">
                 <span className="ambassador-label">Director of the Forge</span>
                 <span className="ambassador-live"><span className="ambassador-live-dot"></span>Live Mentor</span>
               </div>
-
               <div className="ambassador-portrait-frame">
-                <img 
-                  src={PORTRAIT_URL} 
-                  alt="Cognitive Director"
-                  style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top center' }}
-                />
+                <img src={PORTRAIT_URL} alt="Cognitive Director" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top center' }} />
                 <div className="ambassador-insight">
                   <p className="insight-quote">"Mastery is not a destination — it is a discipline of return. Come back to the Forge, and the Forge will reward you."</p>
                   <span className="insight-attr">Dr. Nneka Adeyemi · Cognitive Ambassador</span>
                 </div>
               </div>
-
               <div className="cognitive-telemetry">
-                <div className="telemetry-cell">
-                  <span className="telemetry-val gold">98</span>
-                  <span className="telemetry-key">Focus Score</span>
-                </div>
-                <div className="telemetry-cell">
-                  <span className="telemetry-val">21</span>
-                  <span className="telemetry-key">Day Streak</span>
-                </div>
-                <div className="telemetry-cell">
-                  <span className="telemetry-val">A+</span>
-                  <span className="telemetry-key">Readiness</span>
-                </div>
+                <div className="telemetry-cell"><span className="telemetry-val gold">98</span><span className="telemetry-key">Focus Score</span></div>
+                <div className="telemetry-cell"><span className="telemetry-val">21</span><span className="telemetry-key">Day Streak</span></div>
+                <div className="telemetry-cell"><span className="telemetry-val">A+</span><span className="telemetry-key">Readiness</span></div>
               </div>
             </div>
           </div>
-
-          {/* Unit Bento Matrix */}
-          <div className="anim-2" style={{ animation: 'fadeSlideUp 560ms cubic-bezier(0.19, 1, 0.22, 1) 0.12s both' }}>
-            <div className="section-header">
-              <div>
-                <span className="section-title">Unit Matrix</span>
-                <span className="section-subtitle">— {courses?.length || 0} Tactical Portals Active</span>
-              </div>
-            </div>
-            <div className="unit-matrix">
-              {courses.map((course, idx) => (
-                <CourseCard 
-                  key={course.id} 
-                  course={course} 
-                  onLaunch={setSetupCourse} 
-                  bentoClass={getBentoClass(idx)}
-                />
-              ))}
+          <div className="section-header">
+            <div>
+              <span className="section-title">Unit Matrix</span>
+              <span className="section-subtitle">— {courses?.length || 0} Tactical Portals Active</span>
             </div>
           </div>
-
-          {/* History Log */}
-          <div className="anim-3" style={{ animation: 'fadeSlideUp 560ms cubic-bezier(0.19, 1, 0.22, 1) 0.20s both' }}>
-            <div className="section-header">
-              <div>
-                <span className="section-title">Examination Log</span>
-                <span className="section-subtitle">— Audited session history</span>
-              </div>
-              {examHistory?.length > 3 && (
-                <button onClick={() => setHistoryExpanded(!historyExpanded)} className="section-action">
-                  {historyExpanded ? "Collapse History" : "View Full Log →"}
-                </button>
-              )}
+          <div className="unit-matrix">
+            {courses.map((course, idx) => (
+              <CourseCard key={course.id} course={course} onLaunch={setSetupCourse} bentoClass={getBentoClass(idx)} />
+            ))}
+          </div>
+          <div className="section-header">
+            <div>
+              <span className="section-title">Examination Log</span>
+              <span className="section-subtitle">— Audited session history</span>
             </div>
-
-            <div className="history-stream">
-              <div className="history-head">
-                <div className="history-head-cell">Timestamp</div>
-                <div className="history-head-cell">Examination</div>
-                <div className="history-head-cell">Score</div>
-                <div className="history-head-cell">Duration</div>
-                <div className="history-head-cell">Result</div>
-              </div>
-
-              {visibleHistory.map((item) => {
-                const s = item?.score || 0;
-                const t = item?.total || 1;
-                const pct = Math.round((s / t) * 100);
-                const isExcel = pct >= 70;
-                const isFail = pct < 40;
-                return (
-                  <div key={item.id} className="history-entry">
-                    <div>
-                      <div className="entry-date">{item?.created_at ? new Date(item.created_at).toLocaleDateString() : "Pending"}</div>
-                      <div className="entry-date-day">WAT</div>
-                    </div>
-                    <div>
-                      <div className="entry-exam-name">{item?.course_code || "CBT"} Session</div>
-                      <div className="entry-exam-unit">CBT System Module</div>
-                    </div>
-                    <div>
-                      <span className={`entry-score ${isExcel ? 'hi' : isFail ? 'lo' : ''}`}>{pct}</span>
-                      <span className="entry-score-denom">/100</span>
-                    </div>
-                    <div className="entry-duration">Minutes</div>
-                    <div>
-                      <span className={`entry-badge ${isExcel ? 'badge-excellent' : isFail ? 'badge-fail' : 'badge-pass'}`}>
-                        {isExcel ? "Excellent" : isFail ? "Retry" : "Pass"}
-                      </span>
-                    </div>
+            {examHistory?.length > 3 && (
+              <button onClick={() => setHistoryExpanded(!historyExpanded)} className="section-action">
+                {historyExpanded ? "Collapse History" : "View Full Log →"}
+              </button>
+            )}
+          </div>
+          <div className="history-stream">
+            <div className="history-head">
+              <div className="history-head-cell">Timestamp</div>
+              <div className="history-head-cell">Examination</div>
+              <div className="history-head-cell">Score</div>
+              <div className="history-head-cell">Duration</div>
+              <div className="history-head-cell">Result</div>
+            </div>
+            {visibleHistory.map((item) => {
+              const s = item?.score || 0;
+              const t = item?.total || 1;
+              const pct = Math.round((s / t) * 100);
+              const isExcel = pct >= 70;
+              const isFail = pct < 40;
+              return (
+                <div key={item.id} className="history-entry">
+                  <div>
+                    <div className="entry-date">{item?.created_at ? new Date(item.created_at).toLocaleDateString() : "Pending"}</div>
+                    <div className="entry-date-day">WAT</div>
                   </div>
-                );
-              })}
-            </div>
+                  <div>
+                    <div className="entry-exam-name">{item?.course_code || "CBT"} Session</div>
+                    <div className="entry-exam-unit">CBT System Module</div>
+                  </div>
+                  <div>
+                    <span className={`entry-score ${isExcel ? 'hi' : isFail ? 'lo' : ''}`}>{pct}</span>
+                    <span className="entry-score-denom">/100</span>
+                  </div>
+                  <div className="entry-duration">Minutes</div>
+                  <div>
+                    <span className={`entry-badge ${isExcel ? 'badge-excellent' : isFail ? 'badge-fail' : 'badge-pass'}`}>
+                      {isExcel ? "Excellent" : isFail ? "Retry" : "Pass"}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </main>
       </div>
-
-      {/* Sovereign Credits Stamp (Quiet Luxury Colophon) */}
       <div className="fixed bottom-4 left-4 right-4 z-40 max-w-2xl mx-auto pointer-events-none md:left-[272px] md:right-12">
-        <div className="bg-white/90 backdrop-blur-md border border-[#E0DDD4] shadow-xl rounded-2xl py-3.5 px-6 flex items-center justify-between pointer-events-auto">
+        <div className="bg-white/90 backdrop-blur-md border border-[#E0DDD4] shadow-xl rounded-2xl py-3 px-6 flex items-center justify-between pointer-events-auto">
           <div className="flex items-center gap-3 flex-1 min-w-0">
             <div className="w-8 h-8 bg-[#003600] rounded-lg flex items-center justify-center text-white shrink-0">
               <Award size={16} className="text-[#D4BB7A]" />
@@ -550,7 +449,6 @@ export default function StudentDashboard() {
           </div>
         </div>
       </div>
-
       {statusModal && <StatusModal {...statusModal} />}
       {setupCourse && (
         <ExamSetupModal 

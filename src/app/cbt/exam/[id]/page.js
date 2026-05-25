@@ -1,22 +1,17 @@
 "use client";
 import { useState, useEffect, useCallback, Suspense, useRef } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import {
-  Grid, CheckCircle, AlertOctagon, X, Crown, Sparkles,
-  BrainCircuit, Clock, ChevronRight, ChevronLeft, ShieldAlert,
-  Loader2, BookOpen, Target, Zap, FileText, Lock, ShieldCheck, Fingerprint
-} from "lucide-react";
+import { Grid, CheckCircle, AlertOctagon, X, Crown, Sparkles, BrainCircuit, Clock, ChevronRight, ChevronLeft, ShieldAlert, Loader2, BookOpen, Target, Zap, FileText, Lock, ShieldCheck, Fingerprint } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import LiveTracker from "@/components/cbt/LiveTracker";
 
-/* === SECURITY WATERMARK COMPONENT === */
 function SecurityWatermark({ text }) {
   return (
     <div className="fixed inset-0 z-[50] pointer-events-none overflow-hidden flex items-center justify-center opacity-[0.03]">
       <div className="absolute inset-0 flex flex-wrap content-center justify-center gap-20 transform -rotate-12 scale-150">
         {Array.from({ length: 20 }).map((_, i) => (
           <div key={i} className="text-4xl font-black uppercase tracking-widest text-gray-900 whitespace-nowrap select-none">
-            {text} • OFFICIAL USE ONLY • {text}
+            {text} • OFFICIAL USE ONLY
           </div>
         ))}
       </div>
@@ -28,7 +23,7 @@ function TimeUpOverlay() {
   return (
     <div className="fixed inset-0 z-[600] bg-[#050505] flex flex-col items-center justify-center text-white p-6 animate-in fade-in duration-500">
       <div className="w-24 h-24 bg-red-600/10 border-2 border-red-600 rounded-full flex items-center justify-center mb-6">
-        <Clock size={48} className="text-red-500 animate-spin-slow" />
+        <Clock size={48} className="text-red-500" />
       </div>
       <h2 className="text-3xl font-black uppercase tracking-[0.2em] mb-2 text-center">Time Expired</h2>
       <p className="text-emerald-500 font-bold text-xs uppercase tracking-widest animate-pulse">Securing Responses...</p>
@@ -62,7 +57,7 @@ function SubmitModal({ isOpen, onConfirm, onCancel, answeredCount, totalCount })
         </div>
         <div className="p-6 bg-white flex gap-4">
           <button onClick={onCancel} className="flex-1 py-4 border-2 border-gray-100 rounded-2xl text-[10px] font-black text-gray-400 hover:bg-gray-50 uppercase tracking-widest transition-all">Review</button>
-          <button onClick={onConfirm} className={`flex-[1.5] py-4 bg-[#004d00] text-white rounded-2xl text-[10px] font-black shadow-xl hover:bg-green-900 uppercase tracking-widest`}>Submit Now</button>
+          <button onClick={onConfirm} className="flex-[1.5] py-4 bg-[#004d00] text-white rounded-2xl text-[10px] font-black shadow-xl hover:bg-green-900 uppercase tracking-widest">Submit Now</button>
         </div>
       </div>
     </div>
@@ -81,9 +76,7 @@ function ExamContent() {
   const [error, setError] = useState(null);
   const [mounted, setMounted] = useState(false);
   
-  // LIBERATION: Force Premium Status
-  const [isPremium, setIsPremium] = useState(true);
-  
+  const [isPremium] = useState(true); // LIBERATED
   const [currentQIndex, setCurrentQIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const [timeLeft, setTimeLeft] = useState(null);
@@ -115,7 +108,6 @@ function ExamContent() {
       try {
         const hwId = localStorage.getItem("cbt_hw_id") || "unknown";
         const limit = searchParams.get('limit') || '30';
-
         const query = new URLSearchParams({
           courseId: params.id,
           studentId: parsedStudent.id,
@@ -125,7 +117,6 @@ function ExamContent() {
         });
 
         const res = await fetch(`/api/cbt/exam?${query.toString()}`);
-
         if (!res.ok) {
             if (res.status === 401) { router.push("/cbt"); return; }
             throw new Error("Data retrieval failed.");
@@ -133,9 +124,6 @@ function ExamContent() {
         const data = await res.json();
         setCourse(data.course);
         setQuestions(data.questions || []);
-        
-        // LIBERATION: Ignore backend premium status
-        setIsPremium(true);
 
         const reqDur = searchParams.get('duration');
         const finalDur = reqDur ? parseInt(reqDur) : (data.course?.duration || 15);
@@ -169,7 +157,6 @@ function ExamContent() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
     const hwId = localStorage.getItem("cbt_hw_id") || "unknown";
-
     if (student && course) {
         try {
             await fetch('/api/cbt/result', {
@@ -251,7 +238,6 @@ function ExamContent() {
 
   if (loading) return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#002b00] text-white relative overflow-hidden">
-      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20"></div>
       <div className="relative z-10 flex flex-col items-center">
         <div className="w-20 h-20 border-4 border-green-500/30 rounded-full flex items-center justify-center mb-6 relative">
           <div className="absolute inset-0 border-4 border-t-green-400 rounded-full animate-spin"></div>
@@ -265,6 +251,20 @@ function ExamContent() {
 
   if (error) return <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6 text-center text-red-600 font-bold gap-4"><p>{error}</p><button onClick={() => window.location.reload()} className="bg-black text-white px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest">Retry Connection</button></div>;
 
+  // LIBERATION DEADLOCK BREAK: If questions are empty, display explicit safety error instead of syncing forever
+  if (questions.length === 0) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#F7F6F2] p-6 text-center">
+        <div className="w-16 h-16 bg-red-50 border border-red-100 text-[#8B2020] rounded-2xl flex items-center justify-center mb-6">
+          <AlertOctagon size={32} />
+        </div>
+        <h3 className="font-serif italic text-2xl text-gray-900 mb-2">Empty Module</h3>
+        <p className="text-gray-500 text-xs font-mono mb-8 uppercase tracking-widest">No questions enrolled under target ID: {params.id}</p>
+        <button onClick={() => router.push('/cbt/dashboard')} className="px-6 py-3 bg-[#004d00] text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-[#003600]">Return to Base</button>
+      </div>
+    );
+  }
+
   const marksPerQuestion = questions.length > 0 ? (100 / questions.length).toFixed(1) : 0;
   const answeredCount = Object.keys(answers).length;
   const safeId = student?.id ? String(student.id) : "0000";
@@ -275,7 +275,6 @@ function ExamContent() {
     return (
       <main className="min-h-screen bg-[#f0f2f5] font-sans pb-20 overflow-y-auto">
         <header className="bg-[#002b00] text-white pt-10 pb-20 px-6 rounded-b-[3rem] shadow-2xl relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
           <div className="relative z-10 flex justify-between items-start mb-8">
             <div><div className="text-[9px] font-black text-green-400 uppercase tracking-widest mb-1">Session Closed</div><h1 className="font-black text-2xl tracking-tight">{course?.code}</h1></div>
             <button onClick={() => router.push('/cbt/dashboard')} className="bg-white/10 backdrop-blur-md border border-white/10 px-5 py-2 rounded-full text-[10px] font-bold uppercase hover:bg-white hover:text-[#002b00] transition-colors">Exit</button>
@@ -333,7 +332,6 @@ function ExamContent() {
                         </div>
                       )}
                     </div>
-                    {/* LIBERATION: Explanations are always visible if they exist */}
                     {q.explanation && <div className="mt-4 pt-4 border-t border-gray-100"><p className="text-[9px] font-black text-blue-600 uppercase tracking-widest mb-1">Concept Brief</p><p className="text-xs text-gray-600 leading-relaxed bg-blue-50/30 p-3 rounded-xl border border-blue-100 italic">{q.explanation}</p></div>}
                   </div>
                 );
@@ -350,9 +348,8 @@ function ExamContent() {
                     <button onClick={generateAnalysis} disabled={analyzing} className="bg-purple-900 text-white px-10 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl active:scale-95 transition-all">{analyzing ? "PROCESSING..." : "GENERATE REPORT"}</button>
                   </div>
                 ) : (
-                  <div className="bg-[#fcfcfc] min-h-[600px] animate-in fade-in duration-700">
+                  <div className="bg-[#fcfcfc] min-h-[600px]">
                     <div className="bg-purple-900 text-white p-10 pb-12 rounded-t-[2.5rem] shadow-lg relative overflow-hidden">
-                      <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-20 -mt-20 blur-3xl"></div>
                       <div className="relative z-10 text-left">
                         <div className="flex items-center gap-3 mb-4">
                           <div className="bg-white/20 p-2 rounded-lg backdrop-blur-md"><Sparkles size={20} /></div>
@@ -378,10 +375,6 @@ function ExamContent() {
                            {analysis}
                          </ReactMarkdown>
                       </div>
-                      <div className="mt-16 pt-8 border-t border-gray-50 flex items-center justify-between opacity-40">
-                        <div className="flex items-center gap-2"><BrainCircuit size={14} /><span className="text-[8px] font-black uppercase tracking-widest">ExamForge AI Engine</span></div>
-                        <span className="text-[8px] font-black uppercase tracking-widest">Classified Document</span>
-                      </div>
                     </div>
                   </div>
                 )}
@@ -392,8 +385,6 @@ function ExamContent() {
       </main>
     );
   }
-
-  if (!currentQ) return <div className="h-screen flex items-center justify-center bg-white font-black text-xs tracking-[0.3em] uppercase text-green-900">Synchronizing...</div>;
 
   return (
     <main className="h-screen flex flex-col bg-[#f0f2f5] font-sans overflow-hidden select-none relative">
