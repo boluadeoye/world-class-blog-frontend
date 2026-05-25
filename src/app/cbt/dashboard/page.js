@@ -142,15 +142,16 @@ export default function StudentDashboard() {
         const t = h?.total || 1;
         return Math.round((s / t) * 100);
       })) 
-    : 0;
+    : null;
 
   const avgScore = examHistory?.length > 0
     ? Math.round(examHistory.reduce((acc, h) => acc + (((h?.score || 0) / (h?.total || 1)) * 100), 0) / examHistory.length)
-    : 0;
+    : null;
 
   const activeDays = new Set(examHistory.map(h => new Date(h.created_at).toDateString())).size;
 
   const getReadinessGrade = (avg) => {
+    if (avg === null) return "Pending";
     if (avg >= 75) return "A+";
     if (avg >= 60) return "B";
     if (avg >= 50) return "C";
@@ -173,12 +174,11 @@ export default function StudentDashboard() {
       <p className="text-[#D4BB7A] font-mono text-xs uppercase tracking-[0.3em]">SYNCHRONIZING...</p>
     </div>
   );
-
   return (
     <div className="cbt-dashboard-root">
       <LiveTracker />
       
-      {/* SCOPED BLUEPRINT STYLESHEET (No body/html overrides) */}
+      {/* SCOPED BLUEPRINT STYLESHEET (No body/html overrides to avoid layout breaks) */}
       <style dangerouslySetInnerHTML={{ __html: `
         :root {
           --canvas: #F7F6F2; --surface: #F0EEE9; --surface-raised: #FFFFFF;
@@ -215,7 +215,7 @@ export default function StudentDashboard() {
         .sidebar-user { display: flex; align-items: center; gap: 10px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.08); }
         .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--green-600); border: 1.5px solid rgba(255,255,255,0.20); display: grid; place-items: center; font-family: 'Cormorant Garamond', serif; font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.90); }
         
-        /* THE SOVEREIGN BLOCK FIX (Margin block padding model) */
+        /* SOLID MATHEMATICAL RECONCILIATION */
         .main-shell { padding-left: var(--sidebar-w); min-height: 100vh; position: relative; z-index: 1; width: 100%; }
         
         .topbar { display: flex; align-items: center; justify-content: space-between; padding: 0 36px; height: 56px; border-bottom: 1px solid var(--border-ghost); background: rgba(247,246,242,0.88); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 50; }
@@ -318,12 +318,10 @@ export default function StudentDashboard() {
         .badge-fail { background: var(--fail-bg); color: var(--fail); border: 1px solid rgba(139,32,32,0.18); }
         @keyframes pulse-gold { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.55; transform: scale(0.85); } }
         @keyframes fadeSlideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-        
-        /* THE SOVEREIGN RESPONSIVE PADDING ADJUSTMENTS */
         @media (max-width: 900px) {
           .sidebar { transform: translateX(-100%); transition: transform 0.4s var(--ease-viscous); z-index: 200; width: 230px; }
           .sidebar.open { transform: translateX(0); }
-          .main-shell { padding-left: 0; width: 100%; }
+          .main-shell { padding-left: 0 !important; width: 100% !important; }
           .hero-row { grid-template-columns: 1fr; }
           .unit-matrix { grid-template-columns: 1fr; }
           .unit-card { grid-column: span 1 !important; }
@@ -331,10 +329,8 @@ export default function StudentDashboard() {
           .history-head-cell:nth-child(5), .history-entry > *:nth-child(5) { display: none; }
         }
       ` }} />
-      
       {isMobileNavOpen && <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[150] md:hidden" onClick={() => setIsMobileNavOpen(false)} />}
       <Sidebar student={student} unreadCount={unreadCount} handleForumEnter={handleForumEnter} isOpen={isMobileNavOpen} setIsOpen={setIsMobileNavOpen} />
-      
       <div className="main-shell">
         <TopBar isOpen={isMobileNavOpen} setIsOpen={setIsMobileNavOpen} triggerLogout={triggerLogout} />
         <main className="content">
@@ -346,8 +342,6 @@ export default function StudentDashboard() {
                 <h1 className="brief-headline">Forge your path.<br /><em>Again. And again.</em></h1>
                 <p className="brief-sub">Your preparation records are logged. Access to the entire testing matrix has been liberated. There are no remaining blocks on your attempts.</p>
               </div>
-              
-              {/* COMPUTED TELEMETRY FIELDS */}
               <div className="kpi-row">
                 <div className="kpi-cell">
                   <span className="kpi-label">Attempts</span>
@@ -356,7 +350,7 @@ export default function StudentDashboard() {
                 </div>
                 <div className="kpi-cell">
                   <span className="kpi-label">Highest Score</span>
-                  <span className="kpi-value green">{bestScore}%</span>
+                  <span className="kpi-value green">{bestScore !== null ? `${bestScore}%` : "--"}</span>
                   <span className="kpi-delta font-mono">Archived Record</span>
                 </div>
                 <div className="kpi-cell">
@@ -370,7 +364,6 @@ export default function StudentDashboard() {
                   <span className="kpi-delta font-mono">Days Active</span>
                 </div>
               </div>
-              
               <div className="sovereignty-strip">
                 <div className="sovereignty-icon">
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -384,7 +377,6 @@ export default function StudentDashboard() {
                 <span className="sovereignty-cta">Infinite Retries active</span>
               </div>
             </div>
-            
             <div className="ambassador-panel">
               <div className="ambassador-tag">
                 <span className="ambassador-label">Director of the Forge</span>
@@ -398,13 +390,12 @@ export default function StudentDashboard() {
                 </div>
               </div>
               <div className="cognitive-telemetry">
-                <div className="telemetry-cell"><span className="telemetry-val gold">{avgScore}</span><span className="telemetry-key">Focus Score</span></div>
+                <div className="telemetry-cell"><span className="telemetry-val gold">{avgScore !== null ? avgScore : "--"}</span><span className="telemetry-key">Focus Score</span></div>
                 <div className="telemetry-cell"><span className="telemetry-val">{activeDays}</span><span className="telemetry-key">Day Streak</span></div>
                 <div className="telemetry-cell"><span className="telemetry-val">{getReadinessGrade(avgScore)}</span><span className="telemetry-key">Readiness</span></div>
               </div>
             </div>
           </div>
-          
           <div className="section-header">
             <div>
               <span className="section-title">Unit Matrix</span>
@@ -416,7 +407,6 @@ export default function StudentDashboard() {
               <CourseCard key={course.id} course={course} onLaunch={setSetupCourse} bentoClass={getBentoClass(idx)} courseAvg={getCourseAverage(course.code)} />
             ))}
           </div>
-          
           <div className="section-header">
             <div>
               <span className="section-title">Examination Log</span>
@@ -428,7 +418,6 @@ export default function StudentDashboard() {
               </button>
             )}
           </div>
-          
           <div className="history-stream">
             <div className="history-head">
               <div className="history-head-cell">Timestamp</div>
