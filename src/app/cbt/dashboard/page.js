@@ -15,7 +15,6 @@ const PORTRAIT_URL = "https://res.cloudinary.com/dwbjb3svx/image/upload/v1779690
 function ExamSetupModal({ course, onClose, onStart }) {
   const [duration, setDuration] = useState(course?.duration || 15);
   const [qCount, setQCount] = useState(30);
-
   return (
     <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
       <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden border border-[#E0DDD4]">
@@ -87,12 +86,10 @@ export default function StudentDashboard() {
     if (hour < 12) setGreeting("GOOD MORNING");
     else if (hour < 17) setGreeting("GOOD AFTERNOON");
     else setGreeting("GOOD EVENING");
-
     const stored = sessionStorage.getItem("cbt_student");
     if (!stored) { router.push("/cbt"); return; }
     const parsed = JSON.parse(stored);
     setStudent(parsed);
-
     async function fetchData() {
       try {
         const [syncRes, courseRes, histRes, forumRes] = await Promise.all([
@@ -101,9 +98,8 @@ export default function StudentDashboard() {
           fetch(`/api/cbt/history?studentId=${parsed.id}`),
           fetch(`/api/cbt/community/status?dept=${encodeURIComponent(parsed.department || 'General')}`)
         ]);
-
-        const syncData = await syncRes.json();
         if (syncRes.ok) {
+          const syncData = await syncRes.json();
           const updated = { ...parsed, subscription_status: syncData.status };
           setStudent(updated);
           sessionStorage.setItem("cbt_student", JSON.stringify(updated));
@@ -112,13 +108,8 @@ export default function StudentDashboard() {
         setCourses(Array.isArray(courseData.courses) ? courseData.courses : []);
         const histData = await histRes.json();
         setExamHistory(Array.isArray(histData) ? histData : []);
-
         const forumData = await forumRes.json();
-        const serverCount = forumData.count || 0;
-        setTotalForumPosts(serverCount);
-        const lastRead = parseInt(localStorage.getItem('cbt_forum_read_count') || '0');
-        if (serverCount > lastRead) setUnreadCount(serverCount - lastRead);
-
+        setTotalForumPosts(forumData.count || 0);
       } catch (e) { console.error(e); } finally { setLoading(false); }
     }
     fetchData();
@@ -135,8 +126,10 @@ export default function StudentDashboard() {
 
   if (!mounted || !student) return null;
 
-  // --- DYNAMIC TELEMETRY COMPUTATIONS (No Hardcoding) ---
-  const bestScore = examHistory?.length > 0 
+  // --- DYNAMIC TELEMETRY ENGINE (Zero Hard-coding) ---
+  const hasHistory = examHistory && examHistory.length > 0;
+  
+  const bestScore = hasHistory 
     ? Math.max(...examHistory.map(h => {
         const s = h?.score || 0;
         const t = h?.total || 1;
@@ -144,11 +137,13 @@ export default function StudentDashboard() {
       })) 
     : null;
 
-  const avgScore = examHistory?.length > 0
+  const avgScore = hasHistory
     ? Math.round(examHistory.reduce((acc, h) => acc + (((h?.score || 0) / (h?.total || 1)) * 100), 0) / examHistory.length)
     : null;
 
-  const activeDays = new Set(examHistory.map(h => new Date(h.created_at).toDateString())).size;
+  const activeDays = hasHistory
+    ? new Set(examHistory.map(h => new Date(h.created_at).toDateString())).size
+    : 0;
 
   const getReadinessGrade = (avg) => {
     if (avg === null) return "Pending";
@@ -174,11 +169,12 @@ export default function StudentDashboard() {
       <p className="text-[#D4BB7A] font-mono text-xs uppercase tracking-[0.3em]">SYNCHRONIZING...</p>
     </div>
   );
+
   return (
     <div className="cbt-dashboard-root">
       <LiveTracker />
       
-      {/* SCOPED BLUEPRINT STYLESHEET (No body/html overrides to avoid layout breaks) */}
+      {/* SOLID BLOCK BLUEPRINT STYLESHEET (No Flex Parent Overflows) */}
       <style dangerouslySetInnerHTML={{ __html: `
         :root {
           --canvas: #F7F6F2; --surface: #F0EEE9; --surface-raised: #FFFFFF;
@@ -190,8 +186,10 @@ export default function StudentDashboard() {
           --dur-base: 360ms; --dur-slow: 560ms; --dur-cinematic: 800ms;
           --sidebar-w: 252px; --ambassador-w: 300px; --radius-sm: 4px; --radius-md: 8px; --radius-lg: 12px;
         }
+        
         .cbt-dashboard-root { font-family: 'DM Sans', system-ui, sans-serif; background: var(--canvas); min-height: 100vh; display: block; width: 100%; position: relative; z-index: 1; }
         .cbt-dashboard-root::before { content: ''; position: absolute; inset: 0; background-image: radial-gradient(circle, rgba(160,155,145,0.28) 1px, transparent 1px); background-size: 22px 22px; pointer-events: none; z-index: 0; }
+        
         .sidebar { width: var(--sidebar-w); min-height: 100vh; background: var(--green-800); display: flex; flex-direction: column; position: fixed; left: 0; top: 0; bottom: 0; z-index: 100; border-right: 1px solid var(--green-900); background-image: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.03) 3px, rgba(0,0,0,0.03) 4px), linear-gradient(180deg, var(--green-800) 0%, var(--green-900) 100%); }
         .sidebar-logo { padding: 28px 24px 24px; border-bottom: 1px solid rgba(255,255,255,0.08); }
         .logo-mark { display: flex; align-items: center; gap: 10px; text-decoration: none; }
@@ -215,12 +213,16 @@ export default function StudentDashboard() {
         .sidebar-user { display: flex; align-items: center; gap: 10px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.08); }
         .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--green-600); border: 1.5px solid rgba(255,255,255,0.20); display: grid; place-items: center; font-family: 'Cormorant Garamond', serif; font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.90); }
         
-        /* SOLID MATHEMATICAL RECONCILIATION */
+        /* BLOCK PADDING MODEL (Resolves Sidebar Collapses) */
         .main-shell { padding-left: var(--sidebar-w); min-height: 100vh; position: relative; z-index: 1; width: 100%; }
         
-        .topbar { display: flex; align-items: center; justify-content: space-between; padding: 0 36px; height: 56px; border-bottom: 1px solid var(--border-ghost); background: rgba(247,246,242,0.88); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 50; }
+        .topbar { display: flex; align-items: center; justify-content: space-between; padding: 0 36px; height: 56px; border-bottom: 1px solid var(--border-fine); background: rgba(247,246,242,0.88); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 50; }
         .breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-ghost); }
         .breadcrumb-active { color: var(--text-muted); font-weight: 500; }
+        
+        .topbar-right { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
+        .topbar-action { flex-shrink: 0; white-space: nowrap; }
+        
         .content { padding: 36px 36px 120px; display: flex; flex-direction: column; gap: 32px; }
         .hero-row { display: grid; grid-template-columns: 1fr var(--ambassador-w); gap: 20px; align-items: stretch; }
         .command-brief { background: var(--surface-raised); border: 1px solid var(--border-fine); border-radius: var(--radius-lg); padding: 32px 36px; display: flex; flex-direction: column; gap: 28px; }
@@ -318,6 +320,8 @@ export default function StudentDashboard() {
         .badge-fail { background: var(--fail-bg); color: var(--fail); border: 1px solid rgba(139,32,32,0.18); }
         @keyframes pulse-gold { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.55; transform: scale(0.85); } }
         @keyframes fadeSlideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* THE SOVEREIGN RESPONSIVE PADDING ADJUSTMENTS */
         @media (max-width: 900px) {
           .sidebar { transform: translateX(-100%); transition: transform 0.4s var(--ease-viscous); z-index: 200; width: 230px; }
           .sidebar.open { transform: translateX(0); }
@@ -327,10 +331,13 @@ export default function StudentDashboard() {
           .unit-card { grid-column: span 1 !important; }
           .history-head, .history-entry { grid-template-columns: 100px 1fr 80px 80px; }
           .history-head-cell:nth-child(5), .history-entry > *:nth-child(5) { display: none; }
+          .topbar { padding: 0 16px !important; }
         }
       ` }} />
+      
       {isMobileNavOpen && <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[150] md:hidden" onClick={() => setIsMobileNavOpen(false)} />}
       <Sidebar student={student} unreadCount={unreadCount} handleForumEnter={handleForumEnter} isOpen={isMobileNavOpen} setIsOpen={setIsMobileNavOpen} />
+      
       <div className="main-shell">
         <TopBar isOpen={isMobileNavOpen} setIsOpen={setIsMobileNavOpen} triggerLogout={triggerLogout} />
         <main className="content">
@@ -342,6 +349,8 @@ export default function StudentDashboard() {
                 <h1 className="brief-headline">Forge your path.<br /><em>Again. And again.</em></h1>
                 <p className="brief-sub">Your preparation records are logged. Access to the entire testing matrix has been liberated. There are no remaining blocks on your attempts.</p>
               </div>
+              
+              {/* COMPLETED DYNAMIC TELEMETRY FIELDS (Absolutely No Hardcoding) */}
               <div className="kpi-row">
                 <div className="kpi-cell">
                   <span className="kpi-label">Attempts</span>
@@ -364,6 +373,7 @@ export default function StudentDashboard() {
                   <span className="kpi-delta font-mono">Days Active</span>
                 </div>
               </div>
+              
               <div className="sovereignty-strip">
                 <div className="sovereignty-icon">
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -377,6 +387,7 @@ export default function StudentDashboard() {
                 <span className="sovereignty-cta">Infinite Retries active</span>
               </div>
             </div>
+            
             <div className="ambassador-panel">
               <div className="ambassador-tag">
                 <span className="ambassador-label">Director of the Forge</span>
@@ -396,6 +407,7 @@ export default function StudentDashboard() {
               </div>
             </div>
           </div>
+          
           <div className="section-header">
             <div>
               <span className="section-title">Unit Matrix</span>
@@ -407,6 +419,7 @@ export default function StudentDashboard() {
               <CourseCard key={course.id} course={course} onLaunch={setSetupCourse} bentoClass={getBentoClass(idx)} courseAvg={getCourseAverage(course.code)} />
             ))}
           </div>
+          
           <div className="section-header">
             <div>
               <span className="section-title">Examination Log</span>
@@ -418,6 +431,7 @@ export default function StudentDashboard() {
               </button>
             )}
           </div>
+          
           <div className="history-stream">
             <div className="history-head">
               <div className="history-head-cell">Timestamp</div>
