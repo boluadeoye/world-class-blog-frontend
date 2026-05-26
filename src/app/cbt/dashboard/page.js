@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { 
   Clock, Target, Play, Award, Database, BookOpen, ChevronRight,
-  LayoutDashboard, MessageSquare, MessageCircle, Star, X, Layers, LogOut
+  LayoutDashboard, MessageSquare, MessageCircle, Star, X, Menu, LogOut
 } from "lucide-react";
 import Link from "next/link";
 import { Cormorant_Garamond, DM_Sans } from 'next/font/google';
@@ -18,7 +18,7 @@ const cormorant = Cormorant_Garamond({
 
 const dmSans = DM_Sans({ 
   subsets: ['latin'], 
-  weight: ['300', '400', '500', '700'],
+  weight: ['300', '400', '500', '700', '900'],
   variable: '--font-dm-sans'
 });
 
@@ -62,51 +62,7 @@ function ExamSetupModal({ course, onClose, onStart }) {
   );
 }
 
-/* === 2. REVIEW MODAL === */
-function ReviewModal({ onClose }) {
-  const [review, setReview] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const [success, setSuccess] = useState(false);
-
-  const handleSubmit = async () => {
-    if (!review.trim()) return;
-    setSubmitting(true);
-    setTimeout(() => {
-      setSuccess(true);
-      setSubmitting(false);
-      setTimeout(() => { onClose(); }, 1500);
-    }, 1000);
-  };
-
-  return (
-    <div className="fixed inset-0 z-[400] flex items-center justify-center bg-[#001800]/95 backdrop-blur-md p-4 animate-in zoom-in duration-300">
-      <div className="bg-[#F7F6F2] rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden border border-[#E0DDD4] p-6 space-y-4">
-        <h3 className={`text-xl font-medium text-[#171613] ${cormorant.className}`}>Submit Your Review</h3>
-        {success ? (
-          <div className="text-center py-6 space-y-2">
-            <CheckCircle className="text-[#004d00] mx-auto animate-bounce" size={40} />
-            <p className="text-xs font-bold text-[#004d00]">Review Transmitted Successfully</p>
-          </div>
-        ) : (
-          <>
-            <textarea 
-              value={review}
-              onChange={(e) => setReview(e.target.value)}
-              placeholder="Tell us about your experience with ExamForge..."
-              className="w-full bg-white border border-[#E0DDD4] rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#004d00] h-32 resize-none text-[#171613]"
-            />
-            <div className="flex gap-2">
-              <button onClick={onClose} className="flex-1 py-3 border border-[#E0DDD4] rounded-lg text-xs font-bold text-[#7A7870]">Cancel</button>
-              <button onClick={handleSubmit} disabled={submitting || !review.trim()} className="flex-1 py-3 bg-[#004400] text-[#D4BB7A] rounded-lg text-xs font-bold hover:bg-[#002800] disabled:opacity-50">Submit</button>
-            </div>
-          </>
-        )}
-      </div>
-    </div>
-  );
-}
-
-/* === 3. COURSE CARD === */
+/* === 2. COURSE CARD === */
 function CourseCard({ course, onLaunch, variant = "green" }) {
   const isGst = variant === "green";
   return (
@@ -136,7 +92,7 @@ function CourseCard({ course, onLaunch, variant = "green" }) {
             <span className="text-[8px] uppercase tracking-widest text-[#ABA8A0]">Retries</span>
           </div>
         </div>
-        <button className="text-[9px] font-bold uppercase tracking-widest flex items-center gap-1 text-[#004400] transition-colors group-hover:text-[#002800]">Attempt <ChevronRight size={10} className="transition-transform group-hover:translate-x-1" /></button>
+        <button className="text-[9px] font-bold uppercase tracking-widest flex items-center gap-1 text-[#004400]">Attempt <ChevronRight size={10} /></button>
       </div>
     </div>
   );
@@ -151,7 +107,6 @@ export default function StudentDashboard() {
   const [mounted, setMounted] = useState(false);
   const [statusModal, setStatusModal] = useState(null);
   const [setupCourse, setSetupCourse] = useState(null);
-  const [showReview, setShowReview] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -213,7 +168,7 @@ export default function StudentDashboard() {
         body { background-image: radial-gradient(circle, rgba(160,155,145,0.15) 1px, transparent 1px); background-size: 24px 24px; }
       `}</style>
 
-      {/* SIDEBAR (Slide-out on Mobile, Fixed on Desktop) */}
+      {/* SIDEBAR */}
       <aside className={`w-64 bg-[#002800] border-r border-black/10 flex flex-col fixed h-full z-50 transition-transform duration-300 lg:translate-x-0 ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:flex'}`}>
         <div className="p-8 border-b border-white/5 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -230,18 +185,21 @@ export default function StudentDashboard() {
           </div>
           <div className="space-y-1">
             <div className="text-[9px] text-white/20 uppercase tracking-widest px-4 mb-2">Support</div>
+            {/* WHATSAPP SECURE LINE */}
             <a href="https://wa.me/2348106293674" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-4 py-3 rounded-lg text-white/50 hover:bg-white/5 cursor-pointer transition-all"><MessageCircle size={14} /><span className="text-xs font-medium">Secure Line (WhatsApp)</span></a>
-            <button onClick={() => { setShowReview(true); setMobileMenuOpen(false); }} className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-white/50 hover:bg-white/5 cursor-pointer transition-all text-left"><Star size={14} /><span className="text-xs font-medium">Submit Review</span></button>
+            {/* WHATSAPP REVIEW OVERFLOW - Safe, crash-proof WhatsApp redirect */}
+            <a href="https://wa.me/2348106293674?text=Hi%20Bolu%2C%20here%20is%20my%20review%20of%20ExamForge%3A%20" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-4 py-3 rounded-lg text-white/50 hover:bg-white/5 cursor-pointer transition-all text-left"><Star size={14} /><span className="text-xs font-medium">Submit Review</span></a>
           </div>
         </nav>
         
-        {/* SIDEBAR FOOTER (CREDITS RESTORED) */}
+        {/* SIDEBAR FOOTER (POLISHED CREDIT) */}
         <div className="p-6 bg-black/20 border-t border-white/5 space-y-4">
-          <div className="flex flex-col text-[9px] text-white/40 leading-relaxed font-semibold uppercase tracking-wider">
-            <span>Curated by:</span>
-            <span className="text-white/80 font-bold mt-1">Adeoye Boluwatife</span>
-            <span className="text-white/50 text-[8px]">Dept. of English & Literary Studies</span>
-            <span className="text-white/30 text-[7px] mt-1">Partner: Abel Kings Tutorials</span>
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-[#004400] border border-white/10 flex items-center justify-center text-white text-xs font-bold">{student.name.charAt(0)}</div>
+            <div className="min-w-0">
+              <p className="text-xs text-white font-medium truncate">{student.name}</p>
+              <p className="text-[9px] text-white/30 uppercase tracking-tighter">IPPIS • {String(student.id).slice(0,6)}</p>
+            </div>
           </div>
         </div>
       </aside>
@@ -250,12 +208,12 @@ export default function StudentDashboard() {
       <main className="flex-1 lg:ml-64 min-h-screen flex flex-col bg-[#F7F6F2]">
         <header className="h-16 border-b border-[#E0DDD4] bg-[#F7F6F2]/80 backdrop-blur-md sticky top-0 z-40 flex items-center justify-between px-6">
           <div className="flex items-center gap-3">
-            <button onClick={() => setMobileMenuOpen(true)} className="lg:hidden p-2 text-[#004400] hover:bg-[#edf5ed] rounded-lg"><Layers size={18} /></button>
+            {/* MOBILE MENU TRIGGER: Changed from Layers to standard Menu (Hamburger) icon */}
+            <button onClick={() => setMobileMenuOpen(true)} className="lg:hidden p-2 text-[#004400] hover:bg-[#edf5ed] rounded-lg"><Menu size={18} /></button>
             <div className="flex items-center gap-2 text-[10px] text-[#ABA8A0] uppercase tracking-widest">
               <span>ExamForge</span> <span className="opacity-30">/</span> <span className="text-[#7A7870] font-bold">Dashboard</span>
             </div>
           </div>
-          {/* THE EXIT BUTTON FIXED */}
           <button onClick={triggerLogout} className="bg-red-50 text-red-700 px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest border border-red-100 hover:bg-red-100 transition-all flex items-center gap-2">
             <LogOut size={12} /> Exit
           </button>
@@ -263,22 +221,24 @@ export default function StudentDashboard() {
 
         <div className="p-6 md:p-10 max-w-5xl w-full mx-auto space-y-10">
           
-          {/* HERO SECTION */}
+          {/* HERO SECTION - REBRANDED TYPOGRAPHY & WIDTH */}
           <section className="bg-white border border-[#E0DDD4] rounded-2xl p-8 md:p-12 space-y-8 relative overflow-hidden shadow-sm">
             <div className="absolute top-0 right-0 w-64 h-64 bg-[#edf5ed] rounded-full -mr-32 -mt-32 blur-3xl opacity-50"></div>
             
             <div className="relative z-10 flex justify-between items-start gap-4">
-              <div>
-                <span className="text-[10px] uppercase tracking-[0.3em] text-[#ABA8A0] font-bold">Good Day, Bolu</span>
-                <h1 className={`text-4xl md:text-5xl mt-3 leading-[1.15] text-[#171613] ${cormorant.className}`}>
-                  Forge your path.<br/><em className="text-[#004400] italic">Again. And again.</em>
+              <div className="w-full">
+                <span className="text-[10px] uppercase tracking-[0.3em] text-[#ABA8A0] font-black">Good Day, {student.name.split(" ")[0]}</span>
+                {/* UPGRADED HERO TYPOGRAPHY: Removed Garamond, deployed heavy high-tech modern sans-serif */}
+                <h1 className="text-3xl md:text-5xl mt-3 font-black tracking-tight leading-none text-[#171613]">
+                  Forge your path.<br/><span className="text-[#004d00] italic font-black">Again. And again.</span>
                 </h1>
-                <p className="text-[#7A7870] text-xs max-w-sm mt-4 leading-relaxed">
+                {/* DYNAMIC SPAN: Removed narrow max-width block, let subtext span beautifully */}
+                <p className="text-[#7A7870] text-xs leading-relaxed mt-4 w-full">
                   The Forge is open. Every unit, every assessment, available without restriction. This is your cognitive proving ground.
                 </p>
               </div>
               
-              {/* THE VOID FILLED: Professional Avatar & Neural Link Pulse */}
+              {/* THE AVATAR BLOCK */}
               <div className="relative flex-shrink-0">
                 <div className="absolute inset-0 rounded-full bg-[#D4BB7A]/20 animate-ping" style={{ animationDuration: '4s' }}></div>
                 <div className="absolute inset-0 rounded-full border border-[#D4BB7A] scale-110"></div>
@@ -356,16 +316,31 @@ export default function StudentDashboard() {
             </div>
           </section>
 
-          {/* FOOTER CREDITS (MAIN VIEW) */}
-          <footer className="pt-8 border-t border-[#E0DDD4] text-center space-y-1">
-            <p className="text-[10px] text-[#ABA8A0] uppercase tracking-widest font-bold">ExamForge Cognitive Suite</p>
-            <p className="text-[9px] text-[#7A7870] font-medium">Curated by Adeoye Boluwatife (Dept. of English & Literary Studies) in partnership with Abel Kings Tutorials.</p>
+          {/* THE POLISHED "ADEOLU" CAPSULE CREDIT PILL */}
+          <footer className="pt-8 flex justify-center w-full">
+            <div className="bg-white border border-[#E0DDD4] shadow-md rounded-2xl md:rounded-full p-4 flex flex-col md:flex-row items-center justify-between gap-4 max-w-3xl w-full">
+              <div className="flex items-center gap-4 flex-1">
+                <div className="w-12 h-12 bg-[#004400] rounded-xl flex items-center justify-center text-[#D4BB7A] shrink-0">
+                  <Award size={20} />
+                </div>
+                <div className="text-left">
+                  <h4 className="font-black text-[#171613] text-sm uppercase tracking-wider">BOLU ADEOYE</h4>
+                  <p className="text-[10px] text-[#004d00] font-bold uppercase tracking-tight">DEPT. OF ENGLISH & LITERARY STUDIES</p>
+                </div>
+              </div>
+              <div className="hidden md:block h-8 w-[1px] bg-[#E0DDD4]"></div>
+              <div className="text-left md:text-right shrink-0">
+                <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">PARTNER</p>
+                <p className="text-xs font-black text-[#171613] uppercase">ABEL KINGS</p>
+                <p className="text-[8px] font-bold text-[#004d00] uppercase tracking-tighter">TUTORIAL CENTER</p>
+              </div>
+            </div>
           </footer>
+
         </div>
       </main>
 
       {setupCourse && <ExamSetupModal course={setupCourse} onClose={() => setSetupCourse(null)} onStart={(dur, limit) => router.push(`/cbt/exam/${setupCourse.id}?duration=${dur}&limit=${limit || 30}`)} />}
-      {showReview && <ReviewModal onClose={() => setShowReview(false)} />}
       {statusModal && <StatusModal {...statusModal} />}
     </div>
   );
