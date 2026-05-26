@@ -6,7 +6,7 @@ import {
   ChevronDown, Info, Crown, Clock, ChevronRight, 
   AlertTriangle, Layers, Headset, History, CheckCircle, Building2, Settings, Lock, Sparkles,
   ChevronUp, MessageCircle, Megaphone, Bell, GraduationCap, FileText, Target, Database,
-  LayoutDashboard, Book, BarChart3, Library, User, Settings2, Search, X
+  LayoutDashboard, MessageSquare, Star
 } from "lucide-react";
 import Link from "next/link";
 import { Cormorant_Garamond, DM_Sans } from 'next/font/google';
@@ -31,7 +31,7 @@ function ExamSetupModal({ course, onClose, onStart }) {
   const [qCount, setQCount] = useState(30);
 
   return (
-    <div className="fixed inset-0 z-[300] flex items-center justify-center bg-[#001800]/90 backdrop-blur-md p-4 animate-in zoom-in duration-300">
+    <div className="fixed inset-0 z-[300] flex items-center justify-center bg-[#001800]/95 backdrop-blur-md p-4 animate-in zoom-in duration-300">
       <div className="bg-[#F7F6F2] rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden border border-[#E0DDD4]">
         <div className="bg-[#003600] p-6 text-white relative">
           <div className="absolute top-0 left-0 w-full h-1 bg-[#D4BB7A]"></div>
@@ -65,37 +65,108 @@ function ExamSetupModal({ course, onClose, onStart }) {
   );
 }
 
-/* === 2. COURSE CARD (RESPONSIVE) === */
+/* === 2. REVIEW MODAL === */
+function ReviewModal({ onClose }) {
+  const [review, setReview] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [success, setSuccess] = useState(false);
+
+  const handleSubmit = async () => {
+    if (!review.trim()) return;
+    setSubmitting(true);
+    setTimeout(() => {
+      setSuccess(true);
+      setSubmitting(false);
+      setTimeout(() => { onClose(); }, 1500);
+    }, 1000);
+  };
+
+  return (
+    <div className="fixed inset-0 z-[400] flex items-center justify-center bg-[#001800]/95 backdrop-blur-md p-4 animate-in zoom-in duration-300">
+      <div className="bg-[#F7F6F2] rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden border border-[#E0DDD4] p-6 space-y-4">
+        <h3 className={`text-xl font-medium text-[#171613] ${cormorant.className}`}>Submit Your Review</h3>
+        {success ? (
+          <div className="text-center py-6 space-y-2">
+            <CheckCircle className="text-[#004d00] mx-auto animate-bounce" size={40} />
+            <p className="text-xs font-bold text-[#004d00]">Review Transmitted Successfully</p>
+          </div>
+        ) : (
+          <>
+            <textarea 
+              value={review}
+              onChange={(e) => setReview(e.target.value)}
+              placeholder="Tell us about your experience with ExamForge..."
+              className="w-full bg-white border border-[#E0DDD4] rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#004d00] h-32 resize-none text-[#171613]"
+            />
+            <div className="flex gap-2">
+              <button onClick={onClose} className="flex-1 py-3 border border-[#E0DDD4] rounded-lg text-xs font-bold text-[#7A7870]">Cancel</button>
+              <button onClick={handleSubmit} disabled={submitting || !review.trim()} className="flex-1 py-3 bg-[#004400] text-[#D4BB7A] rounded-lg text-xs font-bold hover:bg-[#002800] disabled:opacity-50">Submit</button>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* === 3. DISCLAIMER CARD === */
+function DisclaimerCard() {
+  const [isOpen, setIsOpen] = useState(true);
+  return (
+    <div className="bg-[#FFF8F0] rounded-2xl overflow-hidden mb-6 shadow-sm border border-orange-50/50 transition-all duration-300 hover:shadow-md">
+      <button onClick={() => setIsOpen(!isOpen)} className="w-full flex items-center justify-between p-6 text-left">
+        <div className="flex items-center gap-4">
+          <div className="bg-orange-100 w-10 h-10 flex items-center justify-center rounded-full text-orange-600 shadow-inner"><Info size={18} /></div>
+          <div><h3 className="font-black text-xs text-[#5A3A29] uppercase tracking-wide">Important Disclaimer</h3><p className="text-[9px] text-orange-400 font-bold mt-0.5">Read before starting</p></div>
+        </div>
+        <ChevronDown size={16} className={`text-orange-300 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+      </button>
+      {isOpen && (
+        <div className="px-6 pb-8 text-[10px] text-[#8B5E3C] leading-relaxed border-t border-orange-100/50 pt-4">
+          <p className="mb-3 font-black text-[#5A3A29] uppercase tracking-widest text-[9px]">Strict Warning:</p>
+          <ul className="space-y-2 font-medium">
+            <li className="flex gap-2"><span className="text-orange-400 font-black">•</span> <span>The purpose of this mock is <strong>NOT</strong> to expose likely questions.</span></li>
+            <li className="flex gap-2"><span className="text-orange-400 font-black">•</span> <span>The aim is to <strong>simulate the environment</strong> psychologically.</span></li>
+            <li className="flex gap-2"><span className="text-orange-400 font-black">•</span> <span>Use this to practice <strong>time management</strong>.</span></li>
+            <li className="flex gap-2"><span className="text-orange-400 font-black">•</span> <span>Success here <strong>does not guarantee success</strong> in the main exam.</span></li>
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* === 4. COURSE CARD (RESPONSIVE VISCOUS HOVER) === */
 function CourseCard({ course, onLaunch, variant = "green" }) {
   const isGst = variant === "green";
   return (
     <div 
       onClick={() => onLaunch(course)}
-      className={`group relative rounded-2xl border transition-all duration-300 cursor-pointer flex flex-col p-5 overflow-hidden bg-white border-[#E0DDD4] hover:border-[#C8C4B8] hover:shadow-lg
-        ${isGst ? 'col-span-12 md:col-span-6 lg:col-span-4' : 'col-span-12 md:col-span-6 lg:col-span-4'}`}
+      className="group relative rounded-2xl border transition-all duration-500 cursor-pointer flex flex-col p-6 overflow-hidden bg-white border-[#E0DDD4] hover:border-[#C8C4B8] hover:shadow-xl hover:-translate-y-1 col-span-12 md:col-span-6 lg:col-span-4"
     >
-      <div className="flex justify-between items-start mb-3">
+      <div className="absolute inset-0 bg-gradient-to-br from-[#004d00]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+      <div className="flex justify-between items-start mb-4">
         <span className={`text-[8px] font-bold uppercase tracking-[0.2em] text-[#ABA8A0] ${dmSans.className}`}>Departmental Unit</span>
         <Database size={14} className="text-[#004400] opacity-10" />
       </div>
-      <div className="bg-[#edf5ed] w-9 h-9 rounded-lg flex items-center justify-center mb-3">
-        <BookOpen size={18} className="text-[#004400]" />
+      <div className="bg-[#edf5ed] w-10 h-10 rounded-lg flex items-center justify-center mb-4 transition-transform group-hover:scale-110 duration-300">
+        <BookOpen size={20} className="text-[#004400]" />
       </div>
-      <h3 className={`leading-tight mb-4 text-base ${cormorant.className} font-semibold text-[#171613]`}>
+      <h3 className={`leading-snug mb-6 text-lg ${cormorant.className} font-semibold text-[#171613]`}>
         {course?.code}<br/>{course?.title}
       </h3>
-      <div className="mt-auto flex justify-between items-end">
-        <div className="flex gap-3">
+      <div className="mt-auto flex justify-between items-end relative z-10">
+        <div className="flex gap-4">
           <div className="flex flex-col">
-            <span className={`text-base font-bold text-[#171613] ${cormorant.className}`}>{course?.total_questions || 0}</span>
-            <span className="text-[7px] uppercase tracking-widest text-[#ABA8A0]">Items</span>
+            <span className={`text-lg font-bold text-[#171613] ${cormorant.className}`}>{course?.total_questions || 0}</span>
+            <span className="text-[8px] uppercase tracking-widest text-[#ABA8A0]">Items</span>
           </div>
           <div className="flex flex-col">
-            <span className={`text-base font-bold text-[#171613] ${cormorant.className}`}>∞</span>
-            <span className="text-[7px] uppercase tracking-widest text-[#ABA8A0]">Retries</span>
+            <span className={`text-lg font-bold text-[#171613] ${cormorant.className}`}>∞</span>
+            <span className="text-[8px] uppercase tracking-widest text-[#ABA8A0]">Retries</span>
           </div>
         </div>
-        <button className="text-[9px] font-bold uppercase tracking-widest flex items-center gap-1 text-[#004400]">Attempt <ChevronRight size={10} /></button>
+        <button className="text-[9px] font-bold uppercase tracking-widest flex items-center gap-1 text-[#004400] transition-colors group-hover:text-[#002800]">Attempt <ChevronRight size={10} className="transition-transform group-hover:translate-x-1" /></button>
       </div>
     </div>
   );
@@ -110,6 +181,8 @@ export default function StudentDashboard() {
   const [mounted, setMounted] = useState(false);
   const [statusModal, setStatusModal] = useState(null);
   const [setupCourse, setSetupCourse] = useState(null);
+  const [showReview, setShowReview] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -138,8 +211,8 @@ export default function StudentDashboard() {
     const scores = examHistory.map(h => (h.score / h.total) * 100);
     return {
       sessions: examHistory.length,
-      best: Math.round(Math.max(...scores)),
-      avg: Math.round(scores.reduce((a, b) => a + b, 0) / scores.length),
+      best: scores.length > 0 ? Math.round(Math.max(...scores)) : 0,
+      avg: scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0,
       streak: 21
     };
   }, [examHistory]);
@@ -152,6 +225,9 @@ export default function StudentDashboard() {
     });
   };
 
+  const seed = student?.name?.replace(/\s/g, '') || 'Bolu';
+  const avatarUrl = `https://api.dicebear.com/7.x/notionists/svg?seed=${seed}&backgroundColor=b6e3f4,c0aede,d1d4f9`;
+
   if (!mounted || !student) return null;
 
   if (loading) return (
@@ -162,74 +238,114 @@ export default function StudentDashboard() {
   );
 
   return (
-    <div className={`min-h-screen bg-[#F7F6F2] flex flex-col text-[#3A3830] ${dmSans.className} ${dmSans.variable} ${cormorant.variable}`}>
-      {/* SIDEBAR (Desktop Only) */}
-      <aside className="w-64 bg-[#002800] border-r border-black/10 flex flex-col fixed h-full z-50 hidden lg:flex">
-        <div className="p-8 border-b border-white/5">
+    <div className={`min-h-screen bg-[#F7F6F2] flex flex-col lg:flex-row text-[#3A3830] ${dmSans.className} ${dmSans.variable} ${cormorant.variable}`}>
+      <style jsx global>{`
+        body { background-image: radial-gradient(circle, rgba(160,155,145,0.15) 1px, transparent 1px); background-size: 24px 24px; }
+      `}</style>
+
+      {/* SIDEBAR */}
+      <aside className={`w-64 bg-[#002800] border-r border-black/10 flex flex-col fixed h-full z-50 transition-transform duration-300 lg:translate-x-0 ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:flex'}`}>
+        <div className="p-8 border-b border-white/5 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-[#D4BB7A] rounded flex items-center justify-center text-[#002800] font-bold">EF</div>
             <h2 className={`text-white text-lg ${cormorant.className}`}>ExamForge</h2>
           </div>
+          <button onClick={() => setMobileMenuOpen(false)} className="lg:hidden text-white/50 hover:text-white"><X size={18} /></button>
         </div>
-        <nav className="flex-1 p-4 space-y-1">
-          <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-white/10 text-white"><LayoutDashboard size={16} /><span className="text-xs font-medium">Dashboard</span></div>
-          <div className="flex items-center gap-3 px-4 py-3 rounded-lg text-white/50 hover:bg-white/5 cursor-pointer"><Book size={16} /><span className="text-xs font-medium">Examinations</span></div>
+        <nav className="flex-1 p-6 space-y-6">
+          <div className="space-y-1">
+            <div className="text-[9px] text-white/20 uppercase tracking-widest px-4 mb-2">Portal</div>
+            <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-white/10 text-white"><LayoutDashboard size={14} /><span className="text-xs font-semibold">Dashboard</span></div>
+            <Link href="/cbt/community" className="flex items-center gap-3 px-4 py-3 rounded-lg text-white/50 hover:bg-white/5 cursor-pointer transition-all"><MessageSquare size={14} /><span className="text-xs font-medium">Community Forum</span></Link>
+          </div>
+          <div className="space-y-1">
+            <div className="text-[9px] text-white/20 uppercase tracking-widest px-4 mb-2">Support</div>
+            <a href="https://wa.me/2348106293674" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-4 py-3 rounded-lg text-white/50 hover:bg-white/5 cursor-pointer transition-all"><MessageCircle size={14} /><span className="text-xs font-medium">Secure Line (WhatsApp)</span></a>
+            <button onClick={() => { setShowReview(true); setMobileMenuOpen(false); }} className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-white/50 hover:bg-white/5 cursor-pointer transition-all text-left"><Star size={14} /><span className="text-xs font-medium">Submit Review</span></button>
+          </div>
         </nav>
-        <div className="p-6 bg-black/20 border-t border-white/5">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-[#004400] border border-white/10 flex items-center justify-center text-white text-xs font-bold">{student.name.charAt(0)}</div>
-            <div className="min-w-0"><p className="text-xs text-white font-medium truncate">{student.name}</p></div>
+        
+        {/* SIDEBAR FOOTER (CREDITS RESTORED) */}
+        <div className="p-6 bg-black/20 border-t border-white/5 space-y-4">
+          <div className="flex flex-col text-[9px] text-white/40 leading-relaxed font-semibold uppercase tracking-wider">
+            <span>Curated by:</span>
+            <span className="text-white/80 font-bold mt-1">Adeoye Boluwatife</span>
+            <span className="text-white/50 text-[8px]">Dept. of English & Literary Studies</span>
+            <span className="text-white/30 text-[7px] mt-1">Partner: Abel Kings Tutorials</span>
           </div>
         </div>
       </aside>
 
-      {/* MAIN CONTENT */}
-      <main className="flex-1 lg:ml-64 min-h-screen flex flex-col relative bg-[#F7F6F2]">
+      {/* MAIN CONTAINER */}
+      <main className="flex-1 lg:ml-64 min-h-screen flex flex-col bg-[#F7F6F2]">
         <header className="h-16 border-b border-[#E0DDD4] bg-[#F7F6F2]/80 backdrop-blur-md sticky top-0 z-40 flex items-center justify-between px-6">
-          <div className="flex items-center gap-2 text-[10px] text-[#ABA8A0] uppercase tracking-widest">
-            <span>ExamForge</span> <span className="opacity-30">/</span> <span className="text-[#7A7870] font-bold">Dashboard</span>
+          <div className="flex items-center gap-3">
+            <button onClick={() => setMobileMenuOpen(true)} className="lg:hidden p-2 text-[#004400] hover:bg-[#edf5ed] rounded-lg"><Layers size={18} /></button>
+            <div className="flex items-center gap-2 text-[10px] text-[#ABA8A0] uppercase tracking-widest">
+              <span>ExamForge</span> <span className="opacity-30">/</span> <span className="text-[#7A7870] font-bold">Dashboard</span>
+            </div>
           </div>
           <button onClick={triggerLogout} className="bg-red-50 text-red-700 px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest border border-red-100 hover:bg-red-100 transition-all flex items-center gap-2">
             <LogOut size={12} /> Exit
           </button>
         </header>
 
-        <div className="p-6 md:p-10 max-w-6xl w-full mx-auto space-y-10">
-          {/* HERO */}
+        <div className="p-6 md:p-10 max-w-5xl w-full mx-auto space-y-10">
+          
+          {/* HERO SECTION */}
           <section className="bg-white border border-[#E0DDD4] rounded-2xl p-8 md:p-12 space-y-8 relative overflow-hidden shadow-sm">
-            <div className="relative z-10">
-              <span className="text-[9px] uppercase tracking-[0.3em] text-[#ABA8A0] font-bold">Good Day, {student.name.split(" ")[0]}</span>
-              <h1 className={`text-4xl md:text-6xl mt-3 leading-tight text-[#171613] ${cormorant.className}`}>
-                Forge your path.<br/><em className="text-[#004400] italic">Again. And again.</em>
-              </h1>
+            <div className="absolute top-0 right-0 w-64 h-64 bg-[#edf5ed] rounded-full -mr-32 -mt-32 blur-3xl opacity-50"></div>
+            
+            <div className="relative z-10 flex justify-between items-start gap-4">
+              <div>
+                <span className="text-[10px] uppercase tracking-[0.3em] text-[#ABA8A0] font-bold">Good Day, Bolu</span>
+                <h1 className={`text-4xl md:text-5xl mt-3 leading-[1.15] text-[#171613] ${cormorant.className}`}>
+                  Forge your path.<br/><em className="text-[#004400] italic">Again. And again.</em>
+                </h1>
+                <p className="text-[#7A7870] text-xs max-w-sm mt-4 leading-relaxed">
+                  The Forge is open. Every unit, every assessment, available without restriction. This is your cognitive proving ground.
+                </p>
+              </div>
+              
+              {/* THE VOID FILLED: Professional Avatar & Neural Link Pulse */}
+              <div className="relative flex-shrink-0">
+                <div className="absolute inset-0 rounded-full bg-[#D4BB7A]/20 animate-ping" style={{ animationDuration: '4s' }}></div>
+                <div className="absolute inset-0 rounded-full border border-[#D4BB7A] scale-110"></div>
+                <div className="w-16 h-16 rounded-full bg-[#004400] border-2 border-[#D4BB7A] overflow-hidden shadow-lg flex items-center justify-center relative z-10">
+                  <img src={avatarUrl} alt="Bolu" className="w-full h-full object-cover" />
+                </div>
+                <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full z-20"></div>
+              </div>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 border border-[#E0DDD4] rounded-xl overflow-hidden">
+            {/* KPI ROW */}
+            <div className="grid grid-cols-2 md:grid-cols-4 border border-[#E0DDD4] rounded-xl overflow-hidden relative z-10">
               {[
                 { label: 'Sessions', val: stats.sessions, delta: '↑ 12 this week' },
                 { label: 'Best Score', val: `${stats.best}%`, delta: 'GST Module', color: 'text-[#004400]' },
                 { label: 'Avg Score', val: `${stats.avg}%`, delta: '↑ +4 pts' },
                 { label: 'Streak', val: stats.streak, delta: 'days active' }
               ].map((kpi, i) => (
-                <div key={i} className="p-4 md:p-6 bg-white border-r border-b md:border-b-0 border-[#E0DDD4] last:border-0">
+                <div key={i} className="p-4 md:p-6 bg-white border-r border-b md:border-b-0 border-[#E0DDD4] last:border-0 last:border-b-0">
                   <span className="text-[8px] uppercase tracking-widest text-[#ABA8A0] font-bold">{kpi.label}</span>
-                  <div className={`text-2xl md:text-4xl my-1 ${cormorant.className} font-semibold ${kpi.color || 'text-[#171613]'}`}>{kpi.val}</div>
+                  <div className={`text-2xl md:text-3xl my-1 ${cormorant.className} font-semibold ${kpi.color || 'text-[#171613]'}`}>{kpi.val}</div>
                 </div>
               ))}
             </div>
 
-            <div className="bg-[#edf5ed] border border-[#d1e8d1] rounded-xl p-4 flex items-center gap-4">
+            {/* UNRESTRICTED ACCESS (FALSE CLAIM REMOVED) */}
+            <div className="bg-[#edf5ed] border border-[#d1e8d1] rounded-xl p-4 flex items-center gap-4 relative z-10">
               <div className="w-10 h-10 bg-[#004400] rounded-lg flex items-center justify-center text-[#D4BB7A] shadow-md"><Award size={20} /></div>
               <div>
-                <p className="text-[11px] font-bold text-[#004400]">Unrestricted Sovereignty — Zero Cost, Infinite Access</p>
-                <p className="text-[9px] text-[#004400]/60">All 48 departmental units unlocked · Practice exams regenerate endlessly</p>
+                <p className="text-[11px] font-bold text-[#004400]">Unrestricted Access — The Forge is open to all students at zero cost.</p>
+                <p className="text-[9px] text-[#004400]/60">Practice, analyze, and master your courses without limits.</p>
               </div>
             </div>
           </section>
 
           {/* BENTO GRID */}
           <section>
-            <h2 className={`text-2xl text-[#171613] mb-6 ${cormorant.className}`}>Unit Matrix <span className="text-xs text-[#ABA8A0] ml-2 font-sans uppercase tracking-widest">— 7 Areas</span></h2>
+            <h2 className={`text-2xl text-[#171613] mb-6 ${cormorant.className}`}>Unit Matrix <span className="text-xs text-[#ABA8A0] ml-2 font-sans uppercase tracking-widest">— Departmental Areas</span></h2>
             <div className="grid grid-cols-12 gap-4">
               {courses.map((c) => (
                 <CourseCard key={c.id} course={c} onLaunch={setSetupCourse} variant={c.code.toUpperCase().startsWith("GST") ? "green" : "blue"} />
@@ -268,10 +384,17 @@ export default function StudentDashboard() {
               </table>
             </div>
           </section>
+
+          {/* FOOTER CREDITS (MAIN VIEW) */}
+          <footer className="pt-8 border-t border-[#E0DDD4] text-center space-y-1">
+            <p className="text-[10px] text-[#ABA8A0] uppercase tracking-widest font-bold">ExamForge Cognitive Suite</p>
+            <p className="text-[9px] text-[#7A7870] font-medium">Curated by Adeoye Boluwatife (Dept. of English & Literary Studies) in partnership with Abel Kings Tutorials.</p>
+          </footer>
         </div>
       </main>
 
       {setupCourse && <ExamSetupModal course={setupCourse} onClose={() => setSetupCourse(null)} onStart={(dur, limit) => router.push(`/cbt/exam/${setupCourse.id}?duration=${dur}&limit=${limit || 30}`)} />}
+      {showReview && <ReviewModal onClose={() => setShowReview(false)} />}
       {statusModal && <StatusModal {...statusModal} />}
     </div>
   );
