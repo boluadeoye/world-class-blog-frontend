@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { Layers, BookOpen, MessageCircle, Crown, User, History, Settings } from "lucide-react";
 
-export default function Sidebar({ student, unreadCount, handleForumEnter, isOpen, setIsOpen }) {
+export default function Sidebar({ student, unreadCount, handleForumEnter, isOpen }) {
   const displayName = student?.name ? student.name.split(" ")[0] : "Student";
   const displayAvatar = student?.name ? student.name.slice(0, 2).toUpperCase() : "ST";
   const displayId = student?.id ? String(student.id).slice(0, 6) : "000000";
