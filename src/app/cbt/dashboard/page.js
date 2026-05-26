@@ -27,7 +27,7 @@ const dmSans = DM_Sans({
 
 /* === 1. EXAM SETUP MODAL (HERITAGE STYLE) === */
 function ExamSetupModal({ course, onClose, onStart }) {
-  const [duration, setDuration] = useState(course.duration || 15);
+  const [duration, setDuration] = useState(course?.duration || 15);
   const [qCount, setQCount] = useState(30);
 
   return (
@@ -38,7 +38,7 @@ function ExamSetupModal({ course, onClose, onStart }) {
           <h3 className={`text-xs uppercase tracking-[0.3em] flex items-center gap-2 opacity-70 ${dmSans.className}`}>
             Mission Configuration
           </h3>
-          <p className={`text-2xl mt-2 ${cormorant.className}`}>{course.code} • {course.title}</p>
+          <p className={`text-2xl mt-2 ${cormorant.className}`}>{course?.code} • {course?.title}</p>
         </div>
         <div className="p-8 space-y-8">
           <div>
@@ -72,53 +72,49 @@ function ExamSetupModal({ course, onClose, onStart }) {
 }
 
 /* === 2. COURSE CARD (BENTO STYLE) === */
-function CourseCard({ course, onLaunch, isFeatured = false }) {
-  const progress = 0; // Logic for progress can be added later if needed
+function CourseCard({ course, onLaunch, variant = "green" }) {
+  const isGstVariant = variant === "green";
+  const theme = isGstVariant 
+    ? { bg: "bg-green-50", text: "text-green-800", border: "border-green-100", icon: "text-green-600", btn: "bg-[#004d00]", shadow: "shadow-green-900/20" }
+    : { bg: "bg-blue-50", text: "text-blue-800", border: "border-blue-100", icon: "text-blue-600", btn: "bg-blue-600", shadow: "shadow-blue-900/20" };
+
+  const badgeStyle = `${theme.bg} ${theme.text} ${theme.border}`;
+  const btnStyle = `${theme.btn} text-white ${theme.shadow} shadow-lg`;
 
   return (
     <div 
       onClick={() => onLaunch(course)}
-      className={`group relative rounded-2xl border transition-all duration-500 cursor-pointer flex flex-col p-6 overflow-hidden
-        ${isFeatured 
-          ? 'col-span-12 md:col-span-4 row-span-2 bg-[#002800] border-[#004400] text-white' 
-          : 'col-span-12 md:col-span-4 bg-white border-[#E0DDD4] hover:border-[#C8C4B8] hover:shadow-xl hover:-translate-y-1'
-        }`}
+      className={`group relative rounded-2xl border transition-all duration-500 cursor-pointer flex flex-col p-6 overflow-hidden col-span-12 md:col-span-4 bg-white border-[#E0DDD4] hover:border-[#C8C4B8] hover:shadow-xl hover:-translate-y-1`}
     >
       <div className="flex justify-between items-start mb-4">
-        <span className={`text-[9px] font-bold uppercase tracking-[0.2em] ${isFeatured ? 'text-[#D4BB7A]/60' : 'text-[#ABA8A0]'} ${dmSans.className}`}>
-          {isFeatured ? 'Core Competency' : 'Departmental Unit'}
+        <span className={`text-[9px] font-bold uppercase tracking-[0.2em] text-[#ABA8A0] ${dmSans.className}`}>
+          Departmental Unit
         </span>
-        {!isFeatured && <div className="text-[#004400] opacity-20"><Database size={16} /></div>}
+        <div className="text-[#004400] opacity-20"><Database size={16} /></div>
       </div>
 
-      <div className={`mb-4 ${isFeatured ? 'bg-white/10' : 'bg-[#edf5ed]'} w-10 h-10 rounded-lg flex items-center justify-center`}>
-        <BookOpen size={20} className={isFeatured ? 'text-[#D4BB7A]' : 'text-[#004400]'} />
+      <div className="bg-[#edf5ed] w-10 h-10 rounded-lg flex items-center justify-center mb-4">
+        <BookOpen size={20} className="text-[#004400]" />
       </div>
 
-      <h3 className={`leading-tight mb-4 ${isFeatured ? 'text-3xl' : 'text-lg'} ${cormorant.className} ${isFeatured ? 'font-medium' : 'font-semibold text-[#171613]'}`}>
-        {course.code}<br/>{course.title}
+      <h3 className={`leading-tight mb-4 text-lg ${cormorant.className} font-semibold text-[#171613]`}>
+        {course?.code}<br/>{course?.title}
       </h3>
-
-      {isFeatured && (
-        <p className={`text-sm text-white/50 leading-relaxed mb-8 ${dmSans.className}`}>
-          Comprehensive assessment covering constitutional frameworks, ethics of service, and foundational civil service principles.
-        </p>
-      )}
 
       <div className="mt-auto space-y-4">
         <div className="flex justify-between items-end">
           <div className="flex gap-4">
             <div className="flex flex-col">
-              <span className={`text-[18px] font-bold ${isFeatured ? 'text-white' : 'text-[#171613]'} ${cormorant.className}`}>{course.total_questions || 0}</span>
-              <span className={`text-[8px] uppercase tracking-widest ${isFeatured ? 'text-white/40' : 'text-[#ABA8A0]'} ${dmSans.className}`}>Items</span>
+              <span className={`text-[18px] font-bold text-[#171613] ${cormorant.className}`}>{course?.total_questions || 0}</span>
+              <span className={`text-[8px] uppercase tracking-widest text-[#ABA8A0] ${dmSans.className}`}>Items</span>
             </div>
             <div className="flex flex-col">
-              <span className={`text-[18px] font-bold ${isFeatured ? 'text-white' : 'text-[#171613]'} ${cormorant.className}`}>∞</span>
-              <span className={`text-[8px] uppercase tracking-widest ${isFeatured ? 'text-white/40' : 'text-[#ABA8A0]'} ${dmSans.className}`}>Retries</span>
+              <span className={`text-[18px] font-bold text-[#171613] ${cormorant.className}`}>∞</span>
+              <span className={`text-[8px] uppercase tracking-widest text-[#ABA8A0] ${dmSans.className}`}>Retries</span>
             </div>
           </div>
-          <button className={`text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 ${isFeatured ? 'text-[#D4BB7A]' : 'text-[#004400]'} ${dmSans.className}`}>
-            {isFeatured ? 'Continue Practice' : 'Attempt'} <ChevronRight size={12} />
+          <button className={`text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 text-[#004400] ${dmSans.className}`}>
+            Attempt <ChevronRight size={12} />
           </button>
         </div>
       </div>
@@ -158,19 +154,22 @@ export default function StudentDashboard() {
     fetchData();
   }, [router]);
 
-  // KPI ENGINE
+  // KPI ENGINE - Strict safe fallback array calculations
   const stats = useMemo(() => {
-    if (!examHistory.length) return { sessions: 0, best: 0, avg: 0, streak: 0 };
+    if (!examHistory || !examHistory.length) return { sessions: 0, best: 0, avg: 0, streak: 0 };
     const scores = examHistory.map(h => (h.score / h.total) * 100);
     return {
       sessions: examHistory.length,
-      best: Math.round(Math.max(...scores)),
-      avg: Math.round(scores.reduce((a, b) => a + b, 0) / scores.length),
-      streak: 21 // Placeholder for streak logic
+      best: scores.length > 0 ? Math.round(Math.max(...scores)) : 0,
+      avg: scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0,
+      streak: 21
     };
   }, [examHistory]);
 
   if (!mounted || !student) return null;
+
+  const gstCourses = courses.filter(c => c?.code?.toUpperCase().startsWith("GST"));
+  const otherCourses = courses.filter(c => !c?.code?.toUpperCase().startsWith("GST"));
 
   if (loading) return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#002800] gap-6">
@@ -180,7 +179,7 @@ export default function StudentDashboard() {
   );
 
   return (
-    <div className={`min-h-screen bg-[#F7F6F2] flex text-[#3A3830] selection:bg-[#D4BB7A]/30 ${dmSans.className}`}>
+    <div className={`min-h-screen bg-[#F7F6F2] flex text-[#3A3830] selection:bg-[#D4BB7A]/30 ${dmSans.className} ${dmSans.variable} ${cormorant.variable}`}>
       <style jsx global>{`
         body { background-image: radial-gradient(circle, rgba(160,155,145,0.2) 1px, transparent 1px); background-size: 24px 24px; }
       `}</style>
@@ -219,12 +218,13 @@ export default function StudentDashboard() {
           <div className={`text-3xl text-white mb-1 ${cormorant.className}`}>∞ <span className="text-xs opacity-30">Attempts</span></div>
           <p className="text-[10px] text-white/30 leading-relaxed mb-6">No limits. No paywalls.<br/>The Forge is yours.</p>
           <div className="flex items-center gap-3 pt-4 border-t border-white/5">
+            {/* TYPE-SAFETY FIX: Wrapped in optional checks to prevent rendering crashes */}
             <div className="w-8 h-8 rounded-full bg-[#004400] border border-white/10 flex items-center justify-center text-white text-xs font-bold">
-              {student.name.charAt(0)}
+              {student?.name?.charAt(0) || "S"}
             </div>
             <div className="min-w-0">
-              <p className="text-xs text-white font-medium truncate">{student.name}</p>
-              <p className="text-[9px] text-white/30 uppercase tracking-tighter">IPPIS • {student.id.slice(0,6)}</p>
+              <p className="text-xs text-white font-medium truncate">{student?.name || "Student"}</p>
+              <p className="text-[9px] text-white/30 uppercase tracking-tighter">IPPIS • {String(student?.id || '').slice(0,6) || "000000"}</p>
             </div>
           </div>
         </div>
@@ -249,7 +249,8 @@ export default function StudentDashboard() {
           <section className="bg-white border border-[#E0DDD4] rounded-2xl p-10 md:p-14 space-y-10 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-[#edf5ed] rounded-full -mr-32 -mt-32 blur-3xl opacity-50"></div>
             <div className="relative z-10">
-              <span className="text-[10px] uppercase tracking-[0.3em] text-[#ABA8A0] font-bold">Good Day, {student.name.split(" ")[0]}</span>
+              {/* TYPE-SAFETY FIX: Optional chaining used to prevent string split crashes */}
+              <span className="text-[10px] uppercase tracking-[0.3em] text-[#ABA8A0] font-bold">Good Day, {student?.name?.split(" ")[0] || "Student"}</span>
               <h1 className={`text-5xl md:text-6xl mt-4 leading-[1.1] text-[#171613] ${cormorant.className}`}>
                 Forge your path.<br/><em className="text-[#004400] italic">Again. And again.</em>
               </h1>
@@ -293,8 +294,8 @@ export default function StudentDashboard() {
               <button className="text-xs font-bold text-[#004400] uppercase tracking-widest hover:underline">View all units →</button>
             </div>
             <div className="grid grid-cols-12 gap-4">
-              {courses.map((c, i) => (
-                <CourseCard key={c.id} course={c} onLaunch={setSetupCourse} isFeatured={c.code.startsWith("GST")} />
+              {courses && courses.map((c, i) => (
+                <CourseCard key={c.id} course={c} onLaunch={setSetupCourse} variant={c.code.toUpperCase().startsWith("GST") ? "green" : "blue"} />
               ))}
             </div>
           </section>
@@ -317,7 +318,7 @@ export default function StudentDashboard() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#E0DDD4]">
-                  {examHistory.slice(0, 6).map((item) => {
+                  {examHistory && examHistory.slice(0, 6).map((item) => {
                     const pct = Math.round((item.score / item.total) * 100);
                     return (
                       <tr key={item.id} className="hover:bg-[#F7F6F2]/50 transition-colors group">
