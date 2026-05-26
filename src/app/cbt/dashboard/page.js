@@ -2,11 +2,8 @@
 import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { 
-  LogOut, Trophy, BookOpen, Play, Award, 
-  ChevronDown, Info, Crown, Clock, ChevronRight, 
-  AlertTriangle, Layers, Headset, History, CheckCircle, Building2, Settings, Lock, Sparkles,
-  ChevronUp, MessageCircle, Megaphone, Bell, GraduationCap, FileText, Target, Database,
-  LayoutDashboard, MessageSquare, Star
+  Clock, Target, Play, Award, Database, BookOpen, ChevronRight,
+  LayoutDashboard, MessageSquare, MessageCircle, Star, X, Layers, LogOut
 } from "lucide-react";
 import Link from "next/link";
 import { Cormorant_Garamond, DM_Sans } from 'next/font/google';
@@ -109,40 +106,13 @@ function ReviewModal({ onClose }) {
   );
 }
 
-/* === 3. DISCLAIMER CARD === */
-function DisclaimerCard() {
-  const [isOpen, setIsOpen] = useState(true);
-  return (
-    <div className="bg-[#FFF8F0] rounded-2xl overflow-hidden mb-6 shadow-sm border border-orange-50/50 transition-all duration-300 hover:shadow-md">
-      <button onClick={() => setIsOpen(!isOpen)} className="w-full flex items-center justify-between p-6 text-left">
-        <div className="flex items-center gap-4">
-          <div className="bg-orange-100 w-10 h-10 flex items-center justify-center rounded-full text-orange-600 shadow-inner"><Info size={18} /></div>
-          <div><h3 className="font-black text-xs text-[#5A3A29] uppercase tracking-wide">Important Disclaimer</h3><p className="text-[9px] text-orange-400 font-bold mt-0.5">Read before starting</p></div>
-        </div>
-        <ChevronDown size={16} className={`text-orange-300 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
-      </button>
-      {isOpen && (
-        <div className="px-6 pb-8 text-[10px] text-[#8B5E3C] leading-relaxed border-t border-orange-100/50 pt-4">
-          <p className="mb-3 font-black text-[#5A3A29] uppercase tracking-widest text-[9px]">Strict Warning:</p>
-          <ul className="space-y-2 font-medium">
-            <li className="flex gap-2"><span className="text-orange-400 font-black">•</span> <span>The purpose of this mock is <strong>NOT</strong> to expose likely questions.</span></li>
-            <li className="flex gap-2"><span className="text-orange-400 font-black">•</span> <span>The aim is to <strong>simulate the environment</strong> psychologically.</span></li>
-            <li className="flex gap-2"><span className="text-orange-400 font-black">•</span> <span>Use this to practice <strong>time management</strong>.</span></li>
-            <li className="flex gap-2"><span className="text-orange-400 font-black">•</span> <span>Success here <strong>does not guarantee success</strong> in the main exam.</span></li>
-          </ul>
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* === 4. COURSE CARD (RESPONSIVE VISCOUS HOVER) === */
+/* === 3. COURSE CARD === */
 function CourseCard({ course, onLaunch, variant = "green" }) {
   const isGst = variant === "green";
   return (
     <div 
       onClick={() => onLaunch(course)}
-      className="group relative rounded-2xl border transition-all duration-500 cursor-pointer flex flex-col p-6 overflow-hidden bg-white border-[#E0DDD4] hover:border-[#C8C4B8] hover:shadow-xl hover:-translate-y-1 col-span-12 md:col-span-6 lg:col-span-4"
+      className="group relative rounded-2xl border transition-all duration-500 cursor-pointer flex flex-col p-6 overflow-hidden bg-white border-[#E0DDD4] hover:border-[#C8C4B8] hover:shadow-lg col-span-12 md:col-span-6 lg:col-span-4"
     >
       <div className="absolute inset-0 bg-gradient-to-br from-[#004d00]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
       <div className="flex justify-between items-start mb-4">
@@ -243,7 +213,7 @@ export default function StudentDashboard() {
         body { background-image: radial-gradient(circle, rgba(160,155,145,0.15) 1px, transparent 1px); background-size: 24px 24px; }
       `}</style>
 
-      {/* SIDEBAR */}
+      {/* SIDEBAR (Slide-out on Mobile, Fixed on Desktop) */}
       <aside className={`w-64 bg-[#002800] border-r border-black/10 flex flex-col fixed h-full z-50 transition-transform duration-300 lg:translate-x-0 ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:flex'}`}>
         <div className="p-8 border-b border-white/5 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -285,6 +255,7 @@ export default function StudentDashboard() {
               <span>ExamForge</span> <span className="opacity-30">/</span> <span className="text-[#7A7870] font-bold">Dashboard</span>
             </div>
           </div>
+          {/* THE EXIT BUTTON FIXED */}
           <button onClick={triggerLogout} className="bg-red-50 text-red-700 px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest border border-red-100 hover:bg-red-100 transition-all flex items-center gap-2">
             <LogOut size={12} /> Exit
           </button>
