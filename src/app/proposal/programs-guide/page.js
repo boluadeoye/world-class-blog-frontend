@@ -12,7 +12,7 @@ export default function ProgramsGuideV3() {
 
   const handlePrint = () => {
     const originalTitle = document.title;
-    document.title = "Programs_And_Anchors_Team_Documentation_Guide_V3";
+    document.title = "Programs_And_Anchors_Team_Documentation_Guide_Final";
     window.print();
     document.title = originalTitle;
   };
@@ -48,7 +48,7 @@ export default function ProgramsGuideV3() {
             <img src={logoUrl} alt="Logo" className="w-full h-full object-contain mix-blend-multiply" />
           </div>
           <h1 className="font-playfair text-2xl font-black text-slate-900 mb-2">Programs & Anchors</h1>
-          <p className="font-inter text-slate-400 text-xs tracking-widest uppercase mb-8">Documentation Guide V3</p>
+          <p className="font-inter text-slate-400 text-xs tracking-widest uppercase mb-8">Documentation Guide Final</p>
           {!isReady ? (
             <div className="text-slate-500 font-mono text-xs animate-pulse">COMPILING MANUSCRIPT...</div>
           ) : (
@@ -58,6 +58,7 @@ export default function ProgramsGuideV3() {
           )}
         </div>
       </div>
+
       <div id="manual-render" className="hidden print:block text-[#0f172a]">
         
         {/* PAGE 1 */}
@@ -73,13 +74,12 @@ export default function ProgramsGuideV3() {
             </div>
             <div className="bg-slate-50 border-l-4 border-[#991b1b] p-8 mb-12">
               <p className="font-inter text-xs font-black uppercase text-[#991b1b] tracking-widest mb-3">Purpose of this Document</p>
-              <p className="font-inter text-sm leading-relaxed text-justify text-slate-700">This document is the official administrative blueprint for the Programs and Anchors Team. It provides a clear, standardized pattern for all our documentation, from internal team reports to external communications with guest ministers. The goal is to ensure anyone handling these duties can seamlessly maintain our team's standard of precision, transparency, and simple, intelligent communication without relying on stiff religious jargon.</p>
+              <p className="font-inter text-sm leading-relaxed text-justify text-slate-700">This document is the administrative blueprint for the Programs and Anchors Team. It provides a clear, standardized pattern for all our documentation, from internal team reports to external communications with guest ministers. The goal is to ensure anyone handling these duties can seamlessly maintain our team's standard of precision, transparency, and simple, intelligent communication.</p>
               <p className="font-mono text-[10px] font-bold text-slate-400 mt-6 uppercase tracking-widest">Prepared by: Adeoye Boluwatife</p>
             </div>
           </main>
           <PageFooter />
         </div>
-
         {/* PAGE 2 */}
         <div className="a4-page">
           <PageHeader logoUrl={logoUrl} pageNum="2" />
@@ -164,7 +164,7 @@ export default function ProgramsGuideV3() {
               <h3 className="font-inter text-2xl font-black uppercase tracking-tight text-slate-900 mb-4">3. Formal Letters of Invitation</h3>
               <p className="font-inter text-sm leading-relaxed text-slate-700 text-justify mb-6">This document is our first formal contact with a guest minister. It must be warm, clear, and highly professional. Do not force stiff religious words into the letter just to sound spiritual; keep the tone natural and intelligent.</p>
               <div className="grid grid-cols-3 gap-6 font-inter text-xs text-slate-700">
-                <div className="bg-slate-50 p-4 border-t-4 border-[#991b1b]"><p className="font-black uppercase text-[#991b1b] mb-2">Header</p><p>Use the official ministry letterhead and include the current date.</p></div>
+                <div className="bg-slate-50 p-4 border-t-4 border-[#991b1b]"><p className="font-black uppercase text-[#991b1b] mb-2">Header</p><p>Use the ministry letterhead and include the current date.</p></div>
                 <div className="bg-slate-50 p-4 border-t-4 border-[#991b1b]"><p className="font-black uppercase text-[#991b1b] mb-2">The Message</p><p>Greet the minister respectfully, explain the core purpose of the event.</p></div>
                 <div className="bg-slate-50 p-4 border-t-4 border-[#991b1b]"><p className="font-black uppercase text-[#991b1b] mb-2">The Details</p><p>Provide the exact logistics in a clean, bulleted list detailing Day, Date, and Time.</p></div>
               </div>
@@ -179,7 +179,7 @@ export default function ProgramsGuideV3() {
           <div className="relative z-10 flex flex-col h-full">
             <header className="flex flex-col items-center text-center mb-12 border-b-2 border-slate-100 pb-8">
               <img src={logoUrl} alt="Logo" className="h-32 object-contain mb-4" />
-              <h1 className="font-playfair text-2xl font-black uppercase tracking-[0.2em] text-[#991b1b] mb-2">Inspirational Insight Ministries</h1>
+              <h1 className="font-playfair text-2xl font-black uppercase tracking-[0.2em] text-[#991b1b] mb-2">Inspirational Insight Christian Assembly</h1>
               <p className="font-inter text-[10px] font-bold uppercase tracking-[0.3em] text-[#2563eb]">Building Men Of Stature</p>
             </header>
             <main className="grow font-inter text-sm leading-[2] text-slate-800 text-justify">
@@ -210,11 +210,11 @@ export default function ProgramsGuideV3() {
           <main className="grow flex flex-col justify-between">
             <section className="mb-12">
               <h3 className="font-inter text-2xl font-black uppercase tracking-tight text-slate-900 mb-4">4. Ministration Briefings / Notifications</h3>
-              <p className="font-inter text-sm leading-relaxed text-slate-700 text-justify mb-8">This notification is sent closer to the event date. It functions as a polite operational reminder of the previously agreed-upon schedule. Structure it as an official memo.</p>
+              <p className="font-inter text-sm leading-relaxed text-slate-700 text-justify mb-8">This notification is sent closer to the event date. It functions as a polite operational reminder of the previously agreed-upon schedule. Structure it as a memo.</p>
               <div className="border-2 border-slate-200 bg-slate-50 p-8 rounded-lg font-mono text-xs text-slate-700 space-y-2 shadow-sm">
                 <div className="flex"><span className="w-24 font-bold text-slate-400">DATE:</span><span className="font-bold text-slate-900">June 9, 2026</span></div>
                 <div className="flex"><span className="w-24 font-bold text-slate-400">TO:</span><span className="font-bold text-slate-900">Pastor Enitan Somuyiwa</span></div>
-                <div className="flex"><span className="w-24 font-bold text-slate-400">FROM:</span><span className="font-bold text-slate-900">The Programs/Anchors Team, Inspirational Insight Ministries</span></div>
+                <div className="flex"><span className="w-24 font-bold text-slate-400">FROM:</span><span className="font-bold text-slate-900">The Programs/Anchors Team, Inspirational Insight Christian Assembly</span></div>
                 <div className="flex"><span className="w-24 font-bold text-slate-400">SUBJECT:</span><span className="font-bold text-[#991b1b]">Ministration Briefing: Believers' Summit 2026</span></div>
                 <div className="h-px bg-slate-300 my-6"></div>
                 <p className="font-sans text-sm text-slate-800 leading-relaxed pt-2 mb-4">Good day, sir. The countdown to the Believers' Summit is finally over, and we are thrilled to host you tomorrow. This is a formal brief to confirm the schedule for your ministration:</p>
@@ -245,7 +245,7 @@ export default function ProgramsGuideV3() {
           <div className="relative z-10 flex flex-col h-full">
             <header className="flex flex-col items-center text-center mb-12 border-b-2 border-slate-100 pb-8">
               <img src={logoUrl} alt="Logo" className="h-32 object-contain mb-4" />
-              <h1 className="font-playfair text-2xl font-black uppercase tracking-[0.2em] text-[#991b1b] mb-2">Inspirational Insight Ministries</h1>
+              <h1 className="font-playfair text-2xl font-black uppercase tracking-[0.2em] text-[#991b1b] mb-2">Inspirational Insight Christian Assembly</h1>
               <p className="font-inter text-[10px] font-bold uppercase tracking-[0.3em] text-[#2563eb]">Building Men Of Stature</p>
             </header>
             <main className="grow font-inter text-sm leading-[2.2] text-slate-800 text-justify">
@@ -271,7 +271,8 @@ export default function ProgramsGuideV3() {
           <main className="grow flex flex-col justify-between">
             <section className="mb-10">
               <h3 className="font-inter text-2xl font-black uppercase tracking-tight text-slate-900 mb-4">6. Monthly Reports</h3>
-              <p className="font-inter text-sm leading-relaxed text-slate-700 text-justify mb-8">The monthly report is the absolute record of the team's operational reality. It must be honest, transparent, and direct. If attendance drops or programs face hurdles, document it clearly. The report must follow this exact 7-part structure every month.</p>
+              <p className="font-inter text-sm leading-relaxed text-slate-700 text-justify mb-4">The monthly report is the absolute record of the team's operational reality. It must be honest, transparent, and direct. If attendance drops or programs face hurdles, document it clearly. The report must follow this exact structure every month.</p>
+              <p className="font-mono text-[9px] text-red-600 font-bold uppercase tracking-widest mb-8">* Note: The data in the following report is hypothetical and for structural demonstration only.</p>
               <div className="bg-[#991b1b] text-white p-6 rounded-lg font-mono text-xs uppercase tracking-wider space-y-2 shadow-lg">
                 <p className="font-black text-sm text-white mb-4 border-b border-red-800 pb-2">MONTHLY REPORT: PROGRAMS AND ANCHORS</p>
                 <div className="grid grid-cols-2 gap-4">
@@ -302,27 +303,26 @@ export default function ProgramsGuideV3() {
         <div className="a4-page">
           <PageHeader logoUrl={logoUrl} pageNum="9" />
           <main className="grow flex flex-col">
-            <div className="space-y-10">
-              <div className="grid grid-cols-12 gap-8 border-b border-slate-200 pb-8">
+            <div className="space-y-8">
+              <div className="grid grid-cols-12 gap-6 border-b border-slate-200 pb-6">
                 <div className="col-span-4"><h4 className="font-inter text-sm font-black uppercase text-[#991b1b] tracking-widest">2. Executive Overview</h4></div>
                 <div className="col-span-8"><p className="font-inter text-sm leading-relaxed text-slate-700 text-justify">The Programs and Anchors Team dedicated the month of June to returning to our standard operational flow following the conclusion of the academic exams. Our primary focus was the successful execution of the Believers' Summit and restoring internal team discipline after the lapses noticed in previous months.</p></div>
               </div>
-              <div className="grid grid-cols-12 gap-8 border-b border-slate-200 pb-8">
+              <div className="grid grid-cols-12 gap-6 border-b border-slate-200 pb-6">
                 <div className="col-span-4"><h4 className="font-inter text-sm font-black uppercase text-[#991b1b] tracking-widest">3. Key Achievements</h4></div>
-                <div className="col-span-8 space-y-4">
+                <div className="col-span-8 space-y-3">
                   <div className="bg-slate-50 p-4 border-l-2 border-[#eab308]"><p className="font-inter text-xs font-black uppercase text-slate-900 mb-1">Believers' Summit Execution</p><p className="font-inter text-xs leading-relaxed text-slate-600">Successfully planned, coordinated, and anchored the 3-day summit. All guest ministers were managed effectively and time limits were strictly adhered to.</p></div>
                   <div className="bg-slate-50 p-4 border-l-2 border-[#eab308]"><p className="font-inter text-xs font-black uppercase text-slate-900 mb-1">Roster Stabilization</p><p className="font-inter text-xs leading-relaxed text-slate-600">Sis. Hannah successfully created a working roster that accommodated the ongoing suspensions without causing any scheduling gaps in the weekend services.</p></div>
                   <div className="bg-slate-50 p-4 border-l-2 border-[#eab308]"><p className="font-inter text-xs font-black uppercase text-slate-900 mb-1">Service Continuity</p><p className="font-inter text-xs leading-relaxed text-slate-600">Maintained the weekly Order of Service flawlessly despite operating with a smaller active team this month.</p></div>
                 </div>
               </div>
-              <div className="grid grid-cols-12 gap-8 border-b border-slate-200 pb-8">
+              <div className="grid grid-cols-12 gap-6 border-b border-slate-200 pb-6">
                 <div className="col-span-4"><h4 className="font-inter text-sm font-black uppercase text-[#991b1b] tracking-widest">4. Challenges</h4></div>
-                <div className="col-span-8 space-y-4">
-                  <div className="bg-red-50 p-4 border-l-2 border-red-600"><p className="font-inter text-xs font-black uppercase text-red-900 mb-1">Disciplinary Actions</p><p className="font-inter text-xs leading-relaxed text-red-800">We operated at a reduced capacity this month because Bro. Osiri is still serving a suspension from the officiating list due to previous lapses in daily Bible reading instructions.</p></div>
+                <div className="col-span-8 space-y-3">
                   <div className="bg-red-50 p-4 border-l-2 border-red-600"><p className="font-inter text-xs font-black uppercase text-red-900 mb-1">Punctuality</p><p className="font-inter text-xs leading-relaxed text-red-800">While physical attendance has improved since the holidays ended, lateness to the Wednesday meetings remains an issue that we are actively monitoring and addressing with the newly introduced fines.</p></div>
                 </div>
               </div>
-              <div className="grid grid-cols-12 gap-8">
+              <div className="grid grid-cols-12 gap-6">
                 <div className="col-span-4"><h4 className="font-inter text-sm font-black uppercase text-[#991b1b] tracking-widest">5. General Team Performance</h4></div>
                 <div className="col-span-8"><p className="font-inter text-sm leading-relaxed text-slate-700 text-justify">The team functioned highly effectively under pressure this month. Successfully managing the Believers' Summit while short-staffed proved that our new operational roles are working. The strict enforcement of rules has brought a much-needed sense of seriousness back to the group, resulting in zero pastoral complaints this month.</p></div>
               </div>
