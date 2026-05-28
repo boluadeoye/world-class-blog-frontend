@@ -14,11 +14,18 @@ const cormorant = Cormorant_Garamond({
   display: "swap",
 });
 
+const LOGO_URL = "https://res.cloudinary.com/dwbjb3svx/image/upload/v1779947866/blog_assets/dwwve9st0lufhftrh8sy.jpg?v=1";
+
 export const metadata = {
   metadataBase: new URL('https://boluadeoye.com.ng'),
   title: {
     default: "Boluwatife Adeoye",
     template: "%s | Bolu Adeoye"
+  },
+  icons: {
+    icon: LOGO_URL,
+    shortcut: LOGO_URL,
+    apple: LOGO_URL,
   },
 };
 
