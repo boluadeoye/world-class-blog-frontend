@@ -5,25 +5,20 @@ import { neon } from "@neondatabase/serverless";
 export const runtime = 'edge';
 
 export async function POST(req: NextRequest) {
+  const encoder = new TextEncoder();
   try {
     const { sessionId, messages, systemPrompt, temperature = 0 } = await req.json();
     const sql = neon(process.env.DATABASE_URL!);
     
-    // DETERMINISTIC ENV CHECK
     const TAVILY_KEY = process.env.Shannon || process.env.SHANNON || process.env.TAVILY_API_KEY;
     const lastMessageContent = messages[messages.length - 1]?.content || "";
     
     let searchContext = "";
-    let sensoryActive = false;
+    let sensoryStatus = "SKIPPED";
 
-    // LOUD TRIGGER: If message is > 10 chars, we ATTEMPT search.
-    if (lastMessageContent.length > 10) {
-      if (!TAVILY_KEY) {
-        // LOUD FAILURE: If we should search but can't, we kill the request so you see it in logs.
-        throw new Error("[CRITICAL_CONFIG_ERROR]: TAVILY_KEY_NOT_FOUND_IN_ENVIRONMENT");
-      }
-
-      sensoryActive = true;
+    // 1. SENSORY ORGAN (TAVILY)
+    if (lastMessageContent.length > 10 && TAVILY_KEY) {
+      sensoryStatus = "TRIGGERED";
       try {
         const tavilyRes = await fetch("https://api.tavily.com/search", {
           method: "POST",
@@ -39,33 +34,76 @@ export async function POST(req: NextRequest) {
         if (tavilyRes.ok) {
           const searchData = await tavilyRes.json();
           searchContext = (searchData.results || []).map((r: any) => `[Source: ${r.title}]\n${r.content}`).join("\n\n");
+          sensoryStatus = `SUCCESS (${searchData.results?.length || 0} results)`;
         } else {
-          throw new Error(`[TAVILY_API_ERROR]: Status ${tavilyRes.status}`);
+          sensoryStatus = `FAILED (Status ${tavilyRes.status})`;
         }
       } catch (e: any) {
-        console.error(e.message);
-        // If Tavily itself fails, we proceed but log it.
+        sensoryStatus = `ERROR (${e.message})`;
       }
     }
+    console.log(`[SENSORY]: ${sensoryStatus}`);
 
     const context = [{ role: "system", content: systemPrompt }];
     if (searchContext) context.push({ role: "system", content: `[WEB_RESEARCH_GROUND_TRUTH]:\n${searchContext}` });
     context.push(...messages.slice(-6));
 
-    let activeKey = await getRotatedKey();
-    if (!activeKey) return new Response(JSON.stringify({ error: "Pool Exhausted" }), { status: 429 });
+    // 2. AI EXECUTION WITH 3-KEY FAILOVER
+    let response: Response | null = null;
+    let activeKey: any = null;
+    let lastError = "Unknown Error";
 
-    const response = await fetch('https://api.shannon-ai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': activeKey.key_val },
-      body: JSON.stringify({ model: "shannon-pro-1.6", messages: context, temperature, stream: true })
-    });
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      activeKey = await getRotatedKey();
+      if (!activeKey) {
+        lastError = "Key Pool Exhausted (No active keys available)";
+        break;
+      }
 
-    const encoder = new TextEncoder();
+      console.log(`[AI_FETCH]: Attempt ${attempt} using Key ID ${activeKey.id}`);
+      
+      try {
+        response = await fetch('https://api.shannon-ai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': activeKey.key_val,
+            'User-Agent': 'ShannonStudio/1.6'
+          },
+          body: JSON.stringify({ model: "shannon-pro-1.6", messages: context, temperature, stream: true })
+        });
+
+        if (response.ok) break; // Success!
+
+        const errorData = await response.json().catch(() => ({}));
+        lastError = errorData.error?.message || `Status ${response.status}`;
+        
+        if (response.status === 429) {
+          await jailKey(activeKey.id, 5);
+        } else if (response.status === 401) {
+          await sql`UPDATE shannon_api_pool SET is_active = FALSE WHERE id = ${activeKey.id}`;
+        }
+        response = null;
+      } catch (e: any) {
+        lastError = e.message;
+        response = null;
+      }
+    }
+
+    // 3. FINAL RESPONSE GATING
+    if (!response || !response.ok) {
+      console.error(`[FATAL]: All attempts failed. Last error: ${lastError}`);
+      return new Response(JSON.stringify({ error: lastError }), { 
+        status: 500, 
+        headers: { 'Content-Type': 'application/json' } 
+      });
+    }
+
+    // 4. STREAMING OUTPUT
     const decoder = new TextDecoder();
     const stream = new ReadableStream({
       async start(controller) {
-        const reader = response.body!.getReader();
+        const reader = response!.body!.getReader();
         let buffer = "";
         try {
           while (true) {
@@ -102,19 +140,23 @@ export async function POST(req: NextRequest) {
     return new Response(stream, { 
       headers: { 
         'Content-Type': 'text/event-stream',
-        'X-Shannon-Sensory': sensoryActive ? 'true' : 'false' // VERIFIABLE VIA BROWSER NETWORK TAB
+        'X-Shannon-Sensory': sensoryStatus.includes("SUCCESS") ? 'true' : 'false'
       } 
     });
+
   } catch (error: any) {
-    // THIS WILL SHOW UP IN VERCEL LOGS AS A RED ERROR
-    console.error("FATAL_API_ERROR:", error.message);
+    console.error("[TOP_LEVEL_ERROR]:", error.message);
     return new Response(JSON.stringify({ error: error.message }), { status: 500 });
   }
 }
 
 export async function PUT(req: NextRequest) {
-  const { sessionId, messages } = await req.json();
-  const sql = neon(process.env.DATABASE_URL!);
-  await sql`UPDATE shannon_history SET messages = ${JSON.stringify(messages)}::jsonb WHERE id = ${sessionId}`;
-  return NextResponse.json({ ok: true });
+  try {
+    const { sessionId, messages } = await req.json();
+    const sql = neon(process.env.DATABASE_URL!);
+    await sql`UPDATE shannon_history SET messages = ${JSON.stringify(messages)}::jsonb WHERE id = ${sessionId}`;
+    return NextResponse.json({ ok: true });
+  } catch (e: any) {
+    return NextResponse.json({ error: e.message }, { status: 500 });
+  }
 }
