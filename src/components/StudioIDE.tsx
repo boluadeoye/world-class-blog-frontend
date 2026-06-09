@@ -4,12 +4,9 @@ import { MessageFeed } from "./MessageFeed";
 import { Menu, Settings2, Send, Plus, X, Sparkles, CloudSync } from "lucide-react";
 
 function generateUUID() {
-  if (typeof window !== 'undefined' && window.crypto && window.crypto.randomUUID) {
-    return crypto.randomUUID();
-  }
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-    return v.toString(16);
+  return typeof window !== 'undefined' && window.crypto?.randomUUID ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = Math.random() * 16 | 0;
+    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
   });
 }
 
@@ -17,11 +14,6 @@ function balanceMarkdown(markdown: string): string {
   let balanced = markdown;
   const codeBlockMatches = markdown.match(/```/g);
   if (codeBlockMatches && codeBlockMatches.length % 2 !== 0) balanced += '\n```';
-  const boldMatches = markdown.match(/\*\*/g);
-  if (boldMatches && boldMatches.length % 2 !== 0) balanced += '**';
-  const cleanItalicText = markdown.replace(/\*\*/g, '');
-  const italicMatches = cleanItalicText.match(/\*/g);
-  if (italicMatches && italicMatches.length % 2 !== 0) balanced += '*';
   return balanced;
 }
 
@@ -72,10 +64,14 @@ export default function StudioIDE({ initialSession }: any) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const lastSessionIdRef = useRef(initialSession.id);
 
+  // Hardware-Accelerated Viewport Lock
   useEffect(() => {
     if (!window.visualViewport) return;
+    let rafId: number;
     const handleResize = () => {
-      document.documentElement.style.setProperty('--visual-viewport-height', `${window.visualViewport!.height}px`);
+      rafId = requestAnimationFrame(() => {
+        document.documentElement.style.setProperty('--vv-height', `${window.visualViewport!.height}px`);
+      });
     };
     window.visualViewport.addEventListener('resize', handleResize);
     window.visualViewport.addEventListener('scroll', handleResize);
@@ -83,6 +79,7 @@ export default function StudioIDE({ initialSession }: any) {
     return () => {
       window.visualViewport?.removeEventListener('resize', handleResize);
       window.visualViewport?.removeEventListener('scroll', handleResize);
+      cancelAnimationFrame(rafId);
     };
   }, []);
 
@@ -144,11 +141,12 @@ export default function StudioIDE({ initialSession }: any) {
 
       for await (const chunk of readSSEStream(response)) {
         accumulatedContent += chunk;
-        const cleanContent = accumulatedContent.replace(/^[^:]*:\s*/, '');
+        // ANCHORED GREEDY STRIPPER: Only strips if a colon appears at the very beginning of the message
+        const cleanContent = accumulatedContent.replace(/^(?:[A-Za-z0-9\s_-]{0,50}):\s*/i, '');
         startTransition(() => { setIsThinking(false); setStreamingContent(cleanContent); });
       }
 
-      const finalCleanContent = accumulatedContent.replace(/^[^:]*:\s*/, '');
+      const finalCleanContent = accumulatedContent.replace(/^(?:[A-Za-z0-9\s_-]{0,50}):\s*/i, '');
       const assistantMessage = { id: generateUUID(), role: "assistant", content: finalCleanContent, createdAt: new Date().toISOString() };
       const finalMessages = [...optimisticMessages, assistantMessage];
 
@@ -175,73 +173,96 @@ export default function StudioIDE({ initialSession }: any) {
   const balancedStreamingContent = streamingContent ? balanceMarkdown(streamingContent) : "";
 
   return (
-    <div className="fixed inset-0 bg-[#000000] text-[#e3e3e3] overflow-hidden antialiased flex" style={{ height: 'var(--visual-viewport-height, 100dvh)' }}>
+    <div className="fixed inset-0 bg-[#000000] text-[#e3e3e3] overflow-hidden antialiased flex flex-col" style={{ height: 'var(--vv-height, 100dvh)' }}>
       <style dangerouslySetInnerHTML={{__html: `
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
         :root { --font-sans: 'Inter', sans-serif; --font-mono: 'JetBrains Mono', monospace; }
         body { font-family: var(--font-sans); background-color: #000000; margin: 0; padding: 0; overflow: hidden; }
         code, pre { font-family: var(--font-mono) !important; }
-        ::-webkit-scrollbar { width: 4px; height: 4px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 2px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
       `}} />
 
-      <div className={`fixed inset-y-0 left-0 w-[85vw] max-w-[320px] bg-[#0b0b0b] border-r border-white/5 z-50 transform transition-transform duration-300 ease-out flex flex-col ${leftOpen ? "translate-x-0" : "-translate-x-full"}`}>
-        <div className="flex items-center justify-between px-4 py-4 border-b border-white/5 shrink-0">
-          <span className="text-xs font-black uppercase tracking-[0.2em] text-white/60">History</span>
-          <button onClick={() => setLeftOpen(false)} className="text-white/40 hover:text-white p-1"><X size={18}/></button>
+      {/* Header */}
+      <header className="h-12 flex items-center justify-between px-4 border-b border-white/10 bg-[#050505] z-20 shrink-0">
+        <div className="flex items-center gap-4">
+          <button onClick={() => setLeftOpen(true)} className="text-white/40 hover:text-white transition-colors"><Menu size={16} /></button>
+          <span className="text-[11px] font-mono font-bold uppercase tracking-[0.2em] text-white/50">{initialSession.title}</span>
         </div>
-        <div className="p-3 shrink-0">
-          <button onClick={() => { window.location.href = '/studio'; }} className="flex items-center gap-2 w-full px-4 py-3 rounded-lg bg-white/5 border border-white/5 text-[11px] font-bold uppercase tracking-widest hover:bg-white/10 transition-all">
-            <Plus size={14} /> New Session
-          </button>
+        <div className="flex items-center gap-4">
+          {isSyncing && <CloudSync size={14} className="text-emerald-500 animate-pulse" />}
+          <button onClick={() => setRightOpen(true)} className="text-white/40 hover:text-white transition-colors"><Settings2 size={16} /></button>
         </div>
-        <div className="flex-1 overflow-y-auto p-2">
+      </header>
+
+      {/* Feed */}
+      <div className="flex-1 relative overflow-hidden flex flex-col bg-[#000000]">
+        <MessageFeed messages={messages} isThinking={isThinking} streamingContent={balancedStreamingContent} />
+      </div>
+
+      {/* Docked Command Bar */}
+      <div className="w-full bg-[#050505] border-t border-white/10 shrink-0">
+        <div className="flex items-end w-full">
+          <div className="w-[56px] shrink-0 flex justify-center pb-3 pt-3 border-r border-white/10">
+            <Sparkles size={16} className="text-white/20" />
+          </div>
+          <div className="flex-1 flex items-end p-2">
+            <textarea 
+              ref={textareaRef} 
+              value={inputValue} 
+              onChange={(e) => { 
+                setInputValue(e.target.value); 
+                e.target.style.height = "auto"; 
+                e.target.style.height = `${Math.min(e.target.scrollHeight, 200)}px`; 
+              }} 
+              placeholder="ENTER STRATEGIC PARAMETERS..." 
+              rows={1} 
+              disabled={isStreaming} 
+              className="flex-1 bg-transparent border-none outline-none text-[13px] px-2 py-1.5 placeholder:text-white/20 resize-none font-mono uppercase tracking-wider text-white"
+            />
+            <button 
+              onClick={isStreaming ? () => abortRef.current?.abort() : handleSubmit} 
+              disabled={!isStreaming && !inputValue.trim()} 
+              className={`w-8 h-8 shrink-0 flex items-center justify-center rounded-none transition-all mb-0.5 ${isStreaming ? 'bg-white/10' : inputValue.trim() ? 'bg-emerald-600 text-white' : 'bg-transparent text-white/20'}`}
+            >
+              {isStreaming ? <div className="w-2.5 h-2.5 bg-white rounded-none" /> : <Send size={14} />}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* History Panel */}
+      <div className={`fixed inset-y-0 left-0 w-[280px] bg-[#050505] border-r border-white/10 z-50 transform transition-transform duration-200 ease-in-out flex flex-col ${leftOpen ? "translate-x-0" : "-translate-x-full"}`}>
+        <div className="flex items-center justify-between px-4 py-4 border-b border-white/10">
+          <span className="text-[10px] font-mono font-bold uppercase tracking-[0.2em] text-white/50">Session History</span>
+          <button onClick={() => setLeftOpen(false)} className="text-white/30 hover:text-white"><X size={16}/></button>
+        </div>
+        <button onClick={() => { window.location.href = '/studio'; }} className="m-4 p-3 border border-white/10 text-[10px] font-mono font-bold uppercase tracking-[0.2em] hover:bg-white/5 transition-all flex items-center justify-center gap-2 rounded-none text-white/70">
+          <Plus size={14} /> New Session
+        </button>
+        <div className="flex-1 overflow-y-auto px-2 pb-4">
           {sessions.map(s => (
-            <button key={s.id} onClick={() => { window.location.href = `/studio/${s.id}`; }} className={`w-full text-left px-4 py-3 rounded-md text-[13px] truncate mb-1 transition-all ${activeId === s.id ? "bg-emerald-500/10 text-emerald-400 font-medium" : "text-white/40 hover:bg-white/5"}`}>
+            <button key={s.id} onClick={() => { window.location.href = `/studio/${s.id}`; }} className={`w-full text-left px-3 py-2.5 text-[12px] font-mono truncate mb-1 border rounded-none ${activeId === s.id ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400" : "border-transparent text-white/40 hover:border-white/10 hover:text-white/80"}`}>
               {s.title}
             </button>
           ))}
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col h-full w-full relative overflow-hidden">
-        <header className="h-14 flex items-center justify-between px-4 border-b border-white/5 bg-[#000000]/80 backdrop-blur-md z-20 shrink-0">
-          <button onClick={() => setLeftOpen(true)} className="p-2 text-white/40 hover:text-white"><Menu size={20} /></button>
-          <div className="flex items-center gap-3">
-            <span className="text-[13px] font-bold uppercase tracking-widest text-white/60 truncate max-w-[150px]">{initialSession.title}</span>
-            {isSyncing && <CloudSync size={14} className="text-emerald-500 animate-pulse" />}
-          </div>
-          <button onClick={() => setRightOpen(true)} className="p-2 text-white/40 hover:text-white"><Settings2 size={20} /></button>
-        </header>
-
-        <div className="flex-1 min-h-0 relative w-full overflow-hidden flex flex-col">
-          <MessageFeed messages={messages} isThinking={isThinking} streamingContent={balancedStreamingContent} />
-        </div>
-
-        <div className="w-full p-4 bg-gradient-to-t from-[#000000] via-[#000000]/95 to-transparent pt-6 z-30 shrink-0">
-          <div className="max-w-3xl mx-auto bg-[#0b0b0b] rounded-lg p-1.5 flex items-end gap-1 border border-white/5 shadow-2xl focus-within:border-emerald-500/30 transition-all">
-            <button className="p-2.5 text-white/30 hover:text-white rounded-md transition-colors mb-0.5"><Sparkles size={18} /></button>
-            <textarea ref={textareaRef} value={inputValue} onChange={(e) => { setInputValue(e.target.value); e.target.style.height = "auto"; e.target.style.height = `${Math.min(e.target.scrollHeight, 150)}px`; }} placeholder="Strategic parameters..." rows={1} disabled={isStreaming} className="flex-1 bg-transparent border-none outline-none text-[14px] px-2 py-3 placeholder:text-white/20 resize-none max-h-[150px] font-sans"/>
-            <button onClick={isStreaming ? () => abortRef.current?.abort() : handleSubmit} disabled={!isStreaming && !inputValue.trim()} className={`flex-shrink-0 w-10 h-10 rounded-md flex items-center justify-center transition-all mb-0.5 ${isStreaming ? 'bg-white/10' : inputValue.trim() ? 'bg-emerald-600 shadow-[0_0_20px_rgba(16,185,129,0.4)]' : 'bg-white/5 text-white/10'}`}>
-              {isStreaming ? <div className="w-3.5 h-3.5 bg-white rounded-sm" /> : <Send size={16} className="text-white ml-0.5" />}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className={`fixed inset-y-0 right-0 w-[85vw] max-w-[320px] bg-[#0b0b0b] border-l border-white/5 z-50 transform transition-transform duration-300 ease-out flex flex-col ${rightOpen ? "translate-x-0" : "-translate-x-full"}`}>
-        <div className="flex items-center justify-between px-4 py-4 border-b border-white/5 shrink-0">
-          <span className="text-xs font-black uppercase tracking-[0.2em] text-white/60">Directives</span>
-          <button onClick={() => setRightOpen(false)} className="text-white/40 hover:text-white p-1"><X size={18}/></button>
+      {/* Directives Panel */}
+      <div className={`fixed inset-y-0 right-0 w-[320px] bg-[#050505] border-l border-white/10 z-50 transform transition-transform duration-200 ease-in-out flex flex-col ${rightOpen ? "translate-x-0" : "translate-x-full"}`}>
+        <div className="flex items-center justify-between px-4 py-4 border-b border-white/10">
+          <span className="text-[10px] font-mono font-bold uppercase tracking-[0.2em] text-white/50">System Directives</span>
+          <button onClick={() => setRightOpen(false)} className="text-white/30 hover:text-white"><X size={16}/></button>
         </div>
         <div className="p-4 flex-1">
-          <textarea value={systemPrompt} onChange={(e) => setSystemPrompt(e.target.value)} className="w-full h-full p-4 rounded-md bg-[#000000] border border-white/5 text-[12px] font-mono text-white/50 leading-relaxed resize-none outline-none focus:border-emerald-500/50"/>
+          <textarea 
+            value={systemPrompt} 
+            onChange={(e) => setSystemPrompt(e.target.value)} 
+            className="w-full h-full bg-[#000000] border border-white/10 p-4 text-[12px] font-mono text-white/50 leading-relaxed resize-none outline-none focus:border-emerald-500/50 rounded-none"
+          />
         </div>
       </div>
 
-      {(leftOpen || rightOpen) && <div className="fixed inset-0 bg-black/60 z-40 transition-opacity" onClick={() => { setLeftOpen(false); setRightOpen(false); }} />}
+      {(leftOpen || rightOpen) && <div className="fixed inset-0 bg-black/80 z-40" onClick={() => { setLeftOpen(false); setRightOpen(false); }} />}
     </div>
   );
 }
