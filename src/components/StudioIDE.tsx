@@ -64,7 +64,6 @@ export default function StudioIDE({ initialSession }: any) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const lastSessionIdRef = useRef(initialSession.id);
 
-  // Hardware-Accelerated Viewport Lock
   useEffect(() => {
     if (!window.visualViewport) return;
     let rafId: number;
@@ -141,12 +140,12 @@ export default function StudioIDE({ initialSession }: any) {
 
       for await (const chunk of readSSEStream(response)) {
         accumulatedContent += chunk;
-        // ANCHORED GREEDY STRIPPER: Only strips if a colon appears at the very beginning of the message
-        const cleanContent = accumulatedContent.replace(/^(?:[A-Za-z0-9\s_-]{0,50}):\s*/i, '');
+        // UNICODE ASSASSIN: Strips up to 60 chars (no newlines) ending in a colon. Catches "SHANNON-Ω:" perfectly.
+        const cleanContent = accumulatedContent.replace(/^[^:\n]{0,60}:\s*/, '');
         startTransition(() => { setIsThinking(false); setStreamingContent(cleanContent); });
       }
 
-      const finalCleanContent = accumulatedContent.replace(/^(?:[A-Za-z0-9\s_-]{0,50}):\s*/i, '');
+      const finalCleanContent = accumulatedContent.replace(/^[^:\n]{0,60}:\s*/, '');
       const assistantMessage = { id: generateUUID(), role: "assistant", content: finalCleanContent, createdAt: new Date().toISOString() };
       const finalMessages = [...optimisticMessages, assistantMessage];
 
