@@ -1,44 +1,40 @@
-import { neon } from "@neondatabase/serverless";
-import { redirect } from "next/navigation";
 import StudioIDE from "@/components/StudioIDE";
+import { neon } from "@neondatabase/serverless";
 
 export const dynamic = 'force-dynamic';
 
-const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-export default async function StudioPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-
-  // DEFENSIVE GATE: Prevent Neon syntax errors
-  if (!UUID_REGEX.test(id)) {
-    redirect('/studio');
-  }
-
+async function getSession(id: string) {
   const sql = neon(process.env.DATABASE_URL!);
-  
-  try {
-    const rows = await sql`
-      SELECT id, title, system_prompt, summary, messages 
-      FROM shannon_history WHERE id = ${id} LIMIT 1
-    `;
+  const data = await sql`SELECT * FROM shannon_history WHERE id = ${id}`;
+  return data[0] || null;
+}
 
-    if (rows.length === 0) redirect('/studio');
+export default async function StudioSessionPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const sessionData = await getSession(id);
 
-    const session = {
-      id: rows[0].id,
-      title: rows[0].title ?? "Untitled Session",
-      systemPrompt: rows[0].system_prompt ?? "",
-      summary: rows[0].summary ?? "",
-      messages: rows[0].messages ?? [],
-    };
-
+  if (!sessionData) {
     return (
-      <main className="h-[100dvh] w-full overflow-hidden bg-[#0a0a0a]">
-        <StudioIDE initialSession={session} />
-      </main>
+      <div className="h-screen w-full bg-black flex items-center justify-center text-white font-mono text-sm">
+        404 // SESSION_NOT_FOUND
+      </div>
     );
-  } catch (error) {
-    console.error("SSR DB Error:", error);
-    redirect('/studio');
   }
+
+  const session = {
+    id: sessionData.id,
+    title: sessionData.title,
+    systemPrompt: sessionData.system_prompt,
+    messages: sessionData.messages || [],
+  };
+
+  return (
+    <main className="h-[100dvh] w-full overflow-hidden bg-[#000000]">
+      <StudioIDE initialSession={session} />
+    </main>
+  );
 }

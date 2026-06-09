@@ -1,37 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
-import sql from '@/lib/db';
+import { neon } from "@neondatabase/serverless";
 
-// FORCE NEXT.JS TO NEVER CACHE THIS ROUTE
-export const dynamic = 'force-dynamic';
-
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    const rows = await sql`SELECT * FROM shannon_history WHERE id = ${params.id}`;
-    return NextResponse.json(rows[0] || null);
-  } catch (error) {
-    return NextResponse.json({ error: "Failed to fetch session" }, { status: 500 });
+    const { id } = await params;
+    const sql = neon(process.env.DATABASE_URL!);
+    const session = await sql`SELECT * FROM shannon_history WHERE id = ${id}`;
+    if (session.length === 0) return NextResponse.json({ error: "Session not found" }, { status: 404 });
+    return NextResponse.json(session[0]);
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    const { messages, title } = await req.json();
-    await sql`
-      UPDATE shannon_history 
-      SET messages = ${JSON.stringify(messages)}::jsonb, title = ${title} 
-      WHERE id = ${params.id}
-    `;
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    return NextResponse.json({ error: "Failed to update session" }, { status: 500 });
-  }
-}
-
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
-  try {
-    await sql`DELETE FROM shannon_history WHERE id = ${params.id}`;
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    return NextResponse.json({ error: "Failed to delete session" }, { status: 500 });
+    const { id } = await params;
+    const sql = neon(process.env.DATABASE_URL!);
+    await sql`DELETE FROM shannon_history WHERE id = ${id}`;
+    return NextResponse.json({ ok: true });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
