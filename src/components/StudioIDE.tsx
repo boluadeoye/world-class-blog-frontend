@@ -144,11 +144,11 @@ export default function StudioIDE({ initialSession }: any) {
 
       for await (const chunk of readSSEStream(response)) {
         accumulatedContent += chunk;
-        const cleanContent = accumulatedContent.replace(/^(SHANNON-Ω|SHANNON-𝛺|SHANNON-Ω:|Assistant:|Shannon:|Principal\s+Architect:)\s*/i, '');
+        const cleanContent = accumulatedContent.replace(/^[^:]*:\s*/, '');
         startTransition(() => { setIsThinking(false); setStreamingContent(cleanContent); });
       }
 
-      const finalCleanContent = accumulatedContent.replace(/^(SHANNON-Ω|SHANNON-𝛺|SHANNON-Ω:|Assistant:|Shannon:|Principal\s+Architect:)\s*/i, '');
+      const finalCleanContent = accumulatedContent.replace(/^[^:]*:\s*/, '');
       const assistantMessage = { id: generateUUID(), role: "assistant", content: finalCleanContent, createdAt: new Date().toISOString() };
       const finalMessages = [...optimisticMessages, assistantMessage];
 
