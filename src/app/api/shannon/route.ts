@@ -8,24 +8,28 @@ export async function POST(req: NextRequest) {
   try {
     const { sessionId, messages, systemPrompt, temperature = 0 } = await req.json();
     const sql = neon(process.env.DATABASE_URL!);
-    
+
     const session = await sql`SELECT summary FROM shannon_history WHERE id = ${sessionId}`;
     const currentSummary = session[0]?.summary || "";
 
     const context = [{ role: "system", content: systemPrompt }];
-    if (currentSummary) context.push({ role: "system", content: `[STRATEGIC CONTEXT]: ${currentSummary}` });
+    if (currentSummary) {
+      context.push({ role: "system", content: `[STRATEGIC CONTEXT]: ${currentSummary}` });
+    }
     context.push(...messages.slice(-4));
 
-    let response;
-    let activeKey;
+    let response: Response | null = null;
+    let activeKey: any = null;
 
-    // RECURSIVE FAILOVER: Try up to 3 different keys
+    // Fast Failover Loop with minimal overhead on subsequent rotations
     for (let attempt = 0; attempt < 3; attempt++) {
       activeKey = await getRotatedKey();
       if (!activeKey) break;
 
-      // HUMAN MIMICRY: Random jitter to bypass IP-range blocks
-      await new Promise(r => setTimeout(r, Math.random() * 400 + 100));
+      // Only apply mimicry jitter on the first request to protect connection rates
+      if (attempt === 0) {
+        await new Promise(r => setTimeout(r, Math.random() * 150 + 50));
+      }
 
       response = await fetch('https://api.shannon-ai.com/v1/chat/completions', {
         method: 'POST',
@@ -34,22 +38,32 @@ export async function POST(req: NextRequest) {
           'x-api-key': activeKey.key_val,
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
         },
-        body: JSON.stringify({ model: "shannon-pro-1.6", messages: context, temperature, stream: true })
+        body: JSON.stringify({ 
+          model: "shannon-pro-1.6", 
+          messages: context, 
+          temperature, 
+          stream: true 
+        })
       });
 
       if (response.status === 429) {
-        await jailKey(activeKey.id, 5); // Jail for 5 mins
+        await jailKey(activeKey.id, 5);
+        response = null;
         continue;
       }
       if (response.status === 401) {
         await sql`UPDATE shannon_api_pool SET is_active = FALSE WHERE id = ${activeKey.id}`;
+        response = null;
         continue;
       }
       break;
     }
 
     if (!response || !response.ok) {
-      return new Response(JSON.stringify({ error: "Pool Congested. All keys currently in jail or exhausted." }), { status: 429 });
+      return new Response(
+        JSON.stringify({ error: "All keys in keypool are currently exhausted or jailed. Try again in a few minutes." }), 
+        { status: 429, headers: { 'Content-Type': 'application/json' } }
+      );
     }
 
     const encoder = new TextEncoder();
@@ -58,45 +72,95 @@ export async function POST(req: NextRequest) {
 
     const stream = new ReadableStream({
       async start(controller) {
-        const reader = response.body!.getReader();
+        const reader = response!.body!.getReader();
         let buffer = "";
         let fullText = "";
+
         try {
           while (true) {
             const { done, value } = await reader.read();
             if (done) break;
+
             buffer += decoder.decode(value, { stream: true });
-            const lines = buffer.split("\n");
-            buffer = lines.pop() ?? "";
-            for (const line of lines) {
-              const trimmed = line.trim();
-              if (!trimmed.startsWith("data:")) continue;
-              const data = trimmed.slice(5).trim();
-              if (data === "[DONE]") {
-                controller.enqueue(encoder.encode("data: [DONE]\n\n"));
-                continue;
-              }
-              try {
-                const parsed = JSON.parse(data);
-                if (parsed.choices?.[0]?.delta?.content) {
-                  const content = parsed.choices[0].delta.content;
-                  fullText += content;
-                  controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text: content })}\n\n`));
+
+            // Detect double-newline boundaries to isolate complete SSE packets
+            let boundary = buffer.indexOf("\n\n");
+            while (boundary !== -1) {
+              const chunk = buffer.substring(0, boundary).trim();
+              buffer = buffer.substring(boundary + 2);
+
+              const lines = chunk.split("\n");
+              for (const line of lines) {
+                const trimmed = line.trim();
+
+                // Intercept raw JSON errors sent without data: prefix
+                if (trimmed.startsWith("{") && trimmed.endsWith("}")) {
+                  try {
+                    const parsed = JSON.parse(trimmed);
+                    if (parsed.error) {
+                      controller.enqueue(encoder.encode(`data: ${JSON.stringify({ error: parsed.error.message || "Upstream rate limit/error." })}\n\n`));
+                      return;
+                    }
+                  } catch {}
                 }
-              } catch {}
+
+                if (!trimmed.startsWith("data:")) continue;
+                const data = trimmed.slice(5).trim();
+
+                if (data === "[DONE]") {
+                  controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+                  return;
+                }
+
+                try {
+                  const parsed = JSON.parse(data);
+                  if (parsed.error) {
+                    controller.enqueue(encoder.encode(`data: ${JSON.stringify({ error: parsed.error.message || "Provider runtime error." })}\n\n`));
+                    return;
+                  }
+                  if (parsed.choices?.[0]?.delta?.content) {
+                    const content = parsed.choices[0].delta.content;
+                    fullText += content;
+                    controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text: content })}\n\n`));
+                  }
+                } catch (e) {
+                  console.warn("JSON chunk recovery trigger on stream line parsing:", e);
+                }
+              }
+              boundary = buffer.indexOf("\n\n");
             }
           }
+        } catch (streamError: any) {
+          console.error("Network disconnect or stream breakdown:", streamError);
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ error: "Active network connection dropped." })}\n\n`));
         } finally {
           controller.close();
           reader.releaseLock();
-          if (keyId) await updateTokenUsage(keyId, Math.floor(fullText.length / 4) + 3600);
+          
+          if (keyId && fullText.length > 0) {
+            try {
+              // Gracefully execute usage update outside the stream loop execution path
+              await updateTokenUsage(keyId, Math.floor(fullText.length / 4) + 3600);
+            } catch (dbErr) {
+              console.error("Failed to log key token usage:", dbErr);
+            }
+          }
         }
       }
     });
 
-    return new Response(stream, { headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache' } });
+    return new Response(stream, { 
+      headers: { 
+        'Content-Type': 'text/event-stream', 
+        'Cache-Control': 'no-cache, no-transform',
+        'Connection': 'keep-alive'
+      } 
+    });
   } catch (error: any) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+    return new Response(JSON.stringify({ error: error.message }), { 
+      status: 500, 
+      headers: { 'Content-Type': 'application/json' } 
+    });
   }
 }
 
