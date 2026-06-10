@@ -9,19 +9,12 @@ export async function POST(req: NextRequest) {
     const { sessionId, messages, systemPrompt, temperature = 0 } = await req.json();
     const sql = neon(process.env.DATABASE_URL!);
     
-    // SENSORY KEY RESOLUTION
     const TAVILY_KEY = process.env.Shannon || process.env.SHANNON;
     const lastMessage = messages[messages.length - 1]?.content || "";
     
-    // Log key status without exposing the secret
-    if (TAVILY_KEY) {
-      console.log(`[SENSORY_CHECK]: Key Detected (${TAVILY_KEY.substring(0,3)}...${TAVILY_KEY.slice(-2)})`);
-    } else {
-      console.log("[SENSORY_CHECK]: Key MISSING from process.env");
-    }
+    console.log(`[SENSORY_CHECK]: Key Present: ${!!TAVILY_KEY}`);
 
     let searchContext = "";
-    // Only trigger search if explicitly needed to conserve Tavily credits
     const needsSearch = /search|tavily|latest|documentation|research/i.test(lastMessage);
 
     if (needsSearch && TAVILY_KEY) {
@@ -50,10 +43,13 @@ export async function POST(req: NextRequest) {
 
     let response: Response | null = null;
     let activeKey: any = null;
+    let lastProviderError = "No keys available in pool";
 
     for (let attempt = 1; attempt <= 3; attempt++) {
       activeKey = await getRotatedKey();
       if (!activeKey) break;
+
+      console.log(`[AI_FETCH]: Attempt ${attempt} using Key ID ${activeKey.id}`);
 
       response = await fetch('https://api.shannon-ai.com/v1/chat/completions', {
         method: 'POST',
@@ -68,21 +64,26 @@ export async function POST(req: NextRequest) {
       if (response.ok) break;
 
       const errText = await response.text();
-      console.error(`[AI_ATTEMPT_${attempt}_FAIL]:`, errText);
+      lastProviderError = errText;
+      console.error(`[AI_FAIL_ID_${activeKey.id}]:`, errText);
 
       if (response.status === 429 || errText.includes("Quota")) {
-        await jailKey(activeKey.id, 1440); // Jail for 24 hours if quota hit
+        await jailKey(activeKey.id, 1440); // 24 hour jail for quota
       }
       response = null;
     }
 
-    if (!response) return new Response(JSON.stringify({ error: "All keys exhausted or quota exceeded." }), { status: 500 });
+    if (!response) {
+      console.error("[FATAL_POOL_EXHAUSTION]:", lastProviderError);
+      return new Response(JSON.stringify({ error: lastProviderError }), { status: 500 });
+    }
 
     return new Response(response.body, { 
       headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache' } 
     });
 
   } catch (error: any) {
+    console.error("[TOP_LEVEL_ERROR]:", error.message);
     return new Response(JSON.stringify({ error: error.message }), { status: 500 });
   }
 }
@@ -91,7 +92,6 @@ export async function PUT(req: NextRequest) {
   try {
     const { sessionId, messages } = await req.json();
     const sql = neon(process.env.DATABASE_URL!);
-    // SAFE SAVE: No API calls, just DB persistence
     await sql`UPDATE shannon_history SET messages = ${JSON.stringify(messages)}::jsonb WHERE id = ${sessionId}`;
     return NextResponse.json({ ok: true });
   } catch (e: any) {
