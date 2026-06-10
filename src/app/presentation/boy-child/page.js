@@ -4,15 +4,17 @@ import { Presentation, Download } from "lucide-react";
 
 export default function BoyChildPPTX() {
   const [isGenerating, setIsGenerating] = useState(false);
+  const [status, setStatus] = useState("");
 
   const generatePPTX = async () => {
     setIsGenerating(true);
+    setStatus("Initializing engine...");
     try {
       // Dynamic import to prevent Next.js SSR "window is not defined" error
       const pptxgen = (await import("pptxgenjs")).default;
       const pres = new pptxgen();
 
-      // 1. Define Presentation Master Settings
+      setStatus("Configuring presentation layout...");
       pres.layout = "LAYOUT_169"; // Force 16:9 aspect ratio
 
       // Define Color Palette
@@ -21,12 +23,11 @@ export default function BoyChildPPTX() {
       const accent_gold = "F59E0B"; // Amber Gold
       const text_gray = "9CA3AF"; // Cool Gray
 
-      // ==========================================
+      setStatus("Building slides...");
+
       // SLIDE 1: TITLE SLIDE
-      // ==========================================
       let slide1 = pres.addSlide();
       slide1.background = { color: bg_dark };
-      
       slide1.addText("THE BOY CHILD AND THE CRISIS OF IDENTITY", {
         x: 1.0, y: 2.0, w: 11.3, h: 2.0,
         fontSize: 40, bold: true, color: text_light,
@@ -43,12 +44,9 @@ export default function BoyChildPPTX() {
         fontFace: "Arial", align: "center"
       });
 
-      // ==========================================
       // SLIDE 2: THE HOOK
-      // ==========================================
       let slide2 = pres.addSlide();
       slide2.background = { color: bg_dark };
-      
       slide2.addText("THE OVERLOOKED CRISIS", {
         x: 1.0, y: 1.0, w: 11.3, h: 1.0,
         fontSize: 32, bold: true, color: accent_gold,
@@ -63,12 +61,9 @@ export default function BoyChildPPTX() {
         }
       );
 
-      // ==========================================
       // SLIDE 3: THE SEED METAPHOR
-      // ==========================================
       let slide3 = pres.addSlide();
       slide3.background = { color: bg_dark };
-      
       slide3.addText("THE SEED METAPHOR", {
         x: 1.0, y: 1.0, w: 11.3, h: 1.0,
         fontSize: 32, bold: true, color: accent_gold,
@@ -83,12 +78,9 @@ export default function BoyChildPPTX() {
         }
       );
 
-      // ==========================================
       // SLIDE 4: THE 5 QUESTIONS
-      // ==========================================
       let slide4 = pres.addSlide();
       slide4.background = { color: bg_dark };
-      
       slide4.addText("CORE QUESTIONS OF IDENTITY", {
         x: 1.0, y: 1.0, w: 11.3, h: 1.0,
         fontSize: 32, bold: true, color: accent_gold,
@@ -103,27 +95,20 @@ export default function BoyChildPPTX() {
         }
       );
 
-      // ==========================================
       // SLIDE 5: EXPECTATIONS VS SCRIPTS
-      // ==========================================
       let slide5 = pres.addSlide();
       slide5.background = { color: bg_dark };
-      
       slide5.addText("EXPECTATIONS VS. CULTURAL SCRIPTS", {
         x: 1.0, y: 1.0, w: 11.3, h: 1.0,
         fontSize: 32, bold: true, color: accent_gold,
         fontFace: "Arial"
       });
-      
-      // Expectations Box (Left)
       slide5.addText("HEALTHY EXPECTATIONS\n\n- A man should be responsible.\n- A man should be dependable.\n- A man should care for himself & others.", {
         x: 1.0, y: 2.5, w: 5.3, h: 4.0,
         fontSize: 16, color: text_light,
         fontFace: "Arial", fill: { color: "1F2937" },
         margin: [20, 20, 20, 20]
       });
-
-      // Scripts Box (Right)
       slide5.addText("CULTURAL SCRIPTS\n\n- Men don't cry.\n- Men must always be strong.\n- Solve every problem alone.\n- Asking for help is weakness.", {
         x: 7.0, y: 2.5, w: 5.3, h: 4.0,
         fontSize: 16, color: text_light,
@@ -131,27 +116,20 @@ export default function BoyChildPPTX() {
         margin: [20, 20, 20, 20]
       });
 
-      // ==========================================
       // SLIDE 6: THE COST (STATS)
-      // ==========================================
       let slide6 = pres.addSlide();
       slide6.background = { color: bg_dark };
-      
       slide6.addText("THE COST OF UNDEFINED EXPECTATIONS", {
         x: 1.0, y: 1.0, w: 11.3, h: 1.0,
         fontSize: 32, bold: true, color: accent_gold,
         fontFace: "Arial"
       });
-
-      // Stat 1 (UNESCO)
       slide6.addText("EDUCATION (UNESCO)\n\nMillions of boys worldwide are out of school, increasingly at risk of dropping out or underperforming academically.", {
         x: 1.0, y: 2.5, w: 5.3, h: 4.0,
         fontSize: 16, color: text_light,
         fontFace: "Arial", fill: { color: "1F2937" },
         margin: [20, 20, 20, 20]
       });
-
-      // Stat 2 (WHO)
       slide6.addText("MENTAL HEALTH (WHO)\n\nSuicide remains a leading cause of death. Men die by suicide at significantly higher rates than women globally.", {
         x: 7.0, y: 2.5, w: 5.3, h: 4.0,
         fontSize: 16, color: text_light,
@@ -159,12 +137,9 @@ export default function BoyChildPPTX() {
         margin: [20, 20, 20, 20]
       });
 
-      // ==========================================
       // SLIDE 7: PATH FORWARD
-      // ==========================================
       let slide7 = pres.addSlide();
       slide7.background = { color: bg_dark };
-      
       slide7.addText("THE PATH FORWARD", {
         x: 1.0, y: 1.0, w: 11.3, h: 1.0,
         fontSize: 32, bold: true, color: accent_gold,
@@ -179,12 +154,9 @@ export default function BoyChildPPTX() {
         }
       );
 
-      // ==========================================
       // SLIDE 8: CLOSING QUOTE
-      // ==========================================
       let slide8 = pres.addSlide();
       slide8.background = { color: bg_dark };
-      
       slide8.addText(
         "\"The greatest challenge facing many boys today is not becoming a man; it is discovering what being a man truly means beyond the voices of culture, tradition, and expectation.\"",
         {
@@ -199,10 +171,28 @@ export default function BoyChildPPTX() {
         fontFace: "Arial", align: "center"
       });
 
-      // 3. Save the File
-      await pres.writeFile({ fileName: "The_Boy_Child_Crisis_Mayowa_Olaoluwa.pptx" });
+      setStatus("Compiling PowerPoint Binary...");
+      
+      // EXPLICIT MOBILE BLOB DOWNLOAD MECHANISM
+      const blob = await pres.write("blob");
+      
+      setStatus("Triggering download...");
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "The_Boy_Child_Crisis_Mayowa_Olaoluwa.pptx";
+      document.body.appendChild(a);
+      a.click();
+      
+      // Cleanup
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      
+      setStatus("Download initiated.");
     } catch (error) {
       console.error("PPTX Generation Failed:", error);
+      alert("Error generating PowerPoint: " + error.message);
+      setStatus("Failed.");
     } finally {
       setIsGenerating(false);
     }
@@ -218,7 +208,13 @@ export default function BoyChildPPTX() {
         </div>
 
         <h1 className="text-2xl font-bold text-slate-900 mb-2">Mayowa Olaoluwa</h1>
-        <p className="text-slate-500 text-xs font-mono uppercase tracking-widest mb-8">The Boy Child Crisis</p>
+        <p className="text-slate-500 text-xs font-mono uppercase tracking-widest mb-4">The Boy Child Crisis</p>
+
+        {status && (
+          <p className="text-[10px] font-mono text-amber-600 mb-6 bg-amber-50 p-2 rounded border border-amber-200">
+            &gt; {status}
+          </p>
+        )}
 
         <button
           onClick={generatePPTX}
@@ -226,7 +222,7 @@ export default function BoyChildPPTX() {
           className="w-full flex items-center justify-center gap-3 bg-amber-500 hover:bg-amber-600 disabled:bg-slate-300 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-amber-500/20"
         >
           {isGenerating ? (
-            <span className="font-mono text-xs animate-pulse">Generating PPTX...</span>
+            <span className="font-mono text-xs animate-pulse">Processing...</span>
           ) : (
             <>
               <Download size={18} />
