@@ -15,7 +15,7 @@ export default function BoyChildPPTX() {
       const pres = new pptxgen();
 
       setStatus("Configuring presentation layout...");
-      pres.layout = "LAYOUT_169"; // Force 16:9 aspect ratio
+      pres.layout = "LAYOUT_16x9"; // Corrected layout string (16x9)
 
       // Define Color Palette
       const bg_dark = "111827"; // Deep Navy
