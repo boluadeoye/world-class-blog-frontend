@@ -4,6 +4,51 @@ import { neon } from "@neondatabase/serverless";
 
 export const runtime = 'edge';
 
+// Strict Timeout Fetch Utility to prevent Gateway timeouts
+async function fetchWithTimeout(url: string, options: RequestInit & { timeout?: number }) {
+  const { timeout = 5000, ...fetchOptions } = options;
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeout);
+  try {
+    const res = await fetch(url, { ...fetchOptions, signal: controller.signal });
+    clearTimeout(id);
+    return res;
+  } catch (err) {
+    clearTimeout(id);
+    throw err;
+  }
+}
+
+async function* readSSEStream(response: Response) {
+  const reader = response.body!.getReader();
+  const decoder = new TextDecoder("utf-8");
+  let buffer = "";
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      let boundary = buffer.indexOf("\n\n");
+      while (boundary !== -1) {
+        const chunk = buffer.substring(0, boundary).trim();
+        buffer = buffer.substring(boundary + 2);
+        const lines = chunk.split("\n");
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed.startsWith("data:")) continue;
+          const data = trimmed.slice(5).trim();
+          if (data === "[DONE]") return;
+          try {
+            const parsed = JSON.parse(data);
+            if (parsed.text) yield parsed.text;
+          } catch (e) {}
+        }
+        boundary = buffer.indexOf("\n\n");
+      }
+    }
+  } finally { reader.releaseLock(); }
+}
+
 export async function POST(req: NextRequest) {
   const encoder = new TextEncoder();
   try {
@@ -14,17 +59,18 @@ export async function POST(req: NextRequest) {
     let searchContext = "";
     const lastMsg = messages[messages.length - 1]?.content || "";
     
-    // 1. SENSORY ORGAN (TAVILY)
+    // 1. SENSORY ORGAN WITH STRICT 3s TIMEOUT
     if (TAVILY_KEY && /search|tavily|latest|research|analyze/i.test(lastMsg)) {
       try {
-        const tRes = await fetch("https://api.tavily.com/search", {
+        const tRes = await fetchWithTimeout("https://api.tavily.com/search", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ 
             api_key: TAVILY_KEY, 
             query: lastMsg.substring(0, 200), 
-            max_results: 5 
-          })
+            max_results: 3 
+          }),
+          timeout: 3000 // 3.0 seconds hard ceiling
         });
         if (tRes.ok) {
           const tData = await tRes.json();
@@ -32,7 +78,7 @@ export async function POST(req: NextRequest) {
           console.log("[SENSORY]: SUCCESS");
         }
       } catch (e) {
-        console.error("[SENSORY_ERR]");
+        console.error("[SENSORY_TIMEOUT]: Aborted search to prevent gateway timeout.");
       }
     }
 
@@ -40,7 +86,7 @@ export async function POST(req: NextRequest) {
     if (searchContext) context.push({ role: "system", content: `[WEB_RESEARCH]:\n${searchContext}` });
     context.push(...messages.slice(-6));
 
-    // 2. AI EXECUTION WITH FAILOVER
+    // 2. AI EXECUTION WITH 5s TIMEOUT PER KEY
     let response: Response | null = null;
     let activeKey: any = null;
     let lastError = "Initialization Failure";
@@ -50,14 +96,15 @@ export async function POST(req: NextRequest) {
       if (!activeKey) { lastError = "Key Pool Exhausted"; break; }
 
       try {
-        response = await fetch('https://api.shannon-ai.com/v1/chat/completions', {
+        response = await fetchWithTimeout('https://api.shannon-ai.com/v1/chat/completions', {
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json', 
             'x-api-key': activeKey.key_val,
             'User-Agent': 'ShannonStudio/1.6'
           },
-          body: JSON.stringify({ model: "shannon-pro-1.6", messages: context, temperature, stream: true })
+          body: JSON.stringify({ model: "shannon-pro-1.6", messages: context, temperature, stream: true }),
+          timeout: 5000 // 5.0 seconds hard ceiling per key
         });
 
         if (response.ok) break;
@@ -71,7 +118,7 @@ export async function POST(req: NextRequest) {
         }
         response = null;
       } catch (e: any) {
-        lastError = e.message;
+        lastError = e.message || "Request Timed Out";
         response = null;
       }
     }
