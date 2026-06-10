@@ -141,11 +141,13 @@ export default function StudioIDE({ initialSession }: any) {
       for await (const chunk of readSSEStream(response)) {
         accumulatedContent += chunk;
         // UNICODE ASSASSIN: Strips up to 60 chars (no newlines) ending in a colon. Catches "SHANNON-Ω:" perfectly.
-        const cleanContent = accumulatedContent.replace(/^[^:\n]{0,60}:\s*/, '');
+        const cleanContent = accumulatedContent.replace(/^[^:
+]{1,30}:s*/, '');
         startTransition(() => { setIsThinking(false); setStreamingContent(cleanContent); });
       }
 
-      const finalCleanContent = accumulatedContent.replace(/^[^:\n]{0,60}:\s*/, '');
+      const finalCleanContent = accumulatedContent.replace(/^[^:
+]{1,30}:s*/, '');
       const assistantMessage = { id: generateUUID(), role: "assistant", content: finalCleanContent, createdAt: new Date().toISOString() };
       const finalMessages = [...optimisticMessages, assistantMessage];
 
