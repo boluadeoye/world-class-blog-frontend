@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Presentation, Download, FilePowerpoint } from "lucide-react";
+import { Presentation, Download } from "lucide-react";
 
 export default function BoyChildPPTX() {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -214,7 +214,7 @@ export default function BoyChildPPTX() {
       
       <div className="relative z-10 w-full max-w-sm bg-white p-10 text-center rounded-3xl shadow-2xl border-t-8 border-amber-500">
         <div className="w-20 h-20 bg-amber-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
-          <FilePowerpoint size={40} className="text-amber-500" />
+          <Presentation size={40} className="text-amber-500" />
         </div>
 
         <h1 className="text-2xl font-bold text-slate-900 mb-2">Mayowa Olaoluwa</h1>
