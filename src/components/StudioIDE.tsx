@@ -66,8 +66,11 @@ export default function StudioIDE({ initialSession }: any) {
 
   useEffect(() => {
     if (!window.visualViewport) return;
+    let rafId: number;
     const handleResize = () => {
-      document.documentElement.style.setProperty('--vv-height', `${window.visualViewport!.height}px`);
+      rafId = requestAnimationFrame(() => {
+        document.documentElement.style.setProperty('--vv-height', `${window.visualViewport!.height}px`);
+      });
     };
     window.visualViewport.addEventListener('resize', handleResize);
     window.visualViewport.addEventListener('scroll', handleResize);
@@ -75,6 +78,7 @@ export default function StudioIDE({ initialSession }: any) {
     return () => {
       window.visualViewport?.removeEventListener('resize', handleResize);
       window.visualViewport?.removeEventListener('scroll', handleResize);
+      cancelAnimationFrame(rafId);
     };
   }, []);
 
@@ -175,7 +179,8 @@ export default function StudioIDE({ initialSession }: any) {
         code, pre { font-family: var(--font-mono) !important; }
       `}} />
 
-      <header className="h-12 flex items-center justify-between px-4 border-b border-white/10 bg-[#050505] z-20 shrink-0">
+      {/* Header */}
+      <header className="h-12 flex items-center justify-between px-4 border-b border-neutral-900 bg-[#050505] z-20 shrink-0">
         <div className="flex items-center gap-4">
           <button onClick={() => setLeftOpen(true)} className="text-white/40 hover:text-white transition-colors"><Menu size={16} /></button>
           <span className="text-[11px] font-mono font-bold uppercase tracking-[0.2em] text-white/50">{initialSession.title}</span>
@@ -186,13 +191,15 @@ export default function StudioIDE({ initialSession }: any) {
         </div>
       </header>
 
-      <div className="flex-1 relative overflow-hidden flex flex-col bg-[#000000]">
+      {/* Feed with strict flex-1 min-h-0 containment to prevent gutter bleed */}
+      <div className="flex-1 min-h-0 relative overflow-hidden flex flex-col bg-[#000000]">
         <MessageFeed messages={messages} isThinking={isThinking} streamingContent={balancedStreamingContent} />
       </div>
 
-      <div className="w-full bg-[#050505] border-t border-white/10 shrink-0">
+      {/* Docked Command Bar */}
+      <div className="w-full bg-[#050505] border-t border-neutral-900 shrink-0">
         <div className="flex items-end w-full">
-          <div className="w-[56px] shrink-0 flex justify-center pb-3 pt-3 border-r border-white/10">
+          <div className="w-[56px] shrink-0 flex justify-center pb-3 pt-3 border-r border-neutral-900">
             <Sparkles size={16} className="text-white/20" />
           </div>
           <div className="flex-1 flex items-end p-2">
@@ -220,12 +227,13 @@ export default function StudioIDE({ initialSession }: any) {
         </div>
       </div>
 
-      <div className={`fixed inset-y-0 left-0 w-[280px] bg-[#050505] border-r border-white/10 z-50 transform transition-transform duration-200 ease-in-out flex flex-col ${leftOpen ? "translate-x-0" : "-translate-x-full"}`}>
-        <div className="flex items-center justify-between px-4 py-4 border-b border-white/10">
+      {/* History Panel */}
+      <div className={`fixed inset-y-0 left-0 w-[280px] bg-[#050505] border-r border-neutral-900 z-50 transform transition-transform duration-200 ease-in-out flex flex-col ${leftOpen ? "translate-x-0" : "-translate-x-full"}`}>
+        <div className="flex items-center justify-between px-4 py-4 border-b border-neutral-900">
           <span className="text-[10px] font-mono font-bold uppercase tracking-[0.2em] text-white/50">Session History</span>
           <button onClick={() => setLeftOpen(false)} className="text-white/30 hover:text-white"><X size={16}/></button>
         </div>
-        <button onClick={() => { window.location.href = '/studio'; }} className="m-4 p-3 border border-white/10 text-[10px] font-mono font-bold uppercase tracking-[0.2em] hover:bg-white/5 transition-all flex items-center justify-center gap-2 rounded-none text-white/70">
+        <button onClick={() => { window.location.href = '/studio'; }} className="m-4 p-3 border border-neutral-900 text-[10px] font-mono font-bold uppercase tracking-[0.2em] hover:bg-white/5 transition-all flex items-center justify-center gap-2 rounded-none text-white/70">
           <Plus size={14} /> New Session
         </button>
         <div className="flex-1 overflow-y-auto px-2 pb-4">
@@ -237,8 +245,9 @@ export default function StudioIDE({ initialSession }: any) {
         </div>
       </div>
 
-      <div className={`fixed inset-y-0 right-0 w-[320px] bg-[#050505] border-l border-white/10 z-50 transform transition-transform duration-200 ease-in-out flex flex-col ${rightOpen ? "translate-x-0" : "-translate-x-full"}`}>
-        <div className="flex items-center justify-between px-4 py-4 border-b border-white/10">
+      {/* Directives Panel (Clean Monochrome Slate, no green borders) */}
+      <div className={`fixed inset-y-0 right-0 w-[320px] bg-[#050505] border-l border-neutral-900 z-50 transform transition-transform duration-200 ease-in-out flex flex-col ${rightOpen ? "translate-x-0" : "-translate-x-full"}`}>
+        <div className="flex items-center justify-between px-4 py-4 border-b border-neutral-900">
           <span className="text-[10px] font-mono font-bold uppercase tracking-[0.2em] text-white/50">System Directives</span>
           <button onClick={() => setRightOpen(false)} className="text-white/30 hover:text-white"><X size={16}/></button>
         </div>
@@ -246,7 +255,7 @@ export default function StudioIDE({ initialSession }: any) {
           <textarea 
             value={systemPrompt} 
             onChange={(e) => setSystemPrompt(e.target.value)} 
-            className="w-full h-full bg-[#000000] border border-white/10 p-4 text-[12px] font-mono text-white/50 leading-relaxed resize-none outline-none focus:border-emerald-500/50 rounded-none"
+            className="w-full h-full bg-[#000000] border border-neutral-900 p-4 text-[12px] font-mono text-white/50 leading-relaxed resize-none outline-none focus:border-neutral-700 rounded-none focus:ring-0 focus:outline-none"
           />
         </div>
       </div>
