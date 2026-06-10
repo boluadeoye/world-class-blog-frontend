@@ -66,11 +66,8 @@ export default function StudioIDE({ initialSession }: any) {
 
   useEffect(() => {
     if (!window.visualViewport) return;
-    let rafId: number;
     const handleResize = () => {
-      rafId = requestAnimationFrame(() => {
-        document.documentElement.style.setProperty('--vv-height', `${window.visualViewport!.height}px`);
-      });
+      document.documentElement.style.setProperty('--vv-height', `${window.visualViewport!.height}px`);
     };
     window.visualViewport.addEventListener('resize', handleResize);
     window.visualViewport.addEventListener('scroll', handleResize);
@@ -78,7 +75,6 @@ export default function StudioIDE({ initialSession }: any) {
     return () => {
       window.visualViewport?.removeEventListener('resize', handleResize);
       window.visualViewport?.removeEventListener('scroll', handleResize);
-      cancelAnimationFrame(rafId);
     };
   }, []);
 
@@ -180,18 +176,18 @@ export default function StudioIDE({ initialSession }: any) {
       `}} />
 
       {/* Header */}
-      <header className="h-12 flex items-center justify-between px-4 border-b border-neutral-900 bg-[#050505] z-20 shrink-0">
+      <header className="h-12 flex items-center justify-between px-3 border-b border-neutral-900 bg-[#050505] z-20 shrink-0">
         <div className="flex items-center gap-4">
-          <button onClick={() => setLeftOpen(true)} className="text-white/40 hover:text-white transition-colors"><Menu size={16} /></button>
+          <button onClick={() => setLeftOpen(true)} className="text-white/40 hover:text-white transition-colors p-1"><Menu size={16} /></button>
           <span className="text-[11px] font-mono font-bold uppercase tracking-[0.2em] text-white/50">{initialSession.title}</span>
         </div>
         <div className="flex items-center gap-4">
           {isSyncing && <CloudSync size={14} className="text-emerald-500 animate-pulse" />}
-          <button onClick={() => setRightOpen(true)} className="text-white/40 hover:text-white transition-colors"><Settings2 size={16} /></button>
+          <button onClick={() => setRightOpen(true)} className="text-white/40 hover:text-white transition-colors p-1"><Settings2 size={16} /></button>
         </div>
       </header>
 
-      {/* Feed with strict flex-1 min-h-0 containment to prevent gutter bleed */}
+      {/* Main Feed Container */}
       <div className="flex-1 min-h-0 relative overflow-hidden flex flex-col bg-[#000000]">
         <MessageFeed messages={messages} isThinking={isThinking} streamingContent={balancedStreamingContent} />
       </div>
@@ -199,17 +195,17 @@ export default function StudioIDE({ initialSession }: any) {
       {/* Docked Command Bar */}
       <div className="w-full bg-[#050505] border-t border-neutral-900 shrink-0">
         <div className="flex items-end w-full">
-          <div className="w-[56px] shrink-0 flex justify-center pb-3 pt-3 border-r border-neutral-900">
-            <Sparkles size={16} className="text-white/20" />
+          <div className="w-[40px] shrink-0 flex justify-center pb-3.5 pt-3 border-r border-neutral-900">
+            <Sparkles size={14} className="text-white/20" />
           </div>
-          <div className="flex-1 flex items-end p-2">
+          <div className="flex-1 flex items-end p-1.5">
             <textarea 
               ref={textareaRef} 
               value={inputValue} 
               onChange={(e) => { 
                 setInputValue(e.target.value); 
                 e.target.style.height = "auto"; 
-                e.target.style.height = `${Math.min(e.target.scrollHeight, 200)}px`; 
+                e.target.style.height = `${Math.min(e.target.scrollHeight, 180)}px`; 
               }} 
               placeholder="ENTER STRATEGIC PARAMETERS..." 
               rows={1} 
@@ -219,48 +215,52 @@ export default function StudioIDE({ initialSession }: any) {
             <button 
               onClick={isStreaming ? () => abortRef.current?.abort() : handleSubmit} 
               disabled={!isStreaming && !inputValue.trim()} 
-              className={`w-8 h-8 shrink-0 flex items-center justify-center rounded-none transition-all mb-0.5 ${isStreaming ? 'bg-white/10' : inputValue.trim() ? 'bg-emerald-600 text-white' : 'bg-transparent text-white/20'}`}
+              className={`w-8 h-8 shrink-0 flex items-center justify-center rounded-none transition-all mb-0.5 ${isStreaming ? 'bg-white/10' : inputValue.trim() ? 'bg-emerald-600 text-white' : 'bg-transparent text-white/10'}`}
             >
-              {isStreaming ? <div className="w-2.5 h-2.5 bg-white rounded-none" /> : <Send size={14} />}
+              {isStreaming ? <div className="w-2.5 h-2.5 bg-white rounded-none" /> : <Send size={12} />}
             </button>
           </div>
         </div>
       </div>
 
-      {/* History Panel */}
-      <div className={`fixed inset-y-0 left-0 w-[280px] bg-[#050505] border-r border-neutral-900 z-50 transform transition-transform duration-200 ease-in-out flex flex-col ${leftOpen ? "translate-x-0" : "-translate-x-full"}`}>
-        <div className="flex items-center justify-between px-4 py-4 border-b border-neutral-900">
-          <span className="text-[10px] font-mono font-bold uppercase tracking-[0.2em] text-white/50">Session History</span>
-          <button onClick={() => setLeftOpen(false)} className="text-white/30 hover:text-white"><X size={16}/></button>
-        </div>
-        <button onClick={() => { window.location.href = '/studio'; }} className="m-4 p-3 border border-neutral-900 text-[10px] font-mono font-bold uppercase tracking-[0.2em] hover:bg-white/5 transition-all flex items-center justify-center gap-2 rounded-none text-white/70">
-          <Plus size={14} /> New Session
-        </button>
-        <div className="flex-1 overflow-y-auto px-2 pb-4">
-          {sessions.map(s => (
-            <button key={s.id} onClick={() => { window.location.href = `/studio/${s.id}`; }} className={`w-full text-left px-3 py-2.5 text-[12px] font-mono truncate mb-1 border rounded-none ${activeId === s.id ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400" : "border-transparent text-white/40 hover:border-white/10 hover:text-white/80"}`}>
-              {s.title}
+      {/* Full-Surface History Panel */}
+      {leftOpen && (
+        <div className="fixed inset-0 bg-[#050505] z-50 flex flex-col transition-all duration-200">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-800 shrink-0">
+            <span className="text-[11px] font-mono font-bold uppercase tracking-[0.2em] text-white/50">Session History</span>
+            <button onClick={() => setLeftOpen(false)} className="text-white/30 hover:text-white p-1"><X size={18}/></button>
+          </div>
+          <div className="p-4 shrink-0">
+            <button onClick={() => { window.location.href = '/studio'; }} className="w-full py-3 border border-neutral-800 text-[11px] font-mono font-bold uppercase tracking-[0.2em] hover:bg-white/5 transition-all flex items-center justify-center gap-2 rounded-none text-white/70">
+              <Plus size={14} /> New Session
             </button>
-          ))}
+          </div>
+          <div className="flex-1 overflow-y-auto px-4 pb-6">
+            {sessions.map(s => (
+              <button key={s.id} onClick={() => { window.location.href = `/studio/${s.id}`; }} className={`w-full text-left px-3 py-3 text-[13px] font-mono truncate mb-1 border rounded-none block ${activeId === s.id ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400" : "border-transparent text-white/40 hover:border-neutral-800 hover:text-white/80"}`}>
+                {s.title}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Directives Panel (Clean Monochrome Slate, no green borders) */}
-      <div className={`fixed inset-y-0 right-0 w-[320px] bg-[#050505] border-l border-neutral-900 z-50 transform transition-transform duration-200 ease-in-out flex flex-col ${rightOpen ? "translate-x-0" : "-translate-x-full"}`}>
-        <div className="flex items-center justify-between px-4 py-4 border-b border-neutral-900">
-          <span className="text-[10px] font-mono font-bold uppercase tracking-[0.2em] text-white/50">System Directives</span>
-          <button onClick={() => setRightOpen(false)} className="text-white/30 hover:text-white"><X size={16}/></button>
+      {/* Full-Surface Directives Panel */}
+      {rightOpen && (
+        <div className="fixed inset-0 bg-[#050505] z-50 flex flex-col transition-all duration-200">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-800 shrink-0">
+            <span className="text-[11px] font-mono font-bold uppercase tracking-[0.2em] text-white/50">System Directives</span>
+            <button onClick={() => setRightOpen(false)} className="text-white/30 hover:text-white p-1"><X size={18}/></button>
+          </div>
+          <div className="p-4 flex-1">
+            <textarea 
+              value={systemPrompt} 
+              onChange={(e) => setSystemPrompt(e.target.value)} 
+              className="w-full h-full bg-[#000000] border border-neutral-800 p-4 text-[12px] font-mono text-white/50 leading-relaxed resize-none outline-none focus:border-neutral-700 rounded-none focus:ring-0 focus:outline-none"
+            />
+          </div>
         </div>
-        <div className="p-4 flex-1">
-          <textarea 
-            value={systemPrompt} 
-            onChange={(e) => setSystemPrompt(e.target.value)} 
-            className="w-full h-full bg-[#000000] border border-neutral-900 p-4 text-[12px] font-mono text-white/50 leading-relaxed resize-none outline-none focus:border-neutral-700 rounded-none focus:ring-0 focus:outline-none"
-          />
-        </div>
-      </div>
-
-      {(leftOpen || rightOpen) && <div className="fixed inset-0 bg-black/80 z-40" onClick={() => { setLeftOpen(false); setRightOpen(false); }} />}
+      )}
     </div>
   );
 }

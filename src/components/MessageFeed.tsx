@@ -17,7 +17,7 @@ const CodeBlock = memo(function CodeBlock({ children, className, ...props }: any
   }, [codeString]);
 
   return (
-    <div className="my-4 bg-[#050505] border border-neutral-800 w-full overflow-hidden flex flex-col rounded-none">
+    <div className="my-3 bg-[#050505] border border-neutral-800 w-full overflow-hidden flex flex-col rounded-none">
       <div className="flex items-center justify-between px-3 py-1.5 bg-[#0a0a0a] border-b border-neutral-800 select-none">
         <span className="text-[9px] font-mono font-bold uppercase tracking-[0.2em] text-neutral-400">{lang || 'terminal'}</span>
         <button onClick={handleCopy} className="flex items-center gap-1 text-neutral-400 hover:text-white transition-all font-mono text-[9px] uppercase tracking-wider cursor-pointer">
@@ -25,8 +25,8 @@ const CodeBlock = memo(function CodeBlock({ children, className, ...props }: any
           <span>{copied ? 'Copied' : 'Copy'}</span>
         </button>
       </div>
-      <div className="p-4 overflow-x-auto bg-[#000000]">
-        <pre className="text-[13px] font-mono text-[#e3e3e3] leading-relaxed whitespace-pre">
+      <div className="p-3 overflow-x-auto bg-[#000000]">
+        <pre className="text-[12px] font-mono text-[#e3e3e3] leading-relaxed whitespace-pre">
           <code className={className} {...props}>{children}</code>
         </pre>
       </div>
@@ -40,7 +40,7 @@ const markdownComponents = {
     return match ? (
       <CodeBlock className={className} {...props}>{children}</CodeBlock>
     ) : (
-      <code className="bg-[#111111] text-emerald-400 px-1.5 py-0.5 text-[12px] font-mono border border-neutral-800 rounded-none break-words" {...props}>
+      <code className="bg-[#111111] text-emerald-400 px-1 py-0.5 text-[11px] font-mono border border-neutral-800 rounded-none break-words" {...props}>
         {children}
       </code>
     );
@@ -61,30 +61,27 @@ export const MessageFeed = memo(function MessageFeed({ messages, isThinking, str
     <div className="flex-1 overflow-y-auto relative w-full select-text bg-[#000000]" style={{ overscrollBehaviorY: 'contain' }}>
       <div className="w-full flex flex-col">
         {messages.map((msg: any) => (
-          <div key={msg.id} className="grid grid-cols-[56px_minmax(0,1fr)] w-full border-b border-neutral-900 align-top">
-            {/* The Iron Gutter */}
-            <div className="w-[56px] shrink-0 border-r border-neutral-900 bg-[#030303] flex flex-col items-center pt-5">
-              <div className={`w-7 h-7 flex items-center justify-center text-[10px] font-mono font-bold border rounded-none ${
-                msg.role === 'user' ? "bg-[#111111] border-neutral-800 text-neutral-400" : "bg-[#111111] border-emerald-900 text-emerald-500"
+          <div key={msg.id} className="grid grid-cols-[40px_minmax(0,1fr)] w-full border-b border-neutral-900 align-top py-4">
+            {/* The 40px Gutter with locked baseline */}
+            <div className="flex justify-center pt-0.5 select-none border-r border-neutral-900 bg-[#030303]/45">
+              <div className={`w-6 h-6 flex items-center justify-center text-[10px] font-mono font-bold border rounded-none ${
+                msg.role === 'user' ? "bg-[#111111] border-neutral-800 text-neutral-400" : "bg-[#111111] border-emerald-950 text-emerald-500"
               }`}>
                 {msg.role === 'user' ? 'OP' : 'Ω'}
               </div>
             </div>
             
-            {/* The Content Area with strictly enforced containment boundary */}
-            <div className="p-5 min-w-0 overflow-x-hidden break-words">
-              <div className="text-[8px] font-mono font-black uppercase tracking-[0.4em] text-neutral-600 mb-3 select-none">
-                {msg.role === 'user' ? 'Operator' : 'Principal Architect'}
-              </div>
-              <div className="text-[13px] leading-[1.7] text-[#e3e3e3] font-normal tracking-tight">
+            {/* The Contained Content Area */}
+            <div className="pl-4 pr-3 min-w-0 overflow-x-hidden break-words">
+              <div className="text-[13px] leading-[1.6] text-[#d1d1d1] font-normal tracking-tight">
                 {msg.role === 'system_error' ? (
-                  <div className="text-red-400 font-mono text-xs bg-red-950/10 p-4 border-l-2 border-red-500 rounded-none">
+                  <div className="text-red-400 font-mono text-xs bg-red-950/10 p-3 border-l-2 border-red-500 rounded-none">
                     {msg.content}
                   </div>
                 ) : (
                   <ReactMarkdown 
                     remarkPlugins={[remarkGfm]} 
-                    className="prose prose-invert max-w-none prose-p:mb-4 last:prose-p:mb-0 prose-headings:text-white prose-headings:font-bold prose-headings:mt-6 prose-headings:mb-2 prose-headings:text-[14px] prose-strong:text-emerald-400" 
+                    className="prose prose-invert max-w-none prose-p:mb-3 last:prose-p:mb-0 prose-headings:text-white prose-strong:text-emerald-400" 
                     components={markdownComponents as any}
                   >
                     {msg.content}
@@ -96,31 +93,30 @@ export const MessageFeed = memo(function MessageFeed({ messages, isThinking, str
         ))}
 
         {(isThinking || streamingContent) && (
-          <div className="grid grid-cols-[56px_minmax(0,1fr)] w-full align-top">
-            <div className="w-[56px] shrink-0 border-r border-neutral-900 bg-[#030303] flex flex-col items-center pt-5">
-              <div className="w-7 h-7 bg-[#111111] border border-emerald-900 flex items-center justify-center text-[10px] font-mono font-bold text-emerald-500 animate-pulse rounded-none">
+          <div className="grid grid-cols-[40px_minmax(0,1fr)] w-full align-top py-4">
+            <div className="flex justify-center pt-0.5 select-none border-r border-neutral-900 bg-[#030303]/45">
+              <div className="w-6 h-6 bg-[#111111] border border-emerald-950 flex items-center justify-center text-[10px] font-mono font-bold text-emerald-400 animate-pulse rounded-none">
                 Ω
               </div>
             </div>
-            <div className="p-5 min-w-0 overflow-x-hidden break-words">
-              <div className="text-[8px] font-mono font-black uppercase tracking-[0.4em] text-neutral-600 mb-3 select-none">Principal Architect</div>
-              <div className="text-[13px] leading-[1.7] text-[#e3e3e3]">
+            <div className="pl-4 pr-3 min-w-0 overflow-x-hidden break-words">
+              <div className="text-[13px] leading-[1.6] text-[#d1d1d1]">
                 {streamingContent ? (
-                  <ReactMarkdown remarkPlugins={[remarkGfm]} className="prose prose-invert max-w-none prose-p:mb-4 last:prose-p:mb-0" components={markdownComponents as any}>
+                  <ReactMarkdown remarkPlugins={[remarkGfm]} className="prose prose-invert max-w-none prose-p:mb-3 last:prose-p:mb-0" components={markdownComponents as any}>
                     {streamingContent}
                   </ReactMarkdown>
                 ) : (
-                  <div className="flex gap-1.5 py-1.5">
-                    <div className="w-1.5 h-1.5 bg-emerald-500/50 rounded-none animate-ping" />
-                    <div className="w-1.5 h-1.5 bg-emerald-500/50 rounded-none animate-ping [animation-delay:0.2s]" />
-                    <div className="w-1.5 h-1.5 bg-emerald-500/50 rounded-none animate-ping [animation-delay:0.4s]" />
+                  <div className="flex gap-1 py-2">
+                    <div className="w-1 h-1 bg-emerald-500/50 rounded-none animate-ping" />
+                    <div className="w-1 h-1 bg-emerald-500/50 rounded-none animate-ping [animation-delay:0.2s]" />
+                    <div className="w-1 h-1 bg-emerald-500/50 rounded-none animate-ping [animation-delay:0.4s]" />
                   </div>
                 )}
               </div>
             </div>
           </div>
         )}
-        <div ref={bottomRef} className="h-12 shrink-0" />
+        <div ref={bottomRef} className="h-6 shrink-0" />
       </div>
     </div>
   );
