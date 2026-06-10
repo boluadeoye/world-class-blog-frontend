@@ -11,29 +11,36 @@ export async function POST(req: NextRequest) {
     const sql = neon(process.env.DATABASE_URL!);
     const TAVILY_KEY = process.env.Shannon || process.env.SHANNON;
     
-    // 1. SENSORY ORGAN (TAVILY)
     let searchContext = "";
     const lastMsg = messages[messages.length - 1]?.content || "";
+    
+    // 1. SENSORY ORGAN (TAVILY)
     if (TAVILY_KEY && /search|tavily|latest|research|analyze/i.test(lastMsg)) {
       try {
         const tRes = await fetch("https://api.tavily.com/search", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ api_key: TAVILY_KEY, query: lastMsg.substring(0, 200), max_results: 5 })
+          body: JSON.stringify({ 
+            api_key: TAVILY_KEY, 
+            query: lastMsg.substring(0, 200), 
+            max_results: 5 
+          })
         });
         if (tRes.ok) {
           const tData = await tRes.json();
           searchContext = (tData.results || []).map((r: any) => `[Source: ${r.title}]\n${r.content}`).join("\n\n");
           console.log("[SENSORY]: SUCCESS");
         }
-      } catch (e) { console.error("[SENSORY_ERR]"); }
+      } catch (e) {
+        console.error("[SENSORY_ERR]");
+      }
     }
 
     const context = [{ role: "system", content: systemPrompt }];
     if (searchContext) context.push({ role: "system", content: `[WEB_RESEARCH]:\n${searchContext}` });
     context.push(...messages.slice(-6));
 
-    // 2. AI EXECUTION WITH MANUAL RE-PACKAGING
+    // 2. AI EXECUTION WITH FAILOVER
     let response: Response | null = null;
     let activeKey: any = null;
     let lastError = "Initialization Failure";
@@ -45,7 +52,11 @@ export async function POST(req: NextRequest) {
       try {
         response = await fetch('https://api.shannon-ai.com/v1/chat/completions', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'x-api-key': activeKey.key_val },
+          headers: { 
+            'Content-Type': 'application/json', 
+            'x-api-key': activeKey.key_val,
+            'User-Agent': 'ShannonStudio/1.6'
+          },
           body: JSON.stringify({ model: "shannon-pro-1.6", messages: context, temperature, stream: true })
         });
 
@@ -59,14 +70,20 @@ export async function POST(req: NextRequest) {
           await jailKey(activeKey.id, 1440);
         }
         response = null;
-      } catch (e: any) { lastError = e.message; response = null; }
+      } catch (e: any) {
+        lastError = e.message;
+        response = null;
+      }
     }
 
     if (!response || !response.body) {
-      return new Response(JSON.stringify({ error: lastError }), { status: 500 });
+      return new Response(JSON.stringify({ error: lastError }), { 
+        status: 500, 
+        headers: { 'Content-Type': 'application/json' } 
+      });
     }
 
-    // 3. THE RE-PACKAGER: Convert upstream chunks to clean SSE
+    // 3. THE RE-PACKAGER
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     
@@ -94,7 +111,6 @@ export async function POST(req: NextRequest) {
                 const parsed = JSON.parse(data);
                 const content = parsed.choices?.[0]?.delta?.content;
                 if (content) {
-                  // Re-emit as a clean, standardized packet
                   controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text: content })}\n\n`));
                 }
               } catch (e) {}
@@ -109,10 +125,18 @@ export async function POST(req: NextRequest) {
       }
     });
 
-    return new Response(stream, { headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache' } });
+    return new Response(stream, { 
+      headers: { 
+        'Content-Type': 'text/event-stream', 
+        'Cache-Control': 'no-cache' 
+      } 
+    });
 
   } catch (error: any) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+    return new Response(JSON.stringify({ error: error.message }), { 
+      status: 500, 
+      headers: { 'Content-Type': 'application/json' } 
+    });
   }
 }
 
@@ -122,5 +146,7 @@ export async function PUT(req: NextRequest) {
     const sql = neon(process.env.DATABASE_URL!);
     await sql`UPDATE shannon_history SET messages = ${JSON.stringify(messages)}::jsonb WHERE id = ${sessionId}`;
     return NextResponse.json({ ok: true });
-  } catch (e) { return NextResponse.json({ error: "Save Failed" }, { status: 500 }); }
+  } catch (error: any) {
+    return NextResponse.json({ error: "Save Failed" }, { status: 500 });
+  }
 }

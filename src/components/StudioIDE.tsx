@@ -66,11 +66,8 @@ export default function StudioIDE({ initialSession }: any) {
 
   useEffect(() => {
     if (!window.visualViewport) return;
-    let rafId: number;
     const handleResize = () => {
-      rafId = requestAnimationFrame(() => {
-        document.documentElement.style.setProperty('--vv-height', `${window.visualViewport!.height}px`);
-      });
+      document.documentElement.style.setProperty('--vv-height', `${window.visualViewport!.height}px`);
     };
     window.visualViewport.addEventListener('resize', handleResize);
     window.visualViewport.addEventListener('scroll', handleResize);
@@ -78,7 +75,6 @@ export default function StudioIDE({ initialSession }: any) {
     return () => {
       window.visualViewport?.removeEventListener('resize', handleResize);
       window.visualViewport?.removeEventListener('scroll', handleResize);
-      cancelAnimationFrame(rafId);
     };
   }, []);
 
@@ -140,14 +136,11 @@ export default function StudioIDE({ initialSession }: any) {
 
       for await (const chunk of readSSEStream(response)) {
         accumulatedContent += chunk;
-        // UNICODE ASSASSIN: Strips up to 60 chars (no newlines) ending in a colon. Catches "SHANNON-Ω:" perfectly.
-        const cleanContent = accumulatedContent.replace(/^[^:
-]{1,30}:s*/, '');
+        const cleanContent = accumulatedContent.replace(/^[^:\n]{1,30}:\s*/, '');
         startTransition(() => { setIsThinking(false); setStreamingContent(cleanContent); });
       }
 
-      const finalCleanContent = accumulatedContent.replace(/^[^:
-]{1,30}:s*/, '');
+      const finalCleanContent = accumulatedContent.replace(/^[^:\n]{1,30}:\s*/, '');
       const assistantMessage = { id: generateUUID(), role: "assistant", content: finalCleanContent, createdAt: new Date().toISOString() };
       const finalMessages = [...optimisticMessages, assistantMessage];
 
@@ -182,7 +175,6 @@ export default function StudioIDE({ initialSession }: any) {
         code, pre { font-family: var(--font-mono) !important; }
       `}} />
 
-      {/* Header */}
       <header className="h-12 flex items-center justify-between px-4 border-b border-white/10 bg-[#050505] z-20 shrink-0">
         <div className="flex items-center gap-4">
           <button onClick={() => setLeftOpen(true)} className="text-white/40 hover:text-white transition-colors"><Menu size={16} /></button>
@@ -194,12 +186,10 @@ export default function StudioIDE({ initialSession }: any) {
         </div>
       </header>
 
-      {/* Feed */}
       <div className="flex-1 relative overflow-hidden flex flex-col bg-[#000000]">
         <MessageFeed messages={messages} isThinking={isThinking} streamingContent={balancedStreamingContent} />
       </div>
 
-      {/* Docked Command Bar */}
       <div className="w-full bg-[#050505] border-t border-white/10 shrink-0">
         <div className="flex items-end w-full">
           <div className="w-[56px] shrink-0 flex justify-center pb-3 pt-3 border-r border-white/10">
@@ -230,7 +220,6 @@ export default function StudioIDE({ initialSession }: any) {
         </div>
       </div>
 
-      {/* History Panel */}
       <div className={`fixed inset-y-0 left-0 w-[280px] bg-[#050505] border-r border-white/10 z-50 transform transition-transform duration-200 ease-in-out flex flex-col ${leftOpen ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="flex items-center justify-between px-4 py-4 border-b border-white/10">
           <span className="text-[10px] font-mono font-bold uppercase tracking-[0.2em] text-white/50">Session History</span>
@@ -248,8 +237,7 @@ export default function StudioIDE({ initialSession }: any) {
         </div>
       </div>
 
-      {/* Directives Panel */}
-      <div className={`fixed inset-y-0 right-0 w-[320px] bg-[#050505] border-l border-white/10 z-50 transform transition-transform duration-200 ease-in-out flex flex-col ${rightOpen ? "translate-x-0" : "translate-x-full"}`}>
+      <div className={`fixed inset-y-0 right-0 w-[320px] bg-[#050505] border-l border-white/10 z-50 transform transition-transform duration-200 ease-in-out flex flex-col ${rightOpen ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="flex items-center justify-between px-4 py-4 border-b border-white/10">
           <span className="text-[10px] font-mono font-bold uppercase tracking-[0.2em] text-white/50">System Directives</span>
           <button onClick={() => setRightOpen(false)} className="text-white/30 hover:text-white"><X size={16}/></button>
