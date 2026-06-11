@@ -1,20 +1,13 @@
 "use client";
 import React, { useState, useRef, useCallback, useTransition, useEffect } from "react";
 import { MessageFeed } from "./MessageFeed";
-import { Menu, Settings2, Send, Plus, X, Sparkles, CloudSync } from "lucide-react";
+import { Settings2, Send, Plus, X, Sparkles, CloudSync, History } from "lucide-react";
 
 function generateUUID() {
   return typeof window !== 'undefined' && window.crypto?.randomUUID ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
     const r = Math.random() * 16 | 0;
     return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
   });
-}
-
-function balanceMarkdown(markdown: string): string {
-  let balanced = markdown;
-  const codeBlockMatches = markdown.match(/```/g);
-  if (codeBlockMatches && codeBlockMatches.length % 2 !== 0) balanced += '\n```';
-  return balanced;
 }
 
 async function* readSSEStream(response: Response) {
@@ -38,7 +31,7 @@ async function* readSSEStream(response: Response) {
           if (data === "[DONE]") return;
           try {
             const parsed = JSON.parse(data);
-            if (parsed.text) yield parsed.text;
+            yield parsed; // Yields either {text: "..."} or {thought: "..."} or {error: "..."}
           } catch (e) {}
         }
         boundary = buffer.indexOf("\n\n");
@@ -53,10 +46,9 @@ export default function StudioIDE({ initialSession }: any) {
   const [systemPrompt, setSystemPrompt] = useState(initialSession.systemPrompt ?? "");
   const [inputValue, setInputValue] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
-  const [isThinking, setIsThinking] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [streamingContent, setStreamingContent] = useState("");
-  const [leftOpen, setLeftOpen] = useState(false);
+  const [streamingThoughts, setStreamingThoughts] = useState<string[]>([]);
   const [rightOpen, setRightOpen] = useState(false);
   const [activeId, setActiveId] = useState(initialSession.id);
   const [, startTransition] = useTransition();
@@ -66,8 +58,11 @@ export default function StudioIDE({ initialSession }: any) {
 
   useEffect(() => {
     if (!window.visualViewport) return;
+    let rafId: number;
     const handleResize = () => {
-      document.documentElement.style.setProperty('--vv-height', `${window.visualViewport!.height}px`);
+      rafId = requestAnimationFrame(() => {
+        document.documentElement.style.setProperty('--vv-height', `${window.visualViewport!.height}px`);
+      });
     };
     window.visualViewport.addEventListener('resize', handleResize);
     window.visualViewport.addEventListener('scroll', handleResize);
@@ -75,6 +70,7 @@ export default function StudioIDE({ initialSession }: any) {
     return () => {
       window.visualViewport?.removeEventListener('resize', handleResize);
       window.visualViewport?.removeEventListener('scroll', handleResize);
+      cancelAnimationFrame(rafId);
     };
   }, []);
 
@@ -95,7 +91,7 @@ export default function StudioIDE({ initialSession }: any) {
 
   const handleSubmit = useCallback(async () => {
     const text = inputValue.trim();
-    if (!text || isStreaming || isThinking) return;
+    if (!text || isStreaming) return;
 
     const currentId = activeId || generateUUID();
     if (!activeId) {
@@ -110,7 +106,7 @@ export default function StudioIDE({ initialSession }: any) {
       setMessages(optimisticMessages);
       setInputValue("");
       if (textareaRef.current) textareaRef.current.style.height = "auto";
-      setIsThinking(true); setIsStreaming(true); setStreamingContent(""); setIsSyncing(true);
+      setIsStreaming(true); setStreamingContent(""); setStreamingThoughts([]); setIsSyncing(true);
     });
 
     try {
@@ -124,6 +120,7 @@ export default function StudioIDE({ initialSession }: any) {
 
       abortRef.current = new AbortController();
       let accumulatedContent = "";
+      let accumulatedThoughts: string[] = [];
       
       const response = await fetch("/api/shannon", {
         method: "POST",
@@ -134,18 +131,31 @@ export default function StudioIDE({ initialSession }: any) {
 
       if (!response.ok) throw new Error(`API error ${response.status}`);
 
-      for await (const chunk of readSSEStream(response)) {
-        accumulatedContent += chunk;
-        const cleanContent = accumulatedContent.replace(/^[^:\n]{1,30}:\s*/, '');
-        startTransition(() => { setIsThinking(false); setStreamingContent(cleanContent); });
+      for await (const packet of readSSEStream(response)) {
+        if (packet.error) throw new Error(packet.error);
+        if (packet.thought) {
+          accumulatedThoughts = [...accumulatedThoughts, packet.thought];
+          startTransition(() => { setStreamingThoughts(accumulatedThoughts); });
+        }
+        if (packet.text) {
+          accumulatedContent += packet.text;
+          const cleanContent = accumulatedContent.replace(/^[^:\n]{1,30}:\s*/, '');
+          startTransition(() => { setStreamingContent(cleanContent); });
+        }
       }
 
       const finalCleanContent = accumulatedContent.replace(/^[^:\n]{1,30}:\s*/, '');
-      const assistantMessage = { id: generateUUID(), role: "assistant", content: finalCleanContent, createdAt: new Date().toISOString() };
+      const assistantMessage = { 
+        id: generateUUID(), 
+        role: "assistant", 
+        content: finalCleanContent, 
+        thoughts: accumulatedThoughts,
+        createdAt: new Date().toISOString() 
+      };
       const finalMessages = [...optimisticMessages, assistantMessage];
 
       startTransition(() => {
-        setMessages(finalMessages); setStreamingContent(""); setIsThinking(false); setIsStreaming(false);
+        setMessages(finalMessages); setStreamingContent(""); setStreamingThoughts([]); setIsStreaming(false);
       });
 
       await fetch("/api/shannon", {
@@ -158,13 +168,11 @@ export default function StudioIDE({ initialSession }: any) {
       if (err.name !== "AbortError") {
         startTransition(() => {
           setMessages([...optimisticMessages, { id: generateUUID(), role: "system_error", content: `**SYSTEM ALERT:** ${err.message}`, createdAt: new Date().toISOString() }]);
-          setIsThinking(false); setIsStreaming(false); setStreamingContent(""); setIsSyncing(false);
+          setIsStreaming(false); setStreamingContent(""); setStreamingThoughts([]); setIsSyncing(false);
         });
       }
     }
-  }, [inputValue, isStreaming, isThinking, messages, activeId, systemPrompt]);
-
-  const balancedStreamingContent = streamingContent ? balanceMarkdown(streamingContent) : "";
+  }, [inputValue, isStreaming, messages, activeId, systemPrompt]);
 
   return (
     <div className="fixed inset-0 bg-[#000000] text-[#e3e3e3] overflow-hidden antialiased flex flex-col" style={{ height: 'var(--vv-height, 100dvh)' }}>
@@ -173,13 +181,15 @@ export default function StudioIDE({ initialSession }: any) {
         :root { --font-sans: 'Inter', sans-serif; --font-mono: 'JetBrains Mono', monospace; }
         body { font-family: var(--font-sans); background-color: #000000; margin: 0; padding: 0; overflow: hidden; }
         code, pre { font-family: var(--font-mono) !important; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}} />
 
       {/* Header */}
       <header className="h-12 flex items-center justify-between px-3 border-b border-neutral-900 bg-[#050505] z-20 shrink-0">
-        <div className="flex items-center gap-4">
-          <button onClick={() => setLeftOpen(true)} className="text-white/40 hover:text-white transition-colors p-1"><Menu size={16} /></button>
-          <span className="text-[11px] font-mono font-bold uppercase tracking-[0.2em] text-white/50">{initialSession.title}</span>
+        <div className="flex items-center gap-3">
+          <Sparkles size={14} className="text-emerald-500" />
+          <span className="text-[11px] font-mono font-bold uppercase tracking-[0.2em] text-white/70">Shannon Ω</span>
         </div>
         <div className="flex items-center gap-4">
           {isSyncing && <CloudSync size={14} className="text-emerald-500 animate-pulse" />}
@@ -187,16 +197,28 @@ export default function StudioIDE({ initialSession }: any) {
         </div>
       </header>
 
-      {/* Main Feed Container */}
+      {/* Context Strip (Horizontal History) */}
+      <div className="w-full bg-[#020202] border-b border-neutral-900 flex items-center px-2 py-1.5 overflow-x-auto hide-scrollbar shrink-0">
+        <button onClick={() => { window.location.href = '/studio'; }} className="shrink-0 flex items-center gap-1.5 px-3 py-1 bg-white/5 hover:bg-white/10 border border-white/10 text-[9px] font-mono uppercase tracking-widest text-white/70 mr-2 transition-colors">
+          <Plus size={10} /> New
+        </button>
+        {sessions.slice(0, 10).map(s => (
+          <button key={s.id} onClick={() => { window.location.href = `/studio/${s.id}`; }} className={`shrink-0 px-3 py-1 text-[10px] font-mono truncate max-w-[120px] mr-1 border transition-colors ${activeId === s.id ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400" : "border-transparent text-white/40 hover:bg-white/5"}`}>
+            {s.title}
+          </button>
+        ))}
+      </div>
+
+      {/* Main Feed */}
       <div className="flex-1 min-h-0 relative overflow-hidden flex flex-col bg-[#000000]">
-        <MessageFeed messages={messages} isThinking={isThinking} streamingContent={balancedStreamingContent} />
+        <MessageFeed messages={messages} isStreaming={isStreaming} streamingContent={streamingContent} streamingThoughts={streamingThoughts} />
       </div>
 
       {/* Docked Command Bar */}
       <div className="w-full bg-[#050505] border-t border-neutral-900 shrink-0">
         <div className="flex items-end w-full">
-          <div className="w-[40px] shrink-0 flex justify-center pb-3.5 pt-3 border-r border-neutral-900">
-            <Sparkles size={14} className="text-white/20" />
+          <div className="w-[32px] shrink-0 flex justify-center pb-3.5 pt-3 border-r border-neutral-900">
+            <span className="text-[10px] font-mono font-bold text-white/20">OP</span>
           </div>
           <div className="flex-1 flex items-end p-1.5">
             <textarea 
@@ -207,10 +229,10 @@ export default function StudioIDE({ initialSession }: any) {
                 e.target.style.height = "auto"; 
                 e.target.style.height = `${Math.min(e.target.scrollHeight, 180)}px`; 
               }} 
-              placeholder="ENTER STRATEGIC PARAMETERS..." 
+              placeholder="ENTER STRATEGIC PARAMETERS OR URL..." 
               rows={1} 
               disabled={isStreaming} 
-              className="flex-1 bg-transparent border-none outline-none text-[13px] px-2 py-1.5 placeholder:text-white/20 resize-none font-mono uppercase tracking-wider text-white"
+              className="flex-1 bg-transparent border-none outline-none text-[13px] px-2 py-1.5 placeholder:text-white/20 resize-none font-mono text-white"
             />
             <button 
               onClick={isStreaming ? () => abortRef.current?.abort() : handleSubmit} 
@@ -223,29 +245,7 @@ export default function StudioIDE({ initialSession }: any) {
         </div>
       </div>
 
-      {/* Full-Surface History Panel */}
-      {leftOpen && (
-        <div className="fixed inset-0 bg-[#050505] z-50 flex flex-col transition-all duration-200">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-800 shrink-0">
-            <span className="text-[11px] font-mono font-bold uppercase tracking-[0.2em] text-white/50">Session History</span>
-            <button onClick={() => setLeftOpen(false)} className="text-white/30 hover:text-white p-1"><X size={18}/></button>
-          </div>
-          <div className="p-4 shrink-0">
-            <button onClick={() => { window.location.href = '/studio'; }} className="w-full py-3 border border-neutral-800 text-[11px] font-mono font-bold uppercase tracking-[0.2em] hover:bg-white/5 transition-all flex items-center justify-center gap-2 rounded-none text-white/70">
-              <Plus size={14} /> New Session
-            </button>
-          </div>
-          <div className="flex-1 overflow-y-auto px-4 pb-6">
-            {sessions.map(s => (
-              <button key={s.id} onClick={() => { window.location.href = `/studio/${s.id}`; }} className={`w-full text-left px-3 py-3 text-[13px] font-mono truncate mb-1 border rounded-none block ${activeId === s.id ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400" : "border-transparent text-white/40 hover:border-neutral-800 hover:text-white/80"}`}>
-                {s.title}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Full-Surface Directives Panel */}
+      {/* Directives Panel */}
       {rightOpen && (
         <div className="fixed inset-0 bg-[#050505] z-50 flex flex-col transition-all duration-200">
           <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-800 shrink-0">

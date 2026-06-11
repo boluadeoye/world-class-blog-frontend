@@ -2,7 +2,7 @@
 import React, { useCallback, useLayoutEffect, useRef, memo, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { Check, Copy, AlertTriangle } from "lucide-react";
+import { Check, Copy, ChevronRight } from "lucide-react";
 
 const CodeBlock = memo(function CodeBlock({ children, className, ...props }: any) {
   const [copied, setCopied] = useState(false);
@@ -17,7 +17,7 @@ const CodeBlock = memo(function CodeBlock({ children, className, ...props }: any
   }, [codeString]);
 
   return (
-    <div className="my-3 bg-[#050505] border border-neutral-800 w-full overflow-hidden flex flex-col rounded-none">
+    <div className="my-4 bg-[#050505] border-y border-neutral-800 w-[calc(100%+16px)] -mx-2 overflow-hidden flex flex-col rounded-none">
       <div className="flex items-center justify-between px-3 py-1.5 bg-[#0a0a0a] border-b border-neutral-800 select-none">
         <span className="text-[9px] font-mono font-bold uppercase tracking-[0.2em] text-neutral-400">{lang || 'terminal'}</span>
         <button onClick={handleCopy} className="flex items-center gap-1 text-neutral-400 hover:text-white transition-all font-mono text-[9px] uppercase tracking-wider cursor-pointer">
@@ -47,7 +47,22 @@ const markdownComponents = {
   }
 };
 
-export const MessageFeed = memo(function MessageFeed({ messages, isThinking, streamingContent }: any) {
+const ReasoningTrace = ({ thoughts }: { thoughts: string[] }) => {
+  if (!thoughts || thoughts.length === 0) return null;
+  return (
+    <details className="mb-4 group">
+      <summary className="text-[9px] font-mono uppercase tracking-widest text-neutral-500 cursor-pointer select-none list-none flex items-center gap-1.5">
+        <ChevronRight size={10} className="group-open:rotate-90 transition-transform text-emerald-500/50" />
+        Reasoning Trace
+      </summary>
+      <div className="mt-2 pl-3 border-l border-neutral-800 text-[11px] font-mono text-neutral-400 space-y-1.5">
+        {thoughts.map((t, i) => <div key={i} className="leading-relaxed">&gt; {t}</div>)}
+      </div>
+    </details>
+  );
+};
+
+export const MessageFeed = memo(function MessageFeed({ messages, isStreaming, streamingContent, streamingThoughts }: any) {
   const bottomRef = useRef<HTMLDivElement>(null);
   const scrollToBottom = useCallback(() => {
     bottomRef.current?.scrollIntoView({ behavior: "instant", block: "end" });
@@ -55,24 +70,23 @@ export const MessageFeed = memo(function MessageFeed({ messages, isThinking, str
 
   useLayoutEffect(() => {
     scrollToBottom();
-  }, [messages, streamingContent, isThinking, scrollToBottom]);
+  }, [messages, streamingContent, streamingThoughts, scrollToBottom]);
 
   return (
     <div className="flex-1 overflow-y-auto relative w-full select-text bg-[#000000]" style={{ overscrollBehaviorY: 'contain' }}>
       <div className="w-full flex flex-col">
         {messages.map((msg: any) => (
-          <div key={msg.id} className="grid grid-cols-[40px_minmax(0,1fr)] w-full border-b border-neutral-900 align-top py-4">
-            {/* The 40px Gutter with locked baseline */}
+          <div key={msg.id} className="grid grid-cols-[32px_minmax(0,1fr)] w-full border-b border-neutral-900 align-top py-4">
             <div className="flex justify-center pt-0.5 select-none border-r border-neutral-900 bg-[#030303]/45">
-              <div className={`w-6 h-6 flex items-center justify-center text-[10px] font-mono font-bold border rounded-none ${
+              <div className={`w-5 h-5 flex items-center justify-center text-[9px] font-mono font-bold border rounded-none ${
                 msg.role === 'user' ? "bg-[#111111] border-neutral-800 text-neutral-400" : "bg-[#111111] border-emerald-950 text-emerald-500"
               }`}>
-                {msg.role === 'user' ? 'OP' : 'Ω'}
+                {msg.role === 'user' ? 'U' : 'Ω'}
               </div>
             </div>
             
-            {/* The Contained Content Area */}
-            <div className="pl-4 pr-3 min-w-0 overflow-x-hidden break-words">
+            <div className="px-2 min-w-0 overflow-x-hidden break-words">
+              <ReasoningTrace thoughts={msg.thoughts} />
               <div className="text-[13px] leading-[1.6] text-[#d1d1d1] font-normal tracking-tight">
                 {msg.role === 'system_error' ? (
                   <div className="text-red-400 font-mono text-xs bg-red-950/10 p-3 border-l-2 border-red-500 rounded-none">
@@ -92,14 +106,15 @@ export const MessageFeed = memo(function MessageFeed({ messages, isThinking, str
           </div>
         ))}
 
-        {(isThinking || streamingContent) && (
-          <div className="grid grid-cols-[40px_minmax(0,1fr)] w-full align-top py-4">
+        {isStreaming && (
+          <div className="grid grid-cols-[32px_minmax(0,1fr)] w-full align-top py-4">
             <div className="flex justify-center pt-0.5 select-none border-r border-neutral-900 bg-[#030303]/45">
-              <div className="w-6 h-6 bg-[#111111] border border-emerald-950 flex items-center justify-center text-[10px] font-mono font-bold text-emerald-400 animate-pulse rounded-none">
+              <div className="w-5 h-5 bg-[#111111] border border-emerald-950 flex items-center justify-center text-[9px] font-mono font-bold text-emerald-400 animate-pulse rounded-none">
                 Ω
               </div>
             </div>
-            <div className="pl-4 pr-3 min-w-0 overflow-x-hidden break-words">
+            <div className="px-2 min-w-0 overflow-x-hidden break-words">
+              <ReasoningTrace thoughts={streamingThoughts} />
               <div className="text-[13px] leading-[1.6] text-[#d1d1d1]">
                 {streamingContent ? (
                   <ReactMarkdown remarkPlugins={[remarkGfm]} className="prose prose-invert max-w-none prose-p:mb-3 last:prose-p:mb-0" components={markdownComponents as any}>
