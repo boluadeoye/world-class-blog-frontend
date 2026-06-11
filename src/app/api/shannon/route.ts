@@ -26,8 +26,6 @@ export async function POST(req: NextRequest) {
     const TAVILY_KEY = process.env.Shannon || process.env.SHANNON;
     const lastMsg = messages[messages.length - 1]?.content || "";
 
-    // We return the stream IMMEDIATELY to bypass Vercel's 25s timeout.
-    // All heavy lifting (Search, Extract, AI) happens inside the stream.
     const stream = new ReadableStream({
       async start(controller) {
         const emitThought = (text: string) => {
@@ -40,11 +38,13 @@ export async function POST(req: NextRequest) {
         try {
           let webContext = "";
           
-          // PASS 1: URL EXTRACTION (JINA READER)
-          const urls = lastMsg.match(/https?:\/\/[^\s]+/g) || [];
+          // PASS 1: URL EXTRACTION (JINA READER) - FIXED REGEX
+          const rawUrls = lastMsg.match(/https?:\/\/[^\s()'"\]]+/g) || [];
+          const urls = rawUrls.map((u: string) => u.replace(/[.,;!?]+$/, '')); // Strip trailing punctuation
+          
           if (urls.length > 0) {
             emitThought(`Detected ${urls.length} URL(s). Initiating deep extraction...`);
-            for (const url of urls.slice(0, 2)) { // Max 2 to prevent context bloat
+            for (const url of urls.slice(0, 2)) {
               emitThought(`Reading bytes from: ${url}`);
               try {
                 const jinaRes = await fetchWithTimeout(`https://r.jina.ai/${url}`, { method: 'GET', timeout: 8000 });
