@@ -14,8 +14,10 @@ export default function BoyChildPPTX() {
       const pres = new pptxgen();
       pres.layout = "LAYOUT_16x9"; 
 
+      // COLOR PALETTE (FIXED)
       const bg_sky = "E0F2FE"; 
       const text_navy = "0F172A"; 
+      const bg_navy = "0F172A"; // Added missing variable
       const accent_gold = "F59E0B"; 
       const card_white = "FFFFFF";
 
@@ -27,17 +29,21 @@ export default function BoyChildPPTX() {
       const img_bicycle = "https://res.cloudinary.com/dwbjb3svx/image/upload/v1781160412/blog_assets/oyhpjyneacycgv777wav.jpg";
       const img_sunset = "https://res.cloudinary.com/dwbjb3svx/image/upload/v1781176359/blog_assets/qwqs4s5bqhz9fkmxdq5a.jpg";
 
+      // HELPER: Apply Standard Background & Shapes
       const applyBase = (slide) => {
         slide.background = { color: bg_sky };
         slide.addShape(pres.ShapeType.rect, { x: 0, y: 0, w: "100%", h: "2%", fill: { color: accent_gold } });
         slide.addShape(pres.ShapeType.rect, { x: 0, y: "98%", w: "100%", h: "2%", fill: { color: text_navy } });
       };
 
+      // HELPER: Draw Content Card
       const drawCard = (slide, x, y, w, h) => {
         slide.addShape(pres.ShapeType.rect, { x: x, y: y, w: w, h: h, fill: { color: card_white }, line: { color: text_navy, width: 1.5 } });
       };
 
+      // ==========================================
       // SLIDE 1: COVER
+      // ==========================================
       let s1 = pres.addSlide();
       s1.background = { color: text_navy };
       s1.addImage({ path: img_crossroads, x: 0, y: 0, w: "50%", h: "100%", sizing: { type: "cover" } });
@@ -48,7 +54,9 @@ export default function BoyChildPPTX() {
       s1.addText("Agbemeho Favour Okeoghene\nSphere of influence: Boy Child", { x: "55%", y: "70%", w: "40%", h: "10%", fontSize: 12, color: "9CA3AF", fontFace: "Georgia", animate: { type: 'fade' } });
       s1.addText("Olaoluwa Mayowa Deborah\nSphere of influence: Boy Child and Men", { x: "55%", y: "80%", w: "40%", h: "10%", fontSize: 12, color: "9CA3AF", fontFace: "Georgia", animate: { type: 'fade' } });
 
+      // ==========================================
       // SLIDE 2: INTRO
+      // ==========================================
       let s2 = pres.addSlide();
       applyBase(s2);
       s2.addImage({ path: img_stressed, x: 0, y: 0, w: "40%", h: "100%", sizing: { type: "cover" } });
@@ -57,7 +65,9 @@ export default function BoyChildPPTX() {
       s2.addText("The crisis of identity among boys is one of the most overlooked social issues of our time.", { x: "48%", y: "25%", w: "44%", h: "15%", fontSize: 16, color: text_navy, fontFace: "Georgia", valign: "top", animate: { type: 'fade' } });
       s2.addText("It is not simply about confusion over who they are; it is also about the struggle between who they naturally are and who society expects them to be.", { x: "48%", y: "40%", w: "44%", h: "25%", fontSize: 16, color: text_navy, fontFace: "Georgia", valign: "top", animate: { type: 'fade' } });
 
+      // ==========================================
       // SLIDE 3: STRUGGLE
+      // ==========================================
       let s3 = pres.addSlide();
       applyBase(s3);
       drawCard(s3, "10%", "10%", "80%", "80%");
@@ -66,7 +76,9 @@ export default function BoyChildPPTX() {
       s3.addText("In fact, qualities such as responsibility, leadership, courage, discipline, and hard work are necessary for personal growth and societal development.", { x: "15%", y: "40%", w: "70%", h: "20%", fontSize: 16, color: text_navy, fontFace: "Georgia", valign: "top", animate: { type: 'fade' } });
       s3.addText("However, over time, many cultures have attached additional unwritten rules to manhood.", { x: "15%", y: "60%", w: "70%", h: "15%", fontSize: 16, color: text_navy, fontFace: "Georgia", valign: "top", animate: { type: 'fade' } });
 
+      // ==========================================
       // SLIDE 4: SEED
+      // ==========================================
       let s4 = pres.addSlide();
       applyBase(s4);
       s4.addImage({ path: img_planting, x: 0, y: 0, w: "40%", h: "100%", sizing: { type: "cover" } });
@@ -76,14 +88,18 @@ export default function BoyChildPPTX() {
       s4.addText("Having a boy child and leaving him to fend for himself is like planting a seed and expecting it to grow into a healthy tree without water, sunlight, or care.", { x: "48%", y: "40%", w: "44%", h: "25%", fontSize: 16, color: text_navy, fontFace: "Georgia", valign: "top", animate: { type: 'fade' } });
       s4.addText("Such a boy may lose sight of who he truly is because no one walked him through the journey of understanding himself.", { x: "48%", y: "65%", w: "44%", h: "20%", fontSize: 16, color: text_navy, fontFace: "Georgia", valign: "top", animate: { type: 'fade' } });
 
+      // ==========================================
       // SLIDE 5: IDENTITY
+      // ==========================================
       let s5 = pres.addSlide();
       applyBase(s5);
       drawCard(s5, "10%", "10%", "80%", "80%");
       s5.addText("WHAT IS IDENTITY?", { x: "15%", y: "15%", w: "70%", h: "10%", fontSize: 24, bold: true, color: text_navy, fontFace: "Arial", animate: { type: 'fade' } });
       s5.addText("Identity is a person's understanding of who they are, what they believe, where they belong, and what they stand for.", { x: "15%", y: "25%", w: "70%", h: "15%", fontSize: 16, color: text_navy, fontFace: "Georgia", valign: "top", animate: { type: 'fade' } });
       s5.addText("For boys, identity helps answer important questions:\n• What does it mean to be a man?\n• What are my responsibilities?\n• How do I handle emotions?\n• What kind of future do I want?\n• What values should guide my life?", { x: "15%", y: "40%", w: "70%", h: "40%", fontSize: 16, color: text_navy, fontFace: "Georgia", valign: "top", animate: { type: 'fade' } });
+      // ==========================================
       // SLIDE 6: EXPECTATIONS
+      // ==========================================
       let s6 = pres.addSlide();
       applyBase(s6);
       drawCard(s6, "10%", "10%", "80%", "80%");
@@ -92,7 +108,9 @@ export default function BoyChildPPTX() {
       s6.addText("For example:\n• A man should be responsible.\n• A man should be dependable.\n• A man should be able to care for himself and others.", { x: "15%", y: "35%", w: "70%", h: "25%", fontSize: 16, color: text_navy, fontFace: "Georgia", valign: "top", animate: { type: 'fade' } });
       s6.addText("These are healthy expectations because they encourage maturity and accountability.", { x: "15%", y: "60%", w: "70%", h: "15%", fontSize: 16, color: text_navy, fontFace: "Georgia", valign: "top", animate: { type: 'fade' } });
 
+      // ==========================================
       // SLIDE 7: SCRIPTS
+      // ==========================================
       let s7 = pres.addSlide();
       applyBase(s7);
       drawCard(s7, "10%", "10%", "80%", "80%");
@@ -100,7 +118,9 @@ export default function BoyChildPPTX() {
       s7.addText("A cultural script is an unwritten rule that tells a boy how he must behave to be accepted as a 'real man.'", { x: "15%", y: "25%", w: "70%", h: "15%", fontSize: 16, color: text_navy, fontFace: "Georgia", valign: "top", animate: { type: 'fade' } });
       s7.addText("Examples include:\n• Men don't cry.\n• Men must always be strong.\n• Men must solve every problem alone.\n• Asking for help is weakness.\n• A man's value is determined by his financial success.", { x: "15%", y: "40%", w: "70%", h: "40%", fontSize: 16, color: text_navy, fontFace: "Georgia", valign: "top", animate: { type: 'fade' } });
 
+      // ==========================================
       // SLIDE 8: CRISIS BEGINS
+      // ==========================================
       let s8 = pres.addSlide();
       applyBase(s8);
       s8.addImage({ path: img_hoodie, x: 0, y: 0, w: "40%", h: "100%", sizing: { type: "cover" } });
@@ -110,7 +130,9 @@ export default function BoyChildPPTX() {
       s8.addText("He learns that certain emotions should be hidden. He learns that vulnerability may attract ridicule. He learns that failure is unacceptable.", { x: "48%", y: "50%", w: "44%", h: "20%", fontSize: 14, color: text_navy, fontFace: "Georgia", valign: "top", animate: { type: 'fade' } });
       s8.addText("As a result, many boys begin to suppress parts of themselves in order to fit society's definition of masculinity.", { x: "48%", y: "70%", w: "44%", h: "15%", fontSize: 14, color: text_navy, fontFace: "Georgia", valign: "top", animate: { type: 'fade' } });
 
+      // ==========================================
       // SLIDE 9: PERFORMING
+      // ==========================================
       let s9 = pres.addSlide();
       applyBase(s9);
       s9.addImage({ path: img_muscles, x: 0, y: 0, w: "40%", h: "100%", sizing: { type: "cover" } });
@@ -119,7 +141,9 @@ export default function BoyChildPPTX() {
       s9.addText("The crisis is born when a boy starts performing manhood rather than understanding himself.", { x: "48%", y: "25%", w: "44%", h: "15%", fontSize: 14, color: text_navy, fontFace: "Georgia", valign: "top", animate: { type: 'fade' } });
       s9.addText("Today, many boys find themselves caught between expectations and reality. Society tells them to be strong, independent, and successful, yet many have never been taught emotional intelligence, healthy masculinity, conflict resolution, self-worth, or purpose.", { x: "48%", y: "40%", w: "44%", h: "40%", fontSize: 14, color: text_navy, fontFace: "Georgia", valign: "top", animate: { type: 'fade' } });
 
+      // ==========================================
       // SLIDE 10: FACTORS
+      // ==========================================
       let s10 = pres.addSlide();
       applyBase(s10);
       drawCard(s10, "10%", "10%", "80%", "80%");
@@ -129,7 +153,9 @@ export default function BoyChildPPTX() {
       s10.addText("3. Social Media Influence: Learning manhood from influencers rather than mentors.", { x: "15%", y: "45%", w: "70%", h: "10%", fontSize: 16, color: text_navy, fontFace: "Georgia", valign: "top", animate: { type: 'fade' } });
       s10.addText("4. Economic Pressure: Judged by what they can provide rather than who they are.", { x: "15%", y: "55%", w: "70%", h: "10%", fontSize: 16, color: text_navy, fontFace: "Georgia", valign: "top", animate: { type: 'fade' } });
       s10.addText("5. Lack of Safe Spaces: Few environments allow boys to discuss fears without ridicule.", { x: "15%", y: "65%", w: "70%", h: "15%", fontSize: 16, color: text_navy, fontFace: "Georgia", valign: "top", animate: { type: 'fade' } });
+      // ==========================================
       // SLIDE 11: THE COST
+      // ==========================================
       let s11 = pres.addSlide();
       applyBase(s11);
       drawCard(s11, "10%", "10%", "80%", "80%");
@@ -138,7 +164,9 @@ export default function BoyChildPPTX() {
       s11.addText("• EDUCATION (UNESCO): Millions of boys worldwide are out of school, and boys in many countries are increasingly at risk of dropping out.", { x: "15%", y: "45%", w: "70%", h: "20%", fontSize: 16, color: text_navy, fontFace: "Georgia", valign: "top", animate: { type: 'fade' } });
       s11.addText("• MENTAL HEALTH (WHO): Suicide remains a leading cause of death among young people globally, with men dying at significantly higher rates than women.", { x: "15%", y: "65%", w: "70%", h: "20%", fontSize: 16, color: text_navy, fontFace: "Georgia", valign: "top", animate: { type: 'fade' } });
 
+      // ==========================================
       // SLIDE 12: REDEFINING
+      // ==========================================
       let s12 = pres.addSlide();
       applyBase(s12);
       s12.addImage({ path: img_bicycle, x: 0, y: 0, w: "40%", h: "100%", sizing: { type: "cover" } });
@@ -147,7 +175,9 @@ export default function BoyChildPPTX() {
       s12.addText("The solution is to separate healthy expectations from unhealthy cultural pressures.", { x: "48%", y: "25%", w: "44%", h: "15%", fontSize: 14, color: text_navy, fontFace: "Georgia", valign: "top", animate: { type: 'fade' } });
       s12.addText("• A strong man is one who can face reality honestly.\n\n• A responsible man is one who knows when to seek help.\n\n• A successful man is defined by character, purpose, and integrity.", { x: "48%", y: "40%", w: "44%", h: "45%", fontSize: 14, color: text_navy, fontFace: "Georgia", lineSpacing: 24, valign: "top", animate: { type: 'fade' } });
 
+      // ==========================================
       // SLIDE 13: SOLUTIONS
+      // ==========================================
       let s13 = pres.addSlide();
       applyBase(s13);
       drawCard(s13, "10%", "10%", "80%", "80%");
@@ -158,7 +188,9 @@ export default function BoyChildPPTX() {
       s13.addText("4. Positive Models: Strength should include compassion and self-control.", { x: "15%", y: "55%", w: "70%", h: "10%", fontSize: 16, color: text_navy, fontFace: "Georgia", valign: "top", animate: { type: 'fade' } });
       s13.addText("5. Educational Support: Create systems that support both boys and girls.", { x: "15%", y: "65%", w: "70%", h: "15%", fontSize: 16, color: text_navy, fontFace: "Georgia", valign: "top", animate: { type: 'fade' } });
 
+      // ==========================================
       // SLIDE 14: CONCLUSION
+      // ==========================================
       let s14 = pres.addSlide();
       applyBase(s14);
       s14.addImage({ path: img_sunset, x: 0, y: 0, w: "40%", h: "100%", sizing: { type: "cover" } });
@@ -167,7 +199,9 @@ export default function BoyChildPPTX() {
       s14.addText("The crisis of identity among boys is often a crisis of inherited definitions. Every responsible man was once a boy who received guidance and support.", { x: "48%", y: "25%", w: "44%", h: "25%", fontSize: 14, color: text_navy, fontFace: "Georgia", lineSpacing: 24, valign: "top", animate: { type: 'fade' } });
       s14.addText("The challenge for this generation is not to reject manhood but to redefine it thoughtfully—to keep what builds character and discard what destroys authenticity.", { x: "48%", y: "50%", w: "44%", h: "35%", fontSize: 14, color: text_navy, fontFace: "Georgia", lineSpacing: 24, valign: "top", animate: { type: 'fade' } });
 
+      // ==========================================
       // SLIDE 15: CLOSING
+      // ==========================================
       let s15 = pres.addSlide();
       s15.background = { color: bg_navy };
       s15.addShape(pres.ShapeType.rect, { x: 0, y: 0, w: "100%", h: "2%", fill: { color: accent_gold } });
