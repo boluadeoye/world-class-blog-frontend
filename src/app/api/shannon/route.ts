@@ -38,25 +38,35 @@ export async function POST(req: NextRequest) {
         try {
           let webContext = "";
           
-          // PASS 1: URL EXTRACTION (JINA READER) - FIXED REGEX
+          // PASS 1: CONCURRENT URL EXTRACTION (JINA READER)
           const rawUrls = lastMsg.match(/https?:\/\/[^\s()'"\]]+/g) || [];
-          const urls = rawUrls.map((u: string) => u.replace(/[.,;!?]+$/, '')); // Strip trailing punctuation
+          const urls = [...new Set(rawUrls.map((u: string) => u.replace(/[.,;!?]+$/, '')))].slice(0, 3); // Max 3 unique URLs
           
           if (urls.length > 0) {
-            emitThought(`Detected ${urls.length} URL(s). Initiating deep extraction...`);
-            for (const url of urls.slice(0, 2)) {
-              emitThought(`Reading bytes from: ${url}`);
+            emitThought(`Detected ${urls.length} target(s). Initiating concurrent extraction...`);
+            
+            const fetchPromises = urls.map(async (url, index) => {
+              // 150ms Jitter to prevent rate-limit tripping on parallel requests
+              await new Promise(r => setTimeout(r, index * 150));
               try {
                 const jinaRes = await fetchWithTimeout(`https://r.jina.ai/${url}`, { method: 'GET', timeout: 8000 });
                 if (jinaRes.ok) {
                   const md = await jinaRes.text();
-                  webContext += `\n\n[SOURCE: ${url}]\n${md.substring(0, 6000)}`;
-                  emitThought(`Successfully extracted ${md.length} bytes from ${url}.`);
-                } else {
-                  emitThought(`Failed to read ${url} (Status: ${jinaRes.status}).`);
+                  return { url, status: 'success', data: md.substring(0, 6000) };
                 }
+                return { url, status: 'failed', data: `HTTP ${jinaRes.status}` };
               } catch (e) {
-                emitThought(`Timeout or network error while reading ${url}.`);
+                return { url, status: 'timeout', data: '' };
+              }
+            });
+
+            const results = await Promise.all(fetchPromises);
+            for (const res of results) {
+              if (res.status === 'success') {
+                webContext += `\n\n[INTELLIGENCE ASSET: ${res.url}]\n${res.data}`;
+                emitThought(`Extracted payload from ${res.url}`);
+              } else {
+                emitThought(`Failed to breach ${res.url} (${res.status})`);
               }
             }
           } 
@@ -72,7 +82,7 @@ export async function POST(req: NextRequest) {
               });
               if (tRes.ok) {
                 const tData = await tRes.json();
-                webContext = (tData.results || []).map((r: any) => `[SOURCE: ${r.url}]\n${r.content}`).join("\n\n");
+                webContext = (tData.results || []).map((r: any) => `[INTELLIGENCE ASSET: ${r.url}]\n${r.content}`).join("\n\n");
                 emitThought(`Retrieved ${tData.results?.length || 0} verified sources.`);
               }
             } catch (e) {
@@ -80,11 +90,17 @@ export async function POST(req: NextRequest) {
             }
           }
 
-          // PASS 3: CONTEXT ASSEMBLY
+          // PASS 3: CONTEXT ASSEMBLY & SCHEMA LOCK
           emitThought("Synthesizing context and aligning strategic parameters...");
           const context = [{ role: "system", content: systemPrompt }];
           if (webContext) context.push({ role: "system", content: `[WEB_RESEARCH_GROUND_TRUTH]:\n${webContext}` });
-          context.push(...messages.slice(-6));
+          
+          // HIDDEN SCHEMA LOCK: Force formatting without cluttering the UI prompt
+          const modifiedMessages = [...messages];
+          if (modifiedMessages.length > 0) {
+            modifiedMessages[modifiedMessages.length - 1].content += "\n\n[SYSTEM_OVERRIDE]: Ensure you use ### INTELLIGENCE ASSETS for sources and inline [1] citations. Format code with high vertical breathing room. No Mermaid diagrams. Speak as Shannon 1.6.";
+          }
+          context.push(...modifiedMessages.slice(-6));
 
           // PASS 4: AI EXECUTION WITH FAILOVER
           let response: Response | null = null;
