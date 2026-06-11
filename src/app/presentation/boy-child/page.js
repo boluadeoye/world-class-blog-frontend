@@ -268,3 +268,99 @@ export default function BoyChildPPTX() {
     </div>
   );
 }
+      // ==========================================
+      // SLIDE 11: THE COST (FULL)
+      // ==========================================
+      let s11 = pres.addSlide();
+      applyBase(s11);
+      drawCard(s11, "10%", "10%", "80%", "80%");
+      s11.addText("THE COST OF UNDEFINED EXPECTATIONS", { x: "15%", y: "15%", w: "70%", h: "10%", fontSize: 24, bold: true, color: text_navy, fontFace: "Arial", animate: { type: 'fade' } });
+      s11.addText("Many men today are carrying burdens they never consciously chose. Because these expectations were inherited rather than examined, many men feel trapped.", { x: "15%", y: "25%", w: "70%", h: "20%", fontSize: 16, color: text_navy, fontFace: "Georgia", valign: "top", animate: { type: 'fade' } });
+      s11.addText("• EDUCATION (UNESCO): Millions of boys worldwide are out of school, and boys in many countries are increasingly at risk of dropping out.", { x: "15%", y: "45%", w: "70%", h: "20%", fontSize: 16, color: text_navy, fontFace: "Georgia", valign: "top", animate: { type: 'fade' } });
+      s11.addText("• MENTAL HEALTH (WHO): Suicide remains a leading cause of death among young people globally, with men dying at significantly higher rates than women.", { x: "15%", y: "65%", w: "70%", h: "20%", fontSize: 16, color: text_navy, fontFace: "Georgia", valign: "top", animate: { type: 'fade' } });
+
+      // ==========================================
+      // SLIDE 12: REDEFINING (SPLIT)
+      // ==========================================
+      let s12 = pres.addSlide();
+      applyBase(s12);
+      s12.addImage({ path: img_bicycle, x: 0, y: 0, w: "40%", h: "100%", sizing: { type: "cover" } });
+      drawCard(s12, "45%", "10%", "50%", "80%");
+      s12.addText("RE-DEFINING MASCULINITY", { x: "48%", y: "15%", w: "44%", h: "10%", fontSize: 24, bold: true, color: text_navy, fontFace: "Arial", animate: { type: 'fade' } });
+      s12.addText("The solution is to separate healthy expectations from unhealthy cultural pressures.", { x: "48%", y: "25%", w: "44%", h: "15%", fontSize: 14, color: text_navy, fontFace: "Georgia", valign: "top", animate: { type: 'fade' } });
+      s12.addText("• A strong man is one who can face reality honestly.\n\n• A responsible man is one who knows when to seek help.\n\n• A successful man is defined by character, purpose, and integrity.", { x: "48%", y: "40%", w: "44%", h: "45%", fontSize: 14, color: text_navy, fontFace: "Georgia", lineSpacing: 24, valign: "top", animate: { type: 'fade' } });
+
+      // ==========================================
+      // SLIDE 13: SOLUTIONS (FULL)
+      // ==========================================
+      let s13 = pres.addSlide();
+      applyBase(s13);
+      drawCard(s13, "10%", "10%", "80%", "80%");
+      s13.addText("POSSIBLE SOLUTIONS", { x: "15%", y: "15%", w: "70%", h: "10%", fontSize: 24, bold: true, color: text_navy, fontFace: "Arial", animate: { type: 'fade' } });
+      s13.addText("1. Intentional Parenting: Teach boys values, discipline, and emotional intelligence.", { x: "15%", y: "25%", w: "70%", h: "10%", fontSize: 16, color: text_navy, fontFace: "Georgia", valign: "top", animate: { type: 'fade' } });
+      s13.addText("2. Mentorship Programmes: Connect boys with positive male mentors.", { x: "15%", y: "35%", w: "70%", h: "10%", fontSize: 16, color: text_navy, fontFace: "Georgia", valign: "top", animate: { type: 'fade' } });
+      s13.addText("3. Mental Health Awareness: Encourage boys to seek help when struggling.", { x: "15%", y: "45%", w: "70%", h: "10%", fontSize: 16, color: text_navy, fontFace: "Georgia", valign: "top", animate: { type: 'fade' } });
+      s13.addText("4. Positive Models: Strength should include compassion and self-control.", { x: "15%", y: "55%", w: "70%", h: "10%", fontSize: 16, color: text_navy, fontFace: "Georgia", valign: "top", animate: { type: 'fade' } });
+      s13.addText("5. Educational Support: Create systems that support both boys and girls.", { x: "15%", y: "65%", w: "70%", h: "15%", fontSize: 16, color: text_navy, fontFace: "Georgia", valign: "top", animate: { type: 'fade' } });
+
+      // ==========================================
+      // SLIDE 14: CONCLUSION (SPLIT)
+      // ==========================================
+      let s14 = pres.addSlide();
+      applyBase(s14);
+      s14.addImage({ path: img_sunset, x: 0, y: 0, w: "40%", h: "100%", sizing: { type: "cover" } });
+      drawCard(s14, "45%", "10%", "50%", "80%");
+      s14.addText("CONCLUSION", { x: "48%", y: "15%", w: "44%", h: "10%", fontSize: 24, bold: true, color: text_navy, fontFace: "Arial", animate: { type: 'fade' } });
+      s14.addText("The crisis of identity among boys is often a crisis of inherited definitions. Every responsible man was once a boy who received guidance and support.", { x: "48%", y: "25%", w: "44%", h: "25%", fontSize: 14, color: text_navy, fontFace: "Georgia", lineSpacing: 24, valign: "top", animate: { type: 'fade' } });
+      s14.addText("The challenge for this generation is not to reject manhood but to redefine it thoughtfully—to keep what builds character and discard what destroys authenticity.", { x: "48%", y: "50%", w: "44%", h: "35%", fontSize: 14, color: text_navy, fontFace: "Georgia", lineSpacing: 24, valign: "top", animate: { type: 'fade' } });
+
+      // ==========================================
+      // SLIDE 15: CLOSING (NAVY)
+      // ==========================================
+      let s15 = pres.addSlide();
+      s15.background = { color: bg_navy };
+      s15.addShape(pres.ShapeType.rect, { x: 0, y: 0, w: "100%", h: "2%", fill: { color: accent_gold } });
+      s15.addText(
+        "\"The greatest challenge facing many boys today is not becoming a man; it is discovering what being a man truly means beyond the voices of culture, tradition, and expectation.\"",
+        { x: "10%", y: "30%", w: "80%", h: "30%", fontSize: 24, italic: true, color: "FFFFFF", fontFace: "Georgia", align: "center", lineSpacing: 36, animate: { type: 'fade' } }
+      );
+      s15.addText("Every man society celebrates was once a boy who was guided.", { x: "10%", y: "65%", w: "80%", h: "10%", fontSize: 16, bold: true, color: accent_gold, fontFace: "Arial", align: "center", animate: { type: 'fade' } });
+
+      setStatus("Finalizing Binary...");
+      const blob = await pres.write("blob");
+      const pptxFile = new Blob([blob], { type: "application/vnd.openxmlformats-officedocument.presentationml.presentation" });
+      const url = window.URL.createObjectURL(pptxFile);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "The_Boy_Child_Crisis_Presentation.pptx";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      setStatus("Success.");
+    } catch (error) {
+      console.error("PPTX Generation Failed:", error);
+      alert("Error generating PowerPoint: " + error.message);
+      setStatus("Failed.");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 relative overflow-hidden">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-blue-900/20 via-slate-950 to-slate-950"></div>
+      <div className="relative z-10 w-full max-w-sm bg-white p-10 text-center rounded-3xl shadow-2xl border-t-8 border-amber-500">
+        <div className="w-20 h-20 bg-amber-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
+          <Presentation size={40} className="text-amber-500" />
+        </div>
+        <h1 className="text-2xl font-bold text-slate-900 mb-2">Mayowa & Favour</h1>
+        <p className="text-slate-500 text-xs font-mono uppercase mb-6">The Boy Child Crisis</p>
+        {status && <p className="text-[10px] font-mono text-amber-600 mb-4 italic">{status}</p>}
+        <button onClick={generatePPTX} disabled={isGenerating} className="w-full flex items-center justify-center gap-3 bg-amber-500 hover:bg-amber-600 disabled:bg-slate-300 text-white font-bold py-4 rounded-xl uppercase tracking-widest transition-all shadow-lg shadow-amber-500/20">
+          {isGenerating ? <span className="font-mono text-xs animate-pulse">Processing...</span> : <><Download size={18} /><span>Download PowerPoint</span></>}
+        </button>
+      </div>
+    </div>
+  );
+}
