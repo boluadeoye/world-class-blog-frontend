@@ -17,7 +17,7 @@ const CodeBlock = memo(function CodeBlock({ children, className, ...props }: any
   }, [codeString]);
 
   return (
-    <div className="my-4 bg-[#050505] border-y border-neutral-800 w-[calc(100%+16px)] -mx-2 overflow-hidden flex flex-col rounded-none">
+    <div className="my-3 bg-[#050505] border border-neutral-800 w-full overflow-hidden flex flex-col rounded-none">
       <div className="flex items-center justify-between px-3 py-1.5 bg-[#0a0a0a] border-b border-neutral-800 select-none">
         <span className="text-[9px] font-mono font-bold uppercase tracking-[0.2em] text-neutral-400">{lang || 'terminal'}</span>
         <button onClick={handleCopy} className="flex items-center gap-1 text-neutral-400 hover:text-white transition-all font-mono text-[9px] uppercase tracking-wider cursor-pointer">
@@ -85,9 +85,9 @@ export const MessageFeed = memo(function MessageFeed({ messages, isStreaming, st
                 {msg.role === 'user' ? 'OP' : 'Ω'}
               </div>
               
-              {/* Message Sovereignty Controls (Hidden during streaming) */}
+              {/* Message Sovereignty Controls (Hidden during streaming, visible on hover/tap) */}
               {!isStreaming && (
-                <div className="flex flex-col gap-4 mt-4 opacity-30 hover:opacity-100 transition-opacity">
+                <div className="flex flex-col gap-4 mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button onClick={() => onCopy(msg.content)} className="text-neutral-500 hover:text-emerald-400 transition-colors" title="Copy Message">
                     <Copy size={12} />
                   </button>
@@ -98,7 +98,7 @@ export const MessageFeed = memo(function MessageFeed({ messages, isStreaming, st
               )}
             </div>
             
-            <div className="px-3 min-w-0 overflow-x-hidden break-words">
+            <div className="pl-4 pr-3 min-w-0 overflow-x-hidden break-words">
               <ReasoningTrace thoughts={msg.thoughts} />
               <div className="text-[13px] leading-[1.6] text-[#d1d1d1] font-normal tracking-tight">
                 {msg.role === 'system_error' ? (
@@ -126,7 +126,7 @@ export const MessageFeed = memo(function MessageFeed({ messages, isStreaming, st
                 Ω
               </div>
             </div>
-            <div className="px-3 min-w-0 overflow-x-hidden break-words">
+            <div className="pl-4 pr-3 min-w-0 overflow-x-hidden break-words">
               <ReasoningTrace thoughts={streamingThoughts} />
               <div className="text-[13px] leading-[1.6] text-[#d1d1d1]">
                 {streamingContent ? (

@@ -50,6 +50,7 @@ export default function StudioIDE({ initialSession }: any) {
   const [streamingContent, setStreamingContent] = useState("");
   const [streamingThoughts, setStreamingThoughts] = useState<string[]>([]);
   const [rightOpen, setRightOpen] = useState(false);
+  const [leftOpen, setLeftOpen] = useState(false);
   const [activeId, setActiveId] = useState(initialSession.id);
   const [, startTransition] = useTransition();
   const abortRef = useRef<AbortController | null>(null);
