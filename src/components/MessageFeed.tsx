@@ -2,7 +2,7 @@
 import React, { useCallback, useLayoutEffect, useRef, memo, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { Check, Copy, ChevronRight } from "lucide-react";
+import { Check, Copy, Trash2, ChevronRight } from "lucide-react";
 
 const CodeBlock = memo(function CodeBlock({ children, className, ...props }: any) {
   const [copied, setCopied] = useState(false);
@@ -62,7 +62,7 @@ const ReasoningTrace = ({ thoughts }: { thoughts: string[] }) => {
   );
 };
 
-export const MessageFeed = memo(function MessageFeed({ messages, isStreaming, streamingContent, streamingThoughts }: any) {
+export const MessageFeed = memo(function MessageFeed({ messages, isStreaming, streamingContent, streamingThoughts, onDelete, onCopy }: any) {
   const bottomRef = useRef<HTMLDivElement>(null);
   const scrollToBottom = useCallback(() => {
     bottomRef.current?.scrollIntoView({ behavior: "instant", block: "end" });
@@ -76,16 +76,29 @@ export const MessageFeed = memo(function MessageFeed({ messages, isStreaming, st
     <div className="flex-1 overflow-y-auto relative w-full select-text bg-[#000000]" style={{ overscrollBehaviorY: 'contain' }}>
       <div className="w-full flex flex-col">
         {messages.map((msg: any) => (
-          <div key={msg.id} className="grid grid-cols-[32px_minmax(0,1fr)] w-full border-b border-neutral-900 align-top py-4">
-            <div className="flex justify-center pt-0.5 select-none border-r border-neutral-900 bg-[#030303]/45">
-              <div className={`w-5 h-5 flex items-center justify-center text-[9px] font-mono font-bold border rounded-none ${
+          <div key={msg.id} className="grid grid-cols-[40px_minmax(0,1fr)] w-full border-b border-neutral-900 align-top py-4 group">
+            {/* The Sovereign Gutter */}
+            <div className="flex flex-col items-center pt-0.5 select-none border-r border-neutral-900 bg-[#030303]/45 h-full">
+              <div className={`w-6 h-6 flex items-center justify-center text-[10px] font-mono font-bold border rounded-none shrink-0 ${
                 msg.role === 'user' ? "bg-[#111111] border-neutral-800 text-neutral-400" : "bg-[#111111] border-emerald-950 text-emerald-500"
               }`}>
-                {msg.role === 'user' ? 'U' : 'Ω'}
+                {msg.role === 'user' ? 'OP' : 'Ω'}
               </div>
+              
+              {/* Message Sovereignty Controls (Hidden during streaming) */}
+              {!isStreaming && (
+                <div className="flex flex-col gap-4 mt-4 opacity-30 hover:opacity-100 transition-opacity">
+                  <button onClick={() => onCopy(msg.content)} className="text-neutral-500 hover:text-emerald-400 transition-colors" title="Copy Message">
+                    <Copy size={12} />
+                  </button>
+                  <button onClick={() => onDelete(msg.id)} className="text-neutral-500 hover:text-red-500 transition-colors" title="Delete Message">
+                    <Trash2 size={12} />
+                  </button>
+                </div>
+              )}
             </div>
             
-            <div className="px-2 min-w-0 overflow-x-hidden break-words">
+            <div className="px-3 min-w-0 overflow-x-hidden break-words">
               <ReasoningTrace thoughts={msg.thoughts} />
               <div className="text-[13px] leading-[1.6] text-[#d1d1d1] font-normal tracking-tight">
                 {msg.role === 'system_error' ? (
@@ -107,13 +120,13 @@ export const MessageFeed = memo(function MessageFeed({ messages, isStreaming, st
         ))}
 
         {isStreaming && (
-          <div className="grid grid-cols-[32px_minmax(0,1fr)] w-full align-top py-4">
+          <div className="grid grid-cols-[40px_minmax(0,1fr)] w-full align-top py-4">
             <div className="flex justify-center pt-0.5 select-none border-r border-neutral-900 bg-[#030303]/45">
-              <div className="w-5 h-5 bg-[#111111] border border-emerald-950 flex items-center justify-center text-[9px] font-mono font-bold text-emerald-400 animate-pulse rounded-none">
+              <div className="w-6 h-6 bg-[#111111] border border-emerald-950 flex items-center justify-center text-[10px] font-mono font-bold text-emerald-400 animate-pulse rounded-none">
                 Ω
               </div>
             </div>
-            <div className="px-2 min-w-0 overflow-x-hidden break-words">
+            <div className="px-3 min-w-0 overflow-x-hidden break-words">
               <ReasoningTrace thoughts={streamingThoughts} />
               <div className="text-[13px] leading-[1.6] text-[#d1d1d1]">
                 {streamingContent ? (

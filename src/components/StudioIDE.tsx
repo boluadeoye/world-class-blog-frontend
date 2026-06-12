@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useRef, useCallback, useTransition, useEffect } from "react";
 import { MessageFeed } from "./MessageFeed";
-import { Settings2, Send, Plus, X, Sparkles, CloudSync, History } from "lucide-react";
+import { Settings2, Send, Plus, X, Sparkles, CloudSync } from "lucide-react";
 
 function generateUUID() {
   return typeof window !== 'undefined' && window.crypto?.randomUUID ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
@@ -31,7 +31,7 @@ async function* readSSEStream(response: Response) {
           if (data === "[DONE]") return;
           try {
             const parsed = JSON.parse(data);
-            yield parsed; // Yields either {text: "..."} or {thought: "..."} or {error: "..."}
+            yield parsed;
           } catch (e) {}
         }
         boundary = buffer.indexOf("\n\n");
@@ -87,6 +87,36 @@ export default function StudioIDE({ initialSession }: any) {
     fetch('/api/shannon/history').then(res => res.json()).then(data => {
       if (Array.isArray(data)) setSessions(data);
     }).catch(() => {});
+  }, []);
+
+  // SOVEREIGNTY: Delete Message Logic
+  const handleDeleteMessage = useCallback(async (idToDelete: string) => {
+    if (isStreaming) return;
+    const updatedMessages = messages.filter(m => m.id !== idToDelete);
+    
+    startTransition(() => {
+      setMessages(updatedMessages);
+      setIsSyncing(true);
+    });
+
+    if (activeId) {
+      try {
+        await fetch("/api/shannon", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sessionId: activeId, messages: updatedMessages }),
+        });
+      } catch (e) {
+        console.error("Failed to sync deletion");
+      } finally {
+        setIsSyncing(false);
+      }
+    }
+  }, [messages, activeId, isStreaming]);
+
+  // SOVEREIGNTY: Copy Message Logic
+  const handleCopyMessage = useCallback((content: string) => {
+    navigator.clipboard.writeText(content);
   }, []);
 
   const handleSubmit = useCallback(async () => {
@@ -185,7 +215,6 @@ export default function StudioIDE({ initialSession }: any) {
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}} />
 
-      {/* Header */}
       <header className="h-12 flex items-center justify-between px-3 border-b border-neutral-900 bg-[#050505] z-20 shrink-0">
         <div className="flex items-center gap-3">
           <Sparkles size={14} className="text-emerald-500" />
@@ -197,7 +226,6 @@ export default function StudioIDE({ initialSession }: any) {
         </div>
       </header>
 
-      {/* Context Strip (Horizontal History) */}
       <div className="w-full bg-[#020202] border-b border-neutral-900 flex items-center px-2 py-1.5 overflow-x-auto hide-scrollbar shrink-0">
         <button onClick={() => { window.location.href = '/studio'; }} className="shrink-0 flex items-center gap-1.5 px-3 py-1 bg-white/5 hover:bg-white/10 border border-white/10 text-[9px] font-mono uppercase tracking-widest text-white/70 mr-2 transition-colors">
           <Plus size={10} /> New
@@ -209,15 +237,20 @@ export default function StudioIDE({ initialSession }: any) {
         ))}
       </div>
 
-      {/* Main Feed */}
       <div className="flex-1 min-h-0 relative overflow-hidden flex flex-col bg-[#000000]">
-        <MessageFeed messages={messages} isStreaming={isStreaming} streamingContent={streamingContent} streamingThoughts={streamingThoughts} />
+        <MessageFeed 
+          messages={messages} 
+          isStreaming={isStreaming} 
+          streamingContent={streamingContent} 
+          streamingThoughts={streamingThoughts} 
+          onDelete={handleDeleteMessage}
+          onCopy={handleCopyMessage}
+        />
       </div>
 
-      {/* Docked Command Bar */}
       <div className="w-full bg-[#050505] border-t border-neutral-900 shrink-0">
         <div className="flex items-end w-full">
-          <div className="w-[32px] shrink-0 flex justify-center pb-3.5 pt-3 border-r border-neutral-900">
+          <div className="w-[40px] shrink-0 flex justify-center pb-3.5 pt-3 border-r border-neutral-900">
             <span className="text-[10px] font-mono font-bold text-white/20">OP</span>
           </div>
           <div className="flex-1 flex items-end p-1.5">
@@ -245,7 +278,6 @@ export default function StudioIDE({ initialSession }: any) {
         </div>
       </div>
 
-      {/* Directives Panel */}
       {rightOpen && (
         <div className="fixed inset-0 bg-[#050505] z-50 flex flex-col transition-all duration-200">
           <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-800 shrink-0">
