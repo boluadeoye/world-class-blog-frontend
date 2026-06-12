@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { 
   Clock, Target, Play, Award, Database, BookOpen, ChevronRight,
-  LayoutDashboard, MessageSquare, MessageCircle, Star, X, Menu, LogOut, Trophy, GraduationCap, FileText, CheckCircle
+  LayoutDashboard, MessageSquare, MessageCircle, Star, X, Menu, LogOut, CheckCircle, Trophy
 } from "lucide-react";
 import Link from "next/link";
 import { Cormorant_Garamond, DM_Sans } from 'next/font/google';
@@ -62,10 +62,10 @@ function ExamSetupModal({ course, onClose, onStart }) {
   );
 }
 
-/* === 2. REAL REVIEW MODAL (DATABASE INTEGRATED) === */
-function ReviewModal({ student, onClose }) {
+/* === 2. REAL REVIEW MODAL === */
+function ReviewModal({ studentId, onClose }) {
   const [rating, setRating] = useState(0);
-  const [hoverRating, setHoverRating] = useState(0);
+  const [hover, setHover] = useState(0);
   const [comment, setComment] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -77,59 +77,56 @@ function ReviewModal({ student, onClose }) {
       await fetch('/api/cbt/reviews', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ studentId: student.id, name: student.name, rating, comment })
+        body: JSON.stringify({ studentId, rating, comment })
       });
       setSuccess(true);
-      setTimeout(() => onClose(), 2000);
-    } catch (error) {
-      console.error(error);
+      setTimeout(() => { onClose(); }, 2000);
+    } catch (e) {
       setSubmitting(false);
     }
   };
 
   return (
     <div className="fixed inset-0 z-[400] flex items-center justify-center bg-[#001800]/95 backdrop-blur-md p-4 animate-in zoom-in duration-300">
-      <div className="bg-[#F7F6F2] rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden border border-[#E0DDD4] p-8 space-y-6 relative">
+      <div className="bg-[#F7F6F2] rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden border border-[#E0DDD4] p-8 space-y-6">
         {success ? (
-          <div className="text-center py-8 space-y-4 animate-in fade-in zoom-in">
+          <div className="text-center py-8 space-y-4 animate-in fade-in">
             <div className="w-16 h-16 bg-[#edf5ed] rounded-full flex items-center justify-center mx-auto border border-[#d1e8d1]">
-              <CheckCircle className="text-[#004400]" size={32} />
+              <CheckCircle className="text-[#004d00]" size={32} />
             </div>
-            <h3 className={`text-2xl text-[#171613] ${cormorant.className}`}>Seal of Receipt</h3>
-            <p className={`text-xs text-[#7A7870] ${dmSans.className}`}>Your intelligence has been logged into the Forge.</p>
+            <p className="text-sm font-bold text-[#171613]">Review Submitted.</p>
+            <p className="text-xs text-[#7A7870]">Thank you for your feedback.</p>
           </div>
         ) : (
           <>
-            <div className="text-center space-y-2">
-              <h3 className={`text-2xl text-[#171613] ${cormorant.className}`}>Evaluate the Forge</h3>
-              <p className={`text-[10px] text-[#ABA8A0] uppercase tracking-widest font-bold ${dmSans.className}`}>Your feedback engineers the future</p>
-            </div>
-            
+            <h3 className={`text-2xl font-bold text-[#171613] ${dmSans.className}`}>Submit Review</h3>
             <div className="flex justify-center gap-2">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button 
                   key={star}
-                  onMouseEnter={() => setHoverRating(star)}
-                  onMouseLeave={() => setHoverRating(0)}
+                  type="button"
                   onClick={() => setRating(star)}
-                  className="transition-transform hover:scale-110 focus:outline-none"
+                  onMouseEnter={() => setHover(star)}
+                  onMouseLeave={() => setHover(0)}
+                  className="focus:outline-none transition-transform hover:scale-110"
                 >
-                  <Star size={32} fill={(hoverRating || rating) >= star ? "#D4BB7A" : "transparent"} color={(hoverRating || rating) >= star ? "#D4BB7A" : "#E0DDD4"} className="transition-colors duration-200" />
+                  <Star 
+                    size={32} 
+                    className={`${(hover || rating) >= star ? 'text-[#D4BB7A] fill-[#D4BB7A]' : 'text-[#E0DDD4]'}`} 
+                  />
                 </button>
               ))}
             </div>
-
             <textarea 
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              placeholder="Detail your cognitive experience..."
-              className={`w-full bg-white border border-[#E0DDD4] rounded-xl p-4 text-sm focus:outline-none focus:border-[#D4BB7A] focus:ring-1 focus:ring-[#D4BB7A] h-32 resize-none text-[#171613] placeholder:text-[#ABA8A0] ${dmSans.className}`}
+              placeholder="Tell us about your experience..."
+              className="w-full bg-white border border-[#E0DDD4] rounded-xl p-4 text-sm focus:outline-none focus:ring-2 focus:ring-[#004d00] h-32 resize-none text-[#171613]"
             />
-            
             <div className="flex gap-3">
-              <button onClick={onClose} className={`flex-1 py-3 border border-[#E0DDD4] rounded-xl text-[10px] font-bold text-[#7A7870] uppercase tracking-widest hover:bg-white transition-all ${dmSans.className}`}>Abort</button>
-              <button onClick={handleSubmit} disabled={submitting || rating === 0 || !comment.trim()} className={`flex-[2] py-3 bg-[#004400] text-[#D4BB7A] rounded-xl text-[10px] font-bold uppercase tracking-widest shadow-lg hover:bg-[#002800] disabled:opacity-50 transition-all flex items-center justify-center gap-2 ${dmSans.className}`}>
-                {submitting ? "Transmitting..." : "Submit Intelligence"}
+              <button onClick={onClose} className="flex-1 py-3 border border-[#E0DDD4] rounded-xl text-xs font-bold text-[#7A7870] hover:bg-white">Cancel</button>
+              <button onClick={handleSubmit} disabled={submitting || rating === 0 || !comment.trim()} className="flex-[2] py-3 bg-[#004400] text-[#D4BB7A] rounded-xl text-xs font-bold hover:bg-[#002800] disabled:opacity-50 shadow-lg">
+                {submitting ? "Submitting..." : "Submit"}
               </button>
             </div>
           </>
@@ -145,7 +142,7 @@ function CourseCard({ course, onLaunch, variant = "green" }) {
   return (
     <div 
       onClick={() => onLaunch(course)}
-      className={`group relative rounded-2xl border transition-all duration-500 cursor-pointer flex flex-col p-6 overflow-hidden bg-white border-[#E0DDD4] hover:border-[#C8C4B8] hover:shadow-lg col-span-12 md:col-span-6 lg:col-span-4 ${isGst ? 'ring-1 ring-[#004400]/10' : ''}`}
+      className="group relative rounded-2xl border transition-all duration-500 cursor-pointer flex flex-col p-6 overflow-hidden bg-white border-[#E0DDD4] hover:border-[#C8C4B8] hover:shadow-lg col-span-12 md:col-span-6 lg:col-span-4"
     >
       <div className="absolute inset-0 bg-gradient-to-br from-[#004d00]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
       <div className="flex justify-between items-start mb-4">
@@ -179,8 +176,8 @@ export default function StudentDashboard() {
   const router = useRouter();
   const [student, setStudent] = useState(null);
   const [courses, setCourses] = useState([]);
-  const [examHistory, setExamHistory] = useState([]);
   const [leaders, setLeaders] = useState([]);
+  const [examHistory, setExamHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
   const [statusModal, setStatusModal] = useState(null);
@@ -278,7 +275,8 @@ export default function StudentDashboard() {
       <main className="flex-1 lg:ml-64 min-h-screen flex flex-col bg-[#F7F6F2]">
         <header className="h-16 border-b border-[#E0DDD4] bg-[#F7F6F2]/80 backdrop-blur-md sticky top-0 z-40 flex items-center justify-between px-6">
           <div className="flex items-center gap-3">
-            <button onClick={() => setMobileMenuOpen(true)} className="lg:hidden p-2 text-[#004400] hover:bg-[#edf5ed] rounded-lg"><Menu size={18} /></button>
+            {/* HAMBURGER MENU */}
+            <button onClick={() => setMobileMenuOpen(true)} className="lg:hidden p-2 text-[#004400] hover:bg-[#edf5ed] rounded-lg"><Menu size={20} /></button>
             <div className="flex items-center gap-2 text-[10px] text-[#ABA8A0] uppercase tracking-widest">
               <span>ExamForge</span> <span className="opacity-30">/</span> <span className="text-[#7A7870] font-bold">Dashboard</span>
             </div>
@@ -290,29 +288,31 @@ export default function StudentDashboard() {
 
         <div className="p-6 md:p-10 max-w-5xl w-full mx-auto space-y-12">
           
-          {/* HERO SECTION - DM SANS BLACK TYPOGRAPHY */}
+          {/* 1. HERO SECTION */}
           <section className="bg-white border border-[#E0DDD4] rounded-2xl p-8 md:p-12 space-y-8 relative overflow-hidden shadow-sm">
             <div className="absolute top-0 right-0 w-64 h-64 bg-[#edf5ed] rounded-full -mr-32 -mt-32 blur-3xl opacity-50"></div>
             
             <div className="relative z-10 flex justify-between items-start gap-4">
               <div className="w-full">
-                <span className="text-[10px] uppercase tracking-[0.3em] text-[#ABA8A0] font-bold">Good Day, {student?.name?.split(" ")[0] || "Student"}</span>
-                <h1 className={`text-4xl md:text-6xl mt-3 font-black tracking-tight leading-[1.1] text-[#171613] ${dmSans.className}`}>
+                <span className="text-[10px] uppercase tracking-[0.3em] text-[#ABA8A0] font-bold">Good Day, {student.name.split(" ")[0]}</span>
+                {/* DM SANS BLACK HEADLINE */}
+                <h1 className="text-4xl md:text-5xl mt-3 font-black tracking-tight leading-none text-[#171613]">
                   Forge your path.<br/><span className="text-[#004d00]">Again. And again.</span>
                 </h1>
-                <p className="text-[#7A7870] text-sm leading-relaxed mt-5 w-full">
+                {/* FULL WIDTH SUBTEXT */}
+                <p className="text-[#7A7870] text-xs leading-relaxed mt-4 w-full">
                   The Forge is open. Every unit, every assessment, available without restriction. This is your cognitive proving ground.
                 </p>
               </div>
               
-              {/* THE VOID FILLED: Professional Avatar */}
-              <div className="relative flex-shrink-0 mt-2">
+              {/* AVATAR */}
+              <div className="relative flex-shrink-0">
                 <div className="absolute inset-0 rounded-full bg-[#D4BB7A]/20 animate-ping" style={{ animationDuration: '4s' }}></div>
                 <div className="absolute inset-0 rounded-full border border-[#D4BB7A] scale-110"></div>
-                <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-[#004400] border-2 border-[#D4BB7A] overflow-hidden shadow-lg flex items-center justify-center relative z-10">
-                  <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                <div className="w-16 h-16 rounded-full bg-[#004400] border-2 border-[#D4BB7A] overflow-hidden shadow-lg flex items-center justify-center relative z-10">
+                  <img src={avatarUrl} alt="Bolu" className="w-full h-full object-cover" />
                 </div>
-                <div className="absolute bottom-1 right-1 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full z-20"></div>
+                <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full z-20"></div>
               </div>
             </div>
 
@@ -332,34 +332,7 @@ export default function StudentDashboard() {
             </div>
           </section>
 
-          {/* LEADERBOARD RESTORATION (HALL OF FAME) */}
-          <section>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className={`text-2xl text-[#171613] ${cormorant.className}`}>Hall of Fame <span className="text-xs text-[#ABA8A0] ml-2 font-sans uppercase tracking-widest">— Top Performers</span></h2>
-            </div>
-            {qualifiedLeaders.length > 0 ? (
-              <div className="flex gap-4 overflow-x-auto pb-4 -mx-2 px-2 custom-scrollbar snap-x">
-                {qualifiedLeaders.map((user, i) => {
-                  const isFirst = i === 0;
-                  return (
-                    <div key={i} className={`min-w-[160px] bg-white rounded-2xl p-5 border ${isFirst ? 'border-[#D4BB7A] shadow-md' : 'border-[#E0DDD4] shadow-sm'} flex flex-col items-center text-center relative snap-center`}>
-                      {isFirst && <div className="absolute -top-3 bg-[#D4BB7A] text-[#002800] px-3 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest shadow-sm">1st Place</div>}
-                      <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-[#edf5ed] mb-3">
-                        <img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${user.name.replace(/\s/g, '')}&backgroundColor=transparent`} alt="Avatar" className="w-full h-full object-cover bg-gray-50" />
-                      </div>
-                      <h3 className="font-black text-xs text-[#171613] truncate w-full mb-1 uppercase tracking-tight">{user.name.split(" ")[0]}</h3>
-                      <div className="text-[8px] text-[#ABA8A0] font-bold uppercase tracking-wide truncate w-full mb-3">{user.department || "Student"}</div>
-                      <div className={`w-full py-1.5 rounded-lg text-[10px] font-bold ${isFirst ? 'bg-[#004400] text-[#D4BB7A]' : 'bg-[#edf5ed] text-[#004400]'}`}>{user.score}%</div>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="text-center py-10 bg-white rounded-2xl border border-dashed border-[#E0DDD4]"><Trophy size={24} className="text-[#E0DDD4] mx-auto mb-3" /><p className="text-[#ABA8A0] text-[10px] font-bold uppercase tracking-widest">Awaiting High Flyers</p></div>
-            )}
-          </section>
-
-          {/* BENTO GRID (GST LOGIC FIXED) */}
+          {/* 2. UNIT MATRIX */}
           <section>
             <h2 className={`text-2xl text-[#171613] mb-6 ${cormorant.className}`}>Unit Matrix <span className="text-xs text-[#ABA8A0] ml-2 font-sans uppercase tracking-widest">— Departmental Areas</span></h2>
             <div className="grid grid-cols-12 gap-4">
@@ -369,7 +342,7 @@ export default function StudentDashboard() {
             </div>
           </section>
 
-          {/* HISTORY */}
+          {/* 3. EXAMINATION LOG */}
           <section className="bg-white border border-[#E0DDD4] rounded-2xl overflow-hidden shadow-sm">
             <div className="p-6 border-b border-[#E0DDD4] flex justify-between items-center">
               <h2 className={`text-xl text-[#171613] ${cormorant.className}`}>Examination Log</h2>
@@ -401,27 +374,58 @@ export default function StudentDashboard() {
             </div>
           </section>
 
-          {/* THE EXECUTIVE SEAL (LUXURY CREDIT PILL) */}
+          {/* 4. TOP SCORERS (LEADERBOARD) */}
+          <section>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className={`text-2xl text-[#171613] ${cormorant.className}`}>Top Scorers <span className="text-xs text-[#ABA8A0] ml-2 font-sans uppercase tracking-widest">— Hall of Fame</span></h2>
+            </div>
+            {qualifiedLeaders.length > 0 ? (
+              <div className="flex gap-4 overflow-x-auto pb-4 custom-scrollbar snap-x">
+                {qualifiedLeaders.map((user, i) => {
+                  const isFirst = i === 0;
+                  return (
+                    <div key={i} className={`min-w-[160px] bg-white rounded-2xl p-5 border ${isFirst ? 'border-[#D4BB7A]' : 'border-[#E0DDD4]'} shadow-sm flex flex-col items-center text-center relative snap-center`}>
+                      {isFirst && <div className="absolute -top-3 bg-[#D4BB7A] text-[#002800] px-3 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest shadow-sm">1st Place</div>}
+                      <div className="w-14 h-14 rounded-full bg-[#edf5ed] border border-[#d1e8d1] overflow-hidden mb-3">
+                        <img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${user.name.replace(/\s/g, '')}&backgroundColor=transparent`} alt={user.name} className="w-full h-full object-cover" />
+                      </div>
+                      <h3 className="font-black text-xs text-[#171613] truncate w-full mb-1 uppercase tracking-tight">{user.name.split(" ")[0]}</h3>
+                      <p className="text-[8px] text-[#7A7870] font-bold uppercase tracking-wide truncate w-full mb-3">{user.department || "Student"}</p>
+                      <div className={`w-full py-1.5 rounded-lg text-[10px] font-bold ${isFirst ? 'bg-[#004400] text-[#D4BB7A]' : 'bg-[#F7F6F2] text-[#7A7870]'}`}>{user.score}%</div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="text-center py-12 bg-white rounded-2xl border border-dashed border-[#E0DDD4]">
+                <Trophy size={24} className="text-[#E0DDD4] mx-auto mb-3" />
+                <p className="text-[#ABA8A0] text-[10px] font-bold uppercase tracking-[0.2em]">Awaiting Top Scorers</p>
+              </div>
+            )}
+          </section>
+
+          {/* 5. LUXURY CREDIT CAPSULE */}
           <footer className="pt-8 pb-12 flex justify-center w-full">
-            <div className="bg-[#FAF9F6] border border-[#D4BB7A]/50 shadow-[0_8px_30px_rgba(0,0,0,0.04)] rounded-2xl md:rounded-full p-6 flex flex-col md:flex-row items-center justify-center gap-8 max-w-3xl mx-auto relative overflow-hidden w-full">
+            <div className="bg-[#FAF9F6] border border-[#D4BB7A]/40 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-2xl md:rounded-full p-5 flex flex-col md:flex-row items-center justify-between gap-6 max-w-3xl w-full relative overflow-hidden">
               {/* Left Section */}
-              <div className="flex items-center gap-5">
-                <div className="w-14 h-14 bg-[#003600] rounded-2xl shadow-inner flex items-center justify-center border border-[#004d00] relative shrink-0">
-                   <div className="absolute inset-1 border border-[#D4BB7A]/30 rounded-xl"></div>
-                   <Award size={24} className="text-[#D4BB7A]" />
+              <div className="flex items-center gap-4 flex-1">
+                <div className="w-12 h-12 bg-[#003600] rounded-xl flex items-center justify-center text-[#D4BB7A] shrink-0 shadow-inner">
+                  <Award size={20} strokeWidth={1.5} />
                 </div>
                 <div className="text-left">
-                  <h4 className={`font-black text-[#171613] text-base uppercase tracking-[0.2em] ${dmSans.className}`}>Bolu Adeoye</h4>
-                  <p className={`text-[9px] text-[#004d00] font-bold uppercase tracking-widest mt-1 ${dmSans.className}`}>Dept. of English & Literary Studies</p>
+                  <h4 className="font-black text-[#171613] text-sm uppercase tracking-[0.2em]">Bolu Adeoye</h4>
+                  <p className="text-[9px] text-[#004d00] font-bold uppercase tracking-widest mt-1">Dept. of English & Literary Studies</p>
                 </div>
               </div>
-              {/* Divider */}
-              <div className="hidden md:block w-[1px] h-12 bg-gradient-to-b from-transparent via-[#D4BB7A]/40 to-transparent"></div>
+              
+              {/* Vertical Hairline Divider */}
+              <div className="hidden md:block h-10 w-[1px] bg-[#E0DDD4]"></div>
+              
               {/* Right Section */}
-              <div className="text-center md:text-left shrink-0">
-                <p className={`text-[8px] font-bold text-[#ABA8A0] uppercase tracking-[0.3em] mb-1 ${dmSans.className}`}>Partner</p>
-                <h4 className={`font-black text-[#171613] text-sm uppercase tracking-[0.15em] ${dmSans.className}`}>Abel Kings</h4>
-                <p className={`text-sm text-[#004d00] italic mt-0.5 ${cormorant.className}`}>Tutorial Center</p>
+              <div className="text-center md:text-right shrink-0">
+                <p className="text-[8px] font-bold text-[#ABA8A0] uppercase tracking-[0.2em] mb-1">Partner</p>
+                <p className="text-sm font-black text-[#171613] uppercase tracking-[0.15em]">Abel Kings</p>
+                <p className={`text-[10px] text-[#004d00] font-medium italic tracking-widest mt-0.5 ${cormorant.className}`}>Tutorial Center</p>
               </div>
             </div>
           </footer>
@@ -430,7 +434,7 @@ export default function StudentDashboard() {
       </main>
 
       {setupCourse && <ExamSetupModal course={setupCourse} onClose={() => setSetupCourse(null)} onStart={(dur, limit) => router.push(`/cbt/exam/${setupCourse.id}?duration=${dur}&limit=${limit || 30}`)} />}
-      {showReview && <ReviewModal student={student} onClose={() => setShowReview(false)} />}
+      {showReview && <ReviewModal studentId={student.id} onClose={() => setShowReview(false)} />}
       {statusModal && <StatusModal {...statusModal} />}
     </div>
   );
