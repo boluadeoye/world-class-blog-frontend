@@ -6,12 +6,12 @@ import {
   AlertTriangle, CheckCircle2, Crosshair, Database
 } from "lucide-react";
 
-export default function CoreNodeManual() {
+export default function CoreNodeManualSample() {
   const [isReady, setIsReady] = useState(false);
   const [loadingStep, setLoadingStep] = useState(0);
 
   useEffect(() => {
-    const steps = ["INITIALIZING TITANIUM PROTOCOL...", "RENDERING HARDWARE SCHEMATICS...", "COMPILING TROUBLESHOOTING MATRIX...", "MANUAL_READY"];
+    const steps = ["SANITIZING CLIENT DATA...", "RENDERING HARDWARE SCHEMATICS...", "COMPILING PORTFOLIO SAMPLE...", "SAMPLE_READY"];
     if (loadingStep < steps.length) {
       const timer = setTimeout(() => setLoadingStep(prev => prev + 1), 600);
       return () => clearTimeout(timer);
@@ -21,7 +21,8 @@ export default function CoreNodeManual() {
   }, [loadingStep]);
 
   const handlePrint = () => {
-    document.title = "TD_CORE_NODE_MANUAL_V1";
+    // Renames the file automatically when saving as PDF
+    document.title = "AI-Inference-Node_Manual-Sample";
     window.print();
   };
 
@@ -43,7 +44,7 @@ export default function CoreNodeManual() {
           
           .watermark {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg);
-            font-family: 'Inter', sans-serif; font-size: 100px; font-weight: 900;
+            font-family: 'Inter', sans-serif; font-size: 90px; font-weight: 900;
             color: rgba(255, 255, 255, 0.02); white-space: nowrap; pointer-events: none; z-index: 0;
           }
         }
@@ -64,19 +65,19 @@ export default function CoreNodeManual() {
             <Server size={40} className="text-amber-400" />
           </div>
 
-          <h1 className="font-inter text-2xl font-black text-white mb-2 tracking-widest uppercase">Core-Node Manual</h1>
-          <p className="font-mono text-amber-500 text-[10px] mb-8 tracking-[0.3em]">TITANIUM DYNAMICS // TD-2026</p>
+          <h1 className="font-inter text-2xl font-black text-white mb-2 tracking-widest uppercase">Portfolio Sample</h1>
+          <p className="font-mono text-amber-500 text-[10px] mb-8 tracking-[0.3em]">AI INFERENCE NODE MANUAL</p>
 
           {!isReady ? (
             <div className="space-y-2 text-left bg-amber-950/20 p-6 border-l-2 border-amber-500 font-mono text-[10px] text-amber-400 h-32 flex flex-col justify-end">
-              <p className="opacity-50">&gt; {loadingStep >= 1 ? "RENDERING HARDWARE SCHEMATICS..." : "..."}</p>
-              <p className="opacity-75">&gt; {loadingStep >= 2 ? "COMPILING TROUBLESHOOTING MATRIX..." : "..."}</p>
-              <p className="text-white font-bold animate-pulse">&gt; {loadingStep >= 3 ? "MANUAL_READY" : "..."}</p>
+              <p className="opacity-50">&gt; {loadingStep >= 1 ? "SANITIZING CLIENT DATA..." : "..."}</p>
+              <p className="opacity-75">&gt; {loadingStep >= 2 ? "COMPILING PORTFOLIO SAMPLE..." : "..."}</p>
+              <p className="text-white font-bold animate-pulse">&gt; {loadingStep >= 3 ? "SAMPLE_READY" : "..."}</p>
             </div>
           ) : (
             <button onClick={handlePrint} className="w-full flex items-center justify-center gap-3 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500 text-amber-400 font-mono font-bold py-4 uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(245,158,11,0.2)]">
               <Download size={18} />
-              Extract Technical Dossier
+              Extract Portfolio PDF
             </button>
           )}
         </div>
@@ -87,12 +88,12 @@ export default function CoreNodeManual() {
         
         {/* PAGE 1: INDUSTRIAL COVER */}
         <div className="a4-page flex flex-col p-[20mm] tech-grid">
-          <div className="watermark">RESTRICTED ACCESS</div>
+          <div className="watermark">PORTFOLIO SAMPLE</div>
           <header className="flex justify-between items-start relative z-10">
-            <div className="w-12 h-12 bg-amber-500 flex items-center justify-center text-black font-black text-xl">TD</div>
+            <div className="w-12 h-12 bg-amber-500 flex items-center justify-center text-black font-black text-xl">BA</div>
             <div className="text-right">
               <p className="font-mono text-[8px] text-slate-500 tracking-[0.4em] mb-1">DOCUMENT ID</p>
-              <h2 className="font-mono text-sm font-bold text-white tracking-widest">TD-CORE-2026-V1</h2>
+              <h2 className="font-mono text-sm font-bold text-white tracking-widest">NODE-SPEC-2026-V1</h2>
             </div>
           </header>
 
@@ -115,7 +116,7 @@ export default function CoreNodeManual() {
             </h1>
             <div className="h-1 w-32 bg-amber-500 mb-8"></div>
             <p className="font-inter text-sm text-slate-400 max-w-md leading-relaxed">
-              The definitive installation, configuration, and troubleshooting manual for the Titanium Dynamics Core-Node. Designed for sub-200ms latency and Zero-Trust environments.
+              The definitive installation, configuration, and troubleshooting manual for the AI Inference Core-Node. Designed for sub-200ms latency and Zero-Trust environments.
             </p>
           </main>
           <Footer />
@@ -123,8 +124,8 @@ export default function CoreNodeManual() {
 
         {/* PAGE 2: SYSTEM SPECIFICATIONS */}
         <div className="a4-page flex flex-col p-[20mm]">
-          <div className="watermark">RESTRICTED ACCESS</div>
-          <Header title="TD-CORE-2026-V1 // SECTION 1.0" />
+          <div className="watermark">PORTFOLIO SAMPLE</div>
+          <Header title="NODE-SPEC-2026-V1 // SECTION 1.0" />
           <main className="grow relative z-10">
             <h2 className="font-inter text-3xl font-black text-white uppercase tracking-widest mb-10">1.0 System Specifications</h2>
             
@@ -172,8 +173,8 @@ export default function CoreNodeManual() {
 
         {/* PAGE 3: HARDWARE ANATOMY */}
         <div className="a4-page flex flex-col p-[20mm]">
-          <div className="watermark">RESTRICTED ACCESS</div>
-          <Header title="TD-CORE-2026-V1 // SECTION 2.0" />
+          <div className="watermark">PORTFOLIO SAMPLE</div>
+          <Header title="NODE-SPEC-2026-V1 // SECTION 2.0" />
           <main className="grow relative z-10">
             <h2 className="font-inter text-3xl font-black text-white uppercase tracking-widest mb-10">2.0 Hardware Anatomy</h2>
             
@@ -214,8 +215,8 @@ export default function CoreNodeManual() {
 
         {/* PAGE 4: INSTALLATION PROTOCOL */}
         <div className="a4-page flex flex-col p-[20mm]">
-          <div className="watermark">RESTRICTED ACCESS</div>
-          <Header title="TD-CORE-2026-V1 // SECTION 3.0" />
+          <div className="watermark">PORTFOLIO SAMPLE</div>
+          <Header title="NODE-SPEC-2026-V1 // SECTION 3.0" />
           <main className="grow relative z-10">
             <h2 className="font-inter text-3xl font-black text-white uppercase tracking-widest mb-8">3.0 Installation Protocol</h2>
             
@@ -227,7 +228,7 @@ export default function CoreNodeManual() {
               <div>
                 <h3 className="font-mono text-xs font-bold text-amber-400 uppercase mb-2">Step 1: Clone the Sovereign Repository</h3>
                 <div className="bg-[#0a0a0a] border border-slate-800 p-4 rounded font-mono text-[10px] text-emerald-400">
-                  $ git clone https://github.com/titanium-dynamics/core-node.git<br/>
+                  $ git clone https://github.com/private-client/core-node.git<br/>
                   $ cd core-node
                 </div>
               </div>
@@ -256,8 +257,8 @@ export default function CoreNodeManual() {
 
         {/* PAGE 5: THE LOGIC ENGINE */}
         <div className="a4-page flex flex-col p-[20mm]">
-          <div className="watermark">RESTRICTED ACCESS</div>
-          <Header title="TD-CORE-2026-V1 // SECTION 4.0" />
+          <div className="watermark">PORTFOLIO SAMPLE</div>
+          <Header title="NODE-SPEC-2026-V1 // SECTION 4.0" />
           <main className="grow relative z-10">
             <h2 className="font-inter text-3xl font-black text-white uppercase tracking-widest mb-10">4.0 The Logic Engine</h2>
             
@@ -285,8 +286,8 @@ export default function CoreNodeManual() {
 
         {/* PAGE 6: CONFIGURATION SCHEMAS */}
         <div className="a4-page flex flex-col p-[20mm]">
-          <div className="watermark">RESTRICTED ACCESS</div>
-          <Header title="TD-CORE-2026-V1 // SECTION 5.0" />
+          <div className="watermark">PORTFOLIO SAMPLE</div>
+          <Header title="NODE-SPEC-2026-V1 // SECTION 5.0" />
           <main className="grow relative z-10">
             <h2 className="font-inter text-3xl font-black text-white uppercase tracking-widest mb-8">5.0 Configuration Schemas</h2>
             
@@ -301,7 +302,7 @@ export default function CoreNodeManual() {
               </div>
               <pre className="p-6 font-mono text-[10px] leading-relaxed text-slate-300 overflow-x-auto">
 {`{
-  "node_id": "TD-CORE-ALPHA",
+  "node_id": "CORE-ALPHA-01",
   "region": "us-east-1",
   "inference_engine": {
     "model": "llama3-70b-8192",
@@ -322,8 +323,8 @@ export default function CoreNodeManual() {
 
         {/* PAGE 7: SECURITY HARDENING */}
         <div className="a4-page flex flex-col p-[20mm]">
-          <div className="watermark">RESTRICTED ACCESS</div>
-          <Header title="TD-CORE-2026-V1 // SECTION 6.0" />
+          <div className="watermark">PORTFOLIO SAMPLE</div>
+          <Header title="NODE-SPEC-2026-V1 // SECTION 6.0" />
           <main className="grow relative z-10">
             <h2 className="font-inter text-3xl font-black text-white uppercase tracking-widest mb-8">6.0 Security Hardening</h2>
             
@@ -350,8 +351,8 @@ export default function CoreNodeManual() {
 
         {/* PAGE 8: TROUBLESHOOTING MATRIX */}
         <div className="a4-page flex flex-col p-[20mm]">
-          <div className="watermark">RESTRICTED ACCESS</div>
-          <Header title="TD-CORE-2026-V1 // SECTION 7.0" />
+          <div className="watermark">PORTFOLIO SAMPLE</div>
+          <Header title="NODE-SPEC-2026-V1 // SECTION 7.0" />
           <main className="grow relative z-10">
             <h2 className="font-inter text-3xl font-black text-white uppercase tracking-widest mb-10">7.0 Troubleshooting Matrix</h2>
             
@@ -385,8 +386,8 @@ export default function CoreNodeManual() {
 
         {/* PAGE 9: MAINTENANCE & SCALING */}
         <div className="a4-page flex flex-col p-[20mm]">
-          <div className="watermark">RESTRICTED ACCESS</div>
-          <Header title="TD-CORE-2026-V1 // SECTION 8.0" />
+          <div className="watermark">PORTFOLIO SAMPLE</div>
+          <Header title="NODE-SPEC-2026-V1 // SECTION 8.0" />
           <main className="grow relative z-10">
             <h2 className="font-inter text-3xl font-black text-white uppercase tracking-widest mb-8">8.0 Maintenance & Scaling</h2>
             
@@ -409,8 +410,8 @@ export default function CoreNodeManual() {
 
         {/* PAGE 10: THE ARCHITECT'S SEAL */}
         <div className="a4-page flex flex-col p-[20mm]">
-          <div className="watermark">RESTRICTED ACCESS</div>
-          <Header title="TD-CORE-2026-V1 // APPROVAL" />
+          <div className="watermark">PORTFOLIO SAMPLE</div>
+          <Header title="NODE-SPEC-2026-V1 // APPROVAL" />
           <main className="grow flex flex-col justify-center relative z-10">
             
             <div className="iso-card p-10 border-t-4 border-amber-500 bg-black">
@@ -433,7 +434,7 @@ export default function CoreNodeManual() {
                 </div>
                 <div className="flex justify-between border-b border-white/10 pb-2">
                   <span className="text-slate-500">Organization:</span>
-                  <span className="text-white">Titanium Dynamics</span>
+                  <span className="text-white">Private Client</span>
                 </div>
                 <div className="flex justify-between pt-2">
                   <span className="text-slate-500">System Hash:</span>
@@ -465,7 +466,7 @@ function Footer() {
   return (
     <footer className="border-t border-amber-500/30 pt-4 mt-auto flex justify-between items-center relative z-10 bg-black">
       <span className="font-mono text-[8px] font-bold uppercase tracking-widest text-slate-500">
-        CONFIDENTIAL // TITANIUM DYNAMICS // PAGE <span className="page-num text-amber-500"></span>
+        SAMPLE FROM PRIVATE CLIENT PROJECT // PAGE <span className="page-num text-amber-500"></span>
       </span>
       <div className="flex gap-1">
         <div className="w-1 h-1 bg-amber-500"></div>
