@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { 
   Download, Server, Cpu, ShieldAlert, Activity, 
   Terminal, Network, Lock, Zap, Hexagon, FileCode2,
-  AlertTriangle, CheckCircle2, Crosshair
+  AlertTriangle, CheckCircle2, Crosshair, Database
 } from "lucide-react";
 
 export default function CoreNodeManual() {
@@ -266,7 +266,7 @@ export default function CoreNodeManual() {
               <div className="w-full p-4 border border-slate-700 bg-slate-900 text-center font-mono text-xs text-white uppercase">Client Request (Edge)</div>
               <div className="h-8 w-px bg-amber-500"></div>
               <div className="w-full p-6 border-2 border-amber-500 bg-amber-950/20 text-center rounded-lg shadow-[0_0_20px_rgba(245,158,11,0.2)]">
-                <BrainCircuit size={32} className="mx-auto text-amber-400 mb-2"/>
+                <Cpu size={32} className="mx-auto text-amber-400 mb-2"/>
                 <h3 className="font-black text-lg text-white uppercase">Groq LPU Inference</h3>
                 <p className="font-mono text-[10px] text-amber-500 mt-1">Deterministic JSON Manifest</p>
               </div>
@@ -473,9 +473,4 @@ function Footer() {
       </div>
     </footer>
   );
-}
-
-// Dummy icon for BrainCircuit since it might not be in older lucide versions
-function BrainCircuit({ size, className }) {
-  return <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 4.5a2.5 2.5 0 0 0-4.96-.46 2.5 2.5 0 0 0-1.98 3 2.5 2.5 0 0 0-1.32 4.24 3 3 0 0 0 .34 5.58 2.5 2.5 0 0 0 2.96 3.08 2.5 2.5 0 0 0 4.91.05L12 20V4.5Z"/><path d="M16 8V5c0-1.1.9-2 2-2"/><path d="M12 13h4"/><path d="M12 18h6a2 2 0 0 1 2 2v1"/><path d="M19 15v-3a2 2 0 0 0-2-2"/></svg>;
 }
