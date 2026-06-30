@@ -22,7 +22,7 @@ export default function InvitationEngine() {
         "Day 1 (Morning Session): Wednesday, 8 July 2026",
         "Day 2 (Morning Session): Thursday, 9 July 2026"
       ],
-      closing: "We are confident your sessions will greatly enrich everyone in attendance. Thank you for your continued support and labour of love, and we look forward to hosting you."
+      closing: "We are confident your sessions will greatly enrich everyone in attendance. Please let us know if you would prefer to pre-record your sessions or stream live. Thank you for your continued support and labour of love, and we look forward to hosting you."
     },
     {
       name: "Mr. Faith Omoniyi",
@@ -33,7 +33,7 @@ export default function InvitationEngine() {
         "Day 2 (Morning Session): Thursday, 9 July 2026",
         "Day 2 (Evening Session): Thursday, 9 July 2026"
       ],
-      closing: "We are eagerly anticipating the wisdom and clarity you will share with the house. Thank you for your time and dedication to this mandate."
+      closing: "We are eagerly anticipating the wisdom and clarity you will share with the house. Please let us know if you would prefer to pre-record your sessions or stream live. Thank you for your time and dedication to this mandate."
     },
     {
       name: "Mr. Adeogo",
@@ -43,12 +43,12 @@ export default function InvitationEngine() {
         "Day 1 (Evening Session): Wednesday, 8 July 2026",
         "Day 3 (Morning Session): Friday, 10 July 2026"
       ],
-      closing: "Thank you for your willingness to be a blessing to us. We look forward to a powerful time of learning and impartation."
+      closing: "Please let us know if you would prefer to pre-record your sessions or stream live. Thank you for your willingness to be a blessing to us. We look forward to a powerful time of learning and impartation."
     },
     {
       name: "Pastor Jeremiah",
-      topic: "Guest Minister",
-      content: "It is with great joy that we officially invite you to be a guest minister at our upcoming Passing Out Conference (POC). Your voice is a massive blessing to us, and we are looking forward to having you anchor a critical session during the programme.",
+      topic: "Minister",
+      content: "It is with great joy that we officially invite you to minister at our upcoming Passing Out Conference (POC). Your voice is a massive blessing to us, and we are looking forward to having you anchor a session during the programme.",
       sessions: [
         "Day 2 (Evening Session): Thursday, 9 July 2026"
       ],
@@ -136,7 +136,7 @@ export default function InvitationEngine() {
 
         <div className="relative z-10 flex flex-col h-full px-[25mm] py-[25mm]">
           
-          {/* HEADER: ASYMMETRICAL EDITORIAL LAYOUT */}
+          {/* HEADER */}
           <header className="flex justify-between items-start mb-16 border-b-2 border-slate-100 pb-8">
             <div className="flex items-center gap-4">
               <img src={logoUrl} alt="Logo" className="h-20 object-contain" />
@@ -157,7 +157,7 @@ export default function InvitationEngine() {
           </header>
 
           {/* DATE & SALUTATION */}
-          <main className="font-lora text-[11pt] text-slate-900 leading-[1.9] text-justify">
+          <main className="grow font-lora text-[11pt] text-slate-900 leading-[1.9] text-justify">
             <p className="font-mono text-[9px] font-bold text-slate-400 mb-10 uppercase tracking-widest">DATE: {today}</p>
             
             <p className="font-bold text-base mb-6">Dear {ministers[selectedIdx].name},</p>
@@ -179,11 +179,11 @@ export default function InvitationEngine() {
             <p className="mb-8">{ministers[selectedIdx].closing}</p>
           </main>
 
-          {/* SIGNATURE BLOCK (SPACIOUS & CLEAN) */}
+          {/* SIGNATURE BLOCK */}
           <footer className="mt-8">
             <p className="font-lora italic text-slate-500 mb-6">Best Regards,</p>
             <div className="h-[1px] w-48 bg-slate-800 mb-3"></div>
-            <h3 className="font-playfair text-lg font-black uppercase text-[#991b1b] tracking-wider leading-none">
+            <h3 className="font-playfair text-xl font-black uppercase text-[#991b1b] tracking-wider leading-none">
               Praise Oluwole
             </h3>
             <p className="font-inter text-[8px] font-bold uppercase tracking-widest text-[#2563eb] mt-1.5">
