@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { 
   Download, Terminal, Cpu, Globe, Database, Server, Bot, 
   Code2, Lightbulb, Layers, Shield, Zap, GitBranch, Box, 
-  CheckCircle2, Lock, Award, FileCode2, User, Activity, Crosshair
+  CheckCircle2, Lock, Award, FileCode2, User, Activity, Crosshair, Hexagon
 } from "lucide-react";
 import Link from "next/link";
 
