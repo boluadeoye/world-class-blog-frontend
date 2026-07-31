@@ -484,7 +484,7 @@ export default function FRPAuditDossier() {
                 </div>
                 <div className="flex justify-between pt-2">
                   <span className="text-slate-500">Verification:</span>
-                  <span className="text-emerald-400 underline decoration-emerald-500/50 underline-offset-4">https://frp-core.vercel.app/.well-known/frp-oracle</span>
+                  <span className="text-emerald-400 underline decoration-emerald-500/50 underline-offset-4">https://frp-sample.local/.well-known/frp-oracle</span>
                 </div>
               </div>
             </div>

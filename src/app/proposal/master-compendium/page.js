@@ -169,7 +169,7 @@ export default function MasterCompendium() {
             </div>
             <div className="bg-[#0a0a0a] border border-slate-800 p-5 rounded font-mono text-[10px] text-emerald-400 space-y-2">
               <p className="text-slate-500">// Environment Variable Injection (.env.local):</p>
-              <p>NEXT_PUBLIC_APP_URL="https://boluadeoye.com.ng"</p>
+              <p>NEXT_PUBLIC_APP_URL="https://portfolio-sample.local"</p>
               <p>DATABASE_URL="postgresql://user:pass@ep-cool-db.neon.tech/neondb"</p>
               <p>GROQ_API_KEY="gsk_live_sovereign_key_99182"</p>
             </div>
