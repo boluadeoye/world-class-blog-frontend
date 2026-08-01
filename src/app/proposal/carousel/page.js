@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { toPng } from "html-to-image";
-import { Download, ChevronLeft, ChevronRight, Heart, ArrowRight, Quote, Camera } from "lucide-react";
+import { Download, ChevronLeft, ChevronRight, ArrowRight, Quote, Heart, Sparkles } from "lucide-react";
 
 export default function InstagramCarousel() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -102,25 +102,52 @@ export default function InstagramCarousel() {
   ];
 
   return (
-    <div className="min-h-screen bg-stone-950 font-sans text-slate-800 selection:bg-amber-100 overflow-x-hidden">
+    <div className="min-h-screen bg-slate-950 font-sans text-slate-900 selection:bg-amber-200 overflow-x-hidden">
       <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400;1,700&family=Inter:wght@400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+
+      <style jsx global>{`
+        /* THE DIAMOND DUST GLITTER BACKGROUND */
+        .glitter-bg {
+          background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+          position: relative;
+        }
+        .glitter-bg::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          background-image: radial-gradient(rgba(255,255,255,0.8) 1px, transparent 1px), radial-gradient(rgba(255,255,255,0.8) 1px, transparent 1px);
+          background-size: 20px 20px;
+          background-position: 0 0, 10px 10px;
+          opacity: 0.5;
+          pointer-events: none;
+        }
+        
+        /* THE GLASSMORPHIC CARD */
+        .glass-card {
+          background: rgba(255, 255, 255, 0.6);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 1px solid rgba(255, 255, 255, 0.8);
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05), inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+        }
+      `}</style>
 
       {/* STUDIO PORTAL (Screen View) */}
       <div className="min-h-screen flex flex-col justify-between p-4 md:p-6 max-w-xl mx-auto">
-        <header className="flex justify-between items-center bg-stone-900 p-4 border border-stone-800 rounded-xl mb-4">
+        <header className="flex justify-between items-center bg-slate-900 p-4 border border-slate-800 rounded-xl mb-4">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-[#D97B0C] rounded-lg flex items-center justify-center text-white">
-              <Camera size={18} />
+            <div className="w-9 h-9 bg-amber-500 rounded-lg flex items-center justify-center text-white shadow-[0_0_15px_rgba(245,158,11,0.5)]">
+              <Sparkles size={18} />
             </div>
             <div>
-              <h1 className="text-white font-bold text-xs uppercase tracking-widest font-inter">Carousel Studio</h1>
-              <p className="text-stone-500 text-[9px] font-mono uppercase">1080x1080 High-Density PNG</p>
+              <h1 className="text-white font-bold text-xs uppercase tracking-widest font-inter">Glass Studio</h1>
+              <p className="text-slate-500 text-[9px] font-mono uppercase">4K Glitter Engine</p>
             </div>
           </div>
           <button 
             onClick={downloadPng} 
             disabled={isCapturing}
-            className="bg-white text-black px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest hover:bg-[#D97B0C] hover:text-white transition-all flex items-center gap-2 shadow-lg"
+            className="bg-white text-black px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest hover:bg-amber-500 hover:text-white transition-all flex items-center gap-2 shadow-lg"
           >
             {isCapturing ? "Saving..." : <><Download size={14} /> Save Slide</>}
           </button>
@@ -130,29 +157,18 @@ export default function InstagramCarousel() {
         <main className="grow flex items-center justify-center py-2">
           <div 
             ref={slideRef}
-            className="w-full aspect-square max-w-[380px] bg-[#FAF8F5] shadow-2xl rounded-xl border border-stone-200 p-6 flex flex-col justify-between relative overflow-hidden"
+            className="w-full aspect-square max-w-[380px] glitter-bg shadow-2xl rounded-2xl p-6 flex flex-col justify-center relative overflow-hidden"
           >
             <SlideRenderer slide={slides[currentSlide]} index={currentSlide} />
-            
-            {/* EDITORIAL FOOTER */}
-            <footer className="flex justify-between items-end border-t border-stone-200/80 pt-3 mt-2 shrink-0">
-              <div className="space-y-0.5">
-                <p className="font-mono text-[9px] font-bold uppercase tracking-[0.2em] text-[#D97B0C]">Slide {currentSlide + 1} / 12</p>
-                <p className="font-playfair italic text-[10px] text-stone-400">The Bullets Journey</p>
-              </div>
-              <div className="w-7 h-7 border border-stone-300 rounded flex items-center justify-center">
-                <span className="font-inter font-black text-[9px] text-stone-500">OM</span>
-              </div>
-            </footer>
           </div>
         </main>
 
         {/* CONTROLS */}
         <footer className="flex justify-center gap-6 p-4">
-          <button onClick={prevSlide} disabled={currentSlide === 0} className="p-3 bg-stone-900 border border-stone-800 rounded-full text-white hover:bg-[#D97B0C] disabled:opacity-20 transition-all">
+          <button onClick={prevSlide} disabled={currentSlide === 0} className="p-3 bg-slate-900 border border-slate-800 rounded-full text-white hover:text-amber-500 disabled:opacity-20 transition-all">
             <ChevronLeft size={20} />
           </button>
-          <button onClick={nextSlide} disabled={currentSlide === slides.length - 1} className="p-3 bg-stone-900 border border-stone-800 rounded-full text-white hover:bg-[#D97B0C] disabled:opacity-20 transition-all">
+          <button onClick={nextSlide} disabled={currentSlide === slides.length - 1} className="p-3 bg-slate-900 border border-slate-800 rounded-full text-white hover:text-amber-500 disabled:opacity-20 transition-all">
             <ChevronRight size={20} />
           </button>
         </footer>
@@ -161,34 +177,33 @@ export default function InstagramCarousel() {
   );
 }
 
-// SLIDE RENDERER (UN-SQUASHED)
+// SLIDE RENDERER (GLASSMORPHIC & PURE BLACK)
 function SlideRenderer({ slide, index }) {
   return (
-    <div className="grow flex flex-col justify-center text-[#1E293B] overflow-hidden">
+    <div className="glass-card w-full h-full rounded-xl p-6 flex flex-col justify-center text-[#000000] relative z-10">
       
       {/* 1. COVER SLIDE */}
       {slide.type === "COVER" && (
-        <div className="h-full flex flex-col justify-between py-1">
+        <div className="h-full flex flex-col justify-between py-2">
           <div className="flex justify-between items-center">
-            <span className="font-mono text-[9px] font-bold text-[#D97B0C] uppercase tracking-[0.25em]">{slide.badge}</span>
-            <div className="w-6 h-6 border border-stone-300 flex items-center justify-center font-inter font-black text-[9px]">OM</div>
+            <span className="font-mono text-[10px] font-black text-amber-600 uppercase tracking-[0.25em]">{slide.badge}</span>
           </div>
 
-          <div className="my-auto space-y-3">
-            <h1 className="font-inter text-2xl font-black uppercase tracking-tight leading-tight text-[#1E293B]">
+          <div className="my-auto space-y-4">
+            <h1 className="font-inter text-3xl font-black uppercase tracking-tighter leading-none text-[#000000]">
               {slide.title}
             </h1>
-            <div className="h-0.5 w-12 bg-[#D97B0C]"></div>
-            <p className="font-playfair italic text-sm text-stone-600 leading-relaxed">
+            <div className="h-1 w-16 bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]"></div>
+            <p className="font-playfair italic text-base text-[#000000] leading-relaxed font-bold">
               &ldquo;{slide.quote}&rdquo;
             </p>
           </div>
 
-          <div className="space-y-3 pt-2">
-            <p className="font-inter text-xs text-stone-500 leading-relaxed">{slide.subText}</p>
-            <div className="flex items-center gap-1.5 text-[#D97B0C] font-inter font-bold text-[10px] uppercase tracking-widest">
+          <div className="space-y-4 pt-4">
+            <p className="font-inter text-xs text-[#000000] font-bold leading-relaxed">{slide.subText}</p>
+            <div className="flex items-center gap-2 text-amber-600 font-inter font-black text-[11px] uppercase tracking-widest">
               <span>Swipe</span>
-              <ArrowRight size={12} />
+              <ArrowRight size={14} className="animate-pulse" />
             </div>
           </div>
         </div>
@@ -196,15 +211,15 @@ function SlideRenderer({ slide, index }) {
 
       {/* 2. STORY SLIDES */}
       {slide.type === "STORY" && (
-        <div className="space-y-3 my-auto">
-          <div className="flex items-center gap-2">
-            <span className="font-mono text-[9px] font-bold uppercase tracking-widest text-[#D97B0C]">0{index + 1}</span>
-            <div className="h-px grow bg-stone-200"></div>
+        <div className="space-y-4 my-auto">
+          <div className="flex items-center gap-3">
+            <span className="font-mono text-[10px] font-black uppercase tracking-widest text-amber-600">0{index + 1}</span>
+            <div className="h-0.5 grow bg-amber-500/30"></div>
           </div>
-          <h2 className="font-playfair text-lg font-black uppercase leading-snug text-[#1E293B]">
+          <h2 className="font-playfair text-2xl font-black uppercase leading-tight text-[#000000]">
             {slide.title}
           </h2>
-          <p className="font-inter text-xs leading-relaxed text-stone-600 text-justify whitespace-pre-wrap">
+          <p className="font-inter text-sm font-bold leading-relaxed text-[#000000] text-justify whitespace-pre-wrap">
             {slide.content}
           </p>
         </div>
@@ -212,28 +227,28 @@ function SlideRenderer({ slide, index }) {
 
       {/* 3. QUOTE SLIDES */}
       {slide.type === "QUOTE" && (
-        <div className="space-y-4 text-center my-auto px-2">
-          <Quote size={28} className="mx-auto text-[#D97B0C] opacity-30" />
-          <h3 className="font-inter text-[9px] font-black uppercase tracking-[0.25em] text-[#D97B0C]">{slide.title}</h3>
-          <p className="font-playfair italic text-base leading-relaxed text-[#1E293B]">
+        <div className="space-y-6 text-center my-auto px-2">
+          <Quote size={32} className="mx-auto text-amber-500 opacity-50" />
+          <h3 className="font-inter text-[10px] font-black uppercase tracking-[0.25em] text-amber-600">{slide.title}</h3>
+          <p className="font-playfair italic text-xl font-black leading-relaxed text-[#000000]">
             &ldquo;{slide.quote}&rdquo;
           </p>
-          <div className="h-0.5 w-8 bg-[#D97B0C] mx-auto"></div>
+          <div className="h-1 w-12 bg-amber-500 mx-auto shadow-[0_0_10px_rgba(245,158,11,0.5)]"></div>
         </div>
       )}
 
       {/* 4. IDENTITY SLIDE */}
       {slide.type === "IDENTITY" && (
-        <div className="space-y-3 my-auto">
+        <div className="space-y-4 my-auto">
           <div className="flex items-center gap-2">
-            <Heart size={14} className="text-[#D97B0C]" />
-            <span className="font-inter text-[9px] font-black uppercase tracking-widest text-[#D97B0C]">Identity Profile</span>
+            <Heart size={16} className="text-amber-600" />
+            <span className="font-inter text-[10px] font-black uppercase tracking-widest text-amber-600">Identity Profile</span>
           </div>
-          <h2 className="font-playfair text-2xl font-black uppercase tracking-tight text-[#1E293B]">
+          <h2 className="font-playfair text-3xl font-black uppercase tracking-tight text-[#000000]">
             {slide.title}
           </h2>
-          <div className="h-0.5 w-10 bg-[#D97B0C]"></div>
-          <p className="font-inter text-xs leading-relaxed text-stone-600 whitespace-pre-wrap">
+          <div className="h-1 w-16 bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]"></div>
+          <p className="font-inter text-sm font-bold leading-relaxed text-[#000000] whitespace-pre-wrap">
             {slide.content}
           </p>
         </div>
@@ -241,17 +256,17 @@ function SlideRenderer({ slide, index }) {
 
       {/* 5. OUTRO SLIDE */}
       {slide.type === "OUTRO" && (
-        <div className="text-center space-y-4 my-auto px-2">
-          <div className="w-10 h-10 bg-stone-900 rounded-full mx-auto flex items-center justify-center text-white">
-            <Heart size={18} className="text-[#D97B0C]" />
+        <div className="text-center space-y-6 my-auto px-2">
+          <div className="w-12 h-12 bg-amber-500 rounded-full mx-auto flex items-center justify-center text-white shadow-[0_0_20px_rgba(245,158,11,0.6)]">
+            <Heart size={20} className="text-white" />
           </div>
-          <h1 className="font-playfair text-2xl font-black uppercase tracking-tight text-[#1E293B]">
+          <h1 className="font-playfair text-3xl font-black uppercase tracking-tight text-[#000000]">
             {slide.title}
           </h1>
-          <p className="font-playfair italic text-sm text-stone-600 leading-relaxed">
+          <p className="font-playfair italic text-base font-bold text-[#000000] leading-relaxed">
             &ldquo;{slide.quote}&rdquo;
           </p>
-          <p className="font-inter text-[9px] font-bold uppercase tracking-[0.25em] text-[#D97B0C]">
+          <p className="font-inter text-[10px] font-black uppercase tracking-[0.25em] text-amber-600">
             {slide.sub}
           </p>
         </div>
