@@ -18,11 +18,11 @@ export default function InstagramCarousel() {
     setIsCapturing(true);
     try {
       const dataUrl = await toPng(slideRef.current, {
-        pixelRatio: 3, // High-Density 1140x1140 Output
+        pixelRatio: 3, // 4K Resolution
         cacheBust: true,
       });
       const link = document.createElement('a');
-      link.download = `Mayowa_Slide_${currentSlide + 1}.png`;
+      link.download = `OluwaMayowa_Slide_${currentSlide + 1}.png`;
       link.href = dataUrl;
       link.click();
     } catch (err) {
@@ -38,7 +38,7 @@ export default function InstagramCarousel() {
   const slides = [
     {
       type: "COVER",
-      author: "Olaoluwa Mayowa",
+      author: "OluwaMayowa",
       titleTop: "FROM BURDEN",
       titleMain: "TO ASSIGNMENT",
       subtitle: "MY BULLETS JOURNEY",
@@ -105,7 +105,7 @@ export default function InstagramCarousel() {
 
   return (
     <div className="min-h-screen bg-slate-950 font-sans text-slate-900 selection:bg-amber-200 overflow-x-hidden">
-      <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400;1,600&family=Inter:wght@400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+      <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400;1,700&family=Inter:wght@400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
 
       <style jsx global>{`
         /* CRYSTALLINE DIAMOND DUST BACKGROUND */
@@ -118,20 +118,20 @@ export default function InstagramCarousel() {
           content: "";
           position: absolute;
           inset: 0;
-          background-image: radial-gradient(rgba(255,255,255,0.9) 1px, transparent 1px), radial-gradient(rgba(255,255,255,0.9) 1px, transparent 1px);
+          background-image: radial-gradient(rgba(0,0,0,0.06) 1px, transparent 1px), radial-gradient(rgba(0,0,0,0.06) 1px, transparent 1px);
           background-size: 16px 16px;
           background-position: 0 0, 8px 8px;
-          opacity: 0.6;
+          opacity: 0.4;
           pointer-events: none;
         }
         
         /* LUXURY GLASS CARD */
         .luxury-glass {
-          background: rgba(255, 255, 255, 0.75);
+          background: rgba(255, 255, 255, 0.85);
           backdrop-filter: blur(25px);
           -webkit-backdrop-filter: blur(25px);
           border: 1px solid rgba(255, 255, 255, 0.9);
-          box-shadow: 0 20px 50px rgba(0, 0, 0, 0.05), inset 0 0 0 1px rgba(255, 255, 255, 0.8);
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04), inset 0 0 0 1px rgba(255, 255, 255, 0.9);
         }
       `}</style>
 
@@ -143,8 +143,8 @@ export default function InstagramCarousel() {
               <Sparkles size={18} />
             </div>
             <div>
-              <h1 className="text-white font-bold text-xs uppercase tracking-widest font-inter">Signature Studio</h1>
-              <p className="text-slate-500 text-[9px] font-mono uppercase">Luxury 4K Engine</p>
+              <h1 className="text-white font-bold text-xs uppercase tracking-widest font-inter">OluwaMayowa Studio</h1>
+              <p className="text-slate-500 text-[9px] font-mono uppercase">V8 Final Engine</p>
             </div>
           </div>
           <button 
@@ -160,7 +160,7 @@ export default function InstagramCarousel() {
         <main className="grow flex items-center justify-center py-1">
           <div 
             ref={slideRef}
-            className="w-full aspect-square max-w-[380px] glitter-mesh shadow-2xl rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden"
+            className="w-full aspect-square max-w-[380px] glitter-mesh shadow-2xl rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden"
           >
             <SlideRenderer slide={slides[currentSlide]} index={currentSlide} total={slides.length} />
           </div>
@@ -185,59 +185,58 @@ function SlideRenderer({ slide, index, total }) {
   const isLast = index === total - 1;
 
   return (
-    <div className="luxury-glass w-full h-full rounded-xl p-5 flex flex-col justify-between text-[#000000] relative z-10 box-border">
+    <div className="luxury-glass w-full h-full rounded-xl p-4 flex flex-col justify-between text-[#000000] relative z-10 box-border">
       
-      {/* TOP HEADER BAR (PULLED ALL THE WAY UP) */}
-      <header className="flex justify-between items-start shrink-0 mb-2">
+      {/* TOP HEADER BAR */}
+      <header className="flex justify-between items-start shrink-0 mb-1">
         {slide.type === "COVER" ? (
-          <span className="font-playfair italic text-xs font-semibold tracking-wider text-[#000000]">{slide.author}</span>
+          <span className="font-playfair italic text-[11px] font-bold tracking-wider text-[#000000]">{slide.author}</span>
         ) : (
           <span className="font-inter text-[8px] font-black uppercase tracking-[0.2em] text-[#D97B0C]">
             {slide.subtitle || "The Bullets Journey"}
           </span>
         )}
-        <div className="w-7 h-7 border border-[#000000] flex items-center justify-center font-inter font-black text-[9px] text-[#000000] bg-white/60 shrink-0">
+        <div className="w-6 h-6 border border-[#000000] flex items-center justify-center font-inter font-black text-[8px] text-[#000000] bg-white/60 shrink-0">
           OM
         </div>
       </header>
 
-      {/* CENTER CONTENT CONTAINER (RAISED UP, NO OVERFLOW) */}
-      <main className="my-auto space-y-3 overflow-hidden py-1">
+      {/* CENTER CONTENT CONTAINER */}
+      <main className="my-auto space-y-2 overflow-hidden py-1">
         
         {/* COVER SLIDE */}
         {slide.type === "COVER" && (
-          <div className="space-y-3">
-            <p className="font-inter text-[8px] font-black uppercase tracking-[0.25em] text-[#D97B0C]">{slide.subtitle}</p>
+          <div className="space-y-2">
+            <p className="font-inter text-[8px] font-black uppercase tracking-[0.2em] text-[#D97B0C]">{slide.subtitle}</p>
             
-            <div className="flex gap-3 items-center">
-              {/* Compact Trajectory Symbol */}
+            <div className="flex gap-2 items-center">
               <div className="flex flex-col items-center gap-0.5 shrink-0">
                 <div className="w-2 h-2 rounded-full border border-amber-600 bg-amber-200"></div>
-                <div className="w-px h-8 bg-black/30"></div>
+                <div className="w-px h-6 bg-black/30"></div>
                 <div className="w-2 h-2 bg-black rotate-45"></div>
               </div>
               <div>
                 <p className="font-playfair italic text-xs text-[#000000] leading-none mb-1">{slide.titleTop}</p>
-                <h1 className="font-inter text-xl font-black uppercase tracking-tight text-[#000000] leading-none">
+                <h1 className="font-inter text-lg font-black uppercase tracking-tight text-[#000000] leading-none">
                   {slide.titleMain}
                 </h1>
               </div>
             </div>
 
-            <p className="font-playfair italic text-xs font-bold text-[#000000] leading-relaxed border-l-2 border-[#D97B0C] pl-3 py-0.5">
+            <p className="font-playfair italic text-[11px] font-bold text-[#000000] leading-snug border-l-2 border-[#D97B0C] pl-2 py-0.5">
               &ldquo;{slide.hook}&rdquo;
             </p>
-            <p className="font-inter text-[10px] font-semibold text-[#000000] leading-normal">{slide.subHook}</p>
+            <p className="font-inter text-[9px] font-semibold text-[#000000] leading-tight">{slide.subHook}</p>
           </div>
         )}
 
         {/* STORY SLIDES */}
         {slide.type === "STORY" && (
           <div className="space-y-2">
-            <h2 className="font-playfair text-base font-black uppercase leading-tight text-[#000000]">
+            <h2 className="font-playfair text-sm font-black uppercase leading-tight text-[#000000]">
               {slide.title}
             </h2>
-            <p className="font-inter text-[11px] font-semibold leading-relaxed text-[#000000] text-left whitespace-pre-wrap">
+            <p className="font-inter text-[10px] font-semibold leading-relaxed text-[#000000] text-left whitespace-pre-wrap">
               {slide.content}
             </p>
           </div>
@@ -245,10 +244,10 @@ function SlideRenderer({ slide, index, total }) {
 
         {/* QUOTE SLIDES */}
         {slide.type === "QUOTE" && (
-          <div className="space-y-3 text-center px-1">
-            <Quote size={24} className="mx-auto text-[#D97B0C] opacity-60" />
-            <h3 className="font-inter text-[8px] font-black uppercase tracking-[0.25em] text-[#D97B0C]">{slide.title}</h3>
-            <p className="font-playfair italic text-sm font-bold leading-relaxed text-[#000000]">
+          <div className="space-y-2 text-center px-1">
+            <Quote size={20} className="mx-auto text-[#D97B0C] opacity-60" />
+            <h3 className="font-inter text-[8px] font-black uppercase tracking-[0.2em] text-[#D97B0C]">{slide.title}</h3>
+            <p className="font-playfair italic text-xs font-bold leading-relaxed text-[#000000]">
               &ldquo;{slide.quote}&rdquo;
             </p>
           </div>
@@ -258,32 +257,32 @@ function SlideRenderer({ slide, index, total }) {
         {slide.type === "IDENTITY" && (
           <div className="space-y-2">
             <div className="flex items-center gap-1.5">
-              <Heart size={12} className="text-[#D97B0C]" />
+              <Heart size={10} className="text-[#D97B0C]" />
               <span className="font-inter text-[8px] font-black uppercase tracking-widest text-[#D97B0C]">Identity Profile</span>
             </div>
-            <h2 className="font-playfair text-xl font-black uppercase tracking-tight text-[#000000]">
+            <h2 className="font-playfair text-lg font-black uppercase tracking-tight text-[#000000]">
               {slide.title}
             </h2>
-            <div className="h-0.5 w-10 bg-[#D97B0C]"></div>
-            <p className="font-inter text-[11px] font-semibold leading-relaxed text-[#000000] text-left whitespace-pre-wrap">
+            <div className="h-0.5 w-8 bg-[#D97B0C]"></div>
+            <p className="font-inter text-[10px] font-semibold leading-relaxed text-[#000000] text-left whitespace-pre-wrap">
               {slide.content}
             </p>
           </div>
         )}
 
-        {/* OUTRO SLIDE */}
+        {/* OUTRO SLIDE (DYNAMICALLY SCALED TO PREVENT COLLISION) */}
         {slide.type === "OUTRO" && (
-          <div className="text-center space-y-3 px-1">
-            <div className="w-8 h-8 bg-black text-white rounded-full mx-auto flex items-center justify-center shadow-md">
-              <Heart size={14} className="text-[#D97B0C]" />
+          <div className="text-center space-y-2 px-1">
+            <div className="w-7 h-7 bg-black text-white rounded-full mx-auto flex items-center justify-center shadow-md">
+              <Heart size={12} className="text-[#D97B0C]" />
             </div>
-            <h1 className="font-playfair text-lg font-black uppercase tracking-tight text-[#000000]">
+            <h1 className="font-playfair text-base font-black uppercase tracking-tight text-[#000000]">
               {slide.title}
             </h1>
-            <p className="font-playfair italic text-xs font-bold text-[#000000] leading-relaxed">
+            <p className="font-playfair italic text-[10px] font-bold text-[#000000] leading-snug">
               &ldquo;{slide.quote}&rdquo;
             </p>
-            <p className="font-inter text-[8px] font-black uppercase tracking-[0.2em] text-[#D97B0C]">
+            <p className="font-inter text-[8px] font-black uppercase tracking-wider text-[#D97B0C] pt-1">
               {slide.sub}
             </p>
           </div>
@@ -291,17 +290,17 @@ function SlideRenderer({ slide, index, total }) {
 
       </main>
 
-      {/* FOOTER: AMBER ORANGE SWIPE ARROW */}
-      <footer className="flex justify-end items-center shrink-0 pt-1 border-t border-black/5">
+      {/* FOOTER: CLEAN FLOATING PROMPT */}
+      <footer className="flex justify-end items-center shrink-0 pt-1">
         {!isLast ? (
           <div className="flex items-center gap-1 text-[#D97B0C]">
-            <span className="font-inter text-[9px] font-black uppercase tracking-widest">
+            <span className="font-inter text-[8px] font-black uppercase tracking-widest">
               Swipe
             </span>
-            <ArrowRight size={12} className="stroke-[3]" />
+            <ArrowRight size={10} className="stroke-[3]" />
           </div>
         ) : (
-          <span className="font-inter text-[8px] font-black text-stone-400 uppercase tracking-widest">
+          <span className="font-inter text-[7px] font-black text-stone-400 uppercase tracking-widest">
             End of Journey
           </span>
         )}
