@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { toPng } from "html-to-image";
-import { Download, ChevronLeft, ChevronRight, ArrowRight, Quote, Heart, Camera } from "lucide-react";
+import { Download, ChevronLeft, ChevronRight, Heart, ArrowRight, Quote, Camera } from "lucide-react";
 
 export default function InstagramCarousel() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -10,17 +10,15 @@ export default function InstagramCarousel() {
   const slideRef = useRef(null);
 
   useEffect(() => {
-    setTimeout(() => setIsReady(true), 1200);
+    setTimeout(() => setIsReady(true), 800);
   }, []);
 
-  // 4K PNG CAPTURE ENGINE
   const downloadPng = async () => {
     if (slideRef.current === null) return;
     setIsCapturing(true);
     try {
       const dataUrl = await toPng(slideRef.current, {
-        pixelRatio: 4, // 4K Resolution
-        quality: 1,
+        pixelRatio: 3, // High-Density 1140x1140 output
         cacheBust: true,
       });
       const link = document.createElement('a');
@@ -40,11 +38,10 @@ export default function InstagramCarousel() {
   const slides = [
     {
       type: "COVER",
-      titleTop: "FROM BURDEN",
-      titleMain: "TO ASSIGNMENT",
-      subtitle: "My Bullets Journey",
-      hook: "There are moments in life when God plants a burden in your heart long before you fully understand why.",
-      subHook: "This is the story of how a simple question became an assignment that continues to shape my life."
+      badge: "MY BULLETS JOURNEY",
+      title: "FROM BURDEN TO ASSIGNMENT",
+      quote: "There are moments in life when God plants a burden in your heart long before you fully understand why.",
+      subText: "This is the story of how a simple question became an assignment that continues to shape my life."
     },
     {
       type: "STORY",
@@ -105,68 +102,58 @@ export default function InstagramCarousel() {
   ];
 
   return (
-    <div className="min-h-screen bg-stone-950 font-sans text-slate-800 selection:bg-amber-100 overflow-hidden">
-      <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400;1,700&family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
-
-      <style jsx global>{`
-        .paper-grain {
-          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
-        }
-        .safe-zone { padding: 100px; }
-      `}</style>
+    <div className="min-h-screen bg-stone-950 font-sans text-slate-800 selection:bg-amber-100 overflow-x-hidden">
+      <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400;1,700&family=Inter:wght@400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
 
       {/* STUDIO PORTAL (Screen View) */}
-      <div className="h-screen flex flex-col justify-between p-6 relative z-10">
-        <header className="flex justify-between items-center bg-white/5 backdrop-blur-md p-4 border border-white/10 rounded-2xl">
+      <div className="min-h-screen flex flex-col justify-between p-4 md:p-6 max-w-xl mx-auto">
+        <header className="flex justify-between items-center bg-stone-900 p-4 border border-stone-800 rounded-xl mb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-[#D97B0C] rounded-xl flex items-center justify-center text-white shadow-lg">
-              <Camera size={20} />
+            <div className="w-9 h-9 bg-[#D97B0C] rounded-lg flex items-center justify-center text-white">
+              <Camera size={18} />
             </div>
             <div>
-              <h1 className="text-white font-bold text-sm uppercase tracking-widest font-inter">Trajectory Studio</h1>
-              <p className="text-stone-500 text-[10px] font-mono uppercase">4K PNG Capture Ready</p>
+              <h1 className="text-white font-bold text-xs uppercase tracking-widest font-inter">Carousel Studio</h1>
+              <p className="text-stone-500 text-[9px] font-mono uppercase">1080x1080 High-Density PNG</p>
             </div>
           </div>
           <button 
             onClick={downloadPng} 
             disabled={isCapturing}
-            className="bg-white text-black px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-[#D97B0C] hover:text-white transition-all flex items-center gap-2 shadow-xl"
+            className="bg-white text-black px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest hover:bg-[#D97B0C] hover:text-white transition-all flex items-center gap-2 shadow-lg"
           >
-            {isCapturing ? "Rendering 4K..." : <><Download size={14} /> Save Slide</>}
+            {isCapturing ? "Saving..." : <><Download size={14} /> Save Slide</>}
           </button>
         </header>
 
-        {/* 1:1 SQUARE CANVAS */}
-        <main className="grow flex items-center justify-center p-4">
+        {/* RESPONSIVE SQUARE CANVAS */}
+        <main className="grow flex items-center justify-center py-2">
           <div 
             ref={slideRef}
-            className="aspect-square w-full max-w-[500px] bg-[#FAF8F5] shadow-[0_30px_90px_-20px_rgba(0,0,0,0.6)] relative overflow-hidden paper-grain"
-            style={{ width: '1080px', height: '1080px', position: 'relative' }}
+            className="w-full aspect-square max-w-[380px] bg-[#FAF8F5] shadow-2xl rounded-xl border border-stone-200 p-6 flex flex-col justify-between relative overflow-hidden"
           >
-            <div className="absolute inset-0 safe-zone flex flex-col justify-between">
-              <SlideRenderer slide={slides[currentSlide]} index={currentSlide} />
-              
-              {/* EDITORIAL FOOTER */}
-              <footer className="flex justify-between items-end border-t border-stone-200/80 pt-6">
-                <div className="space-y-1">
-                  <p className="font-mono text-[10px] font-bold uppercase tracking-[0.4em] text-[#D97B0C]">Slide {currentSlide + 1} // 12</p>
-                  <p className="font-playfair italic text-xs text-stone-400">The Bullets Journey</p>
-                </div>
-                <div className="w-10 h-10 border border-stone-200 rounded-sm flex items-center justify-center">
-                  <span className="font-inter font-black text-[10px] text-stone-400">OM</span>
-                </div>
-              </footer>
-            </div>
+            <SlideRenderer slide={slides[currentSlide]} index={currentSlide} />
+            
+            {/* EDITORIAL FOOTER */}
+            <footer className="flex justify-between items-end border-t border-stone-200/80 pt-3 mt-2 shrink-0">
+              <div className="space-y-0.5">
+                <p className="font-mono text-[9px] font-bold uppercase tracking-[0.2em] text-[#D97B0C]">Slide {currentSlide + 1} / 12</p>
+                <p className="font-playfair italic text-[10px] text-stone-400">The Bullets Journey</p>
+              </div>
+              <div className="w-7 h-7 border border-stone-300 rounded flex items-center justify-center">
+                <span className="font-inter font-black text-[9px] text-stone-500">OM</span>
+              </div>
+            </footer>
           </div>
         </main>
 
         {/* CONTROLS */}
-        <footer className="flex justify-center gap-8 p-2">
-          <button onClick={prevSlide} disabled={currentSlide === 0} className="p-4 bg-white/5 border border-white/10 rounded-full text-white hover:bg-[#D97B0C] disabled:opacity-20 transition-all">
-            <ChevronLeft size={24} />
+        <footer className="flex justify-center gap-6 p-4">
+          <button onClick={prevSlide} disabled={currentSlide === 0} className="p-3 bg-stone-900 border border-stone-800 rounded-full text-white hover:bg-[#D97B0C] disabled:opacity-20 transition-all">
+            <ChevronLeft size={20} />
           </button>
-          <button onClick={nextSlide} disabled={currentSlide === slides.length - 1} className="p-4 bg-white/5 border border-white/10 rounded-full text-white hover:bg-[#D97B0C] disabled:opacity-20 transition-all">
-            <ChevronRight size={24} />
+          <button onClick={nextSlide} disabled={currentSlide === slides.length - 1} className="p-3 bg-stone-900 border border-stone-800 rounded-full text-white hover:bg-[#D97B0C] disabled:opacity-20 transition-all">
+            <ChevronRight size={20} />
           </button>
         </footer>
       </div>
@@ -174,67 +161,50 @@ export default function InstagramCarousel() {
   );
 }
 
-// SLIDE COMPOSITION RENDERER
+// SLIDE RENDERER (UN-SQUASHED)
 function SlideRenderer({ slide, index }) {
   return (
-    <div className="grow flex flex-col justify-center text-[#1E293B]">
+    <div className="grow flex flex-col justify-center text-[#1E293B] overflow-hidden">
       
-      {/* 1. THE TRAJECTORY COVER */}
+      {/* 1. COVER SLIDE */}
       {slide.type === "COVER" && (
-        <div className="h-full flex flex-col justify-between relative">
-          
-          {/* Top Bar: Monogram */}
-          <div className="flex justify-between items-start">
-            <span className="font-mono text-xs font-bold text-[#D97B0C] uppercase tracking-[0.3em]">{slide.subtitle}</span>
-            <div className="w-8 h-8 border border-stone-300 flex items-center justify-center font-inter font-black text-xs">OM</div>
+        <div className="h-full flex flex-col justify-between py-1">
+          <div className="flex justify-between items-center">
+            <span className="font-mono text-[9px] font-bold text-[#D97B0C] uppercase tracking-[0.25em]">{slide.badge}</span>
+            <div className="w-6 h-6 border border-stone-300 flex items-center justify-center font-inter font-black text-[9px]">OM</div>
           </div>
 
-          {/* Center: The Trajectory Line & Titles */}
-          <div className="flex gap-10 items-center my-auto">
-            {/* The Trajectory Symbol */}
-            <div className="flex flex-col items-center gap-1 shrink-0">
-              <div className="w-4 h-4 rounded-full border-2 border-[#D97B0C] bg-amber-100"></div>
-              <div className="w-[1.5px] h-36 bg-stone-300"></div>
-              <div className="w-4 h-4 bg-[#D97B0C] rotate-45"></div>
-            </div>
-
-            {/* Typography */}
-            <div className="space-y-2">
-              <p className="font-playfair italic text-2xl text-stone-500">{slide.titleTop}</p>
-              <h1 className="font-inter text-6xl font-black uppercase tracking-tighter leading-none text-[#1E293B]">
-                {slide.titleMain}
-              </h1>
-            </div>
-          </div>
-
-          {/* Bottom: Hook & Swipe */}
-          <div className="space-y-6">
-            <p className="font-playfair text-xl leading-relaxed text-stone-600 border-l-2 border-[#D97B0C] pl-6 italic">
-              &ldquo;{slide.hook}&rdquo;
+          <div className="my-auto space-y-3">
+            <h1 className="font-inter text-2xl font-black uppercase tracking-tight leading-tight text-[#1E293B]">
+              {slide.title}
+            </h1>
+            <div className="h-0.5 w-12 bg-[#D97B0C]"></div>
+            <p className="font-playfair italic text-sm text-stone-600 leading-relaxed">
+              &ldquo;{slide.quote}&rdquo;
             </p>
-            <div className="flex items-center justify-between pt-4">
-              <p className="font-inter text-xs text-stone-400 max-w-sm leading-relaxed">{slide.subHook}</p>
-              <div className="flex items-center gap-2 text-[#D97B0C] font-inter font-black text-xs uppercase tracking-widest">
-                <span>Swipe</span>
-                <ArrowRight size={14} />
-              </div>
-            </div>
           </div>
 
+          <div className="space-y-3 pt-2">
+            <p className="font-inter text-xs text-stone-500 leading-relaxed">{slide.subText}</p>
+            <div className="flex items-center gap-1.5 text-[#D97B0C] font-inter font-bold text-[10px] uppercase tracking-widest">
+              <span>Swipe</span>
+              <ArrowRight size={12} />
+            </div>
+          </div>
         </div>
       )}
 
       {/* 2. STORY SLIDES */}
       {slide.type === "STORY" && (
-        <div className="space-y-8">
-          <div className="flex items-center gap-4">
-            <span className="font-mono text-xs font-bold uppercase tracking-[0.4em] text-[#D97B0C]">0{index + 1}</span>
+        <div className="space-y-3 my-auto">
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-[9px] font-bold uppercase tracking-widest text-[#D97B0C]">0{index + 1}</span>
             <div className="h-px grow bg-stone-200"></div>
           </div>
-          <h2 className="font-playfair text-4xl font-black uppercase leading-tight text-[#1E293B]">
+          <h2 className="font-playfair text-lg font-black uppercase leading-snug text-[#1E293B]">
             {slide.title}
           </h2>
-          <p className="font-inter text-xl leading-[1.9] text-stone-600 text-justify whitespace-pre-wrap">
+          <p className="font-inter text-xs leading-relaxed text-stone-600 text-justify whitespace-pre-wrap">
             {slide.content}
           </p>
         </div>
@@ -242,48 +212,46 @@ function SlideRenderer({ slide, index }) {
 
       {/* 3. QUOTE SLIDES */}
       {slide.type === "QUOTE" && (
-        <div className="space-y-10 text-center max-w-lg mx-auto">
-          <Quote size={48} className="mx-auto text-[#D97B0C] opacity-30" />
-          <h3 className="font-inter text-xs font-black uppercase tracking-[0.4em] text-[#D97B0C]">{slide.title}</h3>
-          <p className="font-playfair italic text-3xl leading-relaxed text-[#1E293B]">
+        <div className="space-y-4 text-center my-auto px-2">
+          <Quote size={28} className="mx-auto text-[#D97B0C] opacity-30" />
+          <h3 className="font-inter text-[9px] font-black uppercase tracking-[0.25em] text-[#D97B0C]">{slide.title}</h3>
+          <p className="font-playfair italic text-base leading-relaxed text-[#1E293B]">
             &ldquo;{slide.quote}&rdquo;
           </p>
-          <div className="h-0.5 w-12 bg-[#D97B0C] mx-auto"></div>
+          <div className="h-0.5 w-8 bg-[#D97B0C] mx-auto"></div>
         </div>
       )}
 
-      {/* 4. TYPOGRAPHIC IDENTITY SLIDE */}
+      {/* 4. IDENTITY SLIDE */}
       {slide.type === "IDENTITY" && (
-        <div className="space-y-8">
-          <div className="space-y-2">
-            <p className="font-mono text-xs font-bold uppercase tracking-[0.4em] text-[#D97B0C]">Identity Profile</p>
-            <h2 className="font-playfair text-6xl font-black uppercase tracking-tighter text-[#1E293B]">
-              {slide.title}
-            </h2>
+        <div className="space-y-3 my-auto">
+          <div className="flex items-center gap-2">
+            <Heart size={14} className="text-[#D97B0C]" />
+            <span className="font-inter text-[9px] font-black uppercase tracking-widest text-[#D97B0C]">Identity Profile</span>
           </div>
-          <div className="h-1 w-20 bg-[#D97B0C]"></div>
-          <p className="font-inter text-xl leading-[1.9] text-stone-600 whitespace-pre-wrap">
+          <h2 className="font-playfair text-2xl font-black uppercase tracking-tight text-[#1E293B]">
+            {slide.title}
+          </h2>
+          <div className="h-0.5 w-10 bg-[#D97B0C]"></div>
+          <p className="font-inter text-xs leading-relaxed text-stone-600 whitespace-pre-wrap">
             {slide.content}
           </p>
-          <div className="pt-4 border-t border-stone-200">
-            <p className="font-mono text-xs font-bold uppercase tracking-widest text-stone-400">Olaoluwa Mayowa // BigMummy</p>
-          </div>
         </div>
       )}
 
       {/* 5. OUTRO SLIDE */}
       {slide.type === "OUTRO" && (
-        <div className="text-center space-y-10 max-w-md mx-auto">
-          <div className="w-16 h-16 bg-stone-900 rounded-full mx-auto flex items-center justify-center text-white">
-            <Heart size={24} className="text-[#D97B0C]" />
+        <div className="text-center space-y-4 my-auto px-2">
+          <div className="w-10 h-10 bg-stone-900 rounded-full mx-auto flex items-center justify-center text-white">
+            <Heart size={18} className="text-[#D97B0C]" />
           </div>
-          <h1 className="font-playfair text-5xl font-black uppercase tracking-tight text-[#1E293B]">
+          <h1 className="font-playfair text-2xl font-black uppercase tracking-tight text-[#1E293B]">
             {slide.title}
           </h1>
-          <p className="font-playfair italic text-xl text-stone-600 leading-relaxed">
+          <p className="font-playfair italic text-sm text-stone-600 leading-relaxed">
             &ldquo;{slide.quote}&rdquo;
           </p>
-          <p className="font-inter text-xs font-bold uppercase tracking-[0.3em] text-[#D97B0C]">
+          <p className="font-inter text-[9px] font-bold uppercase tracking-[0.25em] text-[#D97B0C]">
             {slide.sub}
           </p>
         </div>
