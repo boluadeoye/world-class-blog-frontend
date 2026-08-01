@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { toPng } from "html-to-image";
-import { Download, ChevronLeft, ChevronRight, Quote, Heart, Sparkles } from "lucide-react";
+import { Download, ChevronLeft, ChevronRight, Quote, Heart, Sparkles, ArrowRight } from "lucide-react";
 
 export default function InstagramCarousel() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -18,7 +18,7 @@ export default function InstagramCarousel() {
     setIsCapturing(true);
     try {
       const dataUrl = await toPng(slideRef.current, {
-        pixelRatio: 3, // 4K Resolution Output
+        pixelRatio: 3, // High-Density 1140x1140 Output
         cacheBust: true,
       });
       const link = document.createElement('a');
@@ -27,7 +27,9 @@ export default function InstagramCarousel() {
       link.click();
     } catch (err) {
       console.error('Capture failed', err);
-    } stroke
+    } finally {
+      setIsCapturing(false);
+    }
   };
 
   const nextSlide = () => { if (currentSlide < slides.length - 1) setCurrentSlide(currentSlide + 1); };
@@ -36,10 +38,10 @@ export default function InstagramCarousel() {
   const slides = [
     {
       type: "COVER",
-      author: "OLAOLUWA MAYOWA",
+      author: "Olaoluwa Mayowa",
       titleTop: "FROM BURDEN",
       titleMain: "TO ASSIGNMENT",
-      subtitle: "My Bullets Journey",
+      subtitle: "MY BULLETS JOURNEY",
       hook: "There are moments in life when God plants a burden in your heart long before you fully understand why.",
       subHook: "This is the story of how a simple question became an assignment that continues to shape my life."
     },
@@ -103,7 +105,7 @@ export default function InstagramCarousel() {
 
   return (
     <div className="min-h-screen bg-slate-950 font-sans text-slate-900 selection:bg-amber-200 overflow-x-hidden">
-      <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400;1,700&family=Inter:wght@400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+      <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400;1,600&family=Inter:wght@400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
 
       <style jsx global>{`
         /* CRYSTALLINE DIAMOND DUST BACKGROUND */
@@ -125,17 +127,17 @@ export default function InstagramCarousel() {
         
         /* LUXURY GLASS CARD */
         .luxury-glass {
-          background: rgba(255, 255, 255, 0.65);
+          background: rgba(255, 255, 255, 0.75);
           backdrop-filter: blur(25px);
           -webkit-backdrop-filter: blur(25px);
           border: 1px solid rgba(255, 255, 255, 0.9);
-          box-shadow: 0 30px 60px rgba(0, 0, 0, 0.06), inset 0 0 0 1px rgba(255, 255, 255, 0.8);
+          box-shadow: 0 20px 50px rgba(0, 0, 0, 0.05), inset 0 0 0 1px rgba(255, 255, 255, 0.8);
         }
       `}</style>
 
       {/* STUDIO PORTAL (Screen View) */}
       <div className="min-h-screen flex flex-col justify-between p-4 md:p-6 max-w-xl mx-auto">
-        <header className="flex justify-between items-center bg-slate-900 p-4 border border-slate-800 rounded-xl mb-4">
+        <header className="flex justify-between items-center bg-slate-900 p-4 border border-slate-800 rounded-xl mb-3">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 bg-amber-500 rounded-lg flex items-center justify-center text-white shadow-[0_0_15px_rgba(245,158,11,0.5)]">
               <Sparkles size={18} />
@@ -155,17 +157,17 @@ export default function InstagramCarousel() {
         </header>
 
         {/* 1:1 SQUARE CANVAS */}
-        <main className="grow flex items-center justify-center py-2">
+        <main className="grow flex items-center justify-center py-1">
           <div 
             ref={slideRef}
-            className="w-full aspect-square max-w-[380px] glitter-mesh shadow-2xl rounded-2xl p-6 flex flex-col justify-center relative overflow-hidden"
+            className="w-full aspect-square max-w-[380px] glitter-mesh shadow-2xl rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden"
           >
             <SlideRenderer slide={slides[currentSlide]} index={currentSlide} total={slides.length} />
           </div>
         </main>
 
         {/* CONTROLS */}
-        <footer className="flex justify-center gap-6 p-4">
+        <footer className="flex justify-center gap-6 p-3">
           <button onClick={prevSlide} disabled={currentSlide === 0} className="p-3 bg-slate-900 border border-slate-800 rounded-full text-white hover:text-amber-500 disabled:opacity-20 transition-all">
             <ChevronLeft size={20} />
           </button>
@@ -183,55 +185,59 @@ function SlideRenderer({ slide, index, total }) {
   const isLast = index === total - 1;
 
   return (
-    <div className="luxury-glass w-full h-full rounded-xl p-8 flex flex-col justify-between text-[#000000] relative z-10">
+    <div className="luxury-glass w-full h-full rounded-xl p-5 flex flex-col justify-between text-[#000000] relative z-10 box-border">
       
-      {/* TOP BAR: MONOGRAM & AUTHOR */}
-      <header className="flex justify-between items-center shrink-0">
+      {/* TOP HEADER BAR (PULLED ALL THE WAY UP) */}
+      <header className="flex justify-between items-start shrink-0 mb-2">
         {slide.type === "COVER" ? (
-          <span className="font-mono text-[9px] font-bold text-[#000000] uppercase tracking-[0.4em]">{slide.author}</span>
+          <span className="font-playfair italic text-xs font-semibold tracking-wider text-[#000000]">{slide.author}</span>
         ) : (
-          <div></div>
+          <span className="font-inter text-[8px] font-black uppercase tracking-[0.2em] text-[#D97B0C]">
+            {slide.subtitle || "The Bullets Journey"}
+          </span>
         )}
-        <div className="w-8 h-8 border border-[#000000] flex items-center justify-center font-inter font-black text-[10px] text-[#000000] bg-white/40">
+        <div className="w-7 h-7 border border-[#000000] flex items-center justify-center font-inter font-black text-[9px] text-[#000000] bg-white/60 shrink-0">
           OM
         </div>
       </header>
 
-      {/* CENTER: CONTENT */}
-      <main className="my-auto space-y-4">
+      {/* CENTER CONTENT CONTAINER (RAISED UP, NO OVERFLOW) */}
+      <main className="my-auto space-y-3 overflow-hidden py-1">
         
         {/* COVER SLIDE */}
         {slide.type === "COVER" && (
-          <div className="space-y-4">
-            {/* The Trajectory Symbol */}
-            <div className="flex gap-4 items-center">
+          <div className="space-y-3">
+            <p className="font-inter text-[8px] font-black uppercase tracking-[0.25em] text-[#D97B0C]">{slide.subtitle}</p>
+            
+            <div className="flex gap-3 items-center">
+              {/* Compact Trajectory Symbol */}
               <div className="flex flex-col items-center gap-0.5 shrink-0">
-                <div className="w-2.5 h-2.5 rounded-full border border-amber-600 bg-amber-200"></div>
-                <div className="w-px h-12 bg-black/30"></div>
-                <div className="w-2.5 h-2.5 bg-black rotate-45"></div>
+                <div className="w-2 h-2 rounded-full border border-amber-600 bg-amber-200"></div>
+                <div className="w-px h-8 bg-black/30"></div>
+                <div className="w-2 h-2 bg-black rotate-45"></div>
               </div>
               <div>
-                <p className="font-playfair italic text-lg text-[#000000]">{slide.titleTop}</p>
-                <h1 className="font-inter text-2xl font-black uppercase tracking-tight text-[#000000] leading-none">
+                <p className="font-playfair italic text-xs text-[#000000] leading-none mb-1">{slide.titleTop}</p>
+                <h1 className="font-inter text-xl font-black uppercase tracking-tight text-[#000000] leading-none">
                   {slide.titleMain}
                 </h1>
               </div>
             </div>
 
-            <p className="font-playfair italic text-xs font-bold text-[#000000] leading-relaxed border-l-2 border-amber-500 pl-4">
+            <p className="font-playfair italic text-xs font-bold text-[#000000] leading-relaxed border-l-2 border-[#D97B0C] pl-3 py-0.5">
               &ldquo;{slide.hook}&rdquo;
             </p>
-            <p className="font-inter text-[10px] font-bold text-[#000000] leading-relaxed">{slide.subHook}</p>
+            <p className="font-inter text-[10px] font-semibold text-[#000000] leading-normal">{slide.subHook}</p>
           </div>
         )}
 
         {/* STORY SLIDES */}
         {slide.type === "STORY" && (
-          <div className="space-y-3">
-            <h2 className="font-playfair text-xl font-black uppercase leading-tight text-[#000000]">
+          <div className="space-y-2">
+            <h2 className="font-playfair text-base font-black uppercase leading-tight text-[#000000]">
               {slide.title}
             </h2>
-            <p className="font-inter text-xs font-bold leading-relaxed text-[#000000] text-left whitespace-pre-wrap">
+            <p className="font-inter text-[11px] font-semibold leading-relaxed text-[#000000] text-left whitespace-pre-wrap">
               {slide.content}
             </p>
           </div>
@@ -239,10 +245,10 @@ function SlideRenderer({ slide, index, total }) {
 
         {/* QUOTE SLIDES */}
         {slide.type === "QUOTE" && (
-          <div className="space-y-4 text-center px-2">
-            <Quote size={28} className="mx-auto text-amber-600 opacity-60" />
-            <h3 className="font-mono text-[9px] font-black uppercase tracking-[0.25em] text-[#000000]">{slide.title}</h3>
-            <p className="font-playfair italic text-lg font-black leading-relaxed text-[#000000]">
+          <div className="space-y-3 text-center px-1">
+            <Quote size={24} className="mx-auto text-[#D97B0C] opacity-60" />
+            <h3 className="font-inter text-[8px] font-black uppercase tracking-[0.25em] text-[#D97B0C]">{slide.title}</h3>
+            <p className="font-playfair italic text-sm font-bold leading-relaxed text-[#000000]">
               &ldquo;{slide.quote}&rdquo;
             </p>
           </div>
@@ -250,16 +256,16 @@ function SlideRenderer({ slide, index, total }) {
 
         {/* IDENTITY SLIDE */}
         {slide.type === "IDENTITY" && (
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <Heart size={14} className="text-amber-600" />
-              <span className="font-mono text-[9px] font-black uppercase tracking-widest text-[#000000]">Identity Profile</span>
+          <div className="space-y-2">
+            <div className="flex items-center gap-1.5">
+              <Heart size={12} className="text-[#D97B0C]" />
+              <span className="font-inter text-[8px] font-black uppercase tracking-widest text-[#D97B0C]">Identity Profile</span>
             </div>
-            <h2 className="font-playfair text-2xl font-black uppercase tracking-tight text-[#000000]">
+            <h2 className="font-playfair text-xl font-black uppercase tracking-tight text-[#000000]">
               {slide.title}
             </h2>
-            <div className="h-0.5 w-12 bg-black"></div>
-            <p className="font-inter text-xs font-bold leading-relaxed text-[#000000] whitespace-pre-wrap text-left">
+            <div className="h-0.5 w-10 bg-[#D97B0C]"></div>
+            <p className="font-inter text-[11px] font-semibold leading-relaxed text-[#000000] text-left whitespace-pre-wrap">
               {slide.content}
             </p>
           </div>
@@ -267,17 +273,17 @@ function SlideRenderer({ slide, index, total }) {
 
         {/* OUTRO SLIDE */}
         {slide.type === "OUTRO" && (
-          <div className="text-center space-y-4 px-2">
-            <div className="w-10 h-10 bg-black text-white rounded-full mx-auto flex items-center justify-center shadow-lg">
-              <Heart size={18} className="text-amber-400" />
+          <div className="text-center space-y-3 px-1">
+            <div className="w-8 h-8 bg-black text-white rounded-full mx-auto flex items-center justify-center shadow-md">
+              <Heart size={14} className="text-[#D97B0C]" />
             </div>
-            <h1 className="font-playfair text-2xl font-black uppercase tracking-tight text-[#000000]">
+            <h1 className="font-playfair text-lg font-black uppercase tracking-tight text-[#000000]">
               {slide.title}
             </h1>
             <p className="font-playfair italic text-xs font-bold text-[#000000] leading-relaxed">
               &ldquo;{slide.quote}&rdquo;
             </p>
-            <p className="font-mono text-[9px] font-black uppercase tracking-[0.25em] text-amber-600">
+            <p className="font-inter text-[8px] font-black uppercase tracking-[0.2em] text-[#D97B0C]">
               {slide.sub}
             </p>
           </div>
@@ -285,14 +291,17 @@ function SlideRenderer({ slide, index, total }) {
 
       </main>
 
-      {/* FOOTER: PROMPT (EXACT 'Swipe -->' ARROW) */}
-      <footer className="flex justify-end items-center shrink-0 pt-2">
+      {/* FOOTER: AMBER ORANGE SWIPE ARROW */}
+      <footer className="flex justify-end items-center shrink-0 pt-1 border-t border-black/5">
         {!isLast ? (
-          <span className="font-mono text-[10px] font-bold text-[#000000] uppercase tracking-widest">
-            Swipe --&gt;
-          </span>
+          <div className="flex items-center gap-1 text-[#D97B0C]">
+            <span className="font-inter text-[9px] font-black uppercase tracking-widest">
+              Swipe
+            </span>
+            <ArrowRight size={12} className="stroke-[3]" />
+          </div>
         ) : (
-          <span className="font-mono text-[8px] font-bold text-[#000000] uppercase tracking-widest">
+          <span className="font-inter text-[8px] font-black text-stone-400 uppercase tracking-widest">
             End of Journey
           </span>
         )}
