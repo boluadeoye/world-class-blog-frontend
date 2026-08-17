@@ -59,7 +59,7 @@ export default function StayMediaManual() {
             display: flex; 
             flex-direction: column; 
             justify-content: space-between;
-            padding: 13mm 16mm 11mm 16mm;
+            padding: 12mm 16mm 10mm 16mm;
           }
           .page-num::after {
             counter-increment: pageCounter;
@@ -90,7 +90,7 @@ export default function StayMediaManual() {
 
           <div className="grid grid-cols-2 gap-3 text-left mb-8 font-inter text-[11px] bg-slate-50 p-4 rounded-xl border border-slate-200">
             <div className="flex items-center gap-2 text-slate-700"><CheckCircle2 size={14} className="text-[#1E5631]"/> 4 Core Modules</div>
-            <div className="flex items-center gap-2 text-slate-700"><CheckCircle2 size={14} className="text-[#1E5631]"/> 9 Verified UI Anchors</div>
+            <div className="flex items-center gap-2 text-slate-700"><CheckCircle2 size={14} className="text-[#1E5631]"/> Verified Section 4.0</div>
             <div className="flex items-center gap-2 text-slate-700"><CheckCircle2 size={14} className="text-[#1E5631]"/> Full Troubleshooting</div>
             <div className="flex items-center gap-2 text-slate-700"><CheckCircle2 size={14} className="text-[#1E5631]"/> Print-Ready A4 PDF</div>
           </div>
@@ -396,7 +396,7 @@ export default function StayMediaManual() {
         </div>
 
         {/* ========================================================================= */}
-        {/* PAGE 5: SECTION 4.0 — THE VISUAL ARCHIVE (PORTFOLIO & GALLERY)            */}
+        {/* PAGE 5: SECTION 4.0 — THE VISUAL ARCHIVE (RECTIFIED MAPPING)              */}
         {/* ========================================================================= */}
         <div className="a4-page">
           <HeaderSection section="4.0 THE VISUAL ARCHIVE" sub="PORTFOLIO &amp; GALLERY" />
@@ -408,76 +408,79 @@ export default function StayMediaManual() {
             </div>
 
             {/* 4.1 Project Creation & Media Asset Uploads */}
-            <div className="space-y-0.5">
-              <h3 className="font-inter text-[9.5px] font-black uppercase text-slate-500 tracking-wider">4.1 Project Creation &amp; Media Asset Uploads</h3>
-              <div className="grid grid-cols-2 gap-x-2 gap-y-0.5 font-inter text-[9px] text-slate-700">
-                <p>1. Go to <strong>Gallery &gt; Add Post</strong>.</p>
-                <p>2. Enter project title (e.g., <em>The Kefee Editorial</em>).</p>
-                <p>3. Enter project credits into the body text editor.</p>
-                <p>4. Click <strong>Add Media</strong> &gt; Upload photos &gt; <strong>Insert into Post</strong>.</p>
+            <div className="space-y-1">
+              <h3 className="font-inter text-[10px] font-black uppercase text-slate-500 tracking-wider">4.1 Project Creation &amp; Media Asset Uploads</h3>
+              <p className="font-inter text-[9px] text-slate-700"><strong>Objective:</strong> Upload client photo shoots, creative direction projects, and modeling portfolios to the live Gallery page.</p>
+              
+              <div className="grid grid-cols-2 gap-x-3 gap-y-1 font-inter text-[9px] text-slate-700 pt-0.5">
+                <p>1. In the left navigation sidebar, click <strong>Gallery &gt; Add Post</strong>.</p>
+                <p>2. <strong>Project Title:</strong> Enter project name in the Title field (e.g., <em>The Kefee Editorial</em>).</p>
+                <p>3. <strong>Project Description:</strong> Type credits, services, and narrative details into body editor.</p>
+                <p>4. <strong>Injecting Images:</strong> Click <strong>Add Media</strong>, upload photos, click <strong>Insert into Post</strong>.</p>
               </div>
             </div>
 
-            {/* Figures 4.1 & 4.2 Exact Mapping */}
-            <div className="grid grid-cols-2 gap-2.5">
-              <ImageContainer 
-                src="https://res.cloudinary.com/dwbjb3svx/image/upload/v1786971443/blog_assets/ccacqpockfhjikrkbjn8.png"
-                caption="Figure 4.1: Accessing Portfolio Gallery Module."
-                compact={true}
-              />
+            {/* Figure 4.1 Frame */}
+            <div className="w-full">
               <ImageContainer 
                 src="https://res.cloudinary.com/dwbjb3svx/image/upload/v1786971595/blog_assets/mt2n7dyhxc6gknrzskl2.png"
-                caption="Figure 4.2: Entering Title and Inserting Photos."
+                caption="Figure 4.1: Entering Project Title, Credits, and Initializing Asset Injection."
                 compact={true}
               />
             </div>
+
+            {/* Warning Block 4.1 */}
+            <WarningBlock 
+              title="What to Avoid"
+              content="Do not type plain text file names (e.g., 'Kefee Editorial 1') into the editor. You must click Add Media and insert actual image files. The frontend engine scans for image tags; plain text will result in a blank gallery on the website."
+            />
 
             {/* 4.2 Gallery Categorization & Live Filter Alignment */}
-            <div className="space-y-0.5 pt-0.5">
-              <h3 className="font-inter text-[9.5px] font-black uppercase text-slate-500 tracking-wider">4.2 Gallery Categorization &amp; Live Filter Alignment</h3>
-              <p className="font-inter text-[8.5px] text-slate-700">
-                In the right panel under <strong>Gallery Categories</strong>, check the appropriate category (e.g., <strong>Modeling</strong>, <strong>Weddings</strong>) &gt; Click <strong>Publish</strong>.
-              </p>
+            <div className="space-y-1 pt-1">
+              <h3 className="font-inter text-[10px] font-black uppercase text-slate-500 tracking-wider">4.2 Gallery Categorization &amp; Live Filter Alignment</h3>
+              <p className="font-inter text-[9px] text-slate-700"><strong>Objective:</strong> Assign portfolio projects to specific categories to enable the dynamic filtering system on the frontend.</p>
+              
+              <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 font-inter text-[8.5px] text-slate-700">
+                <p>1. On right panel, locate <strong>Gallery Categories</strong> box.</p>
+                <p>2. Check box for project type (e.g., <strong>Modeling</strong>, <strong>Weddings</strong>, or <strong>Events</strong>).</p>
+                <p className="col-span-2">3. Scroll up to the Publish box and click <strong>Update</strong> or <strong>Publish</strong>.</p>
+              </div>
             </div>
 
-            {/* Figures 4.3 & 4.4 Exact Mapping */}
+            {/* Figures 4.2 & 4.3 Dual Frame */}
             <div className="grid grid-cols-2 gap-2.5">
               <ImageContainer 
-                src="https://res.cloudinary.com/dwbjb3svx/image/upload/v1786971605/blog_assets/fwg7yiflhq6uwx6tzwjf.png"
-                caption="Figure 4.3: Category Checkbox Panel."
+                src="https://res.cloudinary.com/dwbjb3svx/image/upload/v1786971613/blog_assets/w1mflurwgjhwxn0tc1wz.png"
+                caption="Figure 4.2: Complete Sidebar View for Category Assignment and Publishing."
                 compact={true}
               />
               <ImageContainer 
-                src="https://res.cloudinary.com/dwbjb3svx/image/upload/v1786971613/blog_assets/w1mflurwgjhwxn0tc1wz.png"
-                caption="Figure 4.4: Complete Gallery Panel Layout."
+                src="https://res.cloudinary.com/dwbjb3svx/image/upload/v1786971605/blog_assets/fwg7yiflhq6uwx6tzwjf.png"
+                caption="Figure 4.3: Close-up of the Gallery Category Selection for Live Website Filtering."
                 compact={true}
               />
             </div>
 
-            {/* Final Callout & Troubleshooting */}
+            {/* Callouts 4.2 */}
             <div className="space-y-1.5">
-              <WarningBlock 
-                title="What to Avoid"
-                content="Do not type plain text file names (e.g., 'Kefee Editorial 1') into the editor. You MUST click Add Media and insert actual image files. Plain text names will not convert into images on the website."
-              />
               <SuccessBlock 
                 title="What to Expect on Live Website"
-                content="On the /gallery page, the project appears inside the fluid grid. When a visitor clicks the category filter tab (e.g., 'Modeling'), the grid instantly filters to display only projects tagged with that category."
+                content="On the /gallery page, the project appears inside the fluid grid. When a visitor clicks a filter tab (e.g., 'Modeling'), the grid instantly isolates and displays only projects tagged with that specific category."
               />
               <AlertBlock 
-                issue="Project appears under 'All' but disappears when clicking a filter tab."
-                fix="Edit the gallery post and verify that a checkbox is marked under Gallery Categories in the right sidebar."
+                issue="Project appears under the 'All' tab but disappears when clicking a specific filter."
+                fix="Edit the gallery post and verify that a checkbox is marked under Gallery Categories in the right sidebar. If 'Uncategorized' is checked, the project will not respond to filters."
               />
             </div>
 
             {/* Master End Sign-off */}
-            <div className="border-t-2 border-[#1E5631] pt-2 flex justify-between items-center font-inter text-[8px]">
+            <div className="border-t-2 border-[#1E5631] pt-1.5 flex justify-between items-center font-inter text-[8px]">
               <div>
                 <p className="font-black uppercase text-[#1E5631] tracking-widest">End of Master Operations Manual</p>
                 <p className="text-slate-400">StayMedia &bull; Z2 Concepts Digital Administration</p>
               </div>
               <div className="flex items-center gap-2">
-                <ShieldCheck size={16} className="text-[#1E5631]" />
+                <ShieldCheck size={14} className="text-[#1E5631]" />
                 <span className="font-mono font-bold text-slate-700 uppercase">Verified Production Standard</span>
               </div>
             </div>
@@ -517,33 +520,33 @@ function FooterSection({ section }) {
 
 function SuccessBlock({ title, content }) {
   return (
-    <div className="bg-[#1E5631]/5 border-l-4 border-[#1E5631] p-2 rounded-r-md">
-      <p className="font-inter text-[8.5px] font-black uppercase tracking-wider text-[#1E5631] flex items-center gap-1.5 mb-0.5">
-        <CheckCircle2 size={11} className="text-[#1E5631]" /> {title}
+    <div className="bg-[#1E5631]/5 border-l-4 border-[#1E5631] p-1.5 rounded-r-md">
+      <p className="font-inter text-[8px] font-black uppercase tracking-wider text-[#1E5631] flex items-center gap-1.5 mb-0.5">
+        <CheckCircle2 size={10} className="text-[#1E5631]" /> {title}
       </p>
-      <p className="font-inter text-[8.5px] text-slate-700 leading-snug text-justify">{content}</p>
+      <p className="font-inter text-[8px] text-slate-700 leading-snug text-justify">{content}</p>
     </div>
   );
 }
 
 function WarningBlock({ title, content }) {
   return (
-    <div className="bg-[#FFC107]/15 border-l-4 border-[#FFC107] p-2 rounded-r-md">
-      <p className="font-inter text-[8.5px] font-black uppercase tracking-wider text-[#B45309] flex items-center gap-1.5 mb-0.5">
-        <AlertTriangle size={11} className="text-[#D97B0C]" /> {title}
+    <div className="bg-[#FFC107]/15 border-l-4 border-[#FFC107] p-1.5 rounded-r-md">
+      <p className="font-inter text-[8px] font-black uppercase tracking-wider text-[#B45309] flex items-center gap-1.5 mb-0.5">
+        <AlertTriangle size={10} className="text-[#D97B0C]" /> {title}
       </p>
-      <p className="font-inter text-[8.5px] text-slate-800 leading-snug text-justify">{content}</p>
+      <p className="font-inter text-[8px] text-slate-800 leading-snug text-justify">{content}</p>
     </div>
   );
 }
 
 function AlertBlock({ issue, fix }) {
   return (
-    <div className="bg-red-50 border-l-4 border-red-600 p-2 rounded-r-md">
-      <p className="font-inter text-[8.5px] font-black uppercase tracking-wider text-red-700 flex items-center gap-1.5 mb-0.5">
-        <AlertOctagon size={11} className="text-red-600" /> Troubleshooting Alert
+    <div className="bg-red-50 border-l-4 border-red-600 p-1.5 rounded-r-md">
+      <p className="font-inter text-[8px] font-black uppercase tracking-wider text-red-700 flex items-center gap-1.5 mb-0.5">
+        <AlertOctagon size={10} className="text-red-600" /> Troubleshooting Alert
       </p>
-      <p className="font-inter text-[8.5px] text-red-900 leading-snug">
+      <p className="font-inter text-[8px] text-red-900 leading-snug">
         <strong className="text-red-950">Issue:</strong> {issue} <br />
         <strong className="text-red-950">Fix:</strong> {fix}
       </p>
@@ -554,7 +557,7 @@ function AlertBlock({ issue, fix }) {
 function ImageContainer({ src, caption, tall = false, compact = false }) {
   return (
     <div className="border border-[#1E5631] bg-white p-1 rounded-sm shadow-sm flex flex-col items-center">
-      <div className={`w-full overflow-hidden flex items-center justify-center bg-slate-100 ${tall ? 'h-[62mm]' : compact ? 'h-[32mm]' : 'h-[44mm]'}`}>
+      <div className={`w-full overflow-hidden flex items-center justify-center bg-slate-100 ${tall ? 'h-[62mm]' : compact ? 'h-[30mm]' : 'h-[44mm]'}`}>
         <img 
           src={src} 
           alt={caption} 
@@ -562,7 +565,7 @@ function ImageContainer({ src, caption, tall = false, compact = false }) {
           crossOrigin="anonymous"
         />
       </div>
-      <p className="font-inter text-[7px] font-bold text-slate-600 italic text-center mt-1 px-1 line-clamp-1">
+      <p className="font-inter text-[7px] font-bold text-slate-600 italic text-center mt-0.5 px-1 line-clamp-1">
         {caption}
       </p>
     </div>
