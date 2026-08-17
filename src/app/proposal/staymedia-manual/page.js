@@ -2,8 +2,7 @@
 import { useState, useEffect } from "react";
 import { 
   Download, CheckCircle2, AlertTriangle, AlertOctagon, 
-  ExternalLink, Layers, ShoppingBag, Video, Image as ImageIcon, 
-  FileText, Lock, Globe, ShieldCheck, ArrowRight, BookOpen
+  Layers, ShieldCheck, BookOpen
 } from "lucide-react";
 import Link from "next/link";
 
@@ -60,7 +59,7 @@ export default function StayMediaManual() {
             display: flex; 
             flex-direction: column; 
             justify-content: space-between;
-            padding: 14mm 16mm 12mm 16mm;
+            padding: 13mm 16mm 11mm 16mm;
           }
           .page-num::after {
             counter-increment: pageCounter;
@@ -121,14 +120,12 @@ export default function StayMediaManual() {
         {/* PAGE 1: TITLE, EXECUTIVE TOC & SECTION 1: COMMAND CENTER ACCESS           */}
         {/* ========================================================================= */}
         <div className="a4-page">
-          {/* Top Brand Ribbon */}
           <div className="w-full flex h-2 absolute top-0 left-0">
             <div className="bg-[#1E5631] w-2/3"></div>
             <div className="bg-[#FFC107] w-1/3"></div>
           </div>
 
           <div className="pt-2">
-            {/* Header Identity */}
             <header className="flex justify-between items-start border-b-2 border-slate-200 pb-4 mb-4">
               <div>
                 <p className="font-mono text-[8px] font-black uppercase tracking-[0.3em] text-[#1E5631] mb-0.5">StayMedia // Standard Operating Procedure</p>
@@ -145,7 +142,6 @@ export default function StayMediaManual() {
               </div>
             </header>
 
-            {/* Table of Contents Modular Grid */}
             <section className="mb-5 bg-slate-50 border border-slate-200 rounded-lg p-3">
               <h2 className="font-inter text-[9px] font-black uppercase tracking-[0.2em] text-[#1E5631] mb-2 flex items-center gap-1.5">
                 <Layers size={12} className="text-[#1E5631]" /> Table of Contents &amp; Quick Index
@@ -170,7 +166,6 @@ export default function StayMediaManual() {
               </div>
             </section>
 
-            {/* SECTION 1: SYSTEM ACCESS & COMMAND CENTER */}
             <section className="space-y-3">
               <div className="border-l-4 border-[#1E5631] pl-3">
                 <span className="font-mono text-[8px] font-black text-[#1E5631] uppercase tracking-widest">Section 1.0</span>
@@ -206,7 +201,6 @@ export default function StayMediaManual() {
                 </div>
               </div>
 
-              {/* Callout Blocks for Section 1 */}
               <div className="space-y-2 pt-1">
                 <SuccessBlock 
                   title="What to Expect"
@@ -243,38 +237,16 @@ export default function StayMediaManual() {
             <div>
               <h3 className="font-inter text-[10px] font-black uppercase text-slate-500 tracking-wider mb-1">B. Step-by-Step Execution</h3>
               <div className="grid grid-cols-2 gap-x-4 gap-y-1 font-inter text-[9.5px] text-slate-700">
-                <div className="flex items-start gap-1.5">
-                  <span className="font-mono font-bold text-[#1E5631]">1.</span>
-                  <p>In the left navigation sidebar, click <strong>Posts</strong>.</p>
-                </div>
-                <div className="flex items-start gap-1.5">
-                  <span className="font-mono font-bold text-[#1E5631]">2.</span>
-                  <p>From the flyout menu, click <strong>Add Post</strong>.</p>
-                </div>
-                <div className="flex items-start gap-1.5">
-                  <span className="font-mono font-bold text-[#1E5631]">3.</span>
-                  <p>Enter headline into the <strong>Title</strong> field.</p>
-                </div>
-                <div className="flex items-start gap-1.5">
-                  <span className="font-mono font-bold text-[#1E5631]">4.</span>
-                  <p>Paste text into the body editor.</p>
-                </div>
-                <div className="flex items-start gap-1.5 col-span-2">
-                  <span className="font-mono font-bold text-[#1E5631]">5.</span>
-                  <p>In right panel, click <strong>Set Featured Image</strong> and upload high-res cover photo.</p>
-                </div>
-                <div className="flex items-start gap-1.5">
-                  <span className="font-mono font-bold text-[#1E5631]">6.</span>
-                  <p>Under <strong>Categories</strong>, check <strong>Blog</strong>.</p>
-                </div>
-                <div className="flex items-start gap-1.5">
-                  <span className="font-mono font-bold text-[#1E5631]">7.</span>
-                  <p>Click blue <strong>Publish</strong> button.</p>
-                </div>
+                <div className="flex items-start gap-1.5"><span className="font-mono font-bold text-[#1E5631]">1.</span><p>In the left navigation sidebar, click <strong>Posts</strong>.</p></div>
+                <div className="flex items-start gap-1.5"><span className="font-mono font-bold text-[#1E5631]">2.</span><p>From the flyout menu, click <strong>Add Post</strong>.</p></div>
+                <div className="flex items-start gap-1.5"><span className="font-mono font-bold text-[#1E5631]">3.</span><p>Enter headline into the <strong>Title</strong> field.</p></div>
+                <div className="flex items-start gap-1.5"><span className="font-mono font-bold text-[#1E5631]">4.</span><p>Paste text into the body editor.</p></div>
+                <div className="flex items-start gap-1.5 col-span-2"><span className="font-mono font-bold text-[#1E5631]">5.</span><p>In right panel, click <strong>Set Featured Image</strong> and upload high-res cover photo.</p></div>
+                <div className="flex items-start gap-1.5"><span className="font-mono font-bold text-[#1E5631]">6.</span><p>Under <strong>Categories</strong>, check <strong>Blog</strong>.</p></div>
+                <div className="flex items-start gap-1.5"><span className="font-mono font-bold text-[#1E5631]">7.</span><p>Click blue <strong>Publish</strong> button.</p></div>
               </div>
             </div>
 
-            {/* Figures 2.1 & 2.2 Dual Grid */}
             <div className="grid grid-cols-2 gap-3 pt-1">
               <ImageContainer 
                 src="https://res.cloudinary.com/dwbjb3svx/image/upload/v1786970953/blog_assets/cju4ln7o3bmzml7gvblz.png"
@@ -286,7 +258,6 @@ export default function StayMediaManual() {
               />
             </div>
 
-            {/* Callout Blocks */}
             <div className="space-y-2 pt-1">
               <SuccessBlock 
                 title="What to Expect on Live Website"
@@ -337,7 +308,6 @@ export default function StayMediaManual() {
               </div>
             </div>
 
-            {/* Figure 2.3 Frame */}
             <div className="w-full pt-1">
               <ImageContainer 
                 src="https://res.cloudinary.com/dwbjb3svx/image/upload/v1786971165/blog_assets/qwqju6choly8nwly8zry.png"
@@ -346,7 +316,6 @@ export default function StayMediaManual() {
               />
             </div>
 
-            {/* Callout Blocks */}
             <div className="space-y-2 pt-1">
               <SuccessBlock 
                 title="What to Expect on Live Website"
@@ -374,7 +343,6 @@ export default function StayMediaManual() {
               <h2 className="font-inter text-base font-black uppercase text-slate-900 leading-tight">The Print Shop (Variable Frame Products)</h2>
             </div>
 
-            {/* 3.1 Product Init */}
             <div className="space-y-1">
               <h3 className="font-inter text-[10px] font-black uppercase text-slate-500 tracking-wider">3.1 Product Initialization &amp; Type Selection</h3>
               <p className="font-inter text-[9.5px] text-slate-700"><strong>A. Objective:</strong> Create print products (e.g., Alu-Dibond, Canvas) offering multiple selectable sizes.</p>
@@ -397,7 +365,6 @@ export default function StayMediaManual() {
               />
             </div>
 
-            {/* 3.2 Variations & Pricing */}
             <div className="space-y-1">
               <h3 className="font-inter text-[10px] font-black uppercase text-slate-500 tracking-wider">3.2 Size Variation &amp; Mandatory Pricing Rules</h3>
               <p className="font-inter text-[9.5px] text-slate-700"><strong>A. Objective:</strong> Assign dimensions (20x30, 30x40) and mandatory prices for each size.</p>
@@ -409,7 +376,6 @@ export default function StayMediaManual() {
               </div>
             </div>
 
-            {/* Critical Callouts */}
             <div className="space-y-2 pt-1">
               <SuccessBlock 
                 title="What to Expect on Live Website"
@@ -430,7 +396,7 @@ export default function StayMediaManual() {
         </div>
 
         {/* ========================================================================= */}
-        {/* PAGE 5: SECTION 4 — THE VISUAL ARCHIVE (PORTFOLIO & GALLERY)               */}
+        {/* PAGE 5: SECTION 4.0 — THE VISUAL ARCHIVE (PORTFOLIO & GALLERY)            */}
         {/* ========================================================================= */}
         <div className="a4-page">
           <HeaderSection section="4.0 THE VISUAL ARCHIVE" sub="PORTFOLIO &amp; GALLERY" />
@@ -441,18 +407,18 @@ export default function StayMediaManual() {
               <h2 className="font-inter text-base font-black uppercase text-slate-900 leading-tight">The Visual Archive (Portfolio &amp; Gallery)</h2>
             </div>
 
-            {/* 4.1 Project Creation */}
+            {/* 4.1 Project Creation & Media Asset Uploads */}
             <div className="space-y-0.5">
               <h3 className="font-inter text-[9.5px] font-black uppercase text-slate-500 tracking-wider">4.1 Project Creation &amp; Media Asset Uploads</h3>
               <div className="grid grid-cols-2 gap-x-2 gap-y-0.5 font-inter text-[9px] text-slate-700">
-                <p>1. Go to <strong>Gallery</strong> &gt; <strong>Add Post</strong>.</p>
+                <p>1. Go to <strong>Gallery &gt; Add Post</strong>.</p>
                 <p>2. Enter project title (e.g., <em>The Kefee Editorial</em>).</p>
-                <p>3. Enter project credits into body text editor.</p>
+                <p>3. Enter project credits into the body text editor.</p>
                 <p>4. Click <strong>Add Media</strong> &gt; Upload photos &gt; <strong>Insert into Post</strong>.</p>
               </div>
             </div>
 
-            {/* Dual Grid Figures 4.1 & 4.2 */}
+            {/* Figures 4.1 & 4.2 Exact Mapping */}
             <div className="grid grid-cols-2 gap-2.5">
               <ImageContainer 
                 src="https://res.cloudinary.com/dwbjb3svx/image/upload/v1786971443/blog_assets/ccacqpockfhjikrkbjn8.png"
@@ -466,13 +432,15 @@ export default function StayMediaManual() {
               />
             </div>
 
-            {/* 4.2 Categorization */}
-            <div className="space-y-0.5">
+            {/* 4.2 Gallery Categorization & Live Filter Alignment */}
+            <div className="space-y-0.5 pt-0.5">
               <h3 className="font-inter text-[9.5px] font-black uppercase text-slate-500 tracking-wider">4.2 Gallery Categorization &amp; Live Filter Alignment</h3>
-              <p className="font-inter text-[8.5px] text-slate-700">In right panel under <strong>Gallery Categories</strong>, check category (e.g., <strong>Modeling</strong>, <strong>Weddings</strong>) &gt; Click <strong>Publish</strong>.</p>
+              <p className="font-inter text-[8.5px] text-slate-700">
+                In the right panel under <strong>Gallery Categories</strong>, check the appropriate category (e.g., <strong>Modeling</strong>, <strong>Weddings</strong>) &gt; Click <strong>Publish</strong>.
+              </p>
             </div>
 
-            {/* Dual Grid Figures 4.3 & 4.4 */}
+            {/* Figures 4.3 & 4.4 Exact Mapping */}
             <div className="grid grid-cols-2 gap-2.5">
               <ImageContainer 
                 src="https://res.cloudinary.com/dwbjb3svx/image/upload/v1786971605/blog_assets/fwg7yiflhq6uwx6tzwjf.png"
@@ -490,15 +458,15 @@ export default function StayMediaManual() {
             <div className="space-y-1.5">
               <WarningBlock 
                 title="What to Avoid"
-                content="Do not type plain text file names into the editor. You must click Add Media and insert actual image files."
+                content="Do not type plain text file names (e.g., 'Kefee Editorial 1') into the editor. You MUST click Add Media and insert actual image files. Plain text names will not convert into images on the website."
               />
               <SuccessBlock 
                 title="What to Expect on Live Website"
-                content="On /gallery, project appears inside fluid grid. Category tabs dynamically filter the display instantly."
+                content="On the /gallery page, the project appears inside the fluid grid. When a visitor clicks the category filter tab (e.g., 'Modeling'), the grid instantly filters to display only projects tagged with that category."
               />
               <AlertBlock 
                 issue="Project appears under 'All' but disappears when clicking a filter tab."
-                fix="Edit the gallery post and verify that a category checkbox is marked under Gallery Categories."
+                fix="Edit the gallery post and verify that a checkbox is marked under Gallery Categories in the right sidebar."
               />
             </div>
 
@@ -586,7 +554,7 @@ function AlertBlock({ issue, fix }) {
 function ImageContainer({ src, caption, tall = false, compact = false }) {
   return (
     <div className="border border-[#1E5631] bg-white p-1 rounded-sm shadow-sm flex flex-col items-center">
-      <div className={`w-full overflow-hidden flex items-center justify-center bg-slate-100 ${tall ? 'h-[62mm]' : compact ? 'h-[30mm]' : 'h-[44mm]'}`}>
+      <div className={`w-full overflow-hidden flex items-center justify-center bg-slate-100 ${tall ? 'h-[62mm]' : compact ? 'h-[32mm]' : 'h-[44mm]'}`}>
         <img 
           src={src} 
           alt={caption} 
