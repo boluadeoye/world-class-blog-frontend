@@ -9,11 +9,39 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
+// Subcomponents placed at top for 100% clean hoisting
+function DocHeader({ refCode, pageNum }) {
+  return (
+    <header className="h-[14mm] flex items-end justify-between border-b-2 border-slate-900 pb-2 mb-4 relative z-10">
+      <div className="flex items-center gap-2">
+        <Building2 size={16} className="text-[#0F172A]" />
+        <span className="font-inter text-[8.5px] font-black uppercase tracking-[0.2em] text-[#0F172A]">Hospitality Operating System // Specification SOW</span>
+      </div>
+      <div className="flex items-center gap-3 font-mono text-[8.5px]">
+        <span className="text-slate-400">{refCode}</span>
+        <span className="font-bold text-[#0F172A]">PAGE {pageNum}</span>
+      </div>
+    </header>
+  );
+}
+
+function DocFooter() {
+  return (
+    <footer className="h-[10mm] flex items-center justify-between border-t border-slate-200 text-slate-400 font-mono text-[7.5px] uppercase tracking-widest relative z-10 mt-auto pt-2">
+      <span>CONFIDENTIAL // PREPARED FOR CLIENT EVALUATION</span>
+      <div className="flex items-center gap-1.5">
+        <span className="text-[#0F172A] font-bold">TITANIUM ARCHITECTURE</span>
+        <div className="w-1.5 h-1.5 bg-[#D4AF37] rounded-full"></div>
+      </div>
+    </footer>
+  );
+}
+
 export default function HospitalityERPProposal() {
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    setTimeout(() => setIsReady(true), 1000);
+    setTimeout(() => setIsReady(true), 800);
   }, []);
 
   const handlePrint = () => {
@@ -55,7 +83,7 @@ export default function HospitalityERPProposal() {
         .font-mono { font-family: 'JetBrains Mono', monospace; }
       `}</style>
 
-      {/* VIEW 1: PORTAL (Screen Only) */}
+      {/* PORTAL (Screen View) */}
       <div className="no-print flex flex-col items-center justify-center min-h-screen p-6 relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-blue-900/30 via-slate-950 to-slate-950"></div>
         
@@ -65,12 +93,10 @@ export default function HospitalityERPProposal() {
           </div>
 
           <h1 className="font-playfair text-2xl font-black text-[#0F172A] mb-2">Hospitality Operating System</h1>
-          <p className="font-inter text-[#D4AF37] text-xs font-bold uppercase tracking-[0.25em] mb-8">Master Scope & Solution Blueprint</p>
+          <p className="font-inter text-[#D4AF37] text-xs font-bold uppercase tracking-[0.25em] mb-8">Master Scope &amp; Solution Blueprint</p>
 
           {!isReady ? (
-            <div className="space-y-2 text-left bg-slate-50 p-4 border-l-2 border-[#0F172A] font-mono text-[10px] text-slate-500">
-              <p className="animate-pulse">&gt; Compiling Architecture...</p>
-            </div>
+            <div className="text-slate-500 font-mono text-xs animate-pulse">Compiling Engine...</div>
           ) : (
             <button 
               onClick={handlePrint}
@@ -87,13 +113,12 @@ export default function HospitalityERPProposal() {
         </div>
       </div>
 
-      {/* VIEW 2: THE 7-PAGE MASTER PROPOSAL (Print View) */}
+      {/* PRINT ENGINE */}
       <div id="proposal-render" className="hidden print:block text-slate-900">
         
-        {/* PAGE 1: EXECUTIVE BRIEF */}
+        {/* PAGE 1 */}
         <div className="a4-page">
           <DocHeader refCode="PROP-HOSP-2026-X1" pageNum="01" />
-          
           <main className="grow flex flex-col justify-between">
             <div>
               <div className="flex items-center gap-2 mb-3">
@@ -114,7 +139,7 @@ export default function HospitalityERPProposal() {
                 <Sparkles size={14} className="text-[#D4AF37]" /> Executive Vision
               </h3>
               <p className="font-inter text-[11px] leading-relaxed text-slate-700 text-justify">
-                Modern hospitality operations face massive revenue leakages due to fragmented systems—where the restaurant POS, front-desk bookings, inventory storerooms, and room keycard encoders operate in isolation. This blueprint presents an **Integrated Operating System** that unifies all departments under a single real-time ledger, guaranteeing zero-downtime offline continuity and total management visibility across all branches.
+                Modern hospitality operations face massive revenue leakages due to fragmented systems. This blueprint presents an integrated operating platform that unifies all departments under a single real-time ledger, guaranteeing zero-downtime offline continuity and total management visibility across all branches.
               </p>
             </div>
 
@@ -135,7 +160,7 @@ export default function HospitalityERPProposal() {
                   <div className="bg-[#0F172A] text-white p-2.5 rounded-lg shadow-md">
                     <Layers size={18} className="mx-auto mb-1 text-amber-400"/>
                     <p className="text-white">Central Brain</p>
-                    <p className="text-[7px] text-amber-300 font-mono mt-0.5">Offline-First Engine</p>
+                    <p className="text-[7px] text-amber-300 font-mono mt-0.5">Offline Engine</p>
                   </div>
                   <div className="bg-white border border-slate-200 p-2.5 rounded-lg">
                     <Database size={18} className="mx-auto mb-1 text-emerald-600"/>
@@ -156,43 +181,33 @@ export default function HospitalityERPProposal() {
                 <h4 className="font-inter text-[10px] font-black uppercase text-[#0F172A] mb-1 flex items-center gap-1.5">
                   <ShieldCheck size={12} className="text-emerald-600" /> Anti-Theft Guard
                 </h4>
-                <p className="font-inter text-[9.5px] leading-relaxed text-slate-600">
-                  Every gram of ingredient and milliliter of liquor is tracked against real-time sales, stopping leakages.
-                </p>
+                <p className="font-inter text-[9.5px] leading-relaxed text-slate-600">Every ingredient is tracked against real-time sales, stopping kitchen and bar leakages.</p>
               </div>
               <div>
                 <h4 className="font-inter text-[10px] font-black uppercase text-[#0F172A] mb-1 flex items-center gap-1.5">
                   <WifiOff size={12} className="text-blue-600" /> Zero Downtime
                 </h4>
-                <p className="font-inter text-[9.5px] leading-relaxed text-slate-600">
-                  Terminals operate 100% offline during internet cuts, syncing with the cloud instantly when restored.
-                </p>
+                <p className="font-inter text-[9.5px] leading-relaxed text-slate-600">Terminals operate 100% offline during internet cuts, syncing with the cloud instantly when restored.</p>
               </div>
               <div>
                 <h4 className="font-inter text-[10px] font-black uppercase text-[#0F172A] mb-1 flex items-center gap-1.5">
                   <TrendingUp size={12} className="text-amber-600" /> Unified Invoicing
                 </h4>
-                <p className="font-inter text-[9.5px] leading-relaxed text-slate-600">
-                  Guests charge restaurant bills, laundry, gym, and spa services straight to their room with one bill.
-                </p>
+                <p className="font-inter text-[9.5px] leading-relaxed text-slate-600">Guests charge restaurant bills, laundry, and services straight to their room with one bill.</p>
               </div>
             </div>
           </main>
           <DocFooter />
         </div>
-        {/* PAGE 2: RESTAURANT & BAR POINT OF SALE (POS) */}
+
+        {/* PAGE 2 */}
         <div className="a4-page">
           <DocHeader refCode="PROP-HOSP-2026-X1" pageNum="02" />
-          
           <main className="grow flex flex-col justify-between">
             <div>
               <span className="font-mono text-[9px] font-bold text-[#D4AF37] uppercase tracking-widest">Module 01 // Front-of-House Operations</span>
-              <h2 className="font-playfair text-2xl font-black uppercase text-[#0F172A] mt-1 mb-2">
-                Point of Sale &amp; F&amp;B Engine
-              </h2>
-              <p className="font-inter text-xs text-slate-600 leading-relaxed">
-                Engineered for extreme speed during peak dinner and weekend bar rushes, eliminating order bottlenecks between waiters, kitchen staff, and cashiers.
-              </p>
+              <h2 className="font-playfair text-2xl font-black uppercase text-[#0F172A] mt-1 mb-2">Point of Sale &amp; F&amp;B Engine</h2>
+              <p className="font-inter text-xs text-slate-600 leading-relaxed">Engineered for extreme speed during peak dinner and weekend bar rushes, eliminating order bottlenecks between waiters, kitchen staff, and cashiers.</p>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -200,36 +215,25 @@ export default function HospitalityERPProposal() {
                 <h3 className="font-inter text-xs font-black uppercase text-[#0F172A] mb-1 flex items-center gap-2">
                   <Sliders size={14} className="text-blue-600" /> Visual Floor &amp; Table Layout
                 </h3>
-                <p className="font-inter text-[10px] text-slate-600 leading-relaxed">
-                  Interactive real-time map of all dining areas (Main Floor, Poolside, VIP Lounge, Terrace). Color-coded states show occupied tables, reserved spots, pending tickets, and printed checks.
-                </p>
+                <p className="font-inter text-[10px] text-slate-600 leading-relaxed">Interactive real-time map of all dining areas. Color-coded states show occupied tables, reserved spots, pending tickets, and printed checks at a glance.</p>
               </div>
-
               <div className="border border-slate-200 p-3.5 rounded-lg bg-slate-50/50">
                 <h3 className="font-inter text-xs font-black uppercase text-[#0F172A] mb-1 flex items-center gap-2">
                   <Smartphone size={14} className="text-amber-600" /> Mobile Waiter Ordering
                 </h3>
-                <p className="font-inter text-[10px] text-slate-600 leading-relaxed">
-                  Waiters take orders at table-side on lightweight handheld tablets. Orders fire directly to the kitchen/bar in under 1 second, reducing guest wait times by over 40%.
-                </p>
+                <p className="font-inter text-[10px] text-slate-600 leading-relaxed">Waiters take orders at table-side on handheld tablets. Orders fire directly to the kitchen/bar in under 1 second, reducing wait times by 40%.</p>
               </div>
-
               <div className="border border-slate-200 p-3.5 rounded-lg bg-slate-50/50">
                 <h3 className="font-inter text-xs font-black uppercase text-[#0F172A] mb-1 flex items-center gap-2">
                   <Utensils size={14} className="text-red-600" /> Kitchen Display &amp; Routing (KDS)
                 </h3>
-                <p className="font-inter text-[10px] text-slate-600 leading-relaxed">
-                  Eliminates missing paper tickets. Drink items route directly to the bartender&apos;s display or thermal printer; food items route to the kitchen with live timer warnings for delayed dishes.
-                </p>
+                <p className="font-inter text-[10px] text-slate-600 leading-relaxed">Eliminates missing paper tickets. Drink items route directly to the bar display; food items route to the kitchen with live timer warnings for delayed dishes.</p>
               </div>
-
               <div className="border border-slate-200 p-3.5 rounded-lg bg-slate-50/50">
                 <h3 className="font-inter text-xs font-black uppercase text-[#0F172A] mb-1 flex items-center gap-2">
                   <Building2 size={14} className="text-emerald-600" /> Zero-Fraud Room Folio Charge
                 </h3>
-                <p className="font-inter text-[10px] text-slate-600 leading-relaxed">
-                  Guests charge dining directly to their hotel room. The system automatically validates active check-in status and spending credit limits in real-time, preventing walkout bills.
-                </p>
+                <p className="font-inter text-[10px] text-slate-600 leading-relaxed">Guests charge dining directly to their hotel room. The system automatically validates active check-in status and spending credit limits in real-time.</p>
               </div>
             </div>
 
@@ -244,7 +248,7 @@ export default function HospitalityERPProposal() {
                   <ArrowRight size={14} className="text-slate-400 shrink-0" />
                   <div className="border border-red-500 bg-red-50 p-2 rounded-lg w-28">
                     <p className="font-black text-red-700">2. KDS Routing</p>
-                    <p className="text-[7px] text-red-500 mt-0.5">Kitchen / Bar Display</p>
+                    <p className="text-[7px] text-red-500 mt-0.5">Kitchen / Bar</p>
                   </div>
                   <ArrowRight size={14} className="text-slate-400 shrink-0" />
                   <div className="border border-blue-500 bg-blue-50 p-2 rounded-lg w-28">
@@ -254,7 +258,7 @@ export default function HospitalityERPProposal() {
                   <ArrowRight size={14} className="text-slate-400 shrink-0" />
                   <div className="border-2 border-emerald-600 bg-emerald-50 p-2 rounded-lg w-28">
                     <p className="font-black text-emerald-800">4. Room Folio</p>
-                    <p className="text-[7px] text-emerald-600 mt-0.5">Single Checkout Bill</p>
+                    <p className="text-[7px] text-emerald-600 mt-0.5">Single Checkout</p>
                   </div>
                 </div>
               </div>
@@ -263,7 +267,7 @@ export default function HospitalityERPProposal() {
             <div className="bg-slate-900 text-white p-3.5 rounded-lg flex justify-between items-center">
               <div>
                 <p className="font-inter text-xs font-bold text-amber-400">Fast Flexible Check Settlement</p>
-                <p className="font-inter text-[10px] text-slate-300">Split by seat, by individual item, by equal percentage, or combine multiple tender methods seamlessly.</p>
+                <p className="font-inter text-[10px] text-slate-300">Split by seat, item, percentage, or combine multiple tender methods seamlessly.</p>
               </div>
               <span className="bg-white/10 text-white px-3 py-1 text-[9px] font-mono uppercase font-bold rounded">Instant Settlement</span>
             </div>
@@ -271,19 +275,14 @@ export default function HospitalityERPProposal() {
           <DocFooter />
         </div>
 
-        {/* PAGE 3: HOTEL PMS & ROOM RESERVATIONS */}
+        {/* PAGE 3 */}
         <div className="a4-page">
           <DocHeader refCode="PROP-HOSP-2026-X1" pageNum="03" />
-          
           <main className="grow flex flex-col justify-between">
             <div>
               <span className="font-mono text-[9px] font-bold text-[#D4AF37] uppercase tracking-widest">Module 02 // Accommodation Management</span>
-              <h2 className="font-playfair text-2xl font-black uppercase text-[#0F172A] mt-1 mb-2">
-                Property Management (PMS) Engine
-              </h2>
-              <p className="font-inter text-xs text-slate-600 leading-relaxed">
-                Centralized front-desk orchestration handling guest check-in, real-time room availability, corporate rate plans, and housekeeping workflows.
-              </p>
+              <h2 className="font-playfair text-2xl font-black uppercase text-[#0F172A] mt-1 mb-2">Property Management (PMS) Engine</h2>
+              <p className="font-inter text-xs text-slate-600 leading-relaxed">Centralized front-desk orchestration handling guest check-in, real-time room availability, corporate rate plans, and housekeeping workflows.</p>
             </div>
 
             <div className="space-y-3.5">
@@ -293,9 +292,7 @@ export default function HospitalityERPProposal() {
                 </div>
                 <div>
                   <h3 className="font-inter text-xs font-bold uppercase text-[#0F172A]">Interactive Tape-Chart Reservation Matrix</h3>
-                  <p className="font-inter text-[10px] text-slate-600 leading-relaxed mt-0.5">
-                    Visual grid calendar showing room occupancy across days and months. Staff can drag-and-drop to extend reservations, upgrade room categories, or resolve double-booking conflicts with one click.
-                  </p>
+                  <p className="font-inter text-[10px] text-slate-600 leading-relaxed mt-0.5">Visual grid calendar showing room occupancy across days and months. Drag-and-drop to extend reservations, upgrade categories, or resolve conflicts with one click.</p>
                 </div>
               </div>
 
@@ -305,9 +302,7 @@ export default function HospitalityERPProposal() {
                 </div>
                 <div>
                   <h3 className="font-inter text-xs font-bold uppercase text-[#0F172A]">Guest Profiles &amp; Loyalty Tiers</h3>
-                  <p className="font-inter text-[10px] text-slate-600 leading-relaxed mt-0.5">
-                    Categorizes walk-ins, VIPs, corporate accounts, and blacklisted profiles. Tracks full visit history, personalized preferences (e.g., extra pillows, high floor), and lifetime revenue contribution.
-                  </p>
+                  <p className="font-inter text-[10px] text-slate-600 leading-relaxed mt-0.5">Categorizes walk-ins, VIPs, corporate accounts, and blacklisted profiles. Tracks full visit history, personalized preferences, and lifetime revenue contribution.</p>
                 </div>
               </div>
 
@@ -317,9 +312,7 @@ export default function HospitalityERPProposal() {
                 </div>
                 <div>
                   <h3 className="font-inter text-xs font-bold uppercase text-[#0F172A]">Housekeeping &amp; Room State Machine</h3>
-                  <p className="font-inter text-[10px] text-slate-600 leading-relaxed mt-0.5">
-                    Cleaners update room status from their mobile devices (`Dirty` &rarr; `In Cleaning` &rarr; `Inspected &amp; Ready`). Front desk cannot assign a guest to an uninspected room by mistake.
-                  </p>
+                  <p className="font-inter text-[10px] text-slate-600 leading-relaxed mt-0.5">Cleaners update room status from their mobile devices (`Dirty` &rarr; `In Cleaning` &rarr; `Inspected &amp; Ready`). Front desk cannot assign guests to dirty rooms.</p>
                 </div>
               </div>
             </div>
@@ -329,7 +322,7 @@ export default function HospitalityERPProposal() {
               <div className="border border-slate-200 rounded-xl p-4 bg-white">
                 <div className="grid grid-cols-4 gap-2 text-center text-[8.5px] font-inter">
                   <div className="p-2 border border-red-200 bg-red-50 rounded-lg">
-                    <p className="font-bold text-red-700">1. Guest Checkout</p>
+                    <p className="font-bold text-red-700">1. Checkout</p>
                     <span className="bg-red-200 text-red-800 px-1.5 py-0.2 text-[6.5px] font-mono uppercase font-bold rounded">Dirty</span>
                   </div>
                   <div className="p-2 border border-amber-200 bg-amber-50 rounded-lg">
@@ -342,7 +335,7 @@ export default function HospitalityERPProposal() {
                   </div>
                   <div className="p-2 border border-emerald-200 bg-emerald-50 rounded-lg">
                     <p className="font-bold text-emerald-700">4. Front Desk</p>
-                    <span className="bg-emerald-200 text-emerald-800 px-1.5 py-0.2 text-[6.5px] font-mono uppercase font-bold rounded">Ready / Check-in</span>
+                    <span className="bg-emerald-200 text-emerald-800 px-1.5 py-0.2 text-[6.5px] font-mono uppercase font-bold rounded">Check-in Ready</span>
                   </div>
                 </div>
               </div>
@@ -351,26 +344,21 @@ export default function HospitalityERPProposal() {
             <div className="border-t border-slate-200 pt-3 flex justify-between items-center text-[10px]">
               <div>
                 <span className="font-bold text-[#0F172A]">Automated Night Audit: </span>
-                <span className="text-slate-600">Calculates daily room revenues, posts tax charges, and locks daily ledger automatically.</span>
+                <span className="text-slate-600">Calculates daily revenues, posts tax charges, and locks the daily ledger automatically.</span>
               </div>
               <span className="font-mono font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded">Auto-Reconcile</span>
             </div>
           </main>
           <DocFooter />
         </div>
-        {/* PAGE 4: RECIPE COSTING & INVENTORY (BOM) */}
+        {/* PAGE 4 */}
         <div className="a4-page">
           <DocHeader refCode="PROP-HOSP-2026-X1" pageNum="04" />
-          
           <main className="grow flex flex-col justify-between">
             <div>
               <span className="font-mono text-[9px] font-bold text-[#D4AF37] uppercase tracking-widest">Module 03 // Back-of-House Control</span>
-              <h2 className="font-playfair text-2xl font-black uppercase text-[#0F172A] mt-1 mb-2">
-                Recipe Costing &amp; Inventory BOM
-              </h2>
-              <p className="font-inter text-xs text-slate-600 leading-relaxed">
-                Stops inventory theft and calculates true gross margins by automatically depleting raw ingredients at the exact millisecond an order is placed.
-              </p>
+              <h2 className="font-playfair text-2xl font-black uppercase text-[#0F172A] mt-1 mb-2">Recipe Costing &amp; Inventory BOM</h2>
+              <p className="font-inter text-xs text-slate-600 leading-relaxed">Stops inventory theft and calculates true gross margins by automatically depleting raw ingredients at the exact millisecond an order is placed.</p>
             </div>
 
             <div className="border border-slate-200 rounded-xl p-4 bg-slate-50">
@@ -378,7 +366,7 @@ export default function HospitalityERPProposal() {
                 <Database size={14} className="text-emerald-600" /> Bill of Materials (BOM) In Action
               </h3>
               <p className="font-inter text-[10px] text-slate-600 mb-3 leading-relaxed">
-                When a bartender sells one <strong>"Premium Mojito"</strong> at the pool bar, the system automatically runs a silent background depletion:
+                When a bartender sells one <strong>"Premium Mojito"</strong>, the system automatically executes silent background depletion:
               </p>
               <div className="grid grid-cols-4 gap-2 text-center text-[8px] font-mono">
                 <div className="bg-white p-2 border border-slate-200 rounded">
@@ -403,21 +391,15 @@ export default function HospitalityERPProposal() {
             <div className="grid grid-cols-3 gap-3.5">
               <div className="border border-slate-200 p-3 rounded-lg bg-white">
                 <h4 className="font-inter text-[10.5px] font-black uppercase text-[#0F172A] mb-1 text-red-700">Anti-Theft Variance Alerts</h4>
-                <p className="font-inter text-[9px] text-slate-600 leading-relaxed">
-                  Compares physical stock counts with expected sales depletion at every shift handover. Flags missing liquor or meat weights immediately.
-                </p>
+                <p className="font-inter text-[9px] text-slate-600 leading-relaxed">Compares physical stock counts with expected sales depletion at every shift handover to flag missing stock.</p>
               </div>
               <div className="border border-slate-200 p-3 rounded-lg bg-white">
                 <h4 className="font-inter text-[10.5px] font-black uppercase text-[#0F172A] mb-1 text-blue-700">Production Pre-Batching</h4>
-                <p className="font-inter text-[9px] text-slate-600 leading-relaxed">
-                  Converts bulk raw goods (flour, butter, sugar) into pre-made kitchen assets (pastries, marinades) with automated batch expiry dates.
-                </p>
+                <p className="font-inter text-[9px] text-slate-600 leading-relaxed">Converts bulk raw goods into pre-made kitchen assets (pastries, marinades) with automated batch expiry dates.</p>
               </div>
               <div className="border border-slate-200 p-3 rounded-lg bg-white">
                 <h4 className="font-inter text-[10.5px] font-black uppercase text-[#0F172A] mb-1 text-emerald-700">Inter-Branch Transfers</h4>
-                <p className="font-inter text-[9px] text-slate-600 leading-relaxed">
-                  Seamlessly request and transfer crates of drinks from Central Stores to Satellite Bars with two-step manager sign-off approval.
-                </p>
+                <p className="font-inter text-[9px] text-slate-600 leading-relaxed">Seamlessly transfer stock from Central Stores to Satellite Bars with two-step manager approval.</p>
               </div>
             </div>
 
@@ -432,56 +414,40 @@ export default function HospitalityERPProposal() {
           <DocFooter />
         </div>
 
-        {/* PAGE 5: OFFLINE ZERO DOWNTIME & MULTI-BRANCH CLOUD */}
+        {/* PAGE 5 */}
         <div className="a4-page">
           <DocHeader refCode="PROP-HOSP-2026-X1" pageNum="05" />
-          
           <main className="grow flex flex-col justify-between">
             <div>
               <span className="font-mono text-[9px] font-bold text-[#D4AF37] uppercase tracking-widest">Module 04 // Reliability &amp; Scalability</span>
-              <h2 className="font-playfair text-2xl font-black uppercase text-[#0F172A] mt-1 mb-2">
-                Offline Resilience &amp; Multi-Branch Control
-              </h2>
-              <p className="font-inter text-xs text-slate-600 leading-relaxed">
-                Guarantees zero operational stoppage during internet cuts, while empowering owners to manage multi-location hotels and restaurants from anywhere.
-              </p>
+              <h2 className="font-playfair text-2xl font-black uppercase text-[#0F172A] mt-1 mb-2">Offline Resilience &amp; Multi-Branch Control</h2>
+              <p className="font-inter text-xs text-slate-600 leading-relaxed">Guarantees zero operational stoppage during internet cuts, while empowering owners to manage multiple branches from anywhere.</p>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="border border-slate-200 p-4 rounded-lg bg-slate-50/50">
                 <h3 className="font-inter text-xs font-black uppercase text-[#0F172A] mb-1.5 flex items-center gap-2">
-                  <WifiOff size={16} className="text-blue-600" /> True Local-First Offline Operation
+                  <WifiOff size={16} className="text-blue-600" /> True Local-First Operation
                 </h3>
-                <p className="font-inter text-[10px] text-slate-600 leading-relaxed">
-                  If the ISP drops completely, the entire property keeps operating. Waiters take orders, kitchen printers fire tickets over local WiFi, bills settle, and cash drawers open without interruption.
-                </p>
+                <p className="font-inter text-[10px] text-slate-600 leading-relaxed">If the ISP drops completely, the entire property keeps operating. Waiters take orders, kitchen printers fire tickets, and bills settle normally.</p>
               </div>
-
               <div className="border border-slate-200 p-4 rounded-lg bg-slate-50/50">
                 <h3 className="font-inter text-xs font-black uppercase text-[#0F172A] mb-1.5 flex items-center gap-2">
-                  <RefreshCw size={16} className="text-emerald-600" /> Self-Healing Cloud Delta Sync
+                  <RefreshCw size={16} className="text-emerald-600" /> Self-Healing Cloud Sync
                 </h3>
-                <p className="font-inter text-[10px] text-slate-600 leading-relaxed">
-                  The exact second internet connection is restored, all offline sales, room updates, and stock depletions silently synchronize to the central cloud database without duplicating records.
-                </p>
+                <p className="font-inter text-[10px] text-slate-600 leading-relaxed">The instant internet connection returns, all offline sales, room updates, and stock depletions silently sync to the central cloud database.</p>
               </div>
-
               <div className="border border-slate-200 p-4 rounded-lg bg-slate-50/50">
                 <h3 className="font-inter text-xs font-black uppercase text-[#0F172A] mb-1.5 flex items-center gap-2">
-                  <Globe size={16} className="text-amber-600" /> Multi-Branch Central Command
+                  <Globe size={16} className="text-amber-600" /> Multi-Branch Command
                 </h3>
-                <p className="font-inter text-[10px] text-slate-600 leading-relaxed">
-                  Manage 5 properties or satellite restaurants from one master executive dashboard. Push global menu changes or set localized branch-specific prices with one click.
-                </p>
+                <p className="font-inter text-[10px] text-slate-600 leading-relaxed">Manage multiple properties from one master executive dashboard. Push global menu changes or set localized branch-specific prices with one click.</p>
               </div>
-
               <div className="border border-slate-200 p-4 rounded-lg bg-slate-50/50">
                 <h3 className="font-inter text-xs font-black uppercase text-[#0F172A] mb-1.5 flex items-center gap-2">
                   <BarChart3 size={16} className="text-purple-600" /> Blind Shift Drops (Z-Report)
                 </h3>
-                <p className="font-inter text-[10px] text-slate-600 leading-relaxed">
-                  Cashiers must count and declare their physical drawer cash before the system reveals expected totals, completely eliminating end-of-day register skimming and variance tampering.
-                </p>
+                <p className="font-inter text-[10px] text-slate-600 leading-relaxed">Cashiers must count and declare physical drawer cash before the system reveals expected totals, completely eliminating register skimming.</p>
               </div>
             </div>
 
@@ -519,31 +485,153 @@ export default function HospitalityERPProposal() {
           <DocFooter />
         </div>
 
-// Reusable Print Header
-function DocHeader({ refCode, pageNum }) {
-  return (
-    <header className="h-[14mm] flex items-end justify-between border-b-2 border-slate-900 pb-2 mb-4 relative z-10">
-      <div className="flex items-center gap-2">
-        <Building2 size={16} className="text-[#0F172A]" />
-        <span className="font-inter text-[8.5px] font-black uppercase tracking-[0.2em] text-[#0F172A]">Hospitality Operating System // Specification SOW</span>
-      </div>
-      <div className="flex items-center gap-3 font-mono text-[8.5px]">
-        <span className="text-slate-400">{refCode}</span>
-        <span className="font-bold text-[#0F172A]">PAGE {pageNum}</span>
-      </div>
-    </header>
-  );
-}
+        {/* PAGE 6 */}
+        <div className="a4-page">
+          <DocHeader refCode="PROP-HOSP-2026-X1" pageNum="06" />
+          <main className="grow flex flex-col justify-between">
+            <div>
+              <span className="font-mono text-[9px] font-bold text-[#D4AF37] uppercase tracking-widest">Modular Enhancements // Specialised Modules</span>
+              <h2 className="font-playfair text-2xl font-black uppercase text-[#0F172A] mt-1 mb-2">Executive Add-On Suite &amp; Hardware Bridge</h2>
+              <p className="font-inter text-xs text-slate-600 leading-relaxed">Plug-and-play modules extending hospitality power into physical IoT door locks, elevator relays, venue bookings, laundry, and e-commerce.</p>
+            </div>
 
-// Reusable Print Footer
-function DocFooter() {
-  return (
-    <footer className="h-[10mm] flex items-center justify-between border-t border-slate-200 text-slate-400 font-mono text-[7.5px] uppercase tracking-widest relative z-10 mt-auto pt-2">
-      <span>CONFIDENTIAL // PREPARED FOR CLIENT EVALUATION</span>
-      <div className="flex items-center gap-1.5">
-        <span className="text-[#0F172A] font-bold">TITANIUM ARCHITECTURE</span>
-        <div className="w-1.5 h-1.5 bg-[#D4AF37] rounded-full"></div>
+            <div className="space-y-3">
+              <div className="border border-slate-200 p-3 rounded-lg bg-slate-50/50 flex gap-3 items-start">
+                <div className="w-8 h-8 bg-purple-100 text-purple-800 rounded-lg flex items-center justify-center font-bold shrink-0">
+                  <Lock size={16} />
+                </div>
+                <div className="grow">
+                  <div className="flex justify-between items-baseline">
+                    <h3 className="font-inter text-xs font-bold uppercase text-[#0F172A]">Smart Locks, RFID Cards &amp; Elevator Control</h3>
+                    <span className="font-mono text-[8px] bg-purple-100 text-purple-800 px-1.5 py-0.5 rounded font-bold">IoT Bridge</span>
+                  </div>
+                  <p className="font-inter text-[9.5px] text-slate-600 leading-relaxed mt-0.5">Program physical RFID cards in 1 second at front desk or issue mobile Bluetooth keys. Monitor lock battery telemetry, view unlock logs, and restrict elevator access exclusively to guest room floors.</p>
+                </div>
+              </div>
+
+              <div className="border border-slate-200 p-3 rounded-lg bg-slate-50/50 flex gap-3 items-start">
+                <div className="w-8 h-8 bg-blue-100 text-blue-800 rounded-lg flex items-center justify-center font-bold shrink-0">
+                  <Building2 size={16} />
+                </div>
+                <div className="grow">
+                  <div className="flex justify-between items-baseline">
+                    <h3 className="font-inter text-xs font-bold uppercase text-[#0F172A]">Venue &amp; Conference Hall Reservations</h3>
+                    <span className="font-mono text-[8px] bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded font-bold">Event Engine</span>
+                  </div>
+                  <p className="font-inter text-[9.5px] text-slate-600 leading-relaxed mt-0.5">Book event spaces by the hour or day. Attach stage layouts (Banquet, Theater), AV equipment add-ons, and catering packages directly to a single unified corporate master contract.</p>
+                </div>
+              </div>
+
+              <div className="border border-slate-200 p-3 rounded-lg bg-slate-50/50 flex gap-3 items-start">
+                <div className="w-8 h-8 bg-amber-100 text-amber-800 rounded-lg flex items-center justify-center font-bold shrink-0">
+                  <Shirt size={16} />
+                </div>
+                <div className="grow">
+                  <div className="flex justify-between items-baseline">
+                    <h3 className="font-inter text-xs font-bold uppercase text-[#0F172A]">Laundry Operations &amp; Room Posting</h3>
+                    <span className="font-mono text-[8px] bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded font-bold">Valet Engine</span>
+                  </div>
+                  <p className="font-inter text-[9.5px] text-slate-600 leading-relaxed mt-0.5">Garment intake tagging with thermal barcode labels. Tracks washing, dry-cleaning, and pressing progress, automatically posting service charges to the guest&apos;s checkout folio.</p>
+                </div>
+              </div>
+
+              <div className="border border-slate-200 p-3 rounded-lg bg-slate-50/50 flex gap-3 items-start">
+                <div className="w-8 h-8 bg-emerald-100 text-emerald-800 rounded-lg flex items-center justify-center font-bold shrink-0">
+                  <Dumbbell size={16} />
+                </div>
+                <div className="grow">
+                  <div className="flex justify-between items-baseline">
+                    <h3 className="font-inter text-xs font-bold uppercase text-[#0F172A]">Gym &amp; Wellness Membership Management</h3>
+                    <span className="font-mono text-[8px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-bold">Membership</span>
+                  </div>
+                  <p className="font-inter text-[9.5px] text-slate-600 leading-relaxed mt-0.5">Recurring monthly/annual gym memberships, automated SMS/Email expiry alerts, trainer scheduling, and turnstile access control integration.</p>
+                </div>
+              </div>
+
+              <div className="border border-slate-200 p-3 rounded-lg bg-slate-50/50 flex gap-3 items-start">
+                <div className="w-8 h-8 bg-purple-100 text-purple-800 rounded-lg flex items-center justify-center font-bold shrink-0">
+                  <ShoppingCart size={16} />
+                </div>
+                <div className="grow">
+                  <div className="flex justify-between items-baseline">
+                    <h3 className="font-inter text-xs font-bold uppercase text-[#0F172A]">WooCommerce 2-Way E-Commerce Relay</h3>
+                    <span className="font-mono text-[8px] bg-purple-100 text-purple-800 px-1.5 py-0.5 rounded font-bold">2-Way Bridge</span>
+                  </div>
+                  <p className="font-inter text-[9.5px] text-slate-600 leading-relaxed mt-0.5">Online food delivery orders and merchandise sales print directly in the kitchen. Stock changes in the physical restaurant update the online shop instantly in under 2 seconds.</p>
+                </div>
+              </div>
+            </div>
+          </main>
+          <DocFooter />
+        </div>
+
+        {/* PAGE 7 */}
+        <div className="a4-page">
+          <DocHeader refCode="PROP-HOSP-2026-X1" pageNum="07" />
+          <main className="grow flex flex-col justify-between">
+            <div>
+              <span className="font-mono text-[9px] font-bold text-[#D4AF37] uppercase tracking-widest">Execution &amp; Governance</span>
+              <h2 className="font-playfair text-2xl font-black uppercase text-[#0F172A] mt-1 mb-2">Implementation Roadmap &amp; Sign-Off</h2>
+              <p className="font-inter text-xs text-slate-600 leading-relaxed">A structured 4-phase rollout plan designed for zero operational downtime and complete staff mastery across all hospitality departments.</p>
+            </div>
+
+            <div>
+              <p className="font-mono text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2">Implementation Phases</p>
+              <div className="border border-slate-200 rounded-lg overflow-hidden text-[9px] font-inter">
+                <div className="grid grid-cols-12 bg-slate-900 text-white p-2.5 font-bold uppercase font-mono text-[8px]">
+                  <div className="col-span-3">Phase</div>
+                  <div className="col-span-6">Core Deliverables</div>
+                  <div className="col-span-3 text-right">Target Timeline</div>
+                </div>
+                <div className="grid grid-cols-12 p-2.5 border-b border-slate-200 bg-white">
+                  <div className="col-span-3 font-bold text-[#0F172A]">Phase 1: Foundation</div>
+                  <div className="col-span-6 text-slate-600">Database Schema, F&amp;B POS, Table Layouts, Thermal Printers, KDS</div>
+                  <div className="col-span-3 text-right font-mono font-bold text-blue-700">Weeks 1 – 4</div>
+                </div>
+                <div className="grid grid-cols-12 p-2.5 border-b border-slate-200 bg-slate-50/50">
+                  <div className="col-span-3 font-bold text-[#0F172A]">Phase 2: PMS &amp; Inventory</div>
+                  <div className="col-span-6 text-slate-600">Hotel Tape Chart, Housekeeping, Recipe BOM Costing, Offline Sync</div>
+                  <div className="col-span-3 text-right font-mono font-bold text-blue-700">Weeks 5 – 8</div>
+                </div>
+                <div className="grid grid-cols-12 p-2.5 border-b border-slate-200 bg-white">
+                  <div className="col-span-3 font-bold text-[#0F172A]">Phase 3: Add-Ons &amp; IoT</div>
+                  <div className="col-span-6 text-slate-600">Smart Door Locks, Elevators, WooCommerce Sync, Gym, Laundry</div>
+                  <div className="col-span-3 text-right font-mono font-bold text-blue-700">Weeks 9 – 12</div>
+                </div>
+                <div className="grid grid-cols-12 p-2.5 bg-slate-50/50">
+                  <div className="col-span-3 font-bold text-[#0F172A]">Phase 4: Onsite Go-Live</div>
+                  <div className="col-span-6 text-slate-600">Physical Hardware Deployment, Staff Training, Supervised Go-Live</div>
+                  <div className="col-span-3 text-right font-mono font-bold text-emerald-700">Weeks 13 – 14</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-slate-50 border-l-4 border-emerald-600 p-3 rounded-r-lg">
+              <h4 className="font-inter text-[10px] font-black uppercase text-emerald-900 mb-1">Onsite Setup &amp; Physical Training Guarantee</h4>
+              <p className="font-inter text-[9.5px] text-slate-600 leading-relaxed">Includes full physical hardware inspection, network cabling validation, thermal printer routing, USB encoder configuration, and departmental staff training.</p>
+            </div>
+
+            <div className="border-t-2 border-slate-900 pt-4 flex justify-between items-end">
+              <div>
+                <p className="font-mono text-[8px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-1">Prepared &amp; Approved By</p>
+                <h3 className="font-playfair text-xl font-black text-[#0F172A] uppercase tracking-tight">Boluwatife Adeoye</h3>
+                <p className="font-inter text-[10px] font-bold text-[#D4AF37] uppercase tracking-widest mt-0.5">Lead Technical Architect &amp; Systems Engineer</p>
+                <p className="font-mono text-[8px] text-slate-400 mt-1">boluadeoye.com.ng &bull; {currentDate}</p>
+              </div>
+
+              <div className="border-2 border-slate-900 p-2.5 rounded-lg text-center bg-slate-50 w-36">
+                <p className="font-mono text-[7.5px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Authorization</p>
+                <div className="flex items-center justify-center gap-1 text-[9px] font-black text-emerald-700">
+                  <ShieldCheck size={12} />
+                  <span>VERIFIED ARCHITECTURE</span>
+                </div>
+              </div>
+            </div>
+          </main>
+          <DocFooter />
+        </div>
+
       </div>
-    </footer>
+    </div>
   );
 }
