@@ -5,7 +5,8 @@ import {
   Database, Globe, Lock, Cpu, Server, 
   CheckCircle2, ArrowRight, Smartphone, CreditCard,
   Wifi, WifiOff, Key, Settings, ShoppingCart, 
-  Dumbbell, Shirt, Terminal, Network, AlertTriangle
+  Dumbbell, Shirt, Terminal, Network, AlertTriangle,
+  Utensils, Hotel
 } from "lucide-react";
 import Link from "next/link";
 
@@ -123,7 +124,7 @@ export default function SaaSBlueprint() {
 
             {/* DIAGRAM: MULTI-TENANT CLOUD ARCHITECTURE */}
             <div>
-              <p className="font-mono text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-3">Figure 1.0: Multi-Tenant Tenant Isolation &amp; Infrastructure Stack</p>
+              <p className="font-mono text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-3">Figure 1.0: Multi-Tenant Isolation &amp; Infrastructure Stack</p>
               <div className="border border-slate-800 rounded-xl p-4 bg-black/60">
                 <div className="grid grid-cols-3 gap-3 text-center text-[9px] font-inter">
                   
@@ -181,6 +182,7 @@ export default function SaaSBlueprint() {
           </main>
           <DocFooter />
         </div>
+
         {/* PAGE 2: CORE SAAS DELIVERABLES */}
         <div className="a4-page">
           <DocHeader pageNum="02" />
@@ -220,7 +222,7 @@ export default function SaaSBlueprint() {
                   <Database size={14} className="text-emerald-400" /> Recipe Inventory &amp; BOM
                 </h3>
                 <p className="font-inter text-[9.5px] text-slate-400 leading-relaxed">
-                  Bill of Materials engine that automatically subtracts raw ingredients (spirits, meat, dairy) upon sale, with end-of-shift theft variance alerts.
+                  Bill of Materials engine that automatically subtracts raw ingredients upon sale, with end-of-shift theft variance alerts.
                 </p>
               </div>
 
@@ -247,13 +249,12 @@ export default function SaaSBlueprint() {
                   <ShieldCheck size={14} className="text-amber-500" /> Role-Based Access (RBAC)
                 </h3>
                 <p className="font-inter text-[9.5px] text-slate-400 leading-relaxed">
-                  Strict staff permission tiers (Cashier, Waiter, Chef, Manager, Master Admin) ensuring blind cash drops and unalterable sales logs.
+                  Strict staff permission tiers ensuring blind cash drops and unalterable sales audit logs.
                 </p>
               </div>
 
             </div>
 
-            {/* NO-CODE PLUG AND PLAY BRIDGE EXPLANATION */}
             <div className="bg-white/5 border border-slate-800 p-4 rounded-lg">
               <h4 className="font-inter text-xs font-bold text-amber-400 uppercase tracking-wider mb-1">
                 No-Code &amp; Third-Party Compatibility
@@ -265,8 +266,7 @@ export default function SaaSBlueprint() {
           </main>
           <DocFooter />
         </div>
-
-        {/* PAGE 3: THIRD-PARTY UTILITY & CLOUD SCHEDULE */}
+        {/* PAGE 3: THIRD-PARTY UTILITY SCHEDULE */}
         <div className="a4-page">
           <DocHeader pageNum="03" />
           <main className="grow flex flex-col justify-between">
@@ -280,7 +280,6 @@ export default function SaaSBlueprint() {
               </p>
             </div>
 
-            {/* SERVICES TABLE */}
             <div className="border border-slate-800 rounded-lg overflow-hidden text-[9px] font-inter">
               <div className="grid grid-cols-12 bg-white/10 text-white p-2.5 font-bold uppercase font-mono text-[8px] border-b border-slate-800">
                 <div className="col-span-3">Provider</div>
@@ -319,7 +318,6 @@ export default function SaaSBlueprint() {
               </div>
             </div>
 
-            {/* PASS-THROUGH EXPLANATION */}
             <div className="bg-amber-500/10 border-l-4 border-amber-500 p-4 rounded-r-lg">
               <h4 className="font-inter text-xs font-bold text-amber-400 uppercase tracking-wider mb-1">
                 Client-Direct Billing Notice
@@ -331,6 +329,7 @@ export default function SaaSBlueprint() {
           </main>
           <DocFooter />
         </div>
+
         {/* PAGE 4: MODULAR ADD-ON SUITE */}
         <div className="a4-page">
           <DocHeader pageNum="04" />
@@ -346,7 +345,6 @@ export default function SaaSBlueprint() {
             </div>
 
             <div className="space-y-3">
-              
               <div className="border border-slate-800 p-3.5 rounded-lg bg-white/5 flex gap-3.5 items-start">
                 <div className="w-8 h-8 bg-purple-500/20 text-purple-400 border border-purple-500/40 rounded-lg flex items-center justify-center font-bold shrink-0">
                   <Lock size={16} />
@@ -372,7 +370,7 @@ export default function SaaSBlueprint() {
                     <span className="font-mono text-[8px] bg-blue-950 text-blue-300 border border-blue-700 px-1.5 py-0.5 rounded font-bold">Event Module</span>
                   </div>
                   <p className="font-inter text-[9.5px] text-slate-400 leading-relaxed mt-1">
-                    Hourly and daily banquet hall bookings, stage layout selection (Theater, Banquet, Classroom), AV equipment rentals, and consolidated master event invoices.
+                    Hourly and daily banquet hall bookings, stage layout selection, AV equipment rentals, and consolidated master event invoices.
                   </p>
                 </div>
               </div>
@@ -417,11 +415,10 @@ export default function SaaSBlueprint() {
                     <span className="font-mono text-[8px] bg-cyan-950 text-cyan-300 border border-cyan-700 px-1.5 py-0.5 rounded font-bold">2-Way Sync</span>
                   </div>
                   <p className="font-inter text-[9.5px] text-slate-400 leading-relaxed mt-1">
-                    Real-time catalog and order synchronization between client WordPress/WooCommerce websites and the central kitchen POS for delivery ordering.
+                    Real-time order synchronization between client WordPress websites and the central kitchen POS for online delivery ordering.
                   </p>
                 </div>
               </div>
-
             </div>
           </main>
           <DocFooter />
@@ -441,7 +438,6 @@ export default function SaaSBlueprint() {
               </p>
             </div>
 
-            {/* TOTAL INVESTMENT BOX */}
             <div className="border-2 border-amber-500 bg-amber-950/20 p-4 rounded-xl flex justify-between items-center">
               <div>
                 <p className="font-inter text-xs font-bold text-amber-400 uppercase tracking-widest">Total Engineering &amp; Design Investment</p>
@@ -453,11 +449,9 @@ export default function SaaSBlueprint() {
               </div>
             </div>
 
-            {/* 3 MILESTONE SCHEDULE */}
             <div>
               <p className="font-mono text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-2">Structured Milestone Disbursements</p>
               <div className="border border-slate-800 rounded-lg overflow-hidden text-[9px] font-inter">
-                
                 <div className="grid grid-cols-12 bg-white/10 text-white p-2.5 font-bold uppercase font-mono text-[8px] border-b border-slate-800">
                   <div className="col-span-3">Milestone</div>
                   <div className="col-span-6">Key Deliverables &amp; Verification Criteria</div>
@@ -481,11 +475,9 @@ export default function SaaSBlueprint() {
                   <div className="col-span-6 text-slate-300">Offline delta-sync engine, API endpoints, payment gateway integration, complete quality assurance, and production deployment.</div>
                   <div className="col-span-3 text-right font-mono font-bold text-emerald-400">₦300,000</div>
                 </div>
-
               </div>
             </div>
 
-            {/* GOVERNANCE & APPROVAL BLOCK (ANONYMIZED) */}
             <div className="border-t-2 border-slate-800 pt-4 flex justify-between items-end">
               <div>
                 <p className="font-mono text-[8px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-1">Architectural Verification</p>
@@ -506,7 +498,6 @@ export default function SaaSBlueprint() {
                 </div>
               </div>
             </div>
-
           </main>
           <DocFooter />
         </div>
