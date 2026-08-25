@@ -5,7 +5,7 @@ import {
   Zap, Clock, Database, Wifi, WifiOff, Key, FileText, 
   TrendingUp, BarChart3, ArrowRight, RefreshCw, Sliders, 
   Calendar, Building2, Wine, Sparkles, Smartphone, Lock, 
-  Dumbbell, Shirt, ShoppingCart, Users, ArrowUpRight
+  Dumbbell, Shirt, ShoppingCart, Users, ArrowUpRight, Globe
 } from "lucide-react";
 import Link from "next/link";
 
@@ -60,7 +60,10 @@ export default function HospitalityERPProposal() {
 
       <style jsx global>{`
         @media print {
-          @page { size: A4; margin: 0; }
+          @page { 
+            size: A4; 
+            margin: 0; 
+          }
           body { background-color: #FFFFFF !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
           body * { visibility: hidden; }
           #proposal-render, #proposal-render * { visibility: visible; }
