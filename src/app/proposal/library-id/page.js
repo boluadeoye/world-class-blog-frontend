@@ -76,7 +76,7 @@ export default function LibraryIDCard() {
           </div>
 
           <h1 className="font-inter text-2xl font-black text-white mb-2 tracking-tight">Library Permit Engine</h1>
-          <p className="font-mono text-blue-400 text-[10px] mb-8 tracking-[0.2em] uppercase">FUOYE // ELS/2021/1104</p>
+          <p className="font-mono text-blue-400 text-[10px] mb-8 tracking-[0.2em] uppercase">FUOYE // ELS/2021/1029</p>
 
           {/* PRE-FLIGHT CHECKLIST */}
           <div className="bg-slate-950 border border-slate-800 p-4 rounded-lg mb-8 text-left">
@@ -167,7 +167,7 @@ export default function LibraryIDCard() {
               <div className="flex items-end">
                 <span className="font-inter text-[7pt] font-bold text-slate-900 whitespace-nowrap mr-1">Matric No.</span>
                 <div className="grow border-b-[0.5pt] border-slate-800 relative h-[4mm]">
-                  <span className="font-handwriting text-[16pt] ink-blue absolute bottom-[-1mm] left-2 uppercase tracking-wide">ELS/2021/1104</span>
+                  <span className="font-handwriting text-[16pt] ink-blue absolute bottom-[-1mm] left-2 uppercase tracking-wide">ELS/2021/1029</span>
                 </div>
               </div>
 
