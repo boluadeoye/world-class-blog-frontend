@@ -38,7 +38,7 @@ export default function ARSInvoice() {
             overflow: hidden; 
             display: flex; 
             flex-direction: column; 
-            padding: 12mm 20mm; /* REDUCED VERTICAL PADDING TO PREVENT CUT-OFF */
+            padding: 12mm 20mm; 
           }
           .no-print { display: none !important; }
         }
@@ -107,7 +107,7 @@ export default function ARSInvoice() {
               </div>
             </div>
           </div>
-          {/* DELIVERABLES TABLE (COMPACTED) */}
+          {/* DELIVERABLES TABLE (CORRECTED STATUSES) */}
           <div className="mb-5">
             <h2 className="font-inter text-[10px] font-black text-[#0F172A] uppercase tracking-widest mb-2">1. 4-Week Deliverables &amp; Payment Schedule</h2>
             
@@ -140,7 +140,7 @@ export default function ARSInvoice() {
                   <td className="py-1.5 px-2 border-r border-slate-300 text-center font-mono align-top">Week 1</td>
                   <td className="py-1.5 px-2 border-r border-slate-300 text-right font-mono font-black text-[#0F172A] align-top">₦100,000.00</td>
                   <td className="py-1.5 px-2 text-center align-top">
-                    <span className="inline-block bg-[#0F172A] text-white font-bold text-[6.5px] px-1.5 py-0.5 rounded uppercase tracking-wider">Completed &amp;<br/>Due Now</span>
+                    <span className="inline-block border border-blue-500 bg-blue-50 text-blue-700 font-bold text-[7px] px-1.5 py-0.5 rounded uppercase tracking-wider">In Progress</span>
                   </td>
                 </tr>
 
@@ -162,7 +162,7 @@ export default function ARSInvoice() {
                   <td className="py-1.5 px-2 border-r border-slate-300 text-center font-mono align-top">Weeks 2-3</td>
                   <td className="py-1.5 px-2 border-r border-slate-300 text-right font-mono font-bold text-slate-700 align-top">₦200,000.00</td>
                   <td className="py-1.5 px-2 text-center align-top">
-                    <span className="inline-block border border-slate-300 text-slate-500 font-bold text-[7px] px-1.5 py-0.5 rounded uppercase tracking-wider">In Progress</span>
+                    <span className="inline-block border border-slate-300 text-slate-500 font-bold text-[7px] px-1.5 py-0.5 rounded uppercase tracking-wider">Pending M1<br/>Approval</span>
                   </td>
                 </tr>
 
@@ -184,7 +184,7 @@ export default function ARSInvoice() {
                   <td className="py-1.5 px-2 border-r border-slate-300 text-center font-mono align-top">Week 4</td>
                   <td className="py-1.5 px-2 border-r border-slate-300 text-right font-mono font-bold text-slate-700 align-top">₦150,000.00</td>
                   <td className="py-1.5 px-2 text-center align-top">
-                    <span className="inline-block border border-slate-300 text-slate-500 font-bold text-[7px] px-1.5 py-0.5 rounded uppercase tracking-wider">Balance on<br/>Completion</span>
+                    <span className="inline-block border border-slate-300 text-slate-500 font-bold text-[7px] px-1.5 py-0.5 rounded uppercase tracking-wider">Pending M2<br/>Approval</span>
                   </td>
                 </tr>
 
@@ -192,7 +192,7 @@ export default function ARSInvoice() {
             </table>
           </div>
           {/* FINANCIAL SUMMARY & PAYMENT DETAILS */}
-          <div className="grid grid-cols-2 gap-6 mt-auto">
+          <div className="grid grid-cols-2 gap-10 mt-auto">
             
             {/* PAYMENT DETAILS */}
             <div>
