@@ -95,11 +95,11 @@ export default function ARSInvoice() {
               </div>
             </div>
 
-            {/* TO */}
+            {/* TO (CORRECTED TO EVAN EMMANUEL) */}
             <div>
               <h2 className="font-inter text-[9px] font-black text-[#0F172A] border-b-2 border-[#0F172A] pb-0.5 uppercase tracking-widest mb-2">To (Client)</h2>
               <div className="font-inter text-xs space-y-1">
-                <p className="font-black text-[#0F172A] text-base uppercase">ARS Multiventures / ARS Ventures</p>
+                <p className="font-black text-[#0F172A] text-base uppercase">Evan Emmanuel</p>
                 <p className="text-slate-600 font-medium leading-snug text-[9.5px]">
                   <span className="font-bold text-[#0F172A] uppercase tracking-wider block mb-0.5">Project:</span>
                   ARS Heavy Construction Materials Supply Chain, Multi-Quarry Management &amp; Logistics Operating Platform
@@ -107,7 +107,7 @@ export default function ARSInvoice() {
               </div>
             </div>
           </div>
-          {/* DELIVERABLES TABLE (CORRECTED STATUSES) */}
+          {/* DELIVERABLES TABLE */}
           <div className="mb-5">
             <h2 className="font-inter text-[10px] font-black text-[#0F172A] uppercase tracking-widest mb-2">1. 4-Week Deliverables &amp; Payment Schedule</h2>
             
