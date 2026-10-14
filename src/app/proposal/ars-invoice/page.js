@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Download, MapPin, Building2, CreditCard, CheckCircle2, ArrowRight } from "lucide-react";
+import { Download, MapPin, CreditCard } from "lucide-react";
 import Link from "next/link";
 
 export default function ARSInvoice() {
@@ -38,7 +38,7 @@ export default function ARSInvoice() {
             overflow: hidden; 
             display: flex; 
             flex-direction: column; 
-            padding: 20mm; 
+            padding: 12mm 20mm; /* REDUCED VERTICAL PADDING TO PREVENT CUT-OFF */
           }
           .no-print { display: none !important; }
         }
@@ -72,119 +72,119 @@ export default function ARSInvoice() {
         <div className="a4-page">
           
           {/* HEADER */}
-          <header className="flex justify-between items-start border-b-4 border-[#0F172A] pb-6 mb-8">
+          <header className="flex justify-between items-start border-b-4 border-[#0F172A] pb-4 mb-5">
             <div>
-              <h1 className="font-inter text-5xl font-black text-[#0F172A] uppercase tracking-tighter mb-2">INVOICE</h1>
-              <p className="font-inter text-xs font-bold text-slate-500 uppercase tracking-widest">ARS Multiventures Platform</p>
+              <h1 className="font-inter text-4xl font-black text-[#0F172A] uppercase tracking-tighter mb-1">INVOICE</h1>
+              <p className="font-inter text-[10px] font-bold text-slate-500 uppercase tracking-widest">ARS Multiventures Platform</p>
             </div>
-            <div className="text-right font-mono text-[10px] space-y-1.5">
-              <p><span className="font-bold text-slate-500 uppercase">Invoice Number:</span> <span className="font-black text-[#0F172A] text-xs">INV-ARS-2026-001</span></p>
+            <div className="text-right font-mono text-[9px] space-y-1">
+              <p><span className="font-bold text-slate-500 uppercase">Invoice Number:</span> <span className="font-black text-[#0F172A] text-[10px]">INV-ARS-2026-001</span></p>
               <p><span className="font-bold text-slate-500 uppercase">Date:</span> <span className="font-bold text-[#0F172A]">October 14, 2026</span></p>
-              <p><span className="font-bold text-slate-500 uppercase">Payment Terms:</span> <span className="font-bold text-[#0F172A] bg-slate-100 px-2 py-0.5 rounded">Due on Receipt</span></p>
+              <p><span className="font-bold text-slate-500 uppercase">Payment Terms:</span> <span className="font-bold text-[#0F172A] bg-slate-100 px-1.5 py-0.5 rounded">Due on Receipt</span></p>
             </div>
           </header>
 
           {/* FROM / TO SECTION */}
-          <div className="grid grid-cols-2 gap-10 mb-10">
+          <div className="grid grid-cols-2 gap-8 mb-6">
             {/* FROM */}
             <div>
-              <h2 className="font-inter text-[10px] font-black text-white bg-[#0F172A] inline-block px-3 py-1 uppercase tracking-widest mb-3">From (Service Provider)</h2>
-              <div className="font-inter text-sm space-y-1.5">
-                <p className="font-black text-[#0F172A] text-lg uppercase">Adeoye Boluwatife</p>
-                <p className="text-slate-600 flex items-center gap-1.5"><MapPin size={12} className="text-[#0F172A]"/> Ekiti State, Nigeria</p>
+              <h2 className="font-inter text-[9px] font-black text-white bg-[#0F172A] inline-block px-2.5 py-1 uppercase tracking-widest mb-2">From (Service Provider)</h2>
+              <div className="font-inter text-xs space-y-1">
+                <p className="font-black text-[#0F172A] text-base uppercase">Adeoye Boluwatife</p>
+                <p className="text-slate-600 flex items-center gap-1.5"><MapPin size={10} className="text-[#0F172A]"/> Ekiti State, Nigeria</p>
               </div>
             </div>
 
             {/* TO */}
             <div>
-              <h2 className="font-inter text-[10px] font-black text-[#0F172A] border-b-2 border-[#0F172A] pb-1 uppercase tracking-widest mb-3">To (Client)</h2>
-              <div className="font-inter text-sm space-y-1.5">
-                <p className="font-black text-[#0F172A] text-lg uppercase">ARS Multiventures / ARS Ventures</p>
-                <p className="text-slate-600 font-medium leading-snug">
-                  <span className="font-bold text-[#0F172A] text-[10px] uppercase tracking-wider block mb-0.5">Project:</span>
+              <h2 className="font-inter text-[9px] font-black text-[#0F172A] border-b-2 border-[#0F172A] pb-0.5 uppercase tracking-widest mb-2">To (Client)</h2>
+              <div className="font-inter text-xs space-y-1">
+                <p className="font-black text-[#0F172A] text-base uppercase">ARS Multiventures / ARS Ventures</p>
+                <p className="text-slate-600 font-medium leading-snug text-[9.5px]">
+                  <span className="font-bold text-[#0F172A] uppercase tracking-wider block mb-0.5">Project:</span>
                   ARS Heavy Construction Materials Supply Chain, Multi-Quarry Management &amp; Logistics Operating Platform
                 </p>
               </div>
             </div>
           </div>
-          {/* DELIVERABLES TABLE */}
-          <div className="mb-8">
-            <h2 className="font-inter text-[11px] font-black text-[#0F172A] uppercase tracking-widest mb-3">1. 4-Week Deliverables &amp; Payment Schedule</h2>
+          {/* DELIVERABLES TABLE (COMPACTED) */}
+          <div className="mb-5">
+            <h2 className="font-inter text-[10px] font-black text-[#0F172A] uppercase tracking-widest mb-2">1. 4-Week Deliverables &amp; Payment Schedule</h2>
             
             <table className="w-full border-collapse border-2 border-[#0F172A]">
-              <thead className="bg-[#0F172A] text-white font-inter text-[9px] uppercase tracking-widest">
+              <thead className="bg-[#0F172A] text-white font-inter text-[8px] uppercase tracking-widest">
                 <tr>
-                  <th className="p-3 text-left border-r border-slate-700 w-[15%]">Phase</th>
-                  <th className="p-3 text-left border-r border-slate-700 w-[50%]">Deliverables Summary</th>
-                  <th className="p-3 text-center border-r border-slate-700 w-[10%]">Timeline</th>
-                  <th className="p-3 text-right border-r border-slate-700 w-[12%]">Allocation</th>
-                  <th className="p-3 text-center w-[13%]">Status</th>
+                  <th className="py-1.5 px-2 text-left border-r border-slate-700 w-[14%]">Phase</th>
+                  <th className="py-1.5 px-2 text-left border-r border-slate-700 w-[52%]">Deliverables Summary</th>
+                  <th className="py-1.5 px-2 text-center border-r border-slate-700 w-[10%]">Timeline</th>
+                  <th className="py-1.5 px-2 text-right border-r border-slate-700 w-[12%]">Allocation</th>
+                  <th className="py-1.5 px-2 text-center w-[12%]">Status</th>
                 </tr>
               </thead>
-              <tbody className="font-inter text-[9.5px] text-slate-800">
+              <tbody className="font-inter text-[8.5px] text-slate-800">
                 
                 {/* MILESTONE 1 */}
                 <tr className="border-b border-slate-300 bg-slate-50">
-                  <td className="p-3 border-r border-slate-300 font-black text-[#0F172A] align-top">Milestone 1</td>
-                  <td className="p-3 border-r border-slate-300 align-top">
-                    <p className="font-bold text-[#0F172A] mb-1.5 uppercase text-[10px]">Account Portal, Dashboard &amp; Foundation</p>
-                    <ul className="space-y-1 pl-3 list-disc text-slate-600 leading-snug">
+                  <td className="py-1.5 px-2 border-r border-slate-300 font-black text-[#0F172A] align-top">Milestone 1</td>
+                  <td className="py-1.5 px-2 border-r border-slate-300 align-top">
+                    <p className="font-bold text-[#0F172A] mb-1 uppercase text-[9px]">Account Portal, Dashboard &amp; Foundation</p>
+                    <ul className="space-y-0.5 pl-3 list-disc text-slate-600 leading-tight">
                       <li>Registration &amp; Auth (Email verification, password reset, session security)</li>
                       <li>Company &amp; Profile Management (Individual &amp; corporate details)</li>
                       <li>Saved Delivery Locations (Multiple site management)</li>
                       <li>Customer Dashboard (Balance, credit status, past orders, quick reorder)</li>
-                      <li>Master Materials &amp; Quarry Database (Live Supabase PG15 setup for Granite, Sand, Cement, Blocks, Tiles)</li>
+                      <li>Master Materials &amp; Quarry Database (Live Supabase PG15 setup)</li>
                       <li>Role-Based Security: Database access rules for all company roles</li>
                     </ul>
                   </td>
-                  <td className="p-3 border-r border-slate-300 text-center font-mono align-top">Week 1</td>
-                  <td className="p-3 border-r border-slate-300 text-right font-mono font-black text-[#0F172A] align-top">₦100,000.00</td>
-                  <td className="p-3 text-center align-top">
-                    <span className="inline-block bg-[#0F172A] text-white font-bold text-[7.5px] px-2 py-1 rounded uppercase tracking-wider">Completed &amp;<br/>Due Now</span>
+                  <td className="py-1.5 px-2 border-r border-slate-300 text-center font-mono align-top">Week 1</td>
+                  <td className="py-1.5 px-2 border-r border-slate-300 text-right font-mono font-black text-[#0F172A] align-top">₦100,000.00</td>
+                  <td className="py-1.5 px-2 text-center align-top">
+                    <span className="inline-block bg-[#0F172A] text-white font-bold text-[6.5px] px-1.5 py-0.5 rounded uppercase tracking-wider">Completed &amp;<br/>Due Now</span>
                   </td>
                 </tr>
 
                 {/* MILESTONE 2 */}
                 <tr className="border-b border-slate-300">
-                  <td className="p-3 border-r border-slate-300 font-bold text-slate-700 align-top">Milestone 2</td>
-                  <td className="p-3 border-r border-slate-300 align-top">
-                    <p className="font-bold text-[#0F172A] mb-1.5 uppercase text-[10px]">Core Engine: Catalog, Comparison, Logistics &amp; Checkout</p>
-                    <ul className="space-y-1 pl-3 list-disc text-slate-600 leading-snug">
+                  <td className="py-1.5 px-2 border-r border-slate-300 font-bold text-slate-700 align-top">Milestone 2</td>
+                  <td className="py-1.5 px-2 border-r border-slate-300 align-top">
+                    <p className="font-bold text-[#0F172A] mb-1 uppercase text-[9px]">Core Engine: Catalog, Comparison &amp; Checkout</p>
+                    <ul className="space-y-0.5 pl-3 list-disc text-slate-600 leading-tight">
                       <li>Interactive Materials Catalog (Live feed with price per ton &amp; MOQ filter)</li>
                       <li>Materials &amp; Suppliers Directory (Browse by material OR by quarry)</li>
                       <li>Multi-Quarry Comparison Engine (Side-by-side price, stock &amp; distance)</li>
                       <li>Truck Fleet Selector (Auto-match tonnage to 20/30/45-ton tippers)</li>
-                      <li>Automated Pricing Calculator (Material + Loading + Haulage + Fuel - Discounts)</li>
-                      <li>Checkout &amp; Payments (Order summary, REQ-XXXX numbers, Paystack &amp; invoice)</li>
-                      <li>Native iOS/Android UI Readiness (Mobile-optimized layout &amp; safe-area)</li>
+                      <li>Automated Pricing Calculator (Material + Loading + Haulage + Fuel)</li>
+                      <li>Checkout &amp; Payments (Order summary, REQ-XXXX numbers, Paystack)</li>
+                      <li>Native iOS/Android UI Readiness (Mobile-optimized layout)</li>
                     </ul>
                   </td>
-                  <td className="p-3 border-r border-slate-300 text-center font-mono align-top">Weeks 2 &amp; 3</td>
-                  <td className="p-3 border-r border-slate-300 text-right font-mono font-bold text-slate-700 align-top">₦200,000.00</td>
-                  <td className="p-3 text-center align-top">
-                    <span className="inline-block border border-slate-300 text-slate-500 font-bold text-[8px] px-2 py-1 rounded uppercase tracking-wider">In Progress</span>
+                  <td className="py-1.5 px-2 border-r border-slate-300 text-center font-mono align-top">Weeks 2-3</td>
+                  <td className="py-1.5 px-2 border-r border-slate-300 text-right font-mono font-bold text-slate-700 align-top">₦200,000.00</td>
+                  <td className="py-1.5 px-2 text-center align-top">
+                    <span className="inline-block border border-slate-300 text-slate-500 font-bold text-[7px] px-1.5 py-0.5 rounded uppercase tracking-wider">In Progress</span>
                   </td>
                 </tr>
 
                 {/* MILESTONE 3 */}
                 <tr>
-                  <td className="p-3 border-r border-slate-300 font-bold text-slate-700 align-top">Milestone 3</td>
-                  <td className="p-3 border-r border-slate-300 align-top">
-                    <p className="font-bold text-[#0F172A] mb-1.5 uppercase text-[10px]">Logistics, Admin Portal, Store Launch &amp; Handover</p>
-                    <ul className="space-y-1 pl-3 list-disc text-slate-600 leading-snug">
+                  <td className="py-1.5 px-2 border-r border-slate-300 font-bold text-slate-700 align-top">Milestone 3</td>
+                  <td className="py-1.5 px-2 border-r border-slate-300 align-top">
+                    <p className="font-bold text-[#0F172A] mb-1 uppercase text-[9px]">Logistics, Admin Portal, Store Launch &amp; Handover</p>
+                    <ul className="space-y-0.5 pl-3 list-disc text-slate-600 leading-tight">
                       <li>Driver Dispatch &amp; Live GPS Tracking (Dispatched &rarr; In-Transit &rarr; Delivered)</li>
                       <li>Digital Proof of Delivery (POD: Signature capture &amp; photo upload)</li>
                       <li>Operations Admin Web Portal (Update daily prices, approve destinations)</li>
                       <li>B2B Credit Controls (Set limits, track balance, auto-block overdue)</li>
                       <li>Native iOS App Store Packaging (Xcode packaging, Sign in with Apple)</li>
                       <li>Android Play Store Packaging (Production .AAB / APK build)</li>
-                      <li>App Store Submission &amp; Launch (TestFlight beta, submission to Apple &amp; Google, + full source code handover)</li>
+                      <li>App Store Submission &amp; Launch (TestFlight beta, submission to stores)</li>
                     </ul>
                   </td>
-                  <td className="p-3 border-r border-slate-300 text-center font-mono align-top">Week 4</td>
-                  <td className="p-3 border-r border-slate-300 text-right font-mono font-bold text-slate-700 align-top">₦150,000.00</td>
-                  <td className="p-3 text-center align-top">
-                    <span className="inline-block border border-slate-300 text-slate-500 font-bold text-[8px] px-2 py-1 rounded uppercase tracking-wider">Balance on<br/>Completion</span>
+                  <td className="py-1.5 px-2 border-r border-slate-300 text-center font-mono align-top">Week 4</td>
+                  <td className="py-1.5 px-2 border-r border-slate-300 text-right font-mono font-bold text-slate-700 align-top">₦150,000.00</td>
+                  <td className="py-1.5 px-2 text-center align-top">
+                    <span className="inline-block border border-slate-300 text-slate-500 font-bold text-[7px] px-1.5 py-0.5 rounded uppercase tracking-wider">Balance on<br/>Completion</span>
                   </td>
                 </tr>
 
@@ -192,26 +192,26 @@ export default function ARSInvoice() {
             </table>
           </div>
           {/* FINANCIAL SUMMARY & PAYMENT DETAILS */}
-          <div className="grid grid-cols-2 gap-10 mt-auto">
+          <div className="grid grid-cols-2 gap-6 mt-auto">
             
             {/* PAYMENT DETAILS */}
             <div>
-              <h2 className="font-inter text-[11px] font-black text-[#0F172A] uppercase tracking-widest mb-3">2. Payment Details</h2>
-              <div className="border-2 border-[#0F172A] p-5 rounded-lg bg-slate-50">
-                <p className="font-inter text-[10px] text-slate-600 mb-3 uppercase font-bold tracking-wider">Please transfer the initial ₦100,000.00 to:</p>
-                <div className="space-y-2 font-mono text-xs">
+              <h2 className="font-inter text-[10px] font-black text-[#0F172A] uppercase tracking-widest mb-2">2. Payment Details</h2>
+              <div className="border-2 border-[#0F172A] p-4 rounded-lg bg-slate-50">
+                <p className="font-inter text-[9px] text-slate-600 mb-2.5 uppercase font-bold tracking-wider">Please transfer the initial ₦100,000.00 to:</p>
+                <div className="space-y-1.5 font-mono text-[10px]">
                   <p className="flex justify-between border-b border-slate-200 pb-1"><span className="text-slate-500">Bank:</span> <span className="font-bold text-[#0F172A]">First Bank of Nigeria</span></p>
-                  <p className="flex justify-between border-b border-slate-200 pb-1"><span className="text-slate-500">Account Number:</span> <span className="font-black text-lg text-[#0F172A]">3191334473</span></p>
+                  <p className="flex justify-between border-b border-slate-200 pb-1"><span className="text-slate-500">Account Number:</span> <span className="font-black text-base text-[#0F172A]">3191334473</span></p>
                   <p className="flex justify-between border-b border-slate-200 pb-1"><span className="text-slate-500">Account Name:</span> <span className="font-bold text-[#0F172A]">Adeoye Boluwatife</span></p>
-                  <p className="flex justify-between pt-1"><span className="text-slate-500">Reference:</span> <span className="font-bold text-[#0F172A]">ARS-INV-001</span></p>
+                  <p className="flex justify-between pt-0.5"><span className="text-slate-500">Reference:</span> <span className="font-bold text-[#0F172A]">ARS-INV-001</span></p>
                 </div>
               </div>
             </div>
 
             {/* FINANCIAL SUMMARY */}
             <div>
-              <h2 className="font-inter text-[11px] font-black text-[#0F172A] uppercase tracking-widest mb-3 text-right">3. Financial Summary</h2>
-              <div className="space-y-3 font-mono text-xs">
+              <h2 className="font-inter text-[10px] font-black text-[#0F172A] uppercase tracking-widest mb-2 text-right">3. Financial Summary</h2>
+              <div className="space-y-2.5 font-mono text-[10px]">
                 <div className="flex justify-between items-center">
                   <span className="text-slate-600 font-inter font-medium">Total Project Fee:</span>
                   <span className="font-bold text-[#0F172A]">₦450,000.00</span>
@@ -220,12 +220,12 @@ export default function ARSInvoice() {
                   <span className="font-inter font-medium">Less: Balance Due on Future Milestones (2 &amp; 3):</span>
                   <span>(₦350,000.00)</span>
                 </div>
-                <div className="h-0.5 w-full bg-[#0F172A] my-2"></div>
-                <div className="flex justify-between items-center bg-[#0F172A] text-white p-3 rounded">
-                  <span className="font-inter font-black uppercase tracking-widest text-[10px]">Amount Payable Now (Milestone 1):</span>
-                  <span className="font-black text-lg">₦100,000.00</span>
+                <div className="h-0.5 w-full bg-[#0F172A] my-1.5"></div>
+                <div className="flex justify-between items-center bg-[#0F172A] text-white p-2.5 rounded">
+                  <span className="font-inter font-black uppercase tracking-widest text-[9px]">Amount Payable Now (Milestone 1):</span>
+                  <span className="font-black text-base">₦100,000.00</span>
                 </div>
-                <p className="text-right font-inter text-[8px] font-black text-slate-500 uppercase tracking-widest mt-2">
+                <p className="text-right font-inter text-[7.5px] font-black text-slate-500 uppercase tracking-widest mt-1.5">
                   Total Due Now: One Hundred Thousand Naira
                 </p>
               </div>
@@ -234,7 +234,7 @@ export default function ARSInvoice() {
           </div>
 
           {/* FOOTER */}
-          <footer className="mt-8 pt-4 border-t-2 border-slate-200 flex justify-between items-center font-mono text-[8px] text-slate-400 uppercase tracking-widest">
+          <footer className="mt-4 pt-3 border-t-2 border-slate-200 flex justify-between items-center font-mono text-[7.5px] text-slate-400 uppercase tracking-widest">
             <span>Generated by Sovereign Billing Engine</span>
             <span className="text-[#0F172A] font-bold">Thank you for your business.</span>
           </footer>
