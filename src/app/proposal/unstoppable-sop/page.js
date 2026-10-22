@@ -2,8 +2,7 @@
 import { useState, useEffect } from "react";
 import {
   Download, CheckCircle2, AlertTriangle, AlertCircle, ShieldCheck,
-  Terminal, Layers, FileText, ShoppingBag, PackageCheck, Eye, EyeOff,
-  Lock, Globe, ArrowLeft, Cpu, Sparkles, BookOpen
+  Terminal, Layers, Eye, EyeOff, ArrowLeft, BookOpen
 } from "lucide-react";
 import Link from "next/link";
 
@@ -32,8 +31,8 @@ function RunningHeader({ sectionMarker, subMarker }) {
             STAYMEDIA // STANDARD OPERATING PROCEDURE
           </span>
         </div>
-        <div className="bg-[#0EA34A]/20 border border-[#0EA34A]/50 px-2 py-0.5 rounded text-[7pt] font-mono font-bold text-[#FDE047] tracking-wider">
-          REF: UNSTOPPABLE-SOP-2026 | ISSUED: MARCH 2026
+        <div className="bg-[#0EA34A]/20 border border-[#0EA34A]/50 px-2.5 py-0.5 rounded text-[7pt] font-mono font-bold text-[#FDE047] tracking-wider">
+          REF: UNSTOPPABLE-SOP-2026
         </div>
       </div>
       {sectionMarker && (
@@ -326,7 +325,7 @@ export default function UnstoppablePrintsSOP() {
             <div className="w-1/3 bg-[#FCB52F]" />
           </div>
 
-          <div className="flex justify-between items-start border-b-2 border-[#052E16] pb-3 mb-3 shrink-0">
+          <div className="flex justify-between items-center border-b-2 border-[#052E16] pb-3 mb-3 shrink-0">
             <div>
               <p className="text-[8pt] font-mono font-bold uppercase tracking-[0.22em] text-[#4B5563] mb-1">
                 STAYMEDIA // STANDARD OPERATING PROCEDURE
@@ -342,9 +341,6 @@ export default function UnstoppablePrintsSOP() {
               <div className="bg-[#052E16] text-white px-3 py-1.5 font-mono text-[8pt] font-bold uppercase tracking-wider rounded-sm border-l-4 border-[#FCB52F]">
                 REF: UNSTOPPABLE-SOP-2026
               </div>
-              <p className="text-[7.5pt] font-mono font-bold text-[#4B5563] mt-1 uppercase">
-                ISSUED: MARCH 2026
-              </p>
             </div>
           </div>
 
