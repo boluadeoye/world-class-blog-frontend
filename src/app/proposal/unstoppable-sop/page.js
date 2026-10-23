@@ -304,7 +304,7 @@ export default function UnstoppablePrintsSOP() {
           )}
 
           <Link href="/" className="inline-flex items-center gap-1.5 mt-6 text-xs text-slate-500 hover:text-slate-300 font-mono">
-            <ArrowLeft size={13} /> Back to Dashboard
+            <ArrowLeft size={13} /> Back to Home
           </Link>
         </div>
       </div>
@@ -726,26 +726,20 @@ export default function UnstoppablePrintsSOP() {
             </Callout>
           </div>
 
-          {/* APPROVAL & SIGN-OFF BLOCK */}
+          {/* 100% WHITE-LABELED SIGN-OFF BLOCK */}
           <div className="border-t-2 border-[#052E16] pt-2.5 mt-auto mb-2 flex justify-between items-center shrink-0 bg-slate-50 px-3 py-2 rounded">
             <div>
               <p className="text-[8.5pt] font-black uppercase tracking-wider text-[#052E16]">
                 END OF EASY WEBSITE GUIDE
               </p>
               <p className="text-[7.5pt] font-medium text-[#4B5563]">
-                Unstoppable Prints Website Simple Operations Standard
-              </p>
-            </div>
-            <div className="text-center border-x border-slate-200 px-4">
-              <p className="text-[6.5pt] font-mono uppercase tracking-widest text-slate-400">Architectural Approval</p>
-              <p className="font-serif italic font-bold text-[10pt] text-[#111827]">
-                Boluwatife Adeoye — Lead Technical Architect
+                Unstoppable Prints Storefront Operations
               </p>
             </div>
             <div className="flex items-center gap-1.5 bg-[#052E16] text-white px-3 py-1.5 rounded border border-[#FCB52F]">
               <ShieldCheck size={14} className="text-[#FCB52F]" />
               <span className="text-[7pt] font-mono font-bold uppercase tracking-wider text-[#FDE047]">
-                APPROVED SIMPLE STANDARD
+                APPROVED STORE STANDARD
               </span>
             </div>
           </div>
