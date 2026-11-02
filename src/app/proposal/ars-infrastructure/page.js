@@ -96,7 +96,7 @@ export default function ARSInfrastructureSpec() {
             Cloud Infrastructure &amp; Compliance Specification
           </h1>
           <p className="text-[#64748B] text-xs font-mono mb-6 leading-relaxed">
-            Enterprise Operating Portal, Cloud Database Engine, Publisher Licenses &amp; Compliance Framework
+            Enterprise Operating Portal, Database Engine, Android Publisher Licensing &amp; Compliance Pipeline
           </p>
 
           <div className="space-y-3">
@@ -153,8 +153,8 @@ export default function ARSInfrastructureSpec() {
 
               <div className="h-[2px] w-full bg-gradient-to-r from-[#0F5C38] via-[#B5853B] to-[#0F5C38] mb-3" />
 
-              <h1 className="text-[17pt] font-black uppercase tracking-tight text-[#1E232A] leading-snug">
-                PRODUCTION CLOUD INFRASTRUCTURE, APP STORE LICENSING &amp; COMPLIANCE SPECIFICATION
+              <h1 className="text-[16pt] font-black uppercase tracking-tight text-[#1E232A] leading-snug">
+                PRODUCTION CLOUD INFRASTRUCTURE &amp; COMPLIANCE SPECIFICATION
               </h1>
             </div>
 
@@ -165,7 +165,7 @@ export default function ARSInfrastructureSpec() {
                 EXECUTIVE SUMMARY
               </h2>
               <p className="text-[8.5pt] text-[#1E232A] leading-relaxed font-normal">
-                This briefing outlines the complete cloud infrastructure, app store publisher licenses, payment gateways, and regulatory compliance requirements needed to launch the ARS Multiventures Web Operating Portal, Operations Back-Office, and Native Mobile Applications (iOS &amp; Android). Every component is clearly categorized as <span className="font-bold text-[#0F5C38]">[COMPULSORY]</span> or <span className="font-bold text-[#B54708]">[OPTIONAL]</span>, accompanied by non-technical operational explanations.
+                This briefing outlines the compulsory cloud infrastructure, Google Play Console publisher licensing, automated messaging pipelines, payment gateways, and regulatory compliance documents required to launch the ARS Multiventures Web Operating Portal, Operations Back-Office, and Native Android Mobile Application. Every item detailed in this specification represents an essential operational component of the platform ecosystem.
               </p>
             </div>
 
@@ -176,11 +176,11 @@ export default function ARSInfrastructureSpec() {
                   SECTION 1: COMPULSORY CLOUD INFRASTRUCTURE &amp; PUBLISHER LICENSES
                 </h2>
                 <span className="text-[7.5pt] font-bold uppercase tracking-wider bg-[#ECFDF5] text-[#0F5C38] border border-[#0F5C38]/20 px-2 py-0.5 rounded-full">
-                  MANDATORY PLATFORM FOUNDATION
+                  PLATFORM CORE
                 </span>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2.5">
                 {/* 1.1 Supabase Pro */}
                 <div className="bg-[#F8FAF7] border border-[#E2E8F0] rounded-lg p-2.5">
                   <div className="flex justify-between items-center mb-1">
@@ -198,10 +198,10 @@ export default function ARSInfrastructureSpec() {
                     </div>
                   </div>
                   <p className="text-[8pt] text-[#1E232A] leading-snug mb-1">
-                    <strong className="text-[#0F5C38]">What it is:</strong> The secure digital vault where all platform information is preserved, including customer accounts, material requisitions, granite prices, receipts, and truck dispatch records.
+                    <strong className="text-[#0F5C38]">What it is:</strong> The secure digital vault where all platform records are preserved, including customer accounts, material requisitions, granite prices, receipts, and truck dispatch records.
                   </p>
                   <p className="text-[7.5pt] text-[#64748B] leading-snug">
-                    <strong className="text-[#1E232A]">Why it is required:</strong> Without a database, the platform cannot record or process customer orders. The Pro tier guarantees 100% unpaused 24/7 availability, 10,000 live connections for real-time tracking, and automated daily backups with 7-day disaster recovery.
+                    <strong className="text-[#1E232A]">Why it is required:</strong> Without a database, the platform cannot record or process customer orders. The Pro tier guarantees 100% unpaused 24/7 database availability, 10,000 live connections for real-time tracking, and automated daily backups with 7-day disaster recovery protection.
                   </p>
                 </div>
 
@@ -222,41 +222,20 @@ export default function ARSInfrastructureSpec() {
                     </div>
                   </div>
                   <p className="text-[8pt] text-[#1E232A] leading-snug">
-                    <strong className="text-[#0F5C38]">What it is &amp; Purpose:</strong> The official corporate web address on the internet (e.g., arsventures.com). This is the primary web address typed by clients and partners to access your Web Operating Portal and Back-Office Admin System.
+                    <strong className="text-[#0F5C38]">What it is &amp; Purpose:</strong> The official corporate web address on the internet (e.g., arsventures.com). This is the primary web address typed by clients and commercial partners to access your Web Operating Portal and Back-Office Admin System.
                   </p>
                 </div>
 
-                {/* 1.3 Apple Developer Program */}
+                {/* 1.3 Google Play Console */}
                 <div className="bg-[#F8FAF7] border border-[#E2E8F0] rounded-lg p-2.5">
                   <div className="flex justify-between items-center mb-1">
                     <div className="flex items-center gap-2">
                       <Smartphone size={14} className="text-[#0F5C38]" />
-                      <h3 className="text-[9pt] font-bold text-[#1E232A]">1.3 Apple Developer Program Account (iOS App Store)</h3>
+                      <h3 className="text-[9pt] font-bold text-[#1E232A]">1.3 Google Play Console Publisher Account (Android)</h3>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="bg-[#ECFDF5] text-[#0F5C38] text-[7pt] font-black px-2 py-0.5 rounded-full uppercase border border-[#0F5C38]/20">
-                        COMPULSORY FOR iOS
-                      </span>
-                      <span className="font-mono text-[8pt] font-black text-[#1E232A] bg-white px-2 py-0.5 rounded border border-[#E2E8F0]">
-                        $99.00 / yr (~₦148,500)
-                      </span>
-                    </div>
-                  </div>
-                  <p className="text-[8pt] text-[#1E232A] leading-snug">
-                    <strong className="text-[#0F5C38]">Operational Role:</strong> The official corporate publisher license issued directly by Apple Inc. Apple strictly prohibits any mobile application from appearing on the Apple App Store or being installed on iPhones without an active corporate license (requires a corporate D-U-N-S® Number).
-                  </p>
-                </div>
-
-                {/* 1.4 Google Play Console */}
-                <div className="bg-[#F8FAF7] border border-[#E2E8F0] rounded-lg p-2.5">
-                  <div className="flex justify-between items-center mb-1">
-                    <div className="flex items-center gap-2">
-                      <Smartphone size={14} className="text-[#0F5C38]" />
-                      <h3 className="text-[9pt] font-bold text-[#1E232A]">1.4 Google Play Console Publisher Account (Android)</h3>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="bg-[#ECFDF5] text-[#0F5C38] text-[7pt] font-black px-2 py-0.5 rounded-full uppercase border border-[#0F5C38]/20">
-                        COMPULSORY FOR ANDROID
+                        COMPULSORY
                       </span>
                       <span className="font-mono text-[8pt] font-black text-[#1E232A] bg-white px-2 py-0.5 rounded border border-[#E2E8F0]">
                         $25.00 one-time (~₦37,500)
@@ -264,28 +243,28 @@ export default function ARSInfrastructureSpec() {
                     </div>
                   </div>
                   <p className="text-[8pt] text-[#1E232A] leading-snug">
-                    <strong className="text-[#0F5C38]">Operational Role:</strong> Google requires this registered corporate publisher license to list, distribute, and update the ARS Multiventures mobile application on the Google Play Store across all Android devices.
+                    <strong className="text-[#0F5C38]">Operational Role:</strong> The official corporate publisher license issued directly by Google LLC. Google requires a registered publisher license to list, distribute, and update the ARS Multiventures mobile application across all Android devices.
                   </p>
                 </div>
 
-                {/* 1.5 Termii SMS */}
+                {/* 1.4 Termii SMS */}
                 <div className="bg-[#F8FAF7] border border-[#E2E8F0] rounded-lg p-2.5">
                   <div className="flex justify-between items-center mb-1">
                     <div className="flex items-center gap-2">
                       <MessageSquare size={14} className="text-[#0F5C38]" />
-                      <h3 className="text-[9pt] font-bold text-[#1E232A]">1.5 Termii Local SMS Verification Engine</h3>
+                      <h3 className="text-[9pt] font-bold text-[#1E232A]">1.4 Termii Local SMS Verification Engine</h3>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="bg-[#ECFDF5] text-[#0F5C38] text-[7pt] font-black px-2 py-0.5 rounded-full uppercase border border-[#0F5C38]/20">
                         COMPULSORY
                       </span>
                       <span className="font-mono text-[8pt] font-black text-[#1E232A] bg-white px-2 py-0.5 rounded border border-[#E2E8F0]">
-                        ₦10,000 Setup + ~₦4/SMS
+                        ₦10,000 Setup + ~₦4 / SMS
                       </span>
                     </div>
                   </div>
                   <p className="text-[8pt] text-[#1E232A] leading-snug">
-                    <strong className="text-[#0F5C38]">Operational Role:</strong> Local telecommunications pipeline that delivers security login OTPs to verify customer phone numbers and sends critical instant text alerts to drivers operating in low-data quarry locations.
+                    <strong className="text-[#0F5C38]">Operational Role:</strong> Dedicated local telecommunications pipeline that delivers security login OTPs to verify customer phone numbers and sends instant SMS alerts to drivers operating in low-data quarry environments.
                   </p>
                 </div>
               </div>
@@ -296,41 +275,41 @@ export default function ARSInfrastructureSpec() {
         <div className="a4-sheet w-[210mm] h-[296.8mm] p-[13mm_14mm] bg-white mx-auto shadow-2xl print:shadow-none flex flex-col justify-between">
           <div>
             {/* Section 2: Payment Gateways */}
-            <div className="mb-4">
-              <div className="flex items-center justify-between border-b-2 border-[#B5853B] pb-1 mb-2.5">
-                <h2 className="text-[11pt] font-black uppercase tracking-tight text-[#0F5C38]">
+            <div className="mb-3.5">
+              <div className="flex items-center justify-between border-b-2 border-[#B5853B] pb-1 mb-2">
+                <h2 className="text-[10.5pt] font-black uppercase tracking-tight text-[#0F5C38]">
                   SECTION 2: PAYMENT GATEWAY CREDENTIALS (PAYSTACK)
                 </h2>
-                <span className="text-[7.5pt] font-bold uppercase tracking-wider bg-[#ECFDF5] text-[#0F5C38] border border-[#0F5C38]/20 px-2 py-0.5 rounded-full">
+                <span className="text-[7pt] font-bold uppercase tracking-wider bg-[#ECFDF5] text-[#0F5C38] border border-[#0F5C38]/20 px-2 py-0.5 rounded-full">
                   SETTLEMENT PIPELINE
                 </span>
               </div>
 
-              <div className="bg-[#F8FAF7] border border-[#E2E8F0] rounded-xl p-3">
-                <div className="flex justify-between items-center mb-1.5">
+              <div className="bg-[#F8FAF7] border border-[#E2E8F0] rounded-xl p-2.5">
+                <div className="flex justify-between items-center mb-1">
                   <div className="flex items-center gap-2">
-                    <CreditCard size={15} className="text-[#0F5C38]" />
-                    <h3 className="text-[9.5pt] font-bold text-[#1E232A]">2.1 Online Payment Settlement Pipeline</h3>
+                    <CreditCard size={14} className="text-[#0F5C38]" />
+                    <h3 className="text-[9pt] font-bold text-[#1E232A]">2.1 Online Payment Settlement Pipeline</h3>
                   </div>
-                  <span className="font-mono text-[8pt] font-black text-[#0F5C38] bg-white px-2.5 py-0.5 rounded border border-[#E2E8F0]">
+                  <span className="font-mono text-[7.5pt] font-black text-[#0F5C38] bg-white px-2 py-0.5 rounded border border-[#E2E8F0]">
                     ₦0.00 Setup Fee • 1.5% Capped at ₦2,000
                   </span>
                 </div>
-                <p className="text-[8pt] text-[#1E232A] leading-relaxed mb-2">
-                  <strong className="text-[#0F5C38]">Operational Purpose:</strong> The secure digital cash register collecting card, USSD, and bank transfer payments online. Paystack automatically caps processing fees at a maximum of ₦2,000 per transaction, fully protecting business profit margins on large ₦1M+ aggregate and granite supply orders.
+                <p className="text-[7.5pt] text-[#1E232A] leading-snug mb-1.5">
+                  <strong className="text-[#0F5C38]">Operational Purpose:</strong> The secure digital cash register collecting card, USSD, and bank transfer payments online. Paystack automatically caps processing fees at a maximum of ₦2,000 per transaction, protecting business profit margins on large ₦1M+ aggregate and granite supply orders.
                 </p>
-                <div className="bg-white rounded-lg p-2.5 border border-[#E2E8F0]">
-                  <p className="text-[7.5pt] font-bold uppercase tracking-wider text-[#64748B] mb-1">
+                <div className="bg-white rounded-lg p-2 border border-[#E2E8F0]">
+                  <p className="text-[7pt] font-bold uppercase tracking-wider text-[#64748B] mb-1">
                     Required Configuration Credentials From Client:
                   </p>
-                  <div className="grid grid-cols-3 gap-2 font-mono text-[7.5pt]">
-                    <div className="bg-[#F8FAF7] p-1.5 rounded border border-[#E2E8F0] text-center font-bold text-[#1E232A]">
+                  <div className="grid grid-cols-3 gap-2 font-mono text-[7pt]">
+                    <div className="bg-[#F8FAF7] p-1 rounded border border-[#E2E8F0] text-center font-bold text-[#1E232A]">
                       1. Paystack Live Public Key (pk_live_...)
                     </div>
-                    <div className="bg-[#F8FAF7] p-1.5 rounded border border-[#E2E8F0] text-center font-bold text-[#1E232A]">
+                    <div className="bg-[#F8FAF7] p-1 rounded border border-[#E2E8F0] text-center font-bold text-[#1E232A]">
                       2. Paystack Live Secret Key (sk_live_...)
                     </div>
-                    <div className="bg-[#F8FAF7] p-1.5 rounded border border-[#E2E8F0] text-center font-bold text-[#1E232A]">
+                    <div className="bg-[#F8FAF7] p-1 rounded border border-[#E2E8F0] text-center font-bold text-[#1E232A]">
                       3. Webhook Setup Access
                     </div>
                   </div>
@@ -338,59 +317,53 @@ export default function ARSInfrastructureSpec() {
               </div>
             </div>
 
-            {/* Section 3: Optional Premium Automations */}
-            <div className="mb-4">
-              <div className="flex items-center justify-between border-b-2 border-[#B5853B] pb-1 mb-2.5">
-                <h2 className="text-[11pt] font-black uppercase tracking-tight text-[#0F5C38]">
-                  SECTION 3: OPTIONAL PREMIUM AUTOMATIONS
+            {/* Section 3: Mandatory Intelligence & Communications */}
+            <div className="mb-3.5">
+              <div className="flex items-center justify-between border-b-2 border-[#B5853B] pb-1 mb-2">
+                <h2 className="text-[10.5pt] font-black uppercase tracking-tight text-[#0F5C38]">
+                  SECTION 3: MANDATORY AUTOMATED INTELLIGENCE &amp; NOTIFICATIONS
                 </h2>
-                <span className="text-[7.5pt] font-bold uppercase tracking-wider bg-[#FFFBEB] text-[#B54708] border border-[#B54708]/20 px-2 py-0.5 rounded-full">
-                  ENTERPRISE ENHANCEMENTS
+                <span className="text-[7pt] font-bold uppercase tracking-wider bg-[#ECFDF5] text-[#0F5C38] border border-[#0F5C38]/20 px-2 py-0.5 rounded-full">
+                  OPERATIONAL NOTIFICATIONS
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2.5">
                 {/* 3.1 OpenAI Assistant */}
-                <div className="bg-[#F8FAF7] border border-[#E2E8F0] rounded-xl p-3 flex flex-col justify-between">
+                <div className="bg-[#F8FAF7] border border-[#E2E8F0] rounded-xl p-2.5 flex flex-col justify-between">
                   <div>
-                    <div className="flex justify-between items-start mb-1.5">
+                    <div className="flex justify-between items-start mb-1">
                       <div className="flex items-center gap-1.5">
-                        <Bot size={14} className="text-[#B5853B]" />
+                        <Bot size={14} className="text-[#0F5C38]" />
                         <h3 className="text-[8.5pt] font-bold text-[#1E232A]">3.1 OpenAI AI Assistant</h3>
                       </div>
-                      <span className="bg-[#FFFBEB] text-[#B54708] text-[6.5pt] font-black px-1.5 py-0.5 rounded-full uppercase border border-[#B54708]/20">
-                        OPTIONAL
+                      <span className="bg-[#ECFDF5] text-[#0F5C38] text-[6.5pt] font-black px-1.5 py-0.5 rounded-full uppercase border border-[#0F5C38]/20">
+                        COMPULSORY
                       </span>
                     </div>
                     <p className="font-mono text-[7.5pt] font-bold text-[#0F5C38] mb-1">~$10.00 / mo (~₦15,000)</p>
-                    <p className="text-[7.5pt] text-[#1E232A] leading-snug mb-1.5">
-                      24/7 intelligent customer assistant embedded in the apps to recommend aggregate types (granite sizes, sand grades), quote prices, and answer delivery queries instantly.
+                    <p className="text-[7.5pt] text-[#1E232A] leading-snug">
+                      24/7 intelligent customer assistant embedded in the application to recommend aggregate types (granite sizes, sand grades), quote real-time prices, and resolve delivery status queries (#REQ-XXXX) instantly.
                     </p>
-                  </div>
-                  <div className="bg-white p-1.5 rounded border border-[#E2E8F0] text-[7pt] text-[#64748B]">
-                    <strong className="text-[#1E232A]">If Inactive:</strong> Client inquiries route manually to human support via phone/WhatsApp.
                   </div>
                 </div>
 
                 {/* 3.2 WhatsApp Business API */}
-                <div className="bg-[#F8FAF7] border border-[#E2E8F0] rounded-xl p-3 flex flex-col justify-between">
+                <div className="bg-[#F8FAF7] border border-[#E2E8F0] rounded-xl p-2.5 flex flex-col justify-between">
                   <div>
-                    <div className="flex justify-between items-start mb-1.5">
+                    <div className="flex justify-between items-start mb-1">
                       <div className="flex items-center gap-1.5">
-                        <MessageSquare size={14} className="text-[#B5853B]" />
+                        <MessageSquare size={14} className="text-[#0F5C38]" />
                         <h3 className="text-[8.5pt] font-bold text-[#1E232A]">3.2 WhatsApp Business API</h3>
                       </div>
-                      <span className="bg-[#FFFBEB] text-[#B54708] text-[6.5pt] font-black px-1.5 py-0.5 rounded-full uppercase border border-[#B54708]/20">
-                        OPTIONAL
+                      <span className="bg-[#ECFDF5] text-[#0F5C38] text-[6.5pt] font-black px-1.5 py-0.5 rounded-full uppercase border border-[#0F5C38]/20">
+                        COMPULSORY
                       </span>
                     </div>
                     <p className="font-mono text-[7.5pt] font-bold text-[#0F5C38] mb-1">~₦10 - ₦13 / msg (1,000 Free)</p>
-                    <p className="text-[7.5pt] text-[#1E232A] leading-snug mb-1.5">
-                      Automatically delivers digital order receipts, quarry loading status updates, and live driver map tracking links straight to the client&apos;s personal WhatsApp line.
+                    <p className="text-[7.5pt] text-[#1E232A] leading-snug">
+                      Automated client communication pipeline delivering digital order receipts, quarry loading status updates, and live driver map tracking links directly to each customer&apos;s personal WhatsApp line.
                     </p>
-                  </div>
-                  <div className="bg-white p-1.5 rounded border border-[#E2E8F0] text-[7pt] text-[#64748B]">
-                    <strong className="text-[#1E232A]">If Inactive:</strong> Clients receive push alerts and emails at zero message cost.
                   </div>
                 </div>
               </div>
@@ -398,43 +371,43 @@ export default function ARSInfrastructureSpec() {
 
             {/* Section 4: Mandatory Corporate Documents */}
             <div>
-              <div className="flex items-center justify-between border-b-2 border-[#B5853B] pb-1 mb-2.5">
-                <h2 className="text-[11pt] font-black uppercase tracking-tight text-[#0F5C38]">
+              <div className="flex items-center justify-between border-b-2 border-[#B5853B] pb-1 mb-2">
+                <h2 className="text-[10.5pt] font-black uppercase tracking-tight text-[#0F5C38]">
                   SECTION 4: MANDATORY CORPORATE DOCUMENTS REQUIRED
                 </h2>
-                <span className="text-[7.5pt] font-bold uppercase tracking-wider bg-[#ECFDF5] text-[#0F5C38] border border-[#0F5C38]/20 px-2 py-0.5 rounded-full">
+                <span className="text-[7pt] font-bold uppercase tracking-wider bg-[#ECFDF5] text-[#0F5C38] border border-[#0F5C38]/20 px-2 py-0.5 rounded-full">
                   LEGAL &amp; COMPLIANCE
                 </span>
               </div>
 
               <div className="grid grid-cols-2 gap-2 mb-2">
                 <div className="bg-[#F8FAF7] border border-[#E2E8F0] rounded-lg p-2 text-[7.5pt]">
-                  <strong className="text-[#0F5C38]">1. CAC Certificate of Incorporation (RC):</strong> Verifies ARS Multiventures Ltd as a legally registered corporate entity to Paystack and Apple.
+                  <strong className="text-[#0F5C38]">1. CAC Certificate of Incorporation (RC):</strong> Verifies ARS Multiventures Ltd as an officially registered corporate legal entity to payment processors and publishers.
                 </div>
                 <div className="bg-[#F8FAF7] border border-[#E2E8F0] rounded-lg p-2 text-[7.5pt]">
-                  <strong className="text-[#0F5C38]">2. CAC Status Report / Form CO7:</strong> Formally identifies company directors and executive ownership for regulatory compliance.
+                  <strong className="text-[#0F5C38]">2. CAC Status Report / Form CO7:</strong> Formally identifies executive company directors and corporate ownership structures for anti-money laundering verification.
                 </div>
                 <div className="bg-[#F8FAF7] border border-[#E2E8F0] rounded-lg p-2 text-[7.5pt]">
-                  <strong className="text-[#0F5C38]">3. Corporate Bank Account Details:</strong> Ensures online sales settle directly into the official ARS Multiventures Ltd corporate bank account.
+                  <strong className="text-[#0F5C38]">3. Corporate Bank Account Details:</strong> Ensures online sales collected via Paystack settle directly into the official ARS Multiventures Ltd commercial bank account.
                 </div>
                 <div className="bg-[#F8FAF7] border border-[#E2E8F0] rounded-lg p-2 text-[7.5pt]">
-                  <strong className="text-[#0F5C38]">5. Company Tax ID Number (TIN):</strong> Mandated by financial processors for verified corporate tax compliance under Nigerian regulations.
+                  <strong className="text-[#0F5C38]">5. Company Tax ID Number (TIN):</strong> Required by financial settlement gateways for corporate tax compliance verification under federal banking regulations.
                 </div>
               </div>
 
               {/* Dedicated Privacy Shield Box for Item 4 */}
               <div className="bg-[#ECFDF5] border-l-4 border-[#0F5C38] border-y border-r border-[#0F5C38]/20 rounded-lg p-2.5 mb-2">
-                <div className="flex items-center gap-1.5 mb-1 text-[8pt] font-black uppercase text-[#0F5C38]">
+                <div className="flex items-center gap-1.5 mb-0.5 text-[8pt] font-black uppercase text-[#0F5C38]">
                   <ShieldCheck size={14} className="text-[#0F5C38]" />
                   <span>4. DIRECTOR GOVERNMENT ID + BVN (EXECUTIVE PRIVACY GUARANTEE)</span>
                 </div>
                 <p className="text-[7.5pt] text-[#1E232A] leading-relaxed">
-                  Required strictly by Central Bank of Nigeria (CBN) Anti-Money Laundering regulations before live payment collection is activated. <strong>Privacy Guarantee:</strong> To guarantee absolute privacy, you do not need to transmit these credentials to any external party; they can be uploaded directly into Paystack&apos;s encrypted compliance gateway.
+                  Mandated by Central Bank of Nigeria (CBN) Anti-Money Laundering regulations before live payment collection is activated. <strong>Privacy Guarantee:</strong> To guarantee absolute privacy, you do not need to transmit these credentials to any external party; they can be uploaded directly into Paystack&apos;s encrypted compliance gateway.
                 </p>
               </div>
 
               <div className="bg-[#F8FAF7] border border-[#E2E8F0] rounded-lg p-2 text-[7.5pt]">
-                <strong className="text-[#0F5C38]">6. D-U-N-S® International Number:</strong> A free 9-digit corporate identifier issued by Dun &amp; Bradstreet, required by Apple to list the iOS app under the official legal entity name ARS Multiventures Ltd.
+                <strong className="text-[#0F5C38]">6. D-U-N-S® Organization Identifier:</strong> A 9-digit international corporate identifier issued by Dun &amp; Bradstreet, required by Google Play Console to verify organization publisher accounts under ARS Multiventures Ltd.
               </div>
             </div>
           </div>
@@ -443,30 +416,30 @@ export default function ARSInfrastructureSpec() {
         <div className="a4-sheet w-[210mm] h-[296.8mm] p-[13mm_14mm] bg-white mx-auto shadow-2xl print:shadow-none flex flex-col justify-between">
           <div>
             {/* Section 5: Financial Summary */}
-            <div className="mb-5">
+            <div className="mb-6">
               <div className="flex items-center justify-between border-b-2 border-[#B5853B] pb-1 mb-3">
                 <h2 className="text-[11pt] font-black uppercase tracking-tight text-[#0F5C38]">
-                  SECTION 5: FINANCIAL SUMMARY &amp; BUDGET PROJECTIONS
+                  SECTION 5: SERVICE PRICING SCHEDULE
                 </h2>
                 <span className="text-[7.5pt] font-bold uppercase tracking-wider bg-[#F8FAF7] text-[#1E232A] border border-[#E2E8F0] px-2 py-0.5 rounded-full font-mono">
-                  EXCHANGE BENCHMARK: ~$1 / ₦1,500
+                  BENCHMARK: ~$1 / ₦1,500
                 </span>
               </div>
 
-              {/* High-Density Enterprise Table */}
-              <div className="rounded-xl border border-[#E2E8F0] overflow-hidden shadow-sm mb-4">
+              {/* High-Density Enterprise Table (Zero Totals, Individual Rates Only) */}
+              <div className="rounded-xl border border-[#E2E8F0] overflow-hidden shadow-sm mb-6">
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="bg-[#0F5C38] text-white text-[8pt] font-black uppercase tracking-wider">
                       <th className="py-2.5 px-3">Service Item</th>
-                      <th className="py-2.5 px-3 text-center">Category / Type</th>
-                      <th className="py-2.5 px-3">Cost (USD / NGN)</th>
+                      <th className="py-2.5 px-3 text-center">Classification</th>
+                      <th className="py-2.5 px-3">Service Cost (USD / NGN)</th>
                       <th className="py-2.5 px-3 text-right">Billing Frequency</th>
                     </tr>
                   </thead>
                   <tbody className="text-[8pt] divide-y divide-[#E2E8F0]">
                     <tr className="bg-[#FFFFFF]">
-                      <td className="py-2.5 px-3 font-bold text-[#1E232A]">Supabase Pro Database</td>
+                      <td className="py-2.5 px-3 font-bold text-[#1E232A]">Supabase Pro Database Engine</td>
                       <td className="py-2.5 px-3 text-center">
                         <span className="bg-[#ECFDF5] text-[#0F5C38] text-[7pt] font-black px-2 py-0.5 rounded-full">COMPULSORY</span>
                       </td>
@@ -482,84 +455,55 @@ export default function ARSInfrastructureSpec() {
                       <td className="py-2.5 px-3 font-mono text-[#64748B] text-right">Annual</td>
                     </tr>
                     <tr className="bg-[#FFFFFF]">
-                      <td className="py-2.5 px-3 font-bold text-[#1E232A]">Termii Local SMS Setup &amp; Pipeline</td>
+                      <td className="py-2.5 px-3 font-bold text-[#1E232A]">Termii Local SMS Verification Pipeline</td>
                       <td className="py-2.5 px-3 text-center">
                         <span className="bg-[#ECFDF5] text-[#0F5C38] text-[7pt] font-black px-2 py-0.5 rounded-full">COMPULSORY</span>
                       </td>
-                      <td className="py-2.5 px-3 font-mono font-bold text-[#0F5C38]">₦10,000 + ~₦4 / SMS</td>
-                      <td className="py-2.5 px-3 font-mono text-[#64748B] text-right">One-Time</td>
+                      <td className="py-2.5 px-3 font-mono font-bold text-[#0F5C38]">₦10,000 Setup + ~₦4 / SMS</td>
+                      <td className="py-2.5 px-3 font-mono text-[#64748B] text-right">One-Time / Usage</td>
                     </tr>
                     <tr className="bg-[#F8FAF7]">
-                      <td className="py-2.5 px-3 font-bold text-[#1E232A]">Google Play Console Publisher License</td>
+                      <td className="py-2.5 px-3 font-bold text-[#1E232A]">Google Play Console Publisher Account</td>
                       <td className="py-2.5 px-3 text-center">
                         <span className="bg-[#ECFDF5] text-[#0F5C38] text-[7pt] font-black px-2 py-0.5 rounded-full">COMPULSORY</span>
                       </td>
                       <td className="py-2.5 px-3 font-mono font-bold text-[#0F5C38]">$25.00 (~₦37,500)</td>
-                      <td className="py-2.5 px-3 font-mono text-[#64748B] text-right">One-Time</td>
+                      <td className="py-2.5 px-3 font-mono text-[#64748B] text-right">One-Time Fee</td>
                     </tr>
                     <tr className="bg-[#FFFFFF]">
-                      <td className="py-2.5 px-3 font-bold text-[#1E232A]">Apple Developer Program Account</td>
+                      <td className="py-2.5 px-3 font-bold text-[#1E232A]">OpenAI AI Customer Assistant</td>
                       <td className="py-2.5 px-3 text-center">
                         <span className="bg-[#ECFDF5] text-[#0F5C38] text-[7pt] font-black px-2 py-0.5 rounded-full">COMPULSORY</span>
                       </td>
-                      <td className="py-2.5 px-3 font-mono font-bold text-[#0F5C38]">$99.00 / yr (~₦148,500)</td>
-                      <td className="py-2.5 px-3 font-mono text-[#64748B] text-right">Annual</td>
+                      <td className="py-2.5 px-3 font-mono font-bold text-[#0F5C38]">~$10.00 / mo (~₦15,000)</td>
+                      <td className="py-2.5 px-3 font-mono text-[#64748B] text-right">Monthly (Usage-Based)</td>
                     </tr>
                     <tr className="bg-[#F8FAF7]">
-                      <td className="py-2.5 px-3 font-bold text-[#1E232A]">OpenAI AI Customer Assistant</td>
-                      <td className="py-2.5 px-3 text-center">
-                        <span className="bg-[#FFFBEB] text-[#B54708] text-[7pt] font-black px-2 py-0.5 rounded-full">OPTIONAL</span>
-                      </td>
-                      <td className="py-2.5 px-3 font-mono font-bold text-[#B54708]">~$10.00 / mo (~₦15,000)</td>
-                      <td className="py-2.5 px-3 font-mono text-[#64748B] text-right">Monthly</td>
-                    </tr>
-                    <tr className="bg-[#FFFFFF]">
                       <td className="py-2.5 px-3 font-bold text-[#1E232A]">Automated WhatsApp Business API</td>
                       <td className="py-2.5 px-3 text-center">
-                        <span className="bg-[#FFFBEB] text-[#B54708] text-[7pt] font-black px-2 py-0.5 rounded-full">OPTIONAL</span>
+                        <span className="bg-[#ECFDF5] text-[#0F5C38] text-[7pt] font-black px-2 py-0.5 rounded-full">COMPULSORY</span>
                       </td>
-                      <td className="py-2.5 px-3 font-mono font-bold text-[#B54708]">~₦10 – ₦13 / delivered msg</td>
-                      <td className="py-2.5 px-3 font-mono text-[#64748B] text-right">Per Message</td>
+                      <td className="py-2.5 px-3 font-mono font-bold text-[#0F5C38]">~₦10 – ₦13 / delivered msg</td>
+                      <td className="py-2.5 px-3 font-mono text-[#64748B] text-right">Per Message (1,000 Free)</td>
                     </tr>
                   </tbody>
                 </table>
               </div>
 
-              {/* Budget Total Breakdown Cards */}
-              <div className="grid grid-cols-3 gap-3 mb-6">
-                <div className="bg-[#F8FAF7] border-t-4 border-[#0F5C38] border-x border-b border-[#E2E8F0] rounded-xl p-3 text-center">
-                  <p className="text-[7.5pt] font-black uppercase text-[#64748B] mb-1">Total Compulsory Monthly Cost</p>
-                  <p className="text-[13pt] font-black font-mono text-[#0F5C38]">~₦37,500 <span className="text-[8pt] text-[#64748B]">($25/mo)</span></p>
-                  <p className="text-[7pt] text-[#64748B] mt-0.5">Core database &amp; online availability</p>
-                </div>
-
-                <div className="bg-[#F8FAF7] border-t-4 border-[#B5853B] border-x border-b border-[#E2E8F0] rounded-xl p-3 text-center">
-                  <p className="text-[7.5pt] font-black uppercase text-[#64748B] mb-1">Optional Monthly Automations</p>
-                  <p className="text-[13pt] font-black font-mono text-[#B54708]">~₦15,000 <span className="text-[8pt] text-[#64748B]">($10/mo)</span></p>
-                  <p className="text-[7pt] text-[#64748B] mt-0.5">AI assistant &amp; automated dispatch</p>
-                </div>
-
-                <div className="bg-[#ECFDF5] border-t-4 border-[#0F5C38] border-x border-b border-[#0F5C38]/30 rounded-xl p-3 text-center">
-                  <p className="text-[7.5pt] font-black uppercase text-[#0F5C38] mb-1">Total Combined Running Budget</p>
-                  <p className="text-[13pt] font-black font-mono text-[#0F5C38]">~₦52,500 <span className="text-[8pt] text-[#0F5C38]/70">($35/mo)</span></p>
-                  <p className="text-[7pt] text-[#0F5C38] mt-0.5">Full ecosystem automation</p>
-                </div>
-              </div>
-
               {/* Implementation Governance Box */}
               <div className="bg-[#F8FAF7] border border-[#E2E8F0] rounded-xl p-4">
-                <h3 className="text-[9pt] font-black uppercase tracking-wider text-[#0F5C38] mb-2 flex items-center gap-2">
+                <h3 className="text-[9pt] font-black uppercase tracking-wider text-[#0F5C38] mb-2.5 flex items-center gap-2">
                   <ShieldCheck size={16} className="text-[#B5853B]" />
                   DEPLOYMENT GOVERNANCE &amp; ARCHITECTURAL INTEGRITY
                 </h3>
-                <div className="grid grid-cols-2 gap-3 text-[8pt] text-[#1E232A] leading-relaxed">
+                <div className="grid grid-cols-2 gap-4 text-[8pt] text-[#1E232A] leading-relaxed">
                   <div className="flex gap-2">
                     <CheckCircle2 size={14} className="text-[#0F5C38] shrink-0 mt-0.5" />
-                    <span><strong>Direct Corporate Ownership:</strong> All developer accounts (Apple, Google, Paystack) are registered directly in the name of ARS Multiventures Ltd to preserve full institutional ownership.</span>
+                    <span><strong>Direct Corporate Ownership:</strong> All developer and publisher accounts (Google Play Console, Paystack, Termii) are enrolled directly under ARS Multiventures Ltd to ensure institutional ownership and sovereign control.</span>
                   </div>
                   <div className="flex gap-2">
                     <CheckCircle2 size={14} className="text-[#0F5C38] shrink-0 mt-0.5" />
-                    <span><strong>Zero Profit Distortion:</strong> Payment pipeline integrates Paystack transaction fee caps (₦2,000 ceiling), preserving full company profit margins on large-volume aggregate orders.</span>
+                    <span><strong>Fee Cap Profit Protection:</strong> Online payment settlement via Paystack activates automated transaction fee caps (₦2,000 maximum ceiling), fully insulating business profit margins on commercial aggregate sales.</span>
                   </div>
                 </div>
               </div>
